@@ -11,7 +11,7 @@
 #' @param group_var a variable that denotes the categorical groups each observation relates to and is the target of prediction
 #' @param premise the type of analytical work to be conducted. Defaults to 'prediction'
 #' @param method the classification model to use. Defaults to non-mixed-effects Generalised Additive Model 'GAM'
-#' @return a object of the class of model that was fit
+#' @return an object of the class of model that was fit
 #' @author Trent Henderson
 #' @references Wood, S.N. (2011) Fast stable restricted maximum likelihood and marginal likelihood estimation of semiparametric generalized linear models. Journal of the Royal Statistical Society (B) 73(1):3-36
 #' @references Stan Development Team (2020). RStan: the R interface to Stan. R package version 2.21.2. http://mc-stan.org/.
@@ -83,13 +83,21 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
   # Outcome variable
   #-----------------
   
-  if(length(unique(data$group_var)) != 2){
-    stop()
-  }
-  
   # Recode into binary outcome and retain mapping
   
-  x
+  if(is.null(group_var)){
+    stop("group_var must be specified.")
+  } else{
+    data_group <- data %>%
+      dplyr::rename(group = dplyr::all_of(group_var))
+  }
+  
+  if(length(unique(data_group$group)) != 2){
+    stop("group_var should have two levels.")
+  }
+  
+  data_group <- data_group %>%
+    dplyr::mutate(group = as.integer(as.factor(group)))
   
   #------------
   # ID variable
@@ -97,13 +105,40 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
   
   # Check if integer, recode into integer if not
   
-  x
+  if(is.null(id_var)){
+    data_id <- data_group %>%
+      dplyr::mutate(id = dplyr::row_number())
+  } else{
+    data_id <- data_group %>%
+      dplyr::rename(id = dplyr::all_of(id_var))
+  }
+  
+  data_id <- data_id %>%
+    dplyr::mutate(id = as.integer(id))
   
   #-----------
   # Predictors
   #-----------
   
-  x
+  pred_check <- data_id %>%
+    dplyr::select(-c(id, group))
+  
+  ncol_1 <- ncol(pred_check)
+  
+  # Check if numeric
+  
+  checker <- pred_check %>%
+    dplyr::select(where(is.numeric))
+  
+  ncol_2 <- ncol(checker)
+  
+  if(ncol_1 != ncol_2){
+    stop("Non-numeric values detected in feature vectors. Please re-assess data.")
+  }
+  
+  # Final return
+  
+  final <- data_id
   
   #------------ Model specification and fit ---------------
   
@@ -119,13 +154,43 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
     
     if(method == "GAM"){
       
-      x
+      # Programmatically build model formula
+      
+      cols <- colnames(final)
+      preds <- cols[!cols %in% c(group, id)]
+      
+      for(i in seq_along(preds)){
+        predictors <- paste0("s(",i,") + ")
+      }
+      
+      mm <-  paste0("group ~ ", predictors)
+      
+      # Fit model
+      
+      m1 <- mgcv::gam(formula = mm, data = final, method = "REML", family = binomial("logit"))
+      
+      return(m1)
       
     }
     
     if(method == "MixedGAM"){
       
-      x
+      # Programmatically build model formula
+      
+      cols <- colnames(final)
+      preds <- cols[!cols %in% c(group, id)]
+      
+      for(i in seq_along(preds)){
+        predictors <- paste0("s(",i,") + ")
+      }
+      
+      mm <-  paste0("group ~ ", predictors, " + s(id, bs = 're')") # Random effects for (1|id)
+      
+      # Fit model
+      
+      m1 <- mgcv::gam(formula = mm, data = final, method = "REML", family = binomial("logit"))
+      
+      return(m1)
       
     }
     
@@ -133,11 +198,15 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
       
       x
       
+      return(m1)
+      
     }
     
     if(method == "MixedBayesGLM"){
       
       x
+      
+      return(m1)
       
     }
     
@@ -153,15 +222,43 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
       stop("for premise 'inference', method should be a single selection of: 'GAM', 'BayesGLM', 'SVM' or 'RandomForest'.")
     }
     
+    #------- Make train-test split --------
+    
+    set.seed(123) # Fix RNG
+    split <- caTools::sample.split(final$group_var, SplitRatio = 0.75) 
+    train <- subset(final, split == TRUE) 
+    test <- subset(final, split == FALSE)
+    
     if(method == "GAM"){
       
-      x
+      # Programmatically build model formula
+      
+      cols <- colnames(train)
+      preds <- cols[!cols %in% c(group, id)]
+      
+      for(i in seq_along(preds)){
+        predictors <- paste0("s(",i,") + ")
+      }
+      
+      mm <-  paste0("group ~ ", predictors)
+      
+      #------- Train -------
+      
+      m1 <- mgcv::gam(formula = mm, data = train, method = "REML", family = binomial("logit"))
+      
+      #------- Test -------
+      
+      test_mod <- predict(m1, newdata = test)
+      
+      return(test_mod)
       
     }
     
     if(method == "BayesGLM"){
       
-      x
+      #
+      
+      return(test_mod)
       
     }
     
@@ -169,11 +266,31 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
       
       x
       
+      #------- Train -------
+      
+      x
+      
+      #------- Test -------
+      
+      x
+      
+      return(test_mod)
+      
     }
     
     if(method == "RandomForest"){
       
       x
+      
+      #------- Train -------
+      
+      x
+      
+      #------- Test -------
+      
+      x
+      
+      return(test_mod)
       
     }
     

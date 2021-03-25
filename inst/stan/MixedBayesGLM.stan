@@ -1,6 +1,6 @@
 //
 // This Stan program defines a the model for the mixed-effects Bayesian
-// logistic regression method for feature-based classification.
+// logistic regression method for feature-based classification inference.
 // This model uses reasonable priors for general-purpose logit
 // regression modelling with some advice on prior distributions 
 // adapted from Vehtari and Goodrich (2017):
@@ -17,7 +17,7 @@ data {
   
   int<lower=0> N; // Number of observations
   int<lower=0> K; // Number of parameters
-  int y[N]; // Outcome variable of remoteness category
+  int y[N]; // Group variable
   matrix[N,K] X; // Design matrix of predictors
 }
 
@@ -54,17 +54,18 @@ model {
 
 generated quantities {
   
+  // Instantiate variables to be estimated
+  
+  vector[N] y_rep; // PPC
+  vector[N] log_lik; // Log-likelihood
+  
   // Simulate data from the posterior
     
-  vector[N] y_rep;
-  
-  // Log-likelihood posterior
-  
-  vector[N] log_lik;
-  
   for(i in 1:N){
     y_rep[i] = bernoulli_rng(inv_logit(eta[i]));
   }
+  
+  // Log-likelihood posterior
   
   for(i in 1:N){
     log_lik[i] = bernoulli_logit_lpmf(y[i] | eta[i]);
