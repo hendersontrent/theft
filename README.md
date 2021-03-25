@@ -1,8 +1,8 @@
 
 # sawlog <img src="man/figures/logo.png" align="right" width="120" />
 
-R package for a Structured API and Workflow for statistical Learning On
-Groups of time-series features (sawlog).
+R package for Structured Analysis Workflow for statistical Learning On
+Groups of time-series features (sawlog)
 
 ## Installation
 
