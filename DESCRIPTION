@@ -29,7 +29,8 @@ Imports:
     reshape2,
     tibble,
     broom,
-    stan, 
+    rstan,
+    bayesplot,
     mgcv
 LinkingTo: 
     Rcpp,
