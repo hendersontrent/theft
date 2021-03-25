@@ -29,6 +29,7 @@ Imports:
     reshape2,
     tibble,
     broom,
+    caTools,
     rstan,
     bayesplot,
     mgcv
