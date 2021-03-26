@@ -34,14 +34,15 @@ The available models include:
 ### Inferential models
 
 * Mixed-effects (optional) [Generalised additive models](https://en.wikipedia.org/wiki/Generalized_additive_model) (GAM) *[statistical]*
-* Bayesian generalised linear models (GLM) using the probabilistic programming language [Stan](https://mc-stan.org) *[statistical]*
+* Mixed-effects (optional) Bayesian generalised linear models (GLM) written in [Stan](https://mc-stan.org) *[statistical]*
 
 ### Out-of-sample classification models
 
 * GAM *[statistical]*
 * Bayesian GLM *[statistical]*
 * Support Vector Machine (SVM) *[machine learning]*
-* Random Forest *[machine learning]*
+* Random forest *[machine learning]*
+* Neural network *[machine learning]*
 
 ### Other functionality
 
