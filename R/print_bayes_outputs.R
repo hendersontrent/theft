@@ -25,7 +25,7 @@ print_bayes_outputs <- function(model){
   
   # Posterior predictive checks
   
-  color_scheme_set("red")
+  bayesplot::color_scheme_set("red")
   p <- bayesplot::pp_check(model, type = "bars", nsamples = 100) +
     ggplot2::labs(title = "Posterior predictive check",
                   x = "Group",
@@ -38,7 +38,7 @@ print_bayes_outputs <- function(model){
   
   # Chain convergence
   
-  color_scheme_set("mix-blue-red")
+  bayesplot::color_scheme_set("mix-blue-red")
   p2 <- bayesplot::mcmc_trace(model)
   
   # Leave-one-out
@@ -47,7 +47,7 @@ print_bayes_outputs <- function(model){
   
   # Coefficients
   
-  color_scheme_set("red")
+  bayesplot::color_scheme_set("red")
   p4 <- bayesplot::mcmc_hist(m2) +
     ggplot2::labs(title = "Coefficient posterior distributions") +
     ggplot2::geom_vline(xintercept = 0, lty = "dashed", colour = "black", size = 1)
