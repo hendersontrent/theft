@@ -37,11 +37,22 @@ features to use in modelling.
 `sawlog` provides high-level, easy-to-use functions that let users
 specify their intention of statistical inference or out-of-sample
 prediction/classification modelling, and fit an array of statistical and
-machine learning models including:
+machine learning models. The difference in philosophy between
+inferential and predictive modelling is significant. To the best of the
+author’s knowledge, this is the first R package, at least in the
+time-series space, to explicitly distinguish between the premises as a
+form of methodology. Inferential functions in `sawlog` focus on using
+the entire available dataset and generate full Bayesian or maximum
+likelihood estimates of population time-series feature statistics.
+Predictive functions in `sawlog` adopt a machine learning train-test
+split approach for learning and validation, where the Bayesian models
+use the fitted model to generate posterior predictions on the test set.
+
+The available models include:
 
 ### Inferential models
 
-  - Mixed-effects (optional)[Generalised additive
+  - Mixed-effects (optional) [Generalised additive
     models](https://en.wikipedia.org/wiki/Generalized_additive_model)
     (GAM) *\[statistical\]*
   - Bayesian generalised linear models (GLM) using the probabilistic
@@ -54,10 +65,12 @@ machine learning models including:
   - Support Vector Machine (SVM) *\[machine learning\]*
   - Random Forest *\[machine learning\]*
 
+### Other functionality
+
 `sawlog` also automates model diagnostics and data visualisation,
 providing one-line functions that can generate markdown documents
 containing model outputs, assumption testing, and other results and
 diagnostics. As the goal is to drive usability and adoption of
 feature-based approaches to time-series problems, facilitating access to
 this simple end-to-end workflow from feature calculations to model
-diagnostics through an intuitive API of functions is critical.
+diagnostics through an intuitive suite of functions is critical.
