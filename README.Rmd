@@ -31,7 +31,7 @@ devtools::install_github("hendersontrent/sawlog")
 
 ### Inferential models
 
-* Mixed-effects (optional)[Generalised additive models](https://en.wikipedia.org/wiki/Generalized_additive_model) (GAM) *[statistical]*
+* Mixed-effects (optional) [Generalised additive models](https://en.wikipedia.org/wiki/Generalized_additive_model) (GAM) *[statistical]*
 * Bayesian generalised linear models (GLM) using the probabilistic programming language [Stan](https://mc-stan.org) *[statistical]*
 
 ### Out-of-sample classification models

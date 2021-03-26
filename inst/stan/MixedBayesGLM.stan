@@ -19,6 +19,7 @@ data {
   int<lower=0> K; // Number of parameters
   int y[N]; // Group variable
   matrix[N,K] X; // Design matrix of predictors
+  int id[N]; // ID variable
 }
 
 parameters {
@@ -26,6 +27,7 @@ parameters {
   // Define quantities to be estimated
   
   real alpha; // Intercept
+  real a[N]; // Random effects intercept
   vector[K] beta; // Regression coefficients
 }
 
@@ -37,7 +39,7 @@ transformed parameters {
   
   // Fit linear model
   
-  eta = alpha + beta*X;
+  eta = alpha + a[id] + beta*X;
 }
 
 model {
@@ -45,6 +47,7 @@ model {
   // Priors
   
   alpha ~ normal(0,5); // Wide due to uncertainty
+  a ~ normal(0,5); // Wide due to uncertainty
   beta ~ student_t(7,0,2.5); // Vehtari and Goodrich (2017)
   
   // Likelihood

@@ -79,5 +79,7 @@ generated quantities {
   
   // Test-set predictions
   
-  
+  for(i in 1:N_test){
+    y_test[i] = bernoulli_rng(inv_logit(eta[i]));
+  }
 }

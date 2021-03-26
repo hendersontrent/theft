@@ -152,16 +152,18 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
   if(premise == "inference"){
     
     if(method %ni% c('GAM', "MixedGAM", "BayesGLM", "MixedBayesGLM")){
-      stop("for premise 'inference', method should be a single selection of: 'GAM', 'MixedGAM', 'BayesGLM' or 'MixedBayesGLM'.")
+      stop("For premise 'inference', method should be a single selection of: 'GAM', 'MixedGAM', 'BayesGLM' or 'MixedBayesGLM'.")
     }
     
     if(method == "GAM"){
       
-      # Programmatically build model formula
+      # Build model formula
       
       mm <- as.formula(paste("group ~ ", paste(n[!n %in% c("group", "id")], collapse = " + ")))
       
       # Fit model
+      
+      message("Fitting model... This may take a long time.")
       
       m1 <- mgcv::gam(formula = mm, data = final, method = "REML", family = binomial("logit"))
       
@@ -171,12 +173,14 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
     
     if(method == "MixedGAM"){
       
-      # Programmatically build model formula
+      # Build model formula
       
       mm <- as.formula(paste("group ~ ", paste(n[!n %in% c("group", "id")], collapse = " + ")))
       mm <- as.formula(paste(mm,"s(id, bs = 're')", collapse = " + ")) # Random effects for (1|id)
       
       # Fit model
+      
+      message("Fitting model... This may take a long time.")
       
       m1 <- mgcv::gam(formula = mm, data = final, method = "REML", family = binomial("logit"))
       
@@ -202,6 +206,8 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
                         X = as.matrix(X))
       
       # Run model
+      
+      message("Fitting model... This may take a long time.")
       
       m1 <- rstan::stan(file = system.file("stan", "BayesGLM.stan", package = "sawlog"), 
                        data = stan_data, iter = 3000, chains = 3, seed = 123, control = list(max_treedepth = 15))
@@ -230,6 +236,8 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
       
       # Run model
       
+      message("Fitting model... This may take a long time.")
+      
       m1 <- rstan::stan(file = system.file("stan", "MixedBayesGLM.stan", package = "sawlog"), 
                         data = stan_data, iter = 3000, chains = 3, seed = 123, control = list(max_treedepth = 15))
       
@@ -246,7 +254,7 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
   if(premise == "prediction"){
     
     if(method %ni% c('GAM', "BayesGLM", "SVM", "RandomForest", "NeuralNet")){
-      stop("for premise 'inference', method should be a single selection of: 'GAM', 'BayesGLM', 'SVM', 'RandomForest' or 'NeuralNet'.")
+      stop("For premise 'inference', method should be a single selection of: 'GAM', 'BayesGLM', 'SVM', 'RandomForest' or 'NeuralNet'.")
     }
     
     #------- Make train-test split --------
@@ -258,11 +266,13 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
     
     if(method == "GAM"){
       
-      # Programmatically build model formula
+      # Build model formula
       
       mm <- as.formula(paste("group ~ ", paste(n[!n %in% c("group", "id")], collapse = " + ")))
       
       #------- Train -------
+      
+      message("Fitting model... This may take a long time.")
       
       m1 <- mgcv::gam(formula = mm, data = train, method = "REML", family = binomial("logit"))
       
@@ -298,6 +308,8 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
       
       # Run model
       
+      message("Fitting model... This may take a long time.")
+      
       test_mod <- rstan::stan(file = system.file("stan", "BayesGLM_prediction.stan", package = "sawlog"), 
                         data = stan_data, iter = 3000, chains = 3, seed = 123, control = list(max_treedepth = 15))
       
@@ -307,11 +319,13 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
     
     if(method == "SVM"){
       
-      # Programmatically build model formula
+      # Build model formula
       
       mm <- as.formula(paste("group ~ ", paste(n[!n %in% c("group", "id")], collapse = " + ")))
       
       #------- Train -------
+      
+      message("Fitting model... This may take a long time.")
       
       m1 <- e1071::svm(formula = mm, data = train, kernel = 'radial')
       
@@ -325,11 +339,13 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
     
     if(method == "RandomForest"){
       
-      # Programmatically build model formula
+      # Build model formula
       
       mm <- as.formula(paste("group ~", paste(n[!n %in% c("group", "id")], collapse = " + ")))
       
       #------- Train -------
+      
+      message("Fitting model... This may take a long time.")
       
       m1 <- randomForest::randomForest(formula = mm, data = train, importance = TRUE)
       
@@ -343,11 +359,13 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
     
     if(method == "NeuralNet"){
       
-      # Programmatically build model formula
+      # Build model formula
       
       mm <- as.formula(paste("group ~", paste(n[!n %in% c("group", "id")], collapse = " + ")))
       
       #------- Train -------
+      
+      message("Fitting model... This may take a long time.")
       
       # Conditional hidden weights based on input data size
       # NOTE: Should these weights be different?
