@@ -21,7 +21,6 @@ Depends:
     R (>= 3.5.0)
 Imports: 
     Rcpp (>= 0.12.15),
-    RcppGSL,
     dplyr,
     ggplot2,
     magrittr,
@@ -32,9 +31,10 @@ Imports:
     caTools,
     rstan,
     bayesplot,
-    mgcv
+    mgcv,
+    neuralnet,
+    parallel
 LinkingTo: 
     Rcpp,
-    RcppGSL
 SystemRequirements: GNU make
 RoxygenNote: 7.1.1

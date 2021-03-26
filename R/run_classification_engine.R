@@ -6,6 +6,8 @@
 #' @importFrom e1071 svm
 #' @importFrom randomForest randomForest
 #' @importFrom caTools sample.split
+#' @importFrom neuralnet neuralnet
+#' @importFrom parallel detectCores
 #' @param data a tidy dataframe of feature results where each feature is a separate column
 #' @param id_var a variable that uniquely identifies each observation
 #' @param group_var a variable that denotes the categorical groups each observation relates to and is the target of prediction
@@ -17,13 +19,14 @@
 #' @references Stan Development Team (2020). RStan: the R interface to Stan. R package version 2.21.2. http://mc-stan.org/.
 #' @references David Meyer, Evgenia Dimitriadou, Kurt Hornik, Andreas Weingessel and Friedrich Leisch (2019). e1071: Misc Functions of the Department of Statistics, Probability Theory Group (Formerly: E1071), TU Wien. R package version 1.7-3. https://CRAN.R-project.org/package=e1071
 #' @references A. Liaw and M. Wiener (2002). Classification and Regression by randomForest. R News 2(3), 18--22.
+#' @references Stefan Fritsch, Frauke Guenther and Marvin N. Wright (2019). neuralnet: Training of Neural Networks. R package version 1.44.2. https://CRAN.R-project.org/package=neuralnet
 #' @export
 #' @examples
 #' xxxxxxxxxxxxxxxxx
 #'
 
 run_classification_engine <- function(data, id_var = NULL, group_var = NULL, premise = c("inference", "prediction"),
-                                   method = c("GAM","MixedGAM","BayesGLM","MixedBayesGLM","SVM", "RandomForest")){
+                                   method = c("GAM","MixedGAM","BayesGLM","MixedBayesGLM","SVM", "RandomForest", "NeuralNet")){
   
   #------------ Checks and argument validation ------------
   
@@ -46,7 +49,7 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
   # Argument checks
   
   premises <- c("inference", "prediction")
-  methods <- c("GAM", "MixedGAM", "BayesGLM", "MixedBayesGLM", "SVM", "RandomForest")
+  methods <- c("GAM", "MixedGAM", "BayesGLM", "MixedBayesGLM", "SVM", "RandomForest", "NeuralNet")
   '%ni%' <- Negate('%in%')
   
   if(premise %ni% premises){
@@ -58,11 +61,11 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
   }
   
   if(method %ni% methods){
-    stop("method should be a single selection of: 'GAM', 'MixedGAM', 'BayesGLM', 'MixedBayesGLM', 'SVM' or 'RandomForest'.")
+    stop("method should be a single selection of: 'GAM', 'MixedGAM', 'BayesGLM', 'MixedBayesGLM', 'SVM', 'RandomForest' or 'NeuralNet'.")
   }
   
   if(length(method) != 1){
-    stop("method should be a single selection of: 'GAM', 'MixedGAM', 'BayesGLM', 'MixedBayesGLM', 'SVM' or 'RandomForest'.")
+    stop("method should be a single selection of: 'GAM', 'MixedGAM', 'BayesGLM', 'MixedBayesGLM', 'RandomForest' or 'NeuralNet'.")
   }
   
   if(!is.null(id_var) & !is.character(id_var)){
@@ -156,14 +159,7 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
       
       # Programmatically build model formula
       
-      cols <- colnames(final)
-      preds <- cols[!cols %in% c(group, id)]
-      
-      for(i in seq_along(preds)){
-        predictors <- paste0("s(",i,") + ")
-      }
-      
-      mm <-  paste0("group ~ ", predictors)
+      mm <- as.formula(paste("group ~ ", paste(n[!n %in% c("group", "id")], collapse = " + ")))
       
       # Fit model
       
@@ -177,14 +173,8 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
       
       # Programmatically build model formula
       
-      cols <- colnames(final)
-      preds <- cols[!cols %in% c(group, id)]
-      
-      for(i in seq_along(preds)){
-        predictors <- paste0("s(",i,") + ")
-      }
-      
-      mm <-  paste0("group ~ ", predictors, " + s(id, bs = 're')") # Random effects for (1|id)
+      mm <- as.formula(paste("group ~ ", paste(n[!n %in% c("group", "id")], collapse = " + ")))
+      mm <- as.formula(paste(mm,"s(id, bs = 're')", collapse = " + ")) # Random effects for (1|id)
       
       # Fit model
       
@@ -196,7 +186,18 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
     
     if(method == "BayesGLM"){
       
+      options(mc.cores = parallel::detectCores()) # Parallel processing
+      
+      # Set up data for Stan
+      
       x
+      
+      stan_data <- list()
+      
+      # Run model
+      
+      m1 <- rstan::stan(file = system.file("stan", "BayesGLM.stan", package = "sawlog"), 
+                       data = stan_data, iter = 3000, chains = 3, seed = 123, control = list(max_treedepth = 15))
       
       return(m1)
       
@@ -204,7 +205,18 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
     
     if(method == "MixedBayesGLM"){
       
+      options(mc.cores = parallel::detectCores()) # Parallel processing
+      
+      # Set up data for Stan
+      
       x
+      
+      stan_data <- list()
+      
+      # Run model
+      
+      m1 <- rstan::stan(file = system.file("stan", "MixedBayesGLM.stan", package = "sawlog"), 
+                        data = stan_data, iter = 3000, chains = 3, seed = 123, control = list(max_treedepth = 15))
       
       return(m1)
       
@@ -218,8 +230,8 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
   
   if(premise == "prediction"){
     
-    if(method %ni% c('GAM', "BayesGLM", "SVM", "RandomForest")){
-      stop("for premise 'inference', method should be a single selection of: 'GAM', 'BayesGLM', 'SVM' or 'RandomForest'.")
+    if(method %ni% c('GAM', "BayesGLM", "SVM", "RandomForest", "NeuralNet")){
+      stop("for premise 'inference', method should be a single selection of: 'GAM', 'BayesGLM', 'SVM', 'RandomForest' or 'NeuralNet'.")
     }
     
     #------- Make train-test split --------
@@ -233,14 +245,7 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
       
       # Programmatically build model formula
       
-      cols <- colnames(train)
-      preds <- cols[!cols %in% c(group, id)]
-      
-      for(i in seq_along(preds)){
-        predictors <- paste0("s(",i,") + ")
-      }
-      
-      mm <-  paste0("group ~ ", predictors)
+      mm <- as.formula(paste("group ~ ", paste(n[!n %in% c("group", "id")], collapse = " + ")))
       
       #------- Train -------
       
@@ -256,7 +261,18 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
     
     if(method == "BayesGLM"){
       
-      #
+      options(mc.cores = parallel::detectCores()) # Parallel processing
+      
+      # Set up data for Stan
+      
+      x
+      
+      stan_data <- list()
+      
+      # Run model
+      
+      test_mod <- rstan::stan(file = system.file("stan", "BayesGLM_prediction.stan", package = "sawlog"), 
+                        data = stan_data, iter = 3000, chains = 3, seed = 123, control = list(max_treedepth = 15))
       
       return(test_mod)
       
@@ -264,15 +280,17 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
     
     if(method == "SVM"){
       
-      x
+      # Programmatically build model formula
+      
+      mm <- as.formula(paste("group ~ ", paste(n[!n %in% c("group", "id")], collapse = " + ")))
       
       #------- Train -------
       
-      x
+      m1 <- e1071::svm(formula = mm, data = train, kernel = 'radial')
       
       #------- Test -------
       
-      x
+      test_mod <- predict(m1, newdata = test)
       
       return(test_mod)
       
@@ -280,15 +298,45 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
     
     if(method == "RandomForest"){
       
-      x
+      # Programmatically build model formula
+      
+      mm <- as.formula(paste("group ~", paste(n[!n %in% c("group", "id")], collapse = " + ")))
       
       #------- Train -------
       
-      x
+      m1 <- randomForest::randomForest(formula = mm, data = train, importance = TRUE)
       
       #------- Test -------
       
-      x
+      test_mod <- predict(m1, newdata = test)
+      
+      return(test_mod)
+      
+    }
+    
+    if(method == "NeuralNet"){
+      
+      # Programmatically build model formula
+      
+      mm <- as.formula(paste("group ~", paste(n[!n %in% c("group", "id")], collapse = " + ")))
+      
+      #------- Train -------
+      
+      # Conditional hidden weights based on input data size
+      # NOTE: Should these weights be different?
+      # NOTE: Do thresholds need to be increased due to 'difficult' real data?
+      
+      if(nrow(train) <= 1000){
+        m1 <- neuralnet::neuralnet(formula = mm, data = train, hidden = c(5), linear.output = FALSE, stepmax = 1e6)
+      }
+      
+      if(nrow(train) > 1000){
+        m1 <- neuralnet::neuralnet(formula = mm, data = train, hidden = c(3,2), linear.output = FALSE, stepmax = 1e6)
+      }
+      
+      #------- Test -------
+      
+      test_mod <- predict(m1, newdata = test)
       
       return(test_mod)
       
