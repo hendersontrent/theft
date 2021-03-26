@@ -31,17 +31,6 @@ parameters {
   vector[K] beta; // Regression coefficients
 }
 
-transformed parameters {
-  
-  // Instantiate variable to hold real output
-  
-  vector[N] eta;
-  
-  // Fit linear model
-  
-  eta = alpha + a[id] + beta*X;
-}
-
 model {
   
   // Priors
@@ -52,7 +41,9 @@ model {
   
   // Likelihood
   
-  y ~ bernoulli_logit(eta);
+  for(n in 1:N) {
+    y[n] ~ bernoulli(inv_logit(alpha + a[id[n]] + X[n]*beta));
+    }
 }
 
 generated quantities {
@@ -65,13 +56,13 @@ generated quantities {
   // Simulate data from the posterior
     
   for(i in 1:N){
-    y_rep[i] = bernoulli_rng(inv_logit(eta[i]));
+    y_rep[i] = bernoulli_rng(inv_logit(alpha + a[id[i]] + X[i]*beta));
   }
   
   // Log-likelihood posterior
   
   for(i in 1:N){
-    log_lik[i] = bernoulli_logit_lpmf(y[i] | eta[i]);
+    log_lik[i] = bernoulli_logit_lpmf(y[i] | alpha + a[id[i]] + X[i]*beta);
   }
 }
 
