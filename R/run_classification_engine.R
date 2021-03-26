@@ -190,9 +190,16 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
       
       # Set up data for Stan
       
-      x
+      name_list <- as.vector(colnames(final))
+      name_list <- name_list[!name_list %in% c("group", "id")]
       
-      stan_data <- list()
+      X <- final %>%
+        dplyr::select(-c(id, group))
+      
+      stan_data <- list(N = nrow(final),
+                        K = as.integer(length(name_list)),
+                        y = final$group,
+                        X = as.matrix(X))
       
       # Run model
       
@@ -209,9 +216,17 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
       
       # Set up data for Stan
       
-      x
+      name_list <- as.vector(colnames(final))
+      name_list <- name_list[!name_list %in% c("group", "id")]
       
-      stan_data <- list()
+      X <- final %>%
+        dplyr::select(-c(id, group))
+      
+      stan_data <- list(N = nrow(final),
+                        K = as.integer(length(name_list)),
+                        y = final$group,
+                        X = as.matrix(X),
+                        id = final$id)
       
       # Run model
       
@@ -265,9 +280,21 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
       
       # Set up data for Stan
       
-      x
+      name_list <- as.vector(colnames(train))
+      name_list <- name_list[!name_list %in% c("group", "id")]
       
-      stan_data <- list()
+      X <- train %>%
+        dplyr::select(-c(id, group))
+      
+      X_test <- test %>%
+        dplyr::select(-c(id, group))
+      
+      stan_data <- list(N = nrow(train),
+                        K = as.integer(length(name_list)),
+                        y = train$group,
+                        X = as.matrix(X),
+                        N_test = nrow(test),
+                        X_test = nrow(test))
       
       # Run model
       

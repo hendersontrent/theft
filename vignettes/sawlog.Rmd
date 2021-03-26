@@ -1,0 +1,23 @@
+---
+title: "Introduction to sawlog"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to sawlog}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.height = 4,
+  fig.width = 7
+)
+```
+
+```{r setup, message = FALSE}
+library(sawlog)
+library(dplyr)
+```
+
