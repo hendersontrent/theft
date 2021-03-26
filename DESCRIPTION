@@ -33,7 +33,8 @@ Imports:
     bayesplot,
     mgcv,
     neuralnet,
-    parallel
+    parallel,
+    Cairo
 LinkingTo: 
     Rcpp,
 SystemRequirements: GNU make
