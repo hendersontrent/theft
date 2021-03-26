@@ -34,7 +34,9 @@ Imports:
     mgcv,
     neuralnet,
     parallel,
-    Cairo
+    Cairo,
+    feasts,
+    tsfeatures
 LinkingTo: 
     Rcpp,
 SystemRequirements: GNU make

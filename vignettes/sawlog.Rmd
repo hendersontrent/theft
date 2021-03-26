@@ -1,5 +1,7 @@
 ---
 title: "Introduction to sawlog"
+author: "Trent Henderson"
+date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Introduction to sawlog}
