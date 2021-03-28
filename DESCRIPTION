@@ -35,9 +35,12 @@ Imports:
     neuralnet,
     parallel,
     Cairo,
+    tsibble,
     feasts,
-    tsfeatures
+    tsfeatures,
+    data.table,
+    fabletools
 LinkingTo: 
-    Rcpp,
+    Rcpp
 SystemRequirements: GNU make
 RoxygenNote: 7.1.1
