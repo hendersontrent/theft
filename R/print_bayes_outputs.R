@@ -1,7 +1,7 @@
 #' Produce a PDF report of all the model fit and diagnostic plots for a Bayesian classification program
 #' @import ggplot2
 #' @import bayesplot
-#' @importFrom Cairo CairoPNG
+#' @importFrom Cairo CairoPDF
 #' @param model a model output from one of the Bayes function arguments contained in {sawlog}
 #' @return a PDF document saved in the current work directory
 #' @author Trent Henderson
@@ -54,7 +54,7 @@ print_bayes_outputs <- function(model){
   
   #------------ Render ------------
   
-  CairoPNG(path,11,8)
+  CairoPDF(path,11,8)
   print(p4)
   print(p)
   print(p1)
