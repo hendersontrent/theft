@@ -9,6 +9,8 @@ calc_catch22 <- function(data, id, group, time, value){
   
   for(i in ids){
     
+    message(paste0("Calculating features for ID: ",i))
+    
     tsPrep <- data %>%
       dplyr::filter(id == i) %>%
       dplyr::arrange(timepoint)
@@ -39,6 +41,8 @@ calc_catchaMouse16 <- function(data, id, group, time, value){
   ids <- unique(data$id)
   
   for(i in ids){
+    
+    message(paste0("Calculating features for ID: ",i))
     
     tsPrep <- data %>%
       dplyr::filter(id == i) %>%
@@ -71,41 +75,20 @@ calc_feasts <- function(data, id, group, time, value){
   
   for(i in ids){
     
+    message(paste0("Calculating features for ID: ",i))
+    
     tsPrep <- data %>%
       dplyr::filter(id == i) %>%
       dplyr::arrange(time)
     
-    tsData <- tsibble::as_tsibble(d, key = id, index = time)
+    tsData <- tsibble::as_tsibble(tsPrep, key = id, index = time)
     
     # Feature calcs
     
-    tmp_acf <- tsData %>%
-      fabletools::features(value, feasts::feat_acf) %>%
+    tmp <- tsData %>%
+      fabletools::features(value, fabletools::feature_set(pkgs = "feasts")) %>%
       dplyr::mutate(id = id) %>%
-      tidyr::pivot_longer(cols = !id, names_to = "names", values_to = "values")
-    
-    tmp_int <- tsData %>%
-      fabletools::features(value, feasts::feat_intermittent) %>%
-      dplyr::mutate(id = id) %>%
-      tidyr::pivot_longer(cols = !id, names_to = "names", values_to = "values")
-    
-    tmp_pacf <- tsData %>%
-      fabletools::features(value, feasts::feat_pacf) %>%
-      dplyr::mutate(id = id) %>%
-      tidyr::pivot_longer(cols = !id, names_to = "names", values_to = "values")
-    
-    tmp_spec <- tsData %>%
-      fabletools::features(value, feasts::feat_spectral) %>%
-      dplyr::mutate(id = id) %>%
-      tidyr::pivot_longer(cols = !id, names_to = "names", values_to = "values")
-    
-    tmp_stl <- tsData %>%
-      fabletools::features(value, feasts::feat_stl) %>%
-      dplyr::mutate(id = id) %>%
-      tidyr::pivot_longer(cols = !id, names_to = "names", values_to = "values")
-    
-    tmp <- dplyr::bind_rows(tmp_acf, tmp_int, tmp_pacf, tmp_spec, tmp_stl) %>%
-      dplyr::mutate(method = "feasts")
+      tidyr::pivot_longer(!id, names_to = "names", values_to = "values")
     
     storage[[i]] <- tmp
   }
@@ -125,6 +108,8 @@ calc_tsfeatures <- function(data, id, group, time, value){
   ids <- unique(data$id)
   
   for(i in ids){
+    
+    message(paste0("Calculating features for ID: ",i))
     
     tsPrep <- data %>%
       dplyr::filter(id == i) %>%
@@ -160,6 +145,7 @@ calc_tsfeatures <- function(data, id, group, time, value){
 #' @importFrom tidyr pivot_longer
 #' @importFrom data.table rbindlist
 #' @importFrom fabletools features
+#' @importFrom fabletools feature_set
 #' @param data a dataframe with at least 4 columns: id variable, group variable, time variable, value variable
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to NULL
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to NULL
@@ -207,6 +193,8 @@ calculate_features <- function(data, id_var = NULL, group_var = NULL, time_var =
   }
   
   #--------- Feature calcs --------
+  
+  message("Calculating features... This may take a long time to complete depending on the size of your data and the number of features selected.")
   
   if("all" %in% feature_set){
     

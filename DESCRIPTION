@@ -21,6 +21,7 @@ Depends:
     R (>= 3.5.0)
 Imports: 
     Rcpp (>= 0.12.15),
+    data.table,
     dplyr,
     ggplot2,
     magrittr,
@@ -36,10 +37,9 @@ Imports:
     parallel,
     Cairo,
     tsibble,
-    feasts,
+    fabletools,
     tsfeatures,
-    data.table,
-    fabletools
+    feasts
 LinkingTo: 
     Rcpp
 SystemRequirements: GNU make
