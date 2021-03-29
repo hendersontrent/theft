@@ -22,31 +22,37 @@
 #' @references Stefan Fritsch, Frauke Guenther and Marvin N. Wright (2019). neuralnet: Training of Neural Networks. R package version 1.44.2. https://CRAN.R-project.org/package=neuralnet
 #' @export
 #' @examples
+#' \dontrun{
 #' library(dplyr)
-#'temp <- tempfile()
-#'download.file("https://ndownloader.figshare.com/files/24950795",temp)
-#'ts <- read.csv(temp, header = FALSE)
-#'ts <- ts %>%
-#'  dplyr::mutate(id = dplyr::row_number()) %>%
-#'  tidyr::pivot_longer(!id, names_to = "timepoint", values_to = "value") %>%
-#'  dplyr::mutate(timepoint = as.numeric(gsub("V", "\\1", timepoint)))
+#' temp <- tempfile()
+#' download.file("https://ndownloader.figshare.com/files/24950795",temp)
+#' ts <- read.csv(temp, header = FALSE)
+#' 
+#' ts <- ts %>%
+#'   dplyr::mutate(id = dplyr::row_number()) %>%
+#'   tidyr::pivot_longer(!id, names_to = "timepoint", values_to = "value") %>%
+#'   dplyr::mutate(timepoint = as.numeric(gsub("V", "\\1", timepoint)))
 #'
-#'temp1 <- tempfile()
-#'download.file("https://ndownloader.figshare.com/files/24950798",temp1)
-#'ts_info <- read.csv(temp1, header = TRUE)
+#' temp1 <- tempfile()
+#' download.file("https://ndownloader.figshare.com/files/24950798",temp1)
+#' ts_info <- read.csv(temp1, header = TRUE)
 #'
-#'main <- ts %>%
-#'  dplyr::left_join(ts_info, by = c("id" = "ID")) %>%
-#'  dplyr::mutate(group = dplyr::case_when(
-#'                grepl("synthetic", Keywords)  ~ 1,
-#'                !grepl("synthetic", Keywords) ~ 0)) # Creates binary
+#' main <- ts %>%
+#'   dplyr::left_join(ts_info, by = c("id" = "ID")) %>%
+#'   dplyr::mutate(group = dplyr::case_when(
+#'                 grepl("synthetic", Keywords)  ~ 1,
+#'                 !grepl("synthetic", Keywords) ~ 0)) # Creates binary
 #'
 #' ids <- unique(main$id)
 #' ids_filt <- sample(ids, 50) # Random small sample to test
+#' 
+#' d1 <- main %>%
+#'   dplyr::filter(id %in% ids_filt)
 #'  
 #'  outs <- calculate_features(data = main_filt, id_var = "id", group_var = "group", time_var = "timepoint", value_var = "value", feature_set = "feasts")
 #'  outsN <- normalise_feature_frame(data = outs, names_var = "names", values_var = "values", method = "RobustSigmoid")
 #'  mod <- run_classification_engine(data = outsN, id_var = "id", group_var = "group", premise = "inference", method = "BayesGLM")
+#'}
 #'
 
 run_classification_engine <- function(data, id_var = NULL, group_var = NULL, premise = c("inference", "prediction"),
