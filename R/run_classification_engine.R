@@ -1,4 +1,4 @@
-#' Fit a statistical or machine learning model to predict group membership of feature-space time-series data
+#' Fit a statistical or machine learning model to predict group membership based on time-series feature values
 #' @import dplyr
 #' @importFrom magrittr %>%
 #' @import mgcv
@@ -139,8 +139,7 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
   # Check if integer, recode into integer if not
   
   if(is.null(id_var)){
-    data_id <- data_group %>%
-      dplyr::mutate(id = dplyr::row_number())
+    stop("Data is not uniquely identifiable. Please add a unique identifier variable.")
   } else{
     data_id <- data_group %>%
       dplyr::rename(id = dplyr::all_of(id_var))

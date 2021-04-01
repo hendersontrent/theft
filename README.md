@@ -1,19 +1,15 @@
 
 # sawlog <img src="man/figures/logo.png" align="right" width="120" />
 
+[![CRAN
+version](http://www.r-pkg.org/badges/version/catch22)](http://www.r-pkg.org/pkg/catch22)
+[![CRAN RStudio mirror
+downloads](http://cranlogs.r-pkg.org/badges/catch22)](http://www.r-pkg.org/pkg/catch22)
+
 R package for Structured Analysis Workflow for statistical Learning On
 Groups of time-series features (sawlog)
 
 ## Installation
-
-Currently, installation of `sawlog` requires a working installation of
-[GNU Scientific Library (GSL)](https://www.gnu.org/software/gsl/) as
-`sawlog` uses functions coded in C from the
-[`catchEmAll`](https://github.com/hendersontrent/catchEmAll) package
-that relies on GSL. GSL is a library of scientific and statistical
-functions for C and C++ programmers. Please download and install this
-before installing `sawlog`. This dependency may be rectified in the near
-future.
 
 *Coming to CRAN soon… Stay posted\!*
 

@@ -19,42 +19,9 @@ calc_catch22 <- function(data, id, group, time, value){
     
     # Feature calcs
     
-    tmp <- catchEmAll::catch22_all(tsData) %>%
+    tmp <- catch22::catch22_all(tsData) %>%
       dplyr::mutate(id = i,
                     method = "catch22")
-    
-    storage[[i]] <- tmp
-  }
-  
-  # Pull into one tidy dataframe
-  
-  outData <- data.table::rbindlist(storage, use.names = TRUE)
-  
-  return(outData)
-}
-
-# catchaMouse16
-
-calc_catchaMouse16 <- function(data, id, group, time, value){
-  
-  storage <- list()
-  ids <- unique(data$id)
-  
-  for(i in ids){
-    
-    message(paste0("Calculating features for ID: ",i))
-    
-    tsPrep <- data %>%
-      dplyr::filter(id == i) %>%
-      dplyr::arrange(timepoint)
-    
-    tsData <- tsPrep$value
-    
-    # Feature calcs
-    
-    tmp <- catchEmAll::catchaMouse16_all(tsData) %>%
-      dplyr::mutate(id = i,
-                    method = "catchaMouse16")
     
     storage[[i]] <- tmp
   }
@@ -138,7 +105,7 @@ calc_tsfeatures <- function(data, id, group, time, value){
 
 #' Automatically run time-series feature calculations included in the package
 #' @import dplyr
-#' @import catchEmAll
+#' @import catch22
 #' @import feasts
 #' @import tsfeatures
 #' @import tsibble
@@ -165,7 +132,7 @@ calc_tsfeatures <- function(data, id, group, time, value){
 #'
 
 calculate_features <- function(data, id_var = NULL, group_var = NULL, time_var = NULL, value_var = NULL,
-                               feature_set = c("all", "catch22", "catchaMouse16", "feasts", "tsfeatures")){
+                               feature_set = c("all", "catch22", "feasts", "tsfeatures")){
   
   if(is.null(id_var) | is.null(group_var) | is.null(time_var) | is.null(value_var)){
     stop("As {tsibble} currently cannot handle numeric vectors, input must be a dataframe with at least 4 columns: id, group, timepoint, value")
@@ -185,11 +152,11 @@ calculate_features <- function(data, id_var = NULL, group_var = NULL, time_var =
   
   # Method selection
   
-  the_sets <- c("all", "catch22", "catchaMouse16", "feasts", "tsfeatures")
+  the_sets <- c("all", "catch22", "feasts", "tsfeatures")
   '%ni%' <- Negate('%in%')
   
   if(feature_set %ni% the_sets){
-    stop("feature_set should be a selection or combination of 'all', 'catch22', 'catchaMouse16', 'feasts' or 'tsfeatures' entered as a single string or vector for multiple.")
+    stop("feature_set should be a selection or combination of 'all', 'catch22', 'feasts' or 'tsfeatures' entered as a single string or vector for multiple.")
   }
   
   #--------- Feature calcs --------
@@ -199,11 +166,10 @@ calculate_features <- function(data, id_var = NULL, group_var = NULL, time_var =
   if("all" %in% feature_set){
     
     tmp <- calc_catch22(data = data, id = id_var, group = group_var, time = time_var, value = value_var)
-    tmp1 <- calc_catchaMouse16(data = data, id = id_var, group = group_var, time = time_var, value = value_var)
-    tmp2 <- calc_feasts(data = data, id = id_var, group = group_var, time = time_var, value = value_var)
-    tmp3 <- calc_tsfeatures(data = data, id = id_var, group = group_var, time = time_var, value = value_var)
+    tmp1 <- calc_feasts(data = data, id = id_var, group = group_var, time = time_var, value = value_var)
+    tmp2 <- calc_tsfeatures(data = data, id = id_var, group = group_var, time = time_var, value = value_var)
     
-    tmp_all <- dplyr::bind_rows(tmp, tmp1, tmp2, tmp3)
+    tmp_all <- dplyr::bind_rows(tmp, tmp1, tmp2)
   }
   
   if("catch22" %in% feature_set){
@@ -211,19 +177,14 @@ calculate_features <- function(data, id_var = NULL, group_var = NULL, time_var =
     tmp <- calc_catch22(data = data, id = id_var, group = group_var, time = time_var, value = value_var)
   }
   
-  if("catchaMouse16" %in% feature_set){
-    
-    tmp1 <- calc_catchaMouse16(data = data, id = id_var, group = group_var, time = time_var, value = value_var)
-  }
-  
   if("feasts" %in% feature_set){
     
-    tmp2 <- calc_feasts(data = data, id = id_var, group = group_var, time = time_var, value = value_var)
+    tmp1 <- calc_feasts(data = data, id = id_var, group = group_var, time = time_var, value = value_var)
   }
   
   if("tsfeatures" %in% feature_set){
     
-    tmp3 <- calc_tsfeatures(data = data, id = id_var, group = group_var, time = time_var, value = value_var)
+    tmp2 <- calc_tsfeatures(data = data, id = id_var, group = group_var, time = time_var, value = value_var)
   }
   
   tmp_all <- data.frame()
@@ -238,10 +199,6 @@ calculate_features <- function(data, id_var = NULL, group_var = NULL, time_var =
   
   if(exists("tmp2")){
     tmp_all <- dplyr::bind_rows(tmp_all, tmp2)
-  }
-  
-  if(exists("tmp3")){
-    tmp_all <- dplyr::bind_rows(tmp_all, tmp3)
   }
   
   return(tmp_all)

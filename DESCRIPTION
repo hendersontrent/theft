@@ -42,5 +42,4 @@ Imports:
     feasts
 LinkingTo: 
     Rcpp
-SystemRequirements: GNU make
 RoxygenNote: 7.1.1
