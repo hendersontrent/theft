@@ -4,7 +4,7 @@ zscore_function <- function(data, names = NULL, values = NULL){
   
   tmp <- data %>%
     dplyr::group_by(names) %>%
-    dplyr::mutate(values = zscore_scaler(values)) %>%
+    dplyr::mutate(values = catch22::normalise_catch(values, method = "z-score")) %>%
     dplyr::ungroup()
   
   return(tmp)
@@ -14,7 +14,7 @@ sigmoid_function <- function(data, names = NULL, values = NULL){
   
   tmp <- data %>%
     dplyr::group_by(names) %>%
-    dplyr::mutate(values = sigmoid_scaler(values)) %>%
+    dplyr::mutate(values = catch22::normalise_catch(values, method = "Sigmoid")) %>%
     dplyr::ungroup()
   
   return(tmp)
@@ -24,7 +24,7 @@ rsigmoid_function <- function(data, names = NULL, values = NULL){
   
   tmp <- data %>%
     dplyr::group_by(names) %>%
-    dplyr::mutate(values = robustsigmoid_scaler(values)) %>%
+    dplyr::mutate(values = catch22::normalise_catch(values, method = "RobustSigmoid")) %>%
     dplyr::ungroup()
   
   return(tmp)
@@ -34,7 +34,7 @@ mm_function <- function(data, names = NULL, values = NULL){
   
   tmp <- data %>%
     dplyr::group_by(names) %>%
-    dplyr::mutate(values = minmax_scaler(values)) %>%
+    dplyr::mutate(values = catch22::normalise_catch(values, method = "MinMax")) %>%
     dplyr::ungroup()
   
   return(tmp)
@@ -44,7 +44,7 @@ ms_function <- function(data, names = NULL, values = NULL){
   
   tmp <- data %>%
     dplyr::group_by(names) %>%
-    dplyr::mutate(values = mean_scaler(values)) %>%
+    dplyr::mutate(values = catch22::normalise_catch(values, method = "MeanSubtract")) %>%
     dplyr::ungroup()
   
   return(tmp)
