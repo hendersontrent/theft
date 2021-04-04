@@ -31,36 +31,38 @@ packages and lets the user specify which groups (or all) of the these
 features to use in modelling.
 
 `sawlog` provides high-level, easy-to-use functions that let users
-specify their intention of statistical inference or out-of-sample
-prediction/classification modelling, and fit an array of statistical and
-machine learning models. The difference in philosophy between
-inferential and predictive modelling is significant. To the best of the
-author’s knowledge, this is the first R package, at least in the
-time-series space, to explicitly distinguish between the premises as a
-form of methodology. Inferential functions in `sawlog` focus on using
-the entire available dataset and generate full Bayesian or maximum
-likelihood estimates of population time-series feature statistics.
-Predictive functions in `sawlog` adopt a machine learning train-test
-split approach for learning and validation, where the Bayesian models
-use the fitted model to generate posterior predictions on the test set.
+automatically fit an array of statistical and machine learning models
+for classification problems. Users can decide to use the informed
+default model parameters or add their own parameterisations. The
+difference in philosophy between inferential and predictive modelling is
+significant. To the best of the author’s knowledge, this is the first R
+package, at least in the time-series feature field, to explicitly
+distinguish between the premises as a form of methodology. Inferential
+functions in `sawlog` that adopt a Bayesian approach focus on using the
+entire available dataset and generate full Bayesian posterior estimates
+of the relationship between time-series features and group membership.
+This also means smaller datasets can benefit from simulations through
+Hamiltonian Monte Carlo over distributions and handle class-imbalance
+through additional flexible parameterisation.
+
+Machine learning model options in `sawlog` adopt a train-test split
+approach for learning and validation, however, this may be replaced with
+K-fold cross-validation in the future.
 
 The available models include:
 
-### Inferential models
+  - Logistic Gaussian process classification *\[Statistical, Bayesian\]*
+  - Bayesian logistic regression *\[Statistical, Bayesian\]*
+  - Mixed-effects Bayesian logistic regression *\[Statistical,
+    Bayesian\]*
+  - Generalised additive model (GAM) *\[Statistical, Frequentist\]*
+  - Mixed-effects GAM *\[Statistical, Frequentist\]*
+  - Support Vector Machine (SVM) *\[Machine learning\]*
+  - Random forest *\[Machine learning\]*
+  - Neural network *\[Machine learning\]*
 
-  - Mixed-effects (optional) [Generalised additive
-    models](https://en.wikipedia.org/wiki/Generalized_additive_model)
-    (GAM) *\[statistical\]*
-  - Mixed-effects (optional) Bayesian generalised linear models (GLM)
-    written in [Stan](https://mc-stan.org) *\[statistical\]*
-
-### Out-of-sample classification models
-
-  - GAM *\[statistical\]*
-  - Bayesian GLM *\[statistical\]*
-  - Support Vector Machine (SVM) *\[machine learning\]*
-  - Random forest *\[machine learning\]*
-  - Neural network *\[machine learning\]*
+All Bayesian models are written in the probabilistic programming
+language [Stan](https://mc-stan.org).
 
 ### Other functionality
 
@@ -71,3 +73,9 @@ diagnostics. As the goal is to drive usability and adoption of
 feature-based approaches to time-series problems, facilitating access to
 this simple end-to-end workflow from feature calculations to model
 diagnostics through an intuitive suite of functions is critical.
+
+### Future work
+
+Future package development will seek to use the
+[Keras](https://keras.io) deep learning library for the neural network
+model selection option.

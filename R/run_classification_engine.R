@@ -11,8 +11,7 @@
 #' @param data a tidy dataframe of feature results where each feature is a separate column
 #' @param id_var a variable that uniquely identifies each observation
 #' @param group_var a variable that denotes the categorical groups each observation relates to and is the target of prediction
-#' @param premise the type of analytical work to be conducted. Defaults to 'prediction'
-#' @param method the classification model to use. Defaults to non-mixed-effects Generalised Additive Model 'GAM'
+#' @param method the classification model to use. Defaults to Gaussian Process 'GP'
 #' @return an object of the class of model that was fit
 #' @author Trent Henderson
 #' @references Wood, S.N. (2011) Fast stable restricted maximum likelihood and marginal likelihood estimation of semiparametric generalized linear models. Journal of the Royal Statistical Society (B) 73(1):3-36
@@ -55,47 +54,30 @@
 #'}
 #'
 
-run_classification_engine <- function(data, id_var = NULL, group_var = NULL, premise = c("inference", "prediction"),
-                                      method = c("GAM","MixedGAM","BayesGLM","MixedBayesGLM","SVM", "RandomForest", "NeuralNet")){
+run_classification_engine <- function(data, id_var = NULL, group_var = NULL,
+                                      method = c("GP", "GAM", "MixedGAM", "BayesGLM", "MixedBayesGLM", "SVM", "RandomForest", "NeuralNet")){
   
   #------------ Checks and argument validation ------------
   
-  # Make prediction the default premise
-  
-  if(missing(premise)){
-    premise <- "prediction"
-  } else{
-    premise <- match.arg(premise)
-  }
-  
-  # Make GAM the default method
+  # Make Gaussian Process the default method
   
   if(missing(method)){
-    method <- "GAM"
+    method <- "GP"
   } else{
     method <- match.arg(method)
   }
   
   # Argument checks
   
-  premises <- c("inference", "prediction")
-  methods <- c("GAM", "MixedGAM", "BayesGLM", "MixedBayesGLM", "SVM", "RandomForest", "NeuralNet")
+  methods <- c("GP", "GAM", "MixedGAM", "BayesGLM", "MixedBayesGLM", "SVM", "RandomForest", "NeuralNet")
   '%ni%' <- Negate('%in%')
   
-  if(premise %ni% premises){
-    stop("premise should be a single selection of: 'inference' or 'prediction'.")
-  }
-  
-  if(length(premise) != 1){
-    stop("premise should be a single selection of: 'inference' or 'prediction'.")
-  }
-  
   if(method %ni% methods){
-    stop("method should be a single selection of: 'GAM', 'MixedGAM', 'BayesGLM', 'MixedBayesGLM', 'SVM', 'RandomForest' or 'NeuralNet'.")
+    stop("method should be a single selection of: 'GP', 'GAM', 'MixedGAM', 'BayesGLM', 'MixedBayesGLM', 'SVM', 'RandomForest' or 'NeuralNet'.")
   }
   
   if(length(method) != 1){
-    stop("method should be a single selection of: 'GAM', 'MixedGAM', 'BayesGLM', 'MixedBayesGLM', 'RandomForest' or 'NeuralNet'.")
+    stop("method should be a single selection of: 'GP', 'GAM', 'MixedGAM', 'BayesGLM', 'MixedBayesGLM', 'RandomForest' or 'NeuralNet'.")
   }
   
   if(!is.null(id_var) & !is.character(id_var)){
@@ -173,300 +155,241 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL, pre
   final <- data_id
   
   #------------ Model specification and fit ---------------
+    
+  #------- Make train-test split --------
+    
+  set.seed(123) # Fix RNG
+  split <- caTools::sample.split(final$group_var, SplitRatio = 0.75) 
+  train <- subset(final, split == TRUE) 
+  test <- subset(final, split == FALSE)
   
-  #----------
-  # Inference
-  #----------
+  if(method == "GAM"){
   
-  if(premise == "inference"){
+    # Build model formula
+      
+    train <- train %>%
+      dplyr::mutate(group = as.factor(group))
+      
+    test <- test %>%
+      dplyr::mutate(group = as.factor(group))
+      
+    mm <- as.formula(paste("group ~ ", paste(n[!n %in% c("group", "id")], collapse = " + ")))
+      
+    #------- Train -------
+      
+    message("Fitting model... This may take a long time.")
+      
+    m1 <- mgcv::gam(formula = mm, data = train, method = "REML", family = binomial("logit"))
+      
+    #------- Test -------
+      
+    preds <- predict(m1, newdata = test, type = "response")
+      
+    confusion_matrix <- ftable(test$group, preds)
+    accuracy <- paste0(round(sum(diag(confusion_matrix))/confusion_matrix*100, digits = 2),"%")
+      
+    print(paste0("Test set classification accuracy: ", accuracy))
+      
+    return(m1)
+  }
     
-    if(method %ni% c('GAM', "MixedGAM", "BayesGLM", "MixedBayesGLM")){
-      stop("For premise 'inference', method should be a single selection of: 'GAM', 'MixedGAM', 'BayesGLM' or 'MixedBayesGLM'.")
-    }
+  if(method == "MixedGAM"){
+      
+    # Build model formula
+      
+    final <- final %>%
+      dplyr::mutate(group = as.factor(group))
+      
+    mm <- as.formula(paste("group ~ ", paste(final[!final %in% c("group", "id")], collapse = " + ")))
+    mm <- as.formula(paste(mm,"s(id, bs = 're')", collapse = " + ")) # Random effects for (1|id)
+      
+    # Fit model
+      
+    message("Fitting model... This may take a long time.")
+      
+    m1 <- mgcv::gam(formula = mm, data = final, method = "REML", family = binomial("logit"))
+      
+    return(m1)
+  }
     
-    if(method == "GAM"){
+  if(method == "BayesGLM"){
       
-      # Build model formula
+    options(mc.cores = parallel::detectCores()) # Parallel processing
       
-      final <- final %>%
-        dplyr::mutate(group = as.factor(group))
+    # Set up data for Stan
       
-      mm <- as.formula(paste("group ~ ", paste(final[!final %in% c("group", "id")], collapse = " + ")))
+    name_list <- as.vector(colnames(final))
+    name_list <- name_list[!name_list %in% c("group", "id")]
       
-      # Fit model
+    X <- final %>%
+      dplyr::select(-c(id, group))
       
-      message("Fitting model... This may take a long time.")
+    stan_data <- list(N = nrow(final),
+                      K = as.integer(length(name_list)),
+                      y = final$group,
+                      X = as.matrix(X))
       
-      m1 <- mgcv::gam(formula = mm, data = final, method = "REML", family = binomial("logit"))
+    # Run model
       
-      return(m1)
+    message("Fitting model... This may take a long time.")
       
-    }
+    m1 <- rstan::stan(file = system.file("stan", "BayesGLM.stan", package = "sawlog"), 
+                      data = stan_data, iter = 3000, chains = 3, seed = 123, control = list(max_treedepth = 15))
+      
+    return(m1)
+  }
     
-    if(method == "MixedGAM"){
+  if(method == "MixedBayesGLM"){
       
-      # Build model formula
+    options(mc.cores = parallel::detectCores()) # Parallel processing
       
-      final <- final %>%
-        dplyr::mutate(group = as.factor(group))
+    # Set up data for Stan
       
-      mm <- as.formula(paste("group ~ ", paste(final[!final %in% c("group", "id")], collapse = " + ")))
-      mm <- as.formula(paste(mm,"s(id, bs = 're')", collapse = " + ")) # Random effects for (1|id)
+    name_list <- as.vector(colnames(final))
+    name_list <- name_list[!name_list %in% c("group", "id")]
       
-      # Fit model
+    X <- final %>%
+      dplyr::select(-c(id, group))
       
-      message("Fitting model... This may take a long time.")
+    stan_data <- list(N = nrow(final),
+                      K = as.integer(length(name_list)),
+                      y = final$group,
+                      X = as.matrix(X),
+                      id = final$id)
       
-      m1 <- mgcv::gam(formula = mm, data = final, method = "REML", family = binomial("logit"))
+    # Run model
       
-      return(m1)
+    message("Fitting model... This may take a long time.")
       
-    }
-    
-    if(method == "BayesGLM"){
+    m1 <- rstan::stan(file = system.file("stan", "MixedBayesGLM.stan", package = "sawlog"), 
+                      data = stan_data, iter = 3000, chains = 3, seed = 123, control = list(max_treedepth = 15))
       
-      options(mc.cores = parallel::detectCores()) # Parallel processing
-      
-      # Set up data for Stan
-      
-      name_list <- as.vector(colnames(final))
-      name_list <- name_list[!name_list %in% c("group", "id")]
-      
-      X <- final %>%
-        dplyr::select(-c(id, group))
-      
-      stan_data <- list(N = nrow(final),
-                        K = as.integer(length(name_list)),
-                        y = final$group,
-                        X = as.matrix(X))
-      
-      # Run model
-      
-      message("Fitting model... This may take a long time.")
-      
-      m1 <- rstan::stan(file = system.file("stan", "BayesGLM.stan", package = "sawlog"), 
-                        data = stan_data, iter = 3000, chains = 3, seed = 123, control = list(max_treedepth = 15))
-      
-      return(m1)
-      
-    }
-    
-    if(method == "MixedBayesGLM"){
-      
-      options(mc.cores = parallel::detectCores()) # Parallel processing
-      
-      # Set up data for Stan
-      
-      name_list <- as.vector(colnames(final))
-      name_list <- name_list[!name_list %in% c("group", "id")]
-      
-      X <- final %>%
-        dplyr::select(-c(id, group))
-      
-      stan_data <- list(N = nrow(final),
-                        K = as.integer(length(name_list)),
-                        y = final$group,
-                        X = as.matrix(X),
-                        id = final$id)
-      
-      # Run model
-      
-      message("Fitting model... This may take a long time.")
-      
-      m1 <- rstan::stan(file = system.file("stan", "MixedBayesGLM.stan", package = "sawlog"), 
-                        data = stan_data, iter = 3000, chains = 3, seed = 123, control = list(max_treedepth = 15))
-      
-      return(m1)
-      
-    }
-    
+    return(m1)
   }
   
-  #-----------
-  # Prediction
-  #-----------
-  
-  if(premise == "prediction"){
+  if(method == "GP"){
     
-    if(method %ni% c('GAM', "BayesGLM", "SVM", "RandomForest", "NeuralNet")){
-      stop("For premise 'inference', method should be a single selection of: 'GAM', 'BayesGLM', 'SVM', 'RandomForest' or 'NeuralNet'.")
-    }
+    options(mc.cores = parallel::detectCores()) # Parallel processing
     
-    #------- Make train-test split --------
+    # Set up data for Stan
     
-    set.seed(123) # Fix RNG
-    split <- caTools::sample.split(final$group_var, SplitRatio = 0.75) 
-    train <- subset(final, split == TRUE) 
-    test <- subset(final, split == FALSE)
+    name_list <- as.vector(colnames(final))
+    name_list <- name_list[!name_list %in% c("group", "id")]
     
-    if(method == "GAM"){
-      
-      # Build model formula
-      
-      train <- train %>%
-        dplyr::mutate(group = as.factor(group))
-      
-      test <- test %>%
-        dplyr::mutate(group = as.factor(group))
-      
-      mm <- as.formula(paste("group ~ ", paste(n[!n %in% c("group", "id")], collapse = " + ")))
-      
-      #------- Train -------
-      
-      message("Fitting model... This may take a long time.")
-      
-      m1 <- mgcv::gam(formula = mm, data = train, method = "REML", family = binomial("logit"))
-      
-      #------- Test -------
-      
-      preds <- predict(m1, newdata = test, type = "response")
-      
-      confusion_matrix <- ftable(test$group, preds)
-      accuracy <- paste0(round(sum(diag(confusion_matrix))/confusion_matrix*100, digits = 2),"%")
-      
-      print(paste0("Test set classification accuracy: ", accuracy))
-      
-      return(m1)
-      
-    }
+    X <- final %>%
+      dplyr::select(-c(id, group))
     
-    if(method == "BayesGLM"){
-      
-      options(mc.cores = parallel::detectCores()) # Parallel processing
-      
-      # Set up data for Stan
-      
-      name_list <- as.vector(colnames(train))
-      name_list <- name_list[!name_list %in% c("group", "id")]
-      
-      X <- train %>%
-        dplyr::select(-c(id, group))
-      
-      X_test <- test %>%
-        dplyr::select(-c(id, group))
-      
-      stan_data <- list(N = nrow(train),
-                        K = as.integer(length(name_list)),
-                        y = train$group,
-                        X = as.matrix(X),
-                        N_test = nrow(test),
-                        X_test = nrow(test))
-      
-      # Run model
-      
-      message("Fitting model... This may take a long time.")
-      
-      m1 <- rstan::stan(file = system.file("stan", "BayesGLM_prediction.stan", package = "sawlog"), 
-                        data = stan_data, iter = 3000, chains = 3, seed = 123, control = list(max_treedepth = 15))
-      
-      ext_fit <- extract(m1)
-      accuracy <- paste0(round(mean(apply(ext_fit$y_test, 2, median) == y_test), digits = 2),"%")
-      print(paste0("Test set classification accuracy: ", accuracy))
-      
-      return(m1)
-      
-    }
+    stan_data <- list(N = nrow(final),
+                      P = ncol(X),
+                      K = as.integer(length(name_list)),
+                      y = final$group,
+                      X = as.matrix(X),
+                      eps = 1e6)
     
-    if(method == "SVM"){
-      
-      # Build model formula
-      
-      train <- train %>%
-        dplyr::mutate(group = as.factor(group))
-      
-      test <- test %>%
-        dplyr::mutate(group = as.factor(group))
-      
-      mm <- as.formula(paste("group ~ ", paste(n[!n %in% c("group", "id")], collapse = " + ")))
-      
-      #------- Train -------
-      
-      message("Fitting model... This may take a long time.")
-      
-      m1 <- e1071::svm(formula = mm, data = train, kernel = 'radial')
-      
-      #------- Test -------
-      
-      preds <- predict(m1, newdata = test)
-      
-      confusion_matrix <- ftable(test$group, preds)
-      accuracy <- paste0(round(sum(diag(confusion_matrix))/confusion_matrix*100, digits = 2),"%")
-      print(paste0("Test set classification accuracy: ", accuracy))
-      
-      return(m1)
-      
-    }
+    # Run model
     
-    if(method == "RandomForest"){
-      
-      # Build model formula
-      
-      train <- train %>%
-        dplyr::mutate(group = as.factor(group))
-      
-      test <- test %>%
-        dplyr::mutate(group = as.factor(group))
-      
-      mm <- as.formula(paste("group ~", paste(n[!n %in% c("group", "id")], collapse = " + ")))
-      
-      #------- Train -------
-      
-      message("Fitting model... This may take a long time.")
-      
-      m1 <- randomForest::randomForest(formula = mm, data = train, importance = TRUE)
-      
-      #------- Test -------
-      
-      preds <- predict(m1, newdata = test)
-      
-      confusion_matrix <- ftable(test$group, preds)
-      accuracy <- paste0(round(sum(diag(confusion_matrix))/confusion_matrix*100, digits = 2),"%")
-      print(paste0("Test set classification accuracy: ", accuracy))
-      
-      return(m1)
-      
-    }
+    message("Fitting model... This may take a long time.")
     
-    if(method == "NeuralNet"){
-      
-      # Build model formula
-      
-      train <- train %>%
-        dplyr::mutate(group = as.factor(group))
-      
-      test <- test %>%
-        dplyr::mutate(group = as.factor(group))
-      
-      mm <- as.formula(paste("group ~", paste(n[!n %in% c("group", "id")], collapse = " + ")))
-      
-      #------- Train -------
-      
-      message("Fitting model... This may take a long time.")
-      
-      # Conditional hidden weights based on input data size
-      # NOTE: Should these weights be different?
-      # NOTE: Do thresholds need to be increased due to 'difficult' real data?
-      
-      if(nrow(train) <= 1000){
-        m1 <- neuralnet::neuralnet(formula = mm, data = train, hidden = c(5), linear.output = FALSE, stepmax = 1e6)
-      }
-      
-      if(nrow(train) > 1000){
-        m1 <- neuralnet::neuralnet(formula = mm, data = train, hidden = c(3,2), linear.output = FALSE, stepmax = 1e6)
-      }
-      
-      #------- Test -------
-      
-      preds <- predict(m1, newdata = test)
-      
-      confusion_matrix <- ftable(test$group, preds)
-      accuracy <- paste0(round(sum(diag(confusion_matrix))/confusion_matrix*100, digits = 2),"%")
-      print(paste0("Test set classification accuracy: ", accuracy))
-      
-      return(m1)
-      
-    }
+    m1 <- rstan::stan(file = system.file("stan", "GP.stan", package = "sawlog"), 
+                      data = stan_data, iter = 3000, chains = 3, seed = 123, control = list(max_treedepth = 15))
     
+    return(m1)
   }
-  
+    
+  if(method == "SVM"){
+      
+    # Build model formula
+      
+    train <- train %>%
+      dplyr::mutate(group = as.factor(group))
+      
+    test <- test %>%
+      dplyr::mutate(group = as.factor(group))
+      
+    mm <- as.formula(paste("group ~ ", paste(n[!n %in% c("group", "id")], collapse = " + ")))
+      
+    #------- Train -------
+      
+    message("Fitting model... This may take a long time.")
+      
+    m1 <- e1071::svm(formula = mm, data = train, kernel = 'radial')
+      
+    #------- Test -------
+      
+    preds <- predict(m1, newdata = test)
+      
+    confusion_matrix <- ftable(test$group, preds)
+    accuracy <- paste0(round(sum(diag(confusion_matrix))/confusion_matrix*100, digits = 2),"%")
+    print(paste0("Test set classification accuracy: ", accuracy))
+      
+    return(m1)
+  }
+    
+  if(method == "RandomForest"){
+      
+    # Build model formula
+      
+    train <- train %>%
+      dplyr::mutate(group = as.factor(group))
+      
+    test <- test %>%
+      dplyr::mutate(group = as.factor(group))
+      
+    mm <- as.formula(paste("group ~", paste(n[!n %in% c("group", "id")], collapse = " + ")))
+      
+    #------- Train -------
+      
+    message("Fitting model... This may take a long time.")
+      
+    m1 <- randomForest::randomForest(formula = mm, data = train, importance = TRUE)
+      
+    #------- Test -------
+      
+    preds <- predict(m1, newdata = test)
+      
+    confusion_matrix <- ftable(test$group, preds)
+    accuracy <- paste0(round(sum(diag(confusion_matrix))/confusion_matrix*100, digits = 2),"%")
+    print(paste0("Test set classification accuracy: ", accuracy))
+      
+    return(m1)
+  }
+    
+  if(method == "NeuralNet"){
+      
+    # Build model formula
+      
+    train <- train %>%
+      dplyr::mutate(group = as.factor(group))
+      
+    test <- test %>%
+      dplyr::mutate(group = as.factor(group))
+      
+    mm <- as.formula(paste("group ~", paste(n[!n %in% c("group", "id")], collapse = " + ")))
+      
+    #------- Train -------
+      
+    message("Fitting model... This may take a long time.")
+      
+    # Conditional hidden weights based on input data size
+    # NOTE: Should these weights be different?
+    # NOTE: Do thresholds need to be increased due to 'difficult' real data?
+      
+    if(nrow(train) <= 1000){
+      m1 <- neuralnet::neuralnet(formula = mm, data = train, hidden = c(5), linear.output = FALSE, stepmax = 1e6)
+    }
+      
+    if(nrow(train) > 1000){
+      m1 <- neuralnet::neuralnet(formula = mm, data = train, hidden = c(3,2), linear.output = FALSE, stepmax = 1e6)
+    }
+      
+    #------- Test -------
+      
+    preds <- predict(m1, newdata = test)
+      
+    confusion_matrix <- ftable(test$group, preds)
+    accuracy <- paste0(round(sum(diag(confusion_matrix))/confusion_matrix*100, digits = 2),"%")
+    print(paste0("Test set classification accuracy: ", accuracy))
+      
+    return(m1)
+  }
 }
