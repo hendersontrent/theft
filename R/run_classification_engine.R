@@ -1,24 +1,13 @@
 #' Fit a statistical or machine learning model to predict group membership based on time-series feature values
 #' @import dplyr
 #' @importFrom magrittr %>%
-#' @import mgcv
-#' @import rstan
-#' @importFrom e1071 svm
-#' @importFrom randomForest randomForest
 #' @importFrom caTools sample.split
-#' @importFrom neuralnet neuralnet
-#' @importFrom parallel detectCores
 #' @param data a tidy dataframe of feature results where each feature is a separate column
 #' @param id_var a variable that uniquely identifies each observation
 #' @param group_var a variable that denotes the categorical groups each observation relates to and is the target of prediction
 #' @param method the classification model to use. Defaults to Gaussian Process 'GP'
 #' @return an object of the class of model that was fit
 #' @author Trent Henderson
-#' @references Wood, S.N. (2011) Fast stable restricted maximum likelihood and marginal likelihood estimation of semiparametric generalized linear models. Journal of the Royal Statistical Society (B) 73(1):3-36
-#' @references Stan Development Team (2020). RStan: the R interface to Stan. R package version 2.21.2. http://mc-stan.org/.
-#' @references David Meyer, Evgenia Dimitriadou, Kurt Hornik, Andreas Weingessel and Friedrich Leisch (2019). e1071: Misc Functions of the Department of Statistics, Probability Theory Group (Formerly: E1071), TU Wien. R package version 1.7-3. https://CRAN.R-project.org/package=e1071
-#' @references A. Liaw and M. Wiener (2002). Classification and Regression by randomForest. R News 2(3), 18--22.
-#' @references Stefan Fritsch, Frauke Guenther and Marvin N. Wright (2019). neuralnet: Training of Neural Networks. R package version 1.44.2. https://CRAN.R-project.org/package=neuralnet
 #' @export
 #' @examples
 #' \dontrun{
@@ -173,13 +162,9 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL,
     test <- test %>%
       dplyr::mutate(group = as.factor(group))
       
-    mm <- as.formula(paste("group ~ ", paste(n[!n %in% c("group", "id")], collapse = " + ")))
-      
     #------- Train -------
       
-    message("Fitting model... This may take a long time.")
-      
-    m1 <- mgcv::gam(formula = mm, data = train, method = "REML", family = binomial("logit"))
+    m1 <- fit_gam(data = train)
       
     #------- Test -------
       
@@ -200,98 +185,30 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL,
     final <- final %>%
       dplyr::mutate(group = as.factor(group))
       
-    mm <- as.formula(paste("group ~ ", paste(final[!final %in% c("group", "id")], collapse = " + ")))
-    mm <- as.formula(paste(mm,"s(id, bs = 're')", collapse = " + ")) # Random effects for (1|id)
-      
     # Fit model
       
-    message("Fitting model... This may take a long time.")
-      
-    m1 <- mgcv::gam(formula = mm, data = final, method = "REML", family = binomial("logit"))
+    m1 <- fit_mixed_gam(data = final)
       
     return(m1)
   }
     
   if(method == "BayesGLM"){
-      
-    options(mc.cores = parallel::detectCores()) # Parallel processing
-      
-    # Set up data for Stan
-      
-    name_list <- as.vector(colnames(final))
-    name_list <- name_list[!name_list %in% c("group", "id")]
-      
-    X <- final %>%
-      dplyr::select(-c(id, group))
-      
-    stan_data <- list(N = nrow(final),
-                      K = as.integer(length(name_list)),
-                      y = final$group,
-                      X = as.matrix(X))
-      
-    # Run model
-      
-    message("Fitting model... This may take a long time.")
-      
-    m1 <- rstan::stan(file = system.file("stan", "BayesGLM.stan", package = "sawlog"), 
-                      data = stan_data, iter = 3000, chains = 3, seed = 123, control = list(max_treedepth = 15))
+    
+    m1 <- fit_bayes_glm(data = final, id_var = id_var, group_var = group_var)
       
     return(m1)
   }
     
   if(method == "MixedBayesGLM"){
-      
-    options(mc.cores = parallel::detectCores()) # Parallel processing
-      
-    # Set up data for Stan
-      
-    name_list <- as.vector(colnames(final))
-    name_list <- name_list[!name_list %in% c("group", "id")]
-      
-    X <- final %>%
-      dplyr::select(-c(id, group))
-      
-    stan_data <- list(N = nrow(final),
-                      K = as.integer(length(name_list)),
-                      y = final$group,
-                      X = as.matrix(X),
-                      id = final$id)
-      
-    # Run model
-      
-    message("Fitting model... This may take a long time.")
-      
-    m1 <- rstan::stan(file = system.file("stan", "MixedBayesGLM.stan", package = "sawlog"), 
-                      data = stan_data, iter = 3000, chains = 3, seed = 123, control = list(max_treedepth = 15))
+    
+    m1 <- fit_mixed_bayes_glm(data = final, id_var = id_var, group_var = group_var)
       
     return(m1)
   }
   
   if(method == "GP"){
     
-    options(mc.cores = parallel::detectCores()) # Parallel processing
-    
-    # Set up data for Stan
-    
-    name_list <- as.vector(colnames(final))
-    name_list <- name_list[!name_list %in% c("group", "id")]
-    
-    X <- final %>%
-      dplyr::select(-c(id, group))
-    
-    stan_data <- list(N = nrow(final),
-                      P = ncol(X),
-                      K = as.integer(length(name_list)),
-                      y = final$group,
-                      X = as.matrix(X),
-                      eps = 1e6)
-    
-    # Run model
-    
-    message("Fitting model... This may take a long time.")
-    
-    m1 <- rstan::stan(file = system.file("stan", "GP.stan", package = "sawlog"), 
-                      data = stan_data, iter = 3000, chains = 3, seed = 123, control = list(max_treedepth = 15))
+    m1 <- fit_gp(data, id_var = id_var, group_var = group_var, eps = 1e6)
     
     return(m1)
   }
@@ -305,14 +222,8 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL,
       
     test <- test %>%
       dplyr::mutate(group = as.factor(group))
-      
-    mm <- as.formula(paste("group ~ ", paste(n[!n %in% c("group", "id")], collapse = " + ")))
-      
-    #------- Train -------
-      
-    message("Fitting model... This may take a long time.")
-      
-    m1 <- e1071::svm(formula = mm, data = train, kernel = 'radial')
+    
+    m1 <- fit_svm(data = train, kernel = 'radial')
       
     #------- Test -------
       
@@ -335,13 +246,7 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL,
     test <- test %>%
       dplyr::mutate(group = as.factor(group))
       
-    mm <- as.formula(paste("group ~", paste(n[!n %in% c("group", "id")], collapse = " + ")))
-      
-    #------- Train -------
-      
-    message("Fitting model... This may take a long time.")
-      
-    m1 <- randomForest::randomForest(formula = mm, data = train, importance = TRUE)
+    m1 <- fit_rf(data = train, ntree = 100, importance = TRUE)
       
     #------- Test -------
       
@@ -364,23 +269,11 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL,
     test <- test %>%
       dplyr::mutate(group = as.factor(group))
       
-    mm <- as.formula(paste("group ~", paste(n[!n %in% c("group", "id")], collapse = " + ")))
-      
     #------- Train -------
       
     message("Fitting model... This may take a long time.")
-      
-    # Conditional hidden weights based on input data size
-    # NOTE: Should these weights be different?
-    # NOTE: Do thresholds need to be increased due to 'difficult' real data?
-      
-    if(nrow(train) <= 1000){
-      m1 <- neuralnet::neuralnet(formula = mm, data = train, hidden = c(5), linear.output = FALSE, stepmax = 1e6)
-    }
-      
-    if(nrow(train) > 1000){
-      m1 <- neuralnet::neuralnet(formula = mm, data = train, hidden = c(3,2), linear.output = FALSE, stepmax = 1e6)
-    }
+    
+    m1 <- fit_nn(data = train, stepmax = 1e6)
       
     #------- Test -------
       
