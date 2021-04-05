@@ -48,7 +48,7 @@ print_bayes_outputs <- function(model){
   # Coefficients
   
   bayesplot::color_scheme_set("red")
-  p4 <- bayesplot::mcmc_hist(m2) +
+  p4 <- bayesplot::mcmc_hist(model) +
     ggplot2::labs(title = "Coefficient posterior distributions") +
     ggplot2::geom_vline(xintercept = 0, lty = "dashed", colour = "black", size = 1)
   
