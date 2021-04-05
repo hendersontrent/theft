@@ -5,7 +5,7 @@
 #' @param data a tidy dataframe of feature results where each feature is a separate column
 #' @param id_var a variable that uniquely identifies each observation
 #' @param group_var a variable that denotes the categorical groups each observation relates to and is the target of prediction
-#' @param method the classification model to use. Defaults to Gaussian Process 'GP'
+#' @param method the classification model to use. Defaults to Bayesian GLM 'BayesGLM'
 #' @return an object of the class of model that was fit
 #' @author Trent Henderson
 #' @export
@@ -48,10 +48,10 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL,
   
   #------------ Checks and argument validation ------------
   
-  # Make Gaussian Process the default method
+  # Make BayesGLM the default method
   
   if(missing(method)){
-    method <- "GP"
+    method <- "BayesGLM"
   } else{
     method <- match.arg(method)
   }
@@ -194,21 +194,21 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL,
     
   if(method == "BayesGLM"){
     
-    m1 <- fit_bayes_glm(data = final, id_var = id_var, group_var = group_var, iter = 3000, chains = 3)
+    m1 <- fit_bayes_glm(data = final, id_var = id_var, group_var = group_var, iter = 3000, chains = 3, max_treedepth = 10)
       
     return(m1)
   }
     
   if(method == "MixedBayesGLM"){
     
-    m1 <- fit_mixed_bayes_glm(data = final, id_var = id_var, group_var = group_var, iter = 3000, chains = 3)
+    m1 <- fit_mixed_bayes_glm(data = final, id_var = id_var, group_var = group_var, iter = 3000, chains = 3, max_treedepth = 15)
       
     return(m1)
   }
   
   if(method == "GP"){
     
-    m1 <- fit_gp(data, id_var = id_var, group_var = group_var, eps = 1e6, iter = 3000, chains = 3)
+    m1 <- fit_gp(data, id_var = id_var, group_var = group_var, eps = 1e6, iter = 3000, chains = 3, max_treedepth = 15)
     
     return(m1)
   }
