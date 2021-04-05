@@ -8,11 +8,10 @@ Authors@R: c(
   )
 Maintainer: Trent Henderson <then6675@uni.sydney.edu.au>
 Description: Consolidates and calculates sets of CAnonical Time-series CHaracteristics (catch) and other 
-    statistical features from existing R packages, and uses them in a high-level API user-friendly
-    way to produce inferential or out-of-sample statistical and machine learning models to 
-    classify time-series data. Provides a simple functional API to standardise and automate 
-    the entire analytical workflow from feature calculation to normalisation to modelling to 
-    data visualisation and diagnostics.
+    statistical time-series features from existing R packages, and uses them in a high-level API user-friendly
+    way to produce statistical and machine learning models to classify time-series data. 
+    Provides a simple functional API to standardise and automate the entire analytical 
+    workflow from feature calculation to normalisation to modelling to data visualisation and diagnostics.
 BugReports: https://github.com/hendersontrent/sawlog/issues
 License: GPL-3
 Encoding: UTF-8

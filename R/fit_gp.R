@@ -9,6 +9,7 @@
 #' @param eps Defaults to 1e6
 #' @param iter the number of iterations to simulate per chain. Defaults to 3000
 #' @param chains the number of Markov chains to fit. Defaults to 3
+#' @param max_treedepth the maximum tree depth for the HMC algorithm. Defaults to 15
 #' @return an object of the class of model that was fit
 #' @author Trent Henderson
 #' @references Stan Development Team (2020). RStan: the R interface to Stan. R package version 2.21.2. http://mc-stan.org/.
@@ -17,7 +18,7 @@
 #' #' \dontrun{
 #' }
 
-fit_gp <- function(data, id_var = NULL, group_var = NULL, eps = 1e6, iter = 3000, chains = 3){
+fit_gp <- function(data, id_var = NULL, group_var = NULL, eps = 1e6, iter = 3000, chains = 3, max_treedepth = 15){
   
   # Argument checks
   
@@ -61,7 +62,7 @@ fit_gp <- function(data, id_var = NULL, group_var = NULL, eps = 1e6, iter = 3000
   message("Fitting model... This may take a long time.")
   
   m1 <- rstan::stan(file = system.file("stan", "GP.stan", package = "sawlog"), 
-                    data = stan_data, iter = iter, chains = chains, seed = 123, control = list(max_treedepth = 10))
+                    data = stan_data, iter = iter, chains = chains, seed = 123, control = list(max_treedepth = max_treedepth))
   
   return(m1)
 }
