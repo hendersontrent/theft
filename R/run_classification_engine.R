@@ -194,21 +194,21 @@ run_classification_engine <- function(data, id_var = NULL, group_var = NULL,
     
   if(method == "BayesGLM"){
     
-    m1 <- fit_bayes_glm(data = final, id_var = id_var, group_var = group_var)
+    m1 <- fit_bayes_glm(data = final, id_var = id_var, group_var = group_var, iter = 3000, chains = 3)
       
     return(m1)
   }
     
   if(method == "MixedBayesGLM"){
     
-    m1 <- fit_mixed_bayes_glm(data = final, id_var = id_var, group_var = group_var)
+    m1 <- fit_mixed_bayes_glm(data = final, id_var = id_var, group_var = group_var, iter = 3000, chains = 3)
       
     return(m1)
   }
   
   if(method == "GP"){
     
-    m1 <- fit_gp(data, id_var = id_var, group_var = group_var, eps = 1e6)
+    m1 <- fit_gp(data, id_var = id_var, group_var = group_var, eps = 1e6, iter = 3000, chains = 3)
     
     return(m1)
   }
