@@ -19,7 +19,6 @@ LazyData: true
 Depends: 
     R (>= 3.5.0)
 Imports: 
-    Rcpp (>= 0.12.15),
     data.table,
     dplyr,
     ggplot2,
@@ -39,6 +38,4 @@ Imports:
     fabletools,
     tsfeatures,
     feasts
-LinkingTo: 
-    Rcpp
 RoxygenNote: 7.1.1
