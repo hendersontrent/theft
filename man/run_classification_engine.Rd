@@ -2,15 +2,14 @@
 % Please edit documentation in R/run_classification_engine.R
 \name{run_classification_engine}
 \alias{run_classification_engine}
-\title{Fit a statistical or machine learning model to predict group membership of feature-space time-series data}
+\title{Fit a statistical or machine learning model to predict group membership based on time-series feature values}
 \usage{
 run_classification_engine(
   data,
   id_var = NULL,
   group_var = NULL,
-  premise = c("inference", "prediction"),
-  method = c("GAM", "MixedGAM", "BayesGLM", "MixedBayesGLM", "SVM", "RandomForest",
-    "NeuralNet")
+  method = c("GP", "GAM", "MixedGAM", "BayesGLM", "MixedBayesGLM", "SVM",
+    "RandomForest", "NeuralNet")
 )
 }
 \arguments{
@@ -20,15 +19,13 @@ run_classification_engine(
 
 \item{group_var}{a variable that denotes the categorical groups each observation relates to and is the target of prediction}
 
-\item{premise}{the type of analytical work to be conducted. Defaults to 'prediction'}
-
-\item{method}{the classification model to use. Defaults to non-mixed-effects Generalised Additive Model 'GAM'}
+\item{method}{the classification model to use. Defaults to Bayesian GLM 'BayesGLM'}
 }
 \value{
 an object of the class of model that was fit
 }
 \description{
-Fit a statistical or machine learning model to predict group membership of feature-space time-series data
+Fit a statistical or machine learning model to predict group membership based on time-series feature values
 }
 \examples{
 \dontrun{
@@ -63,17 +60,6 @@ d1 <- main \%>\%
  mod <- run_classification_engine(data = outsN, id_var = "id", group_var = "group", premise = "inference", method = "BayesGLM")
 }
 
-}
-\references{
-Wood, S.N. (2011) Fast stable restricted maximum likelihood and marginal likelihood estimation of semiparametric generalized linear models. Journal of the Royal Statistical Society (B) 73(1):3-36
-
-Stan Development Team (2020). RStan: the R interface to Stan. R package version 2.21.2. http://mc-stan.org/.
-
-David Meyer, Evgenia Dimitriadou, Kurt Hornik, Andreas Weingessel and Friedrich Leisch (2019). e1071: Misc Functions of the Department of Statistics, Probability Theory Group (Formerly: E1071), TU Wien. R package version 1.7-3. https://CRAN.R-project.org/package=e1071
-
-A. Liaw and M. Wiener (2002). Classification and Regression by randomForest. R News 2(3), 18--22.
-
-Stefan Fritsch, Frauke Guenther and Marvin N. Wright (2019). neuralnet: Training of Neural Networks. R package version 1.44.2. https://CRAN.R-project.org/package=neuralnet
 }
 \author{
 Trent Henderson

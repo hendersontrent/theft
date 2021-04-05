@@ -10,7 +10,7 @@ calculate_features(
   group_var = NULL,
   time_var = NULL,
   value_var = NULL,
-  feature_set = c("all", "catch22", "catchaMouse16", "feasts", "tsfeatures")
+  feature_set = c("all", "catch22", "feasts", "tsfeatures")
 )
 }
 \arguments{
