@@ -49,6 +49,12 @@ All Bayesian models are written in the probabilistic programming language [Stan]
 
 `sawlog` also automates model diagnostics and data visualisation, providing one-line functions that can generate markdown documents containing model outputs, assumption testing, and other results and diagnostics. As the goal is to drive usability and adoption of feature-based approaches to time-series problems, facilitating access to this simple end-to-end workflow from feature calculations to model diagnostics through an intuitive suite of functions is critical.
 
-### Future work
+## Future work
 
 Future package development will seek to use the [Keras](https://keras.io) deep learning library for the neural network model selection option.
+
+## Citation
+
+```{r, echo = FALSE}
+citation("sawlog")
+```
