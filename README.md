@@ -74,8 +74,28 @@ feature-based approaches to time-series problems, facilitating access to
 this simple end-to-end workflow from feature calculations to model
 diagnostics through an intuitive suite of functions is critical.
 
-### Future work
+## Future work
 
 Future package development will seek to use the
 [Keras](https://keras.io) deep learning library for the neural network
 model selection option.
+
+## Citation
+
+``` 
+
+To cite package 'sawlog' in publications use:
+
+  Trent Henderson (2021). sawlog: Structured Analysis Workflow for
+  statistical Learning On Groups of time-series features. R package
+  version 0.1.1.
+
+A BibTeX entry for LaTeX users is
+
+  @Manual{,
+    title = {sawlog: Structured Analysis Workflow for statistical Learning On Groups of time-series features},
+    author = {Trent Henderson},
+    year = {2021},
+    note = {R package version 0.1.1},
+  }
+```
