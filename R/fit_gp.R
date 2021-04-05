@@ -6,6 +6,9 @@
 #' @param data a tidy dataframe of feature results where each feature is a separate column
 #' @param id_var a variable that uniquely identifies each observation
 #' @param group_var a variable that denotes the categorical groups each observation relates to and is the target of prediction
+#' @param eps Defaults to 1e6
+#' @param iter the number of iterations to simulate per chain. Defaults to 3000
+#' @param chains the number of Markov chains to fit. Defaults to 3
 #' @return an object of the class of model that was fit
 #' @author Trent Henderson
 #' @references Stan Development Team (2020). RStan: the R interface to Stan. R package version 2.21.2. http://mc-stan.org/.
@@ -14,7 +17,7 @@
 #' #' \dontrun{
 #' }
 
-fit_gp <- function(data, id_var = NULL, group_var = NULL, eps = 1e6){
+fit_gp <- function(data, id_var = NULL, group_var = NULL, eps = 1e6, iter = 3000, chains = 3){
   
   # Argument checks
   
@@ -58,7 +61,7 @@ fit_gp <- function(data, id_var = NULL, group_var = NULL, eps = 1e6){
   message("Fitting model... This may take a long time.")
   
   m1 <- rstan::stan(file = system.file("stan", "GP.stan", package = "sawlog"), 
-                    data = stan_data, iter = 3000, chains = 3, seed = 123, control = list(max_treedepth = 15))
+                    data = stan_data, iter = iter, chains = chains, seed = 123, control = list(max_treedepth = 10))
   
   return(m1)
 }
