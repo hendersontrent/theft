@@ -23,7 +23,13 @@ devtools::install_github("hendersontrent/theft")
 
 ## General purpose
 
-`theft` is a software package for R that facilitates user-friendly access to a structured analytical pipeline for the computation, analysis, and visualisation of time-series features. The package pulls and concatenates a large number of time-series feature statistic methods from a range of existing R packages and lets the user specify which groups (or all) of the these features to calculate. The package also contains a suite of tools for automatic normalisation of extracted feature vectors, dimension reduction, and data visualisation. The entire package is developed around principles of [tidy data](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html), meaning it integrates with and uses existing [tidyverse](https://www.tidyverse.org) and [tidyverts](https://tidyverts.org) software.
+`theft` is a software package for R that facilitates user-friendly access to a structured analytical pipeline for the computation, analysis, and visualisation of time-series features. The package pulls and concatenates a large number of time-series feature statistic methods from a range of existing R packages and lets the user specify which groups (or all) of the these features to calculate. The packages which `theft` currently pulls together include:
+
+* [catch22](https://github.com/hendersontrent/catch22)
+* [feasts](https://feasts.tidyverts.org)
+* [tsfeatures](https://github.com/robjhyndman/tsfeatures)
+
+The package also contains a suite of tools for automatic normalisation of extracted feature vectors, dimension reduction, and data visualisation. The entire package is developed around principles of [tidy data](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html), meaning it integrates with and uses existing [tidyverse](https://www.tidyverse.org) and [tidyverts](https://tidyverts.org) software.
 
 ## Citation
 
