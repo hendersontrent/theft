@@ -1,6 +1,12 @@
 
 # theft <img src="man/figures/logo.png" align="right" width="120" />
 
+[![CRAN
+version](http://www.r-pkg.org/badges/version/catch22)](http://www.r-pkg.org/pkg/theft)
+[![CRAN RStudio mirror
+downloads](http://cranlogs.r-pkg.org/badges/catch22)](http://www.r-pkg.org/pkg/theft)
+[![DOI](https://zenodo.org/badge/351259952.svg)](https://zenodo.org/badge/latestdoi/351259952)
+
 Tools for Handling Exploratory Features from Time-series (theft)
 
 ## Installation
