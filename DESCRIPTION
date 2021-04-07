@@ -1,24 +1,23 @@
-Package: sawlog
+Package: theft
 Type: Package
-Title: Structured Analysis Workflow for statistical Learning On Groups of time-series features
-Version: 0.1.1
-Date: 2021-08-25
+Title: Tools for Handling Exploratory Features from Time-series
+Version: 0.1.2
+Date: 2021-05-07
 Authors@R: c(
   person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut"))
   )
 Maintainer: Trent Henderson <then6675@uni.sydney.edu.au>
-Description: Consolidates and calculates sets of CAnonical Time-series CHaracteristics (catch) and other 
-    statistical time-series features from existing R packages, and uses them in a high-level API user-friendly
-    way to produce statistical and machine learning models to classify time-series data. 
-    Provides a simple functional API to standardise and automate the entire analytical 
-    workflow from feature calculation to normalisation to modelling to data visualisation and diagnostics.
-BugReports: https://github.com/hendersontrent/sawlog/issues
+Description: Consolidates and calculates different sets of time-series features from multiple existing 
+    R packages, and provides a simple functional API to standardise and automate the analytical 
+    workflow from feature calculation to normalisation to dimension reduction and data visualisation.
+BugReports: https://github.com/hendersontrent/theft/issues
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Depends: 
     R (>= 3.5.0)
 Imports: 
+    Rcpp (>= 0.12.15),
     data.table,
     dplyr,
     ggplot2,
@@ -27,15 +26,10 @@ Imports:
     reshape2,
     tibble,
     broom,
-    caTools,
-    rstan,
-    bayesplot,
-    mgcv,
-    neuralnet,
-    parallel,
-    Cairo,
     tsibble,
     fabletools,
     tsfeatures,
     feasts
+LinkingTo: 
+    Rcpp
 RoxygenNote: 7.1.1

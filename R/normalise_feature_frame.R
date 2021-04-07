@@ -4,7 +4,7 @@ zscore_function <- function(data, names = NULL, values = NULL){
   
   tmp <- data %>%
     dplyr::group_by(names) %>%
-    dplyr::mutate(values = catch22::normalise_catch(values, method = "z-score")) %>%
+    dplyr::mutate(values = normalise_feature_vector(values, method = "z-score")) %>%
     dplyr::ungroup()
   
   return(tmp)
@@ -14,7 +14,7 @@ sigmoid_function <- function(data, names = NULL, values = NULL){
   
   tmp <- data %>%
     dplyr::group_by(names) %>%
-    dplyr::mutate(values = catch22::normalise_catch(values, method = "Sigmoid")) %>%
+    dplyr::mutate(values = normalise_feature_vector(values, method = "Sigmoid")) %>%
     dplyr::ungroup()
   
   return(tmp)
@@ -24,7 +24,7 @@ rsigmoid_function <- function(data, names = NULL, values = NULL){
   
   tmp <- data %>%
     dplyr::group_by(names) %>%
-    dplyr::mutate(values = catch22::normalise_catch(values, method = "RobustSigmoid")) %>%
+    dplyr::mutate(values = normalise_feature_vector(values, method = "RobustSigmoid")) %>%
     dplyr::ungroup()
   
   return(tmp)
@@ -34,7 +34,7 @@ mm_function <- function(data, names = NULL, values = NULL){
   
   tmp <- data %>%
     dplyr::group_by(names) %>%
-    dplyr::mutate(values = catch22::normalise_catch(values, method = "MinMax")) %>%
+    dplyr::mutate(values = normalise_feature_vector(values, method = "MinMax")) %>%
     dplyr::ungroup()
   
   return(tmp)
@@ -44,7 +44,7 @@ ms_function <- function(data, names = NULL, values = NULL){
   
   tmp <- data %>%
     dplyr::group_by(names) %>%
-    dplyr::mutate(values = catch22::normalise_catch(values, method = "MeanSubtract")) %>%
+    dplyr::mutate(values = normalise_feature_vector(values, method = "MeanSubtract")) %>%
     dplyr::ungroup()
   
   return(tmp)
@@ -63,7 +63,7 @@ ms_function <- function(data, names = NULL, values = NULL){
 #' @export
 #' @examples
 #' \dontrun{
-#' outs <- sawlog::calculate_features(tsibbledata::ausretail, id_var = "Industry", group_var = "State", time_var = "Month", value_var = "Turnover", feature_set = "feasts")
+#' outs <- theft::calculate_features(tsibbledata::ausretail, id_var = "Industry", group_var = "State", time_var = "Month", value_var = "Turnover", feature_set = "feasts")
 #' outsNormed <- normalise_feature_frame(outs, names_var = "names", values_var = "values", method = "RobustSigmoid")
 #'}
 
