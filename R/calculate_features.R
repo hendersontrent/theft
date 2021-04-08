@@ -80,7 +80,14 @@ calc_tsfeatures <- function(data){
     
     # Feature calcs
     
-    tmp <- tsfeatures::tsfeatures(tsData) %>%
+    tmp <- tsfeatures::tsfeatures(tsData, features = c("frequency", "stl_features", "entropy", "acf_features",
+                                                       "compengine", "arch_stat", "crossing_points", "flat_spots",
+                                                       "heterogeneity", "holt_parameters", "hurst", 
+                                                       "lumpiness", "max_kl_shift", "max_level_shift", "max_var_shift", 
+                                                       "nonlinearity", "pacf_features", "stability", "unitroot_kpss",
+                                                       "unitroot_pp", "embed2_incircle", "firstzero_ac",
+                                                       "histogram_mode", "localsimple_taures", "sampenc",
+                                                       "spreadrandomlocal_meantaul")) %>%
       dplyr::mutate(id = i) %>%
       tidyr::pivot_longer(cols = !id, names_to = "names", values_to = "values") %>%
       dplyr::mutate(method = "tsfeatures")
@@ -153,8 +160,6 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   }
   
   #--------- Feature calcs --------
-  
-  message("Calculating features... This may take a long time to complete depending on the size of your data and the number of features selected.")
   
   data_re <- data %>%
     dplyr::rename(id = dplyr::all_of(id_var),
