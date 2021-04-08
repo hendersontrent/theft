@@ -57,20 +57,34 @@ plot_quality_matrix(feature_matrix)
 
 ## Normalising/scaling functions
 
-Putting calculated feature vectors on an equal scale is crucial for any statistical or machine learning model as variables with high variance can adversely impact the model's capacity to fit the data appropriately, learn appropriate weight values, or minimise a loss function. `theft` includes the functions `normalise_feature_vector` and `normalise_feature_frame` to rescale a vector of values (e.g. vector of values for all participants in a study on the `SB_BinaryStats_mean_longstretch1` feature) either by itself or within a dataframe into a variety of different ranges for ease-of-use. Current transformations available in the package include:
+Putting calculated feature vectors on an equal scale is crucial for any statistical or machine learning model as variables with high variance can adversely impact the model's capacity to fit the data appropriately, learn appropriate weight values, or minimise a loss function. `theft` includes the functions `normalise_feature_vector` to rescale a vector of values (e.g. vector of values for all participants in a study on the `SB_BinaryStats_mean_longstretch1` feature), and `normalise_feature_frame` to rescale a vector within a dataframe into a variety of different ranges for ease-of-use. Current transformations available in the package include:
 
-* z-score
-* Sigmoid
-* Outlier-robust Sigmoid (credit to Ben Fulcher for creating the original [MATLAB version](https://github.com/benfulcher/hctsa))
-* Min-max
-* Mean subtraction
+* z-score - `"z-score"`
+* Sigmoid - `"Sigmoid"`
+* Outlier-robust Sigmoid (credit to Ben Fulcher for creating the original [MATLAB version](https://github.com/benfulcher/hctsa)) - `"RobustSigmoid"`
+* Min-max - `"MinMax"`
+* Mean subtraction - `"MeanSubtract"`
+
+Vector-based normalisation can be performed using the following:
+
+```{r, message = FALSE, warning = FALSE}
+ar_process <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
+outs <- normalise_feature_vector(ar_process, method = "RobustSigmoid")
+```
+
+Dataframe-based normalisation can be performed using the following:
+
+```{r, message = FALSE, warning = FALSE}
+normed <- normalise_feature_frame(feature_matrix, names_var = "names", values_var = "values", method = c("RobustSigmoid"))
+```
 
 ## Data visualisation functions
 
-The package also comes with a built-in plotting engine for calculating and visualising (at present) two types of statistical graphics:
+The package also comes with a built-in plotting engine for calculating and visualising (at present) three types of statistical graphics:
 
 * Feature by time-series matrices as heatmaps
-* Principal components analysis (PCA) on the feature space for each time-series as scatterplots
+* Principal components analysis (PCA) dimension reduction on the feature space for each time series as scatterplots
+* Unique ID feature connectivity matrices as correlation-driven heatmaps
 
 ### Feature matrix
 
