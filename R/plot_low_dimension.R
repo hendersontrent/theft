@@ -17,14 +17,11 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' data1 <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
-#' data2 <- rnorm(1000, mean = 0, sd = 1)
-#' outs1 <- catch22_all(data1)
-#' outs1['group'] <- 'Group 1'
-#' outs2 <- catch22_all(data2)
-#' outs2['group'] <- 'Group 2'
-#' outs <- rbind(outs1, outs2)
-#' plot_low_dimension(outs, is_normalised = FALSE, id_var = "group", group = NULL, method = "RobustSigmoid", plot = TRUE)
+#' library(dplyr)
+#' d <- tsibbledata::aus_retail %>%
+#'   filter(State == "New South Wales")
+#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
+#' plot_low_dimension(outs, is_normalised = FALSE, id_var = "Industry", group_var = NULL, method = "RobustSigmoid")
 #' }
 #'
 
@@ -44,11 +41,11 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
   '%ni%' <- Negate('%in%')
 
   if(expected_cols_1 %ni% the_cols){
-    stop("data should contain at least two columns called 'names' and 'values'. These are automatically produced by feature calculations such as catch_all(). Please consider running one of these first and then passing the resultant dataframe in to this function.")
+    stop("data should contain at least two columns called 'names' and 'values'. These are automatically produced by feature calculations such as calculate_features(). Please consider running one of these first and then passing the resultant dataframe in to this function.")
   }
 
   if(expected_cols_2 %ni% the_cols){
-    stop("data should contain at least two columns called 'names' and 'values'. These are automatically produced by feature calculations such as catch_all(). Please consider running one of these first and then passing the resultant dataframe in to this function.")
+    stop("data should contain at least two columns called 'names' and 'values'. These are automatically produced by feature calculations such as calculate_features(). Please consider running one of these first and then passing the resultant dataframe in to this function.")
   }
 
   if(!is.numeric(data$values)){
@@ -77,15 +74,11 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
 
   #------------- Assign ID variable ---------------
 
-  if (nrow(data) <= 22){
-    stop("Not enough data to compute principal components analysis. Need multiple samples per feature.")
-  }
-
-  if (is.null(id_var) & nrow(data) > 22){
+  if(is.null(id_var)){
     stop("Data is not uniquely identifiable. Please add a unique identifier variable.")
   }
 
-  if(!is.null(id_var) & nrow(data) > 22){
+  if(!is.null(id_var)){
     data_id <- data %>%
       dplyr::rename(id = dplyr::all_of(id_var))
   }
@@ -94,10 +87,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
 
   if(is_normalised){
     normed <- data_id
-  } else if (is_normalised == FALSE & nrow(data_id) == 22){
-    message("Not enough data to standardise feature vectors. Using raw calculated values.")
-    normed <- data_id
-  }else{
+  } else{
     normed <- data_id %>%
       dplyr::select(c(id, names, values)) %>%
       dplyr::group_by(names) %>%
@@ -113,17 +103,25 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
   #------------- Perform PCA ----------------------
 
   # Produce matrix
-
+  
   dat <- normed %>%
     tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
-    tibble::column_to_rownames(var = "id") %>%
+    tibble::column_to_rownames(var = "id")
+  
+  # Remove any columns with all NAs to avoid whole dataframe being dropped
+  
+  dat_filtered <- dat[colSums(!is.na(dat)) > 0]
+  
+  # Drop any remaining rows with NAs
+  
+  dat_filtered <- dat_filtered %>%
     tidyr::drop_na()
 
   # PCA calculation
 
   set.seed(123)
 
-  pca_fit <- dat %>%
+  pca_fit <- dat_filtered %>%
     prcomp(scale = FALSE)
 
   # Retrieve eigenvalues and tidy up variance explained for plotting

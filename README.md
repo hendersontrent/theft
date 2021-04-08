@@ -28,7 +28,7 @@ analysis, and visualisation of time-series features. The package pulls
 and concatenates a large number of time-series feature statistic methods
 from a range of existing R packages and lets the user specify which
 groups (or all) of the these features to calculate. The packages which
-`theft` currently pulls together include:
+`theft` currently steals features from include:
 
   - [catch22](https://github.com/hendersontrent/catch22)
   - [feasts](https://feasts.tidyverts.org)

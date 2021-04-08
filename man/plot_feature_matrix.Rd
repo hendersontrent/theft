@@ -28,19 +28,13 @@ Produce a heatmap matrix of the calculated feature value vectors and each unique
 }
 \examples{
 \dontrun{
-data1 <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
-data2 <- rnorm(1000, mean = 0, sd = 1)
-outs1 <- catch22_all(data1)
-outs1['group'] <- 'Group 1'
-outs2 <- catch22_all(data2)
-outs2['group'] <- 'Group 2'
-outs <- rbind(outs1, outs2)
-plot_feature_matrix(outs, is_normalised = FALSE, id_var = "group", method = "RobustSigmoid")
+library(dplyr)
+d <- tsibbledata::aus_retail \%>\%
+  filter(State == "New South Wales")
+outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
+plot_feature_matrix(outs, is_normalised = FALSE, id_var = "Industry", method = "RobustSigmoid")
 }
 
-}
-\seealso{
-[catchEmAll::normalise_catch()]
 }
 \author{
 Trent Henderson

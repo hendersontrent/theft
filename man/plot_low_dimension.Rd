@@ -34,14 +34,11 @@ Produce a principal components analysis (PCA) on normalised feature values and r
 }
 \examples{
 \dontrun{
-data1 <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
-data2 <- rnorm(1000, mean = 0, sd = 1)
-outs1 <- catch22_all(data1)
-outs1['group'] <- 'Group 1'
-outs2 <- catch22_all(data2)
-outs2['group'] <- 'Group 2'
-outs <- rbind(outs1, outs2)
-plot_low_dimension(outs, is_normalised = FALSE, id_var = "group", group = NULL, method = "RobustSigmoid", plot = TRUE)
+library(dplyr)
+d <- tsibbledata::aus_retail \%>\%
+  filter(State == "New South Wales")
+outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
+plot_low_dimension(outs, is_normalised = FALSE, id_var = "Industry", group_var = NULL, method = "RobustSigmoid")
 }
 
 }
