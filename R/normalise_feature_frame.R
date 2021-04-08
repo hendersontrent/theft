@@ -106,27 +106,27 @@ normalise_feature_frame <- function(data, names_var = NULL, values_var = NULL, m
   #--------- Apply scaling ---------
   
   data_re <- data %>%
-    dplyr::rename(names = names_var,
-                  values = values_var)
+    dplyr::rename(names = dplyr::all_of(names_var),
+                  values = dplyr::all_of(values_var))
   
   if(method == "z-score"){
-    tmp <- zscore_function(data = data, names = names_var, values = values_var)
+    tmp <- zscore_function(data = data)
   }
   
   if(method == "Sigmoid"){
-    tmp <- sigmoid_function(data = data, names = names_var, values = values_var)
+    tmp <- sigmoid_function(data = data)
   }
   
   if(method == "RobustSigmoid"){
-    tmp <- rsigmoid_function(data = data, names = names_var, values = values_var)
+    tmp <- rsigmoid_function(data = data)
   }
   
   if(method == "MinMax"){
-    tmp <- mm_function(data = data, names = names_var, values = values_var)
+    tmp <- mm_function(data = data)
   }
   
   if(method == "MeanSubtract"){
-    tmp <- ms_function(data = data, names = names_var, values = values_var)
+    tmp <- ms_function(data = data)
   }
   
   return(tmp)
@@ -184,24 +184,28 @@ normalize_feature_frame <- function(data, names_var = NULL, values_var = NULL, m
   
   #--------- Apply scaling ---------
   
+  data_re <- data %>%
+    dplyr::rename(names = dplyr::all_of(names_var),
+                  values = dplyr::all_of(values_var))
+  
   if(method == "z-score"){
-    tmp <- zscore_function(data = data, names = names_var, values = values_var)
+    tmp <- zscore_function(data = data)
   }
   
   if(method == "Sigmoid"){
-    tmp <- sigmoid_function(data = data, names = names_var, values = values_var)
+    tmp <- sigmoid_function(data = data)
   }
   
   if(method == "RobustSigmoid"){
-    tmp <- rsigmoid_function(data = data, names = names_var, values = values_var)
+    tmp <- rsigmoid_function(data = data)
   }
   
   if(method == "MinMax"){
-    tmp <- mm_function(data = data, names = names_var, values = values_var)
+    tmp <- mm_function(data = data)
   }
   
   if(method == "MeanSubtract"){
-    tmp <- ms_function(data = data, names = names_var, values = values_var)
+    tmp <- ms_function(data = data)
   }
   
   return(tmp)

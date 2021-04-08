@@ -28,9 +28,13 @@ Scale each feature vector into a user-specified range for visualisation and mode
 }
 \examples{
 \dontrun{
-outs <- theft::calculate_features(tsibbledata::ausretail, id_var = "Industry", group_var = "State", time_var = "Month", value_var = "Turnover", feature_set = "feasts")
-outsNormed <- normalise_feature_frame(outs, names_var = "names", values_var = "values", method = "RobustSigmoid")
+library(dplyr)
+d <- tsibbledata::aus_retail \%>\%
+  filter(State == "New South Wales")
+outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
+normed <- normalise_feature_frame(outs, names_var = "names", values_var = "values", method = "RobustSigmoid")
 }
+
 }
 \author{
 Trent Henderson
