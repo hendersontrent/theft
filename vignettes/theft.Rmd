@@ -20,7 +20,6 @@ knitr::opts_chunk$set(
 
 ```{r setup, message = FALSE}
 library(dplyr)
-library(magrittr)
 library(theft)
 ```
 
@@ -107,5 +106,5 @@ plot_low_dimension(feature_matrix, is_normalised = FALSE, id_var = "Industry", g
 The function `plot_connectivity_matrix` mimics the design of functional connectivity matrices commonly represented in neuroscience research. The function automates the calculation of correlations between feature vectors of each uniquely identified entity, the hierarchical clustering of rows and columns of these correlations, and the production of the final heatmap-style graphic.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_connectivity_matrix(feature_matrix, id_var = "Industry")
+plot_connectivity_matrix(feature_matrix, id_var = "id", names_var = "names", values_var = "values")
 ```

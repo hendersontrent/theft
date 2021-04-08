@@ -80,7 +80,14 @@ calc_tsfeatures <- function(data){
     
     # Feature calcs
     
-    tmp <- tsfeatures::tsfeatures(tsData) %>%
+    tmp <- tsfeatures::tsfeatures(tsData, features = c("frequency", "stl_features", "entropy", "acf_features",
+                                                       "compengine", "arch_stat", "crossing_points", "flat_spots",
+                                                       "heterogeneity", "holt_parameters", "hurst", 
+                                                       "lumpiness", "max_kl_shift", "max_level_shift", "max_var_shift", 
+                                                       "nonlinearity", "pacf_features", "stability", "unitroot_kpss",
+                                                       "unitroot_pp", "embed2_incircle", "firstzero_ac",
+                                                       "histogram_mode", "localsimple_taures", "sampenc",
+                                                       "spreadrandomlocal_meantaul")) %>%
       dplyr::mutate(id = i) %>%
       tidyr::pivot_longer(cols = !id, names_to = "names", values_to = "values") %>%
       dplyr::mutate(method = "tsfeatures")
