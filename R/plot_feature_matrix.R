@@ -93,7 +93,7 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = NULL, meth
     normed <- data_id %>%
       dplyr::select(c(id, names, values)) %>%
       dplyr::group_by(names) %>%
-      dplyr::mutate(values = normalise_catch(values, method = method)) %>%
+      dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
       dplyr::ungroup() %>%
       tidyr::drop_na()
 

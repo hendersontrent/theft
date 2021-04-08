@@ -12,7 +12,7 @@
 #---------------------------------------
 
 library(dplyr)
-#library(theft)
+library(theft)
 
 #-----------------------
 # FOR PRE-PKG BUILD ONLY
@@ -47,22 +47,15 @@ plot_quality_matrix(outs_fe)
 
 # Test 2: Normalisation
 
-test_scaler <- function(method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")){
-  df <- outs_fe %>%
-    group_by(names) %>%
-    mutate(values = normalise_feature_vector(values, method = method)) %>%
-    ungroup()
-  
-  return(df)
-}
-
-scale_test_z <- test_scaler(method = "z-score")
-scale_test_sigmoid <- test_scaler(method = "Sigmoid")
-scale_test_rsigmoid <- test_scaler(method = "RobustSigmoid")
-scale_test_minmax <- test_scaler(method = "MinMax")
-scale_test_meansub <- test_scaler(method = "MeanSubtract")
+ar_process <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
+vec1 <- normalise_feature_vector(ar_process, method = "z-score")
+vec2 <- normalise_feature_vector(ar_process, method = "Sigmoid")
+vec3 <- normalise_feature_vector(ar_process, method = "RobustSigmoid")
+vec4 <- normalise_feature_vector(ar_process, method = "MinMax")
+vec5 <- normalise_feature_vector(ar_process, method = "MeanSubtract")
 
 normed <- normalise_feature_frame(outs_fe, names_var = "names", values_var = "values", method = c("RobustSigmoid"))
+normed1 <- normalise_feature_frame(outs_fe, names_var = "names", values_var = "values", method = c("MinMax"))
 
 # Test 3: Feature matrix
 
@@ -73,14 +66,9 @@ plot_feature_matrix(outs_fe, is_normalised = FALSE, id_var = "id", method = "Min
 
 # Grouped
 
-plot_low_dimension(normed, is_normalised = TRUE, id_var = "id", group_var = "Keywords", plot = TRUE, method = "RobustSigmoid")
-d <- plot_low_dimension(outs_fe, is_normalised = FALSE, id_var = "id", group_var = "Keywords", plot = FALSE, method = "RobustSigmoid")
-
-# Ungrouped
-
 plot_low_dimension(outs_fe, is_normalised = TRUE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid")
 d1 <- plot_low_dimension(outs_fe, is_normalised = FALSE, id_var = "id", group_var = NULL, plot = FALSE, method = "RobustSigmoid")
 
 # Test 5: Connectivity matrix
 
-plot_connectivity_matrix(outs_fe, id_var = NULL, names_var = NULL, values_var = NULL)
+plot_connectivity_matrix(outs_fe, id_var = "id", names_var = "names", values_var = "values")
