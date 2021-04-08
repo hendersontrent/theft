@@ -8,7 +8,7 @@ output: rmarkdown::github_document
 [![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/catch22)](http://www.r-pkg.org/pkg/theft)
 [![DOI](https://zenodo.org/badge/351259952.svg)](https://zenodo.org/badge/latestdoi/351259952)
 
-Tools for Handling Exploratory Features from Time-series (theft)
+Tools for Handling Extraction of Features from Time-series (theft)
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -27,7 +27,7 @@ devtools::install_github("hendersontrent/theft")
 
 ## General purpose
 
-`theft` is a software package for R that facilitates user-friendly access to a structured analytical pipeline for the computation, analysis, and visualisation of time-series features. The package pulls and concatenates a large number of time-series feature statistic methods from a range of existing R packages and lets the user specify which groups (or all) of the these features to calculate. The packages which `theft` currently pulls together include:
+`theft` is a software package for R that facilitates user-friendly access to a structured analytical pipeline for the computation, analysis, and visualisation of time-series features. The package pulls and concatenates a large number of time-series feature statistic methods from a range of existing R packages and lets the user specify which groups (or all) of the these features to calculate. The packages which `theft` currently steals features from include:
 
 * [catch22](https://github.com/hendersontrent/catch22)
 * [feasts](https://feasts.tidyverts.org)

@@ -20,32 +20,17 @@ knitr::opts_chunk$set(
 
 ```{r setup, message = FALSE}
 library(dplyr)
+library(magrittr)
 library(theft)
 ```
 
 ## Core calculation functions
 
-Before we look at the available functions in the package, let's first pull a heap of time-series data from the [Empirical 1000](https://figshare.com/articles/dataset/1000_Empirical_Time_series/5436136) dataset. This section of code isn't directly needed for the package.
+Before we look at the available functions in the package, let's first pull some time-series data.
 
 ```{r, message = FALSE, warning = FALSE}
-# Set up a tempfile and download the dataset (this may take a bit to download depending on your internet)
-
-temp <- tempfile()
-download.file("https://ndownloader.figshare.com/files/24950795",temp)
-ts <- read.csv(temp, header = FALSE)
-
-ts <- ts %>%
-  dplyr::mutate(id = dplyr::row_number()) %>%
-  tidyr::pivot_longer(!id, names_to = "timepoint", values_to = "value") %>%
-  dplyr::mutate(timepoint = as.numeric(gsub("V", "\\1", timepoint)))
-
-temp1 <- tempfile()
-download.file("https://ndownloader.figshare.com/files/24950798",temp1)
-ts_info <- read.csv(temp1, header = TRUE)
-
-d1 <- ts %>%
-  dplyr::left_join(ts_info, by = c("id" = "ID")) %>%
-  dplyr::mutate(group = 1)
+d <- tsibbledata::aus_retail %>%
+  filter(State == "New South Wales")
 ```
 
 ### Calculating feature summary statistics
@@ -53,12 +38,14 @@ d1 <- ts %>%
 The core function that automates the calculation of the feature statistics at once is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `all`, `catch22`, `feasts`, or `tsfeatures`.
 
 ```{r, message = FALSE, warning = FALSE}
-feature_matrix <- calculate_features(data = d1, id_var = "id", group_var = "group", 
-                                     time_var = "timepoint", value_var = "value", 
-                                     feature_set = "all")
+feature_matrix <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
 ```
 
-If you do not want to or need to run the entire sets included in `theft_all` you can also access the individual feature calculations as their unique function names, for example `IN_AutoMutualInfoStats_40_gaussian_fmmi`.
+If you do not want to or need to run the entire sets included in `theft_all` you can also access the individual feature calculations as their unique function names, for example `IN_AutoMutualInfoStats_40_gaussian_fmmi`. A list of all the included feature calculations and the set they correspond to is available as a dataframe that ships with the software package:
+
+```{r, message = FALSE, warning = FALSE}
+View(feature_list)
+```
 
 ## Data quality checks
 
@@ -90,7 +77,7 @@ The package also comes with a built-in plotting engine for calculating and visua
 The function `plot_feature_matrix` takes the output of any included feature calculation function and produces a `ggplot` object heatmap showing the feature vectors across the `x` axis and each time series down the `y` axis. Prior to plotting, the function hierarchically clusters the data across both rows and columns to visually highlight the empirical structure.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_feature_matrix(feature_matrix, is_normalised = FALSE, id_var = "id", method = "RobustSigmoid")
+plot_feature_matrix(feature_matrix, is_normalised = FALSE, id_var = "Industry", method = "RobustSigmoid")
 ```
 
 ### Dimension reduction
@@ -98,5 +85,13 @@ plot_feature_matrix(feature_matrix, is_normalised = FALSE, id_var = "id", method
 The function `plot_low_dimension` takes the output of any included feature calculation function, calculates a PCA, and produces a `ggplot` object scatterplot showing the first and second principal components on the `x` and `y` axis respectively, their individual explained variance, and each time series as a point on the `x-y` space. If `plot = FALSE` the function returns a dataframe of PCA results. If a variable is specified in the `group_var` argument, the scatterplot points will be automatically coloured by group.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_low_dimension(feature_matrix, is_normalised = FALSE, id_var = "id", group_var = NULL, method = "RobustSigmoid", plot = TRUE)
+plot_low_dimension(feature_matrix, is_normalised = FALSE, id_var = "Industry", group_var = NULL, method = "RobustSigmoid", plot = TRUE)
+```
+
+### Connectivity matrix
+
+The function `plot_connectivity_matrix` mimics the design of functional connectivity matrices commonly represented in neuroscience research. The function automates the calculation of correlations between feature vectors of each uniquely identified entity, the hierarchical clustering of rows and columns of these correlations, and the production of the final heatmap-style graphic.
+
+```{r, message = FALSE, warning = FALSE}
+plot_connectivity_matrix(feature_matrix, id_var = "Industry")
 ```

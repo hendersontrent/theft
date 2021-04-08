@@ -8,6 +8,11 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' library(dplyr)
+#' d <- tsibbledata::aus_retail %>%
+#'   filter(State == "New South Wales")
+#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", value_var = "Turnover", feature_set = "all")
+#' plot_quality_matrix(data = outs)
 #' }
 #'
 

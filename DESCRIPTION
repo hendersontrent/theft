@@ -1,6 +1,6 @@
 Package: theft
 Type: Package
-Title: Tools for Handling Exploratory Features from Time-series
+Title: Tools for Handling Extraction of Features from Time-series
 Version: 0.1.2
 Date: 2021-05-07
 Authors@R: c(
@@ -9,7 +9,8 @@ Authors@R: c(
 Maintainer: Trent Henderson <then6675@uni.sydney.edu.au>
 Description: Consolidates and calculates different sets of time-series features from multiple existing 
     R packages, and provides a simple functional API to standardise and automate the analytical 
-    workflow from feature calculation to normalisation to dimension reduction and data visualisation.
+    workflow from feature calculation to normalisation to dimension reduction and production
+    of statistical graphics.
 BugReports: https://github.com/hendersontrent/theft/issues
 License: GPL-3
 Encoding: UTF-8

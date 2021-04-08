@@ -12,33 +12,45 @@
 #---------------------------------------
 
 library(dplyr)
-library(theft)
+#library(theft)
 
-#------------------- Core package functionality ---------------------
+#-----------------------
+# FOR PRE-PKG BUILD ONLY
+library(data.table)
+library(dplyr)
+library(magrittr)
+library(tidyr)
+library(tsibble)
+library(fabletools)
+library(feasts)
+library(tsfeatures)
+# DELETE ONCE BUILT
+#-----------------------
 
-outs <- calculate_features(tsibbledata::ausretail, 
-                           id_var = "Industry", group_var = "State",
-                           time_var = "Month", value_var = "Turnover", 
-                           feature_set = "all")
+# Retrieve some data
 
-outsNormed <- normalise_feature_frame(outs, names_var = "names", values_var = "values", method = "RobustSigmoid")
+d <- tsibbledata::aus_retail %>%
+  filter(State == "New South Wales")
+
+#------------------- Feature extraction -----------------------------
+
+outs_all <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
+outs_fe <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "feasts")
+outs_ts <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "tsfeatures")
+outs_22 <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "catch22")
 
 #------------------- Other package functionality --------------------
 
-#.....
-# NOTE: If above function fails, then catch22::catch22_all is broken
-#.....
-
 # Test 1: Data quality matrix
 
-plot_quality_matrix(outs)
+plot_quality_matrix(outs_fe)
 
 # Test 2: Normalisation
 
 test_scaler <- function(method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")){
-  df <- outs %>%
+  df <- outs_fe %>%
     group_by(names) %>%
-    mutate(values = normalise_catch(values, method = method)) %>%
+    mutate(values = normalise_feature_vector(values, method = method)) %>%
     ungroup()
   
   return(df)
@@ -50,18 +62,25 @@ scale_test_rsigmoid <- test_scaler(method = "RobustSigmoid")
 scale_test_minmax <- test_scaler(method = "MinMax")
 scale_test_meansub <- test_scaler(method = "MeanSubtract")
 
+normed <- normalise_feature_frame(outs_fe, names_var = "names", values_var = "values", method = c("RobustSigmoid"))
+
 # Test 3: Feature matrix
 
-plot_feature_matrix(outs, is_normalised = FALSE, id_var = "id", method = "RobustSigmoid")
+plot_feature_matrix(normed, is_normalised = TRUE, id_var = "id", method = "RobustSigmoid")
+plot_feature_matrix(outs_fe, is_normalised = FALSE, id_var = "id", method = "MinMax")
 
 # Test 4: PCA
 
 # Grouped
 
-plot_low_dimension(outs, is_normalised = FALSE, id_var = "id", group_var = "Keywords", plot = TRUE, method = "RobustSigmoid")
-d <- plot_low_dimension(outs, is_normalised = FALSE, id_var = "id", group_var = "Keywords", plot = FALSE, method = "RobustSigmoid")
+plot_low_dimension(normed, is_normalised = TRUE, id_var = "id", group_var = "Keywords", plot = TRUE, method = "RobustSigmoid")
+d <- plot_low_dimension(outs_fe, is_normalised = FALSE, id_var = "id", group_var = "Keywords", plot = FALSE, method = "RobustSigmoid")
 
 # Ungrouped
 
-plot_low_dimension(outs, is_normalised = FALSE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid")
-d1 <- plot_low_dimension(outs, is_normalised = FALSE, id_var = "id", group_var = NULL, plot = FALSE, method = "RobustSigmoid")
+plot_low_dimension(outs_fe, is_normalised = TRUE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid")
+d1 <- plot_low_dimension(outs_fe, is_normalised = FALSE, id_var = "id", group_var = NULL, plot = FALSE, method = "RobustSigmoid")
+
+# Test 5: Connectivity matrix
+
+plot_connectivity_matrix(outs_fe, id_var = NULL, names_var = NULL, values_var = NULL)

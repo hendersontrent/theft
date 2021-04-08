@@ -1,6 +1,6 @@
 #------------------- Helper functions ------------------------------
 
-zscore_function <- function(data, names = NULL, values = NULL){
+zscore_function <- function(data){
   
   tmp <- data %>%
     dplyr::group_by(names) %>%
@@ -10,7 +10,7 @@ zscore_function <- function(data, names = NULL, values = NULL){
   return(tmp)
 }
 
-sigmoid_function <- function(data, names = NULL, values = NULL){
+sigmoid_function <- function(data){
   
   tmp <- data %>%
     dplyr::group_by(names) %>%
@@ -20,7 +20,7 @@ sigmoid_function <- function(data, names = NULL, values = NULL){
   return(tmp)
 }
 
-rsigmoid_function <- function(data, names = NULL, values = NULL){
+rsigmoid_function <- function(data){
   
   tmp <- data %>%
     dplyr::group_by(names) %>%
@@ -30,7 +30,7 @@ rsigmoid_function <- function(data, names = NULL, values = NULL){
   return(tmp)
 }
 
-mm_function <- function(data, names = NULL, values = NULL){
+mm_function <- function(data){
   
   tmp <- data %>%
     dplyr::group_by(names) %>%
@@ -40,7 +40,7 @@ mm_function <- function(data, names = NULL, values = NULL){
   return(tmp)
 }
 
-ms_function <- function(data, names = NULL, values = NULL){
+ms_function <- function(data){
   
   tmp <- data %>%
     dplyr::group_by(names) %>%
@@ -63,10 +63,13 @@ ms_function <- function(data, names = NULL, values = NULL){
 #' @export
 #' @examples
 #' \dontrun{
-#' outs <- theft::calculate_features(tsibbledata::ausretail, id_var = "Industry", group_var = "State", time_var = "Month", value_var = "Turnover", feature_set = "feasts")
-#' outsNormed <- normalise_feature_frame(outs, names_var = "names", values_var = "values", method = "RobustSigmoid")
-#'}
-
+#' library(dplyr)
+#' d <- tsibbledata::aus_retail %>%
+#'   filter(State == "New South Wales")
+#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
+#' normed <- normalise_feature_frame(outs, names_var = "names", values_var = "values", method = "RobustSigmoid")
+#' }
+#'
 normalise_feature_frame <- function(data, names_var = NULL, values_var = NULL, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")){
   
   # Make RobustSigmoid the default
@@ -101,6 +104,10 @@ normalise_feature_frame <- function(data, names_var = NULL, values_var = NULL, m
   }
   
   #--------- Apply scaling ---------
+  
+  data_re <- data %>%
+    dplyr::rename(names = names_var,
+                  values = values_var)
   
   if(method == "z-score"){
     tmp <- zscore_function(data = data, names = names_var, values = values_var)
