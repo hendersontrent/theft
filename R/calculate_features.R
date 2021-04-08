@@ -161,8 +161,6 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   #--------- Feature calcs --------
   
-  message("Calculating features... This may take a long time to complete depending on the size of your data and the number of features selected.")
-  
   data_re <- data %>%
     dplyr::rename(id = dplyr::all_of(id_var),
                   timepoint = dplyr::all_of(time_var),
