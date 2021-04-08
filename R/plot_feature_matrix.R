@@ -107,8 +107,14 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = NULL, meth
   dat <- normed %>%
     tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
     tibble::column_to_rownames(var = "id")
+  
+  # Remove any columns with all NAs to avoid whole dataframe being dropped
+  
+  dat_filtered <- dat[colSums(!is.na(dat)) > 0]
+  
+  # Drop any remaining rows with NAs
 
-  dat_filtered <- dat %>%
+  dat_filtered <- dat_filtered %>%
     tidyr::drop_na()
 
   if(nrow(dat_filtered) != nrow(dat)){

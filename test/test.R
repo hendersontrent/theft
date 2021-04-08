@@ -14,19 +14,6 @@
 library(dplyr)
 library(theft)
 
-#-----------------------
-# FOR PRE-PKG BUILD ONLY
-library(data.table)
-library(dplyr)
-library(magrittr)
-library(tidyr)
-library(tsibble)
-library(fabletools)
-library(feasts)
-library(tsfeatures)
-# DELETE ONCE BUILT
-#-----------------------
-
 # Retrieve some data
 
 d <- tsibbledata::aus_retail %>%
@@ -64,9 +51,8 @@ plot_feature_matrix(outs_fe, is_normalised = FALSE, id_var = "id", method = "Min
 
 # Test 4: PCA
 
-# Grouped
-
-plot_low_dimension(outs_fe, is_normalised = TRUE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid")
+plot_low_dimension(outs_fe, is_normalised = FALSE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid")
+plot_low_dimension(normed, is_normalised = TRUE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid")
 d1 <- plot_low_dimension(outs_fe, is_normalised = FALSE, id_var = "id", group_var = NULL, plot = FALSE, method = "RobustSigmoid")
 
 # Test 5: Connectivity matrix
