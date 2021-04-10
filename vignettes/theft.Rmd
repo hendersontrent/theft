@@ -40,7 +40,7 @@ The core function that automates the calculation of the feature statistics at on
 feature_matrix <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
 ```
 
-If you do not want to or need to run the entire sets included in `theft_all` you can also access the individual feature calculations as their unique function names, for example `IN_AutoMutualInfoStats_40_gaussian_fmmi`. A list of all the included feature calculations and the set they correspond to is available as a dataframe that ships with the software package:
+If you do not want to or need to run the entire sets included in `calculate_features` you can also access the individual feature calculations as their unique function names, for example `IN_AutoMutualInfoStats_40_gaussian_fmmi`. A list of all the included feature calculations and the set they correspond to is available as a dataframe that ships with the software package:
 
 ```{r, message = FALSE, warning = FALSE}
 View(feature_list)
