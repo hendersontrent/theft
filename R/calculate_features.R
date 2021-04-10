@@ -17,7 +17,7 @@ calc_catch22 <- function(data){
     
     # Feature calcs
     
-    tmp <- catch22::catch22_all(tsData) %>%
+    tmp <- Rcatch22::catch22_all(tsData) %>%
       dplyr::mutate(id = i,
                     method = "catch22")
     
@@ -107,7 +107,7 @@ calc_tsfeatures <- function(data){
 #' Automatically run time-series feature calculations included in the package
 #' @import dplyr
 #' @importFrom magrittr %>%
-#' @import catch22
+#' @import Rcatch22
 #' @import feasts
 #' @import tsfeatures
 #' @import tsibble

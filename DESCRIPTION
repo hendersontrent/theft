@@ -1,7 +1,7 @@
 Package: theft
 Type: Package
 Title: Tools for Handling Extraction of Features from Time-series
-Version: 0.1.4
+Version: 0.1.5
 Date: 2021-05-08
 Authors@R: c(
   person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut"))
@@ -18,19 +18,18 @@ LazyData: true
 Depends: 
     R (>= 3.5.0)
 Imports: 
-    Rcpp (>= 0.12.15),
     data.table,
     dplyr,
     ggplot2,
     magrittr,
     tidyr,
     reshape2,
+    scales,
     tibble,
     broom,
     tsibble,
     fabletools,
     tsfeatures,
-    feasts
-LinkingTo: 
-    Rcpp
+    feasts,
+    Rcatch22
 RoxygenNote: 7.1.1
