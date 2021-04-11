@@ -4,29 +4,14 @@
 
 calc_catch22 <- function(data){
   
-  storage <- list()
-  ids <- unique(data$id)
-  
-  for(i in ids){
-    
-    tsPrep <- data %>%
-      dplyr::filter(id == i) %>%
-      dplyr::arrange(timepoint)
-    
-    tsData <- tsPrep$values
-    
-    # Feature calcs
-    
-    tmp <- Rcatch22::catch22_all(tsData) %>%
-      dplyr::mutate(id = i,
-                    method = "catch22")
-    
-    storage[[i]] <- tmp
-  }
-  
-  # Pull into one tidy dataframe
-  
-  outData <- data.table::rbindlist(storage, use.names = TRUE)
+  outData <- data %>%
+    tibble::as_tibble() %>%
+    dplyr::group_by(id) %>%
+    dplyr::arrange(timepoint) %>%
+    dplyr::summarise(names = Rcatch22::catch22_all(values)$names,
+                     values = Rcatch22::catch22_all(values)$values) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(method = "catch22")
   
   return(outData)
 }
@@ -35,30 +20,12 @@ calc_catch22 <- function(data){
 
 calc_feasts <- function(data){
   
-  storage <- list()
-  ids <- unique(data$id)
+  tsData <- tsibble::as_tsibble(data, key = id, index = timepoint)
   
-  for(i in ids){
-    
-    tsPrep <- data %>%
-      dplyr::filter(id == i) %>%
-      dplyr::arrange(timepoint)
-    
-    tsData <- tsibble::as_tsibble(tsPrep, key = id, index = timepoint)
-    
-    # Feature calcs
-    
-    tmp <- tsData %>%
-      fabletools::features(values, fabletools::feature_set(pkgs = "feasts")) %>%
-      dplyr::mutate(id = i) %>%
-      tidyr::pivot_longer(!id, names_to = "names", values_to = "values")
-    
-    storage[[i]] <- tmp
-  }
-  
-  # Pull into one tidy dataframe
-  
-  outData <- data.table::rbindlist(storage, use.names = TRUE)
+  outData <- tsData %>%
+    fabletools::features(values, fabletools::feature_set(pkgs = "feasts")) %>%
+    tidyr::pivot_longer(!id, names_to = "names", values_to = "values") %>%
+    dplyr::mutate(method = "feasts")
   
   return(outData)
 }
@@ -67,37 +34,24 @@ calc_feasts <- function(data){
 
 calc_tsfeatures <- function(data){
   
-  storage <- list()
-  ids <- unique(data$id)
-  
-  for(i in ids){
-    
-    tsPrep <- data %>%
-      dplyr::filter(id == i) %>%
-      dplyr::arrange(timepoint)
-    
-    tsData <- list(tsPrep$values)
-    
-    # Feature calcs
-    
-    tmp <- tsfeatures::tsfeatures(tsData, features = c("frequency", "stl_features", "entropy", "acf_features",
-                                                       "compengine", "arch_stat", "crossing_points", "flat_spots",
-                                                       "heterogeneity", "holt_parameters", "hurst", 
-                                                       "lumpiness", "max_kl_shift", "max_level_shift", "max_var_shift", 
-                                                       "nonlinearity", "pacf_features", "stability", "unitroot_kpss",
-                                                       "unitroot_pp", "embed2_incircle", "firstzero_ac",
-                                                       "histogram_mode", "localsimple_taures", "sampenc",
-                                                       "spreadrandomlocal_meantaul")) %>%
-      dplyr::mutate(id = i) %>%
-      tidyr::pivot_longer(cols = !id, names_to = "names", values_to = "values") %>%
-      dplyr::mutate(method = "tsfeatures")
-    
-    storage[[i]] <- tmp
-  }
-  
-  # Pull into one tidy dataframe
-  
-  outData <- data.table::rbindlist(storage, use.names = TRUE)
+  outData <- data %>%
+    tibble::as_tibble() %>%
+    dplyr::group_by(id) %>%
+    dplyr::arrange(timepoint) %>%
+    dplyr::select(-c(timepoint)) %>%
+    dplyr::summarise(values = list(values)) %>%
+    dplyr::group_by(id) %>%
+    dplyr::summarise(tsfeatures::tsfeatures(values, features = c("frequency", "stl_features", "entropy", "acf_features",
+                                                                 "compengine", "arch_stat", "crossing_points", "flat_spots",
+                                                                 "heterogeneity", "holt_parameters", "hurst", 
+                                                                 "lumpiness", "max_kl_shift", "max_level_shift", "max_var_shift", 
+                                                                 "nonlinearity", "pacf_features", "stability", "unitroot_kpss",
+                                                                 "unitroot_pp", "embed2_incircle", "firstzero_ac",
+                                                                 "histogram_mode", "localsimple_taures", "sampenc",
+                                                                 "spreadrandomlocal_meantaul"))) %>%
+    dplyr::ungroup() %>%
+    tidyr::pivot_longer(!id, names_to = "names", values_to = "values") %>%
+    dplyr::mutate(method = "tsfeatures")
   
   return(outData)
 }
@@ -111,6 +65,7 @@ calc_tsfeatures <- function(data){
 #' @import feasts
 #' @import tsfeatures
 #' @import tsibble
+#' @importFrom tibble as_tibble
 #' @importFrom tidyr pivot_longer
 #' @importFrom data.table rbindlist
 #' @importFrom fabletools features
