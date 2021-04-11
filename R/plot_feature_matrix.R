@@ -137,14 +137,21 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = NULL, meth
     ggplot2::geom_tile() +
     ggplot2::labs(title = "Heatmap of hierarchically-clustered scaled features and individual time series",
                   x = "Feature",
-                  y = "Time Series",
-                  fill = paste0(method," scaled feature value")) +
+                  y = "Time Series") +
     ggplot2::theme_bw() +
     ggplot2::scale_fill_distiller(palette = "RdYlBu") +
     ggplot2::theme(legend.position = "bottom",
                    axis.text.y = ggplot2::element_blank(),
                    axis.text.x = ggplot2::element_text(angle = 90, hjust = 1),
                    panel.grid = ggplot2::element_blank())
+  
+  if(is_normalised){
+    p <- p +
+      ggplot2::labs(fill = "Scaled feature value")
+  } else{
+    p <- p +
+      ggplot2::labs(fill = paste0(method," scaled feature value"))
+  }
 
   return(p)
 }
