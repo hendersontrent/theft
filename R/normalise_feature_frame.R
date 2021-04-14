@@ -99,7 +99,7 @@ normalise_feature_frame <- function(data, names_var = NULL, values_var = NULL, m
   
   # Variables
   
-  if(is.null(names_var) | is.null(values_var)){
+  if(is.null(names_var) || is.null(values_var)){
     stop("Input dataframe must have at least 2 columns representing variables for: names (features) and values.")
   }
   
@@ -178,7 +178,7 @@ normalize_feature_frame <- function(data, names_var = NULL, values_var = NULL, m
   
   # Variables
   
-  if(is.null(names_var) | is.null(values_var)){
+  if(is.null(names_var) || is.null(values_var)){
     stop("Input dataframe must have at least 2 columns representing variables for: names (features) and values.")
   }
   

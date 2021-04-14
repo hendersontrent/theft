@@ -51,7 +51,7 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = NULL, meth
     stop("'values' column in data should be a numerical vector.")
   }
 
-  if(!is.null(id_var) & !is.character(id_var)){
+  if(!is.null(id_var) && !is.character(id_var)){
     stop("id_var should be a string specifying a variable in the input data that uniquely identifies each observation.")
   }
 
@@ -69,15 +69,11 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = NULL, meth
 
   #------------- Assign ID variable ---------------
 
-  if (nrow(data) <= 22){
-    stop("Not enough data to compute feature matrix. Need multiple samples per feature.")
-  }
-
-  if (is.null(id_var) & nrow(data) > 22){
+  if (is.null(id_var)){
     stop("Data is not uniquely identifiable. Please add a unique identifier variable.")
   }
 
-  if(!is.null(id_var) & nrow(data) > 22){
+  if(!is.null(id_var)){
     data_id <- data %>%
       dplyr::rename(id = dplyr::all_of(id_var))
   }

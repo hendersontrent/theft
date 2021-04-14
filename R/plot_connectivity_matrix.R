@@ -30,7 +30,7 @@ plot_connectivity_matrix <- function(data, id_var = NULL, names_var = NULL, valu
   
   #--------- Checks ---------------
   
-  if(is.null(id_var) | is.null(names_var) | is.null(values_var)){
+  if(is.null(id_var) || is.null(names_var) || is.null(values_var)){
     stop("An id, names (feature name identification), and values variable must all be specified.")
   }
   

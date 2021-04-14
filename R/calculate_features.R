@@ -89,7 +89,7 @@ calc_tsfeatures <- function(data){
 calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var = NULL,
                                feature_set = c("all", "catch22", "feasts", "tsfeatures")){
   
-  if(is.null(id_var) | is.null(time_var) | is.null(values_var)){
+  if(is.null(id_var) || is.null(time_var) || is.null(values_var)){
     stop("As {tsibble} currently cannot handle numeric vectors, input must be a dataframe with at least 3 columns: id, timepoint, value")
   }
   
