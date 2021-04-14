@@ -52,11 +52,11 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
     stop("'values' column in data should be a numerical vector.")
   }
 
-  if(!is.null(id_var) & !is.character(id_var)){
+  if(!is.null(id_var) && !is.character(id_var)){
     stop("id_var should be a string specifying a variable in the input data that uniquely identifies each observation.")
   }
 
-  if(!is.null(group_var) & !is.character(group_var)){
+  if(!is.null(group_var) && !is.character(group_var)){
     stop("group_var should be a string specifying a variable in the input data that identifies an aggregate group each observation relates to.")
   }
 
