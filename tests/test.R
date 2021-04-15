@@ -29,7 +29,7 @@ outs_22 <- calculate_features(data = d, id_var = "Industry", time_var = "Month",
 # tsfresh
 
 reticulate::use_python("~/opt/anaconda3/bin/python", required = TRUE)
-outs_all <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "tsfresh")
+outs_tsf <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "tsfresh")
 
 #------------------- Other package functionality --------------------
 

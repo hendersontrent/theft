@@ -33,6 +33,19 @@ groups (or all) of the these features to calculate. The packages which
   - [catch22](https://github.com/hendersontrent/catch22)
   - [feasts](https://feasts.tidyverts.org)
   - [tsfeatures](https://github.com/robjhyndman/tsfeatures)
+  - [tsfresh](https://tsfresh.com)
+
+Note that `tsfresh` is a Python package. The R package `reticulate` is
+used to call Python code that uses `tsfresh` and applies it within the
+broader *tidy* data philosophy embodied by `theft`. At present,
+`tsfresh` contains approximately 800 features (*seen as available in
+`theft` package tests*), taking the total number of possible features
+accessible in `theft` to over 900. Prior to using `theft` (only if you
+want to use the `tsfresh` feature set - the R-based sets will run fine)
+you should have a working Python installation and download `tsfresh`
+using the instructions located [here](https://tsfresh.com).
+
+## Statistical tools
 
 The package also contains a suite of tools for automatic normalisation
 of extracted feature vectors, dimension reduction, and data
@@ -50,7 +63,7 @@ meaning it integrates with and uses existing
 To cite package 'theft' in publications use:
 
   Trent Henderson (2021). theft: Tools for Handling Extraction of
-  Features from Time-series. R package version 0.1.6.
+  Features from Time-series. R package version 0.1.7.
 
 A BibTeX entry for LaTeX users is
 
@@ -58,6 +71,6 @@ A BibTeX entry for LaTeX users is
     title = {theft: Tools for Handling Extraction of Features from Time-series},
     author = {Trent Henderson},
     year = {2021},
-    note = {R package version 0.1.6},
+    note = {R package version 0.1.7},
   }
 ```

@@ -9,7 +9,8 @@ calculate_features(
   id_var = NULL,
   time_var = NULL,
   values_var = NULL,
-  feature_set = c("all", "catch22", "feasts", "tsfeatures")
+  feature_set = c("all", "catch22", "feasts", "tsfeatures", "tsfresh"),
+  tsfresh_cleanup = FALSE
 )
 }
 \arguments{
@@ -19,7 +20,9 @@ calculate_features(
 
 \item{time_var}{a string specifying the time index variable. Defaults to NULL}
 
-\item{feature_set}{The set of time-series features to calculate. Defaults to 'all'}
+\item{feature_set}{the set of time-series features to calculate. Defaults to 'all'}
+
+\item{tsfresh_cleanup}{a Boolean specifying whether to use the in-built 'tsfresh' relevant feature filter or not. Defaults to FALSE}
 }
 \value{
 object of class DataFrame that contains the summary statistics for each feature
@@ -32,7 +35,7 @@ Automatically run time-series feature calculations included in the package
 library(dplyr)
 d <- tsibbledata::aus_retail \%>\%
   filter(State == "New South Wales")
-outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
+outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
 }
 
 }
