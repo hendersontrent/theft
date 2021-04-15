@@ -34,7 +34,9 @@ d <- tsibbledata::aus_retail %>%
 
 ### Calculating feature summary statistics
 
-The core function that automates the calculation of the feature statistics at once is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `all`, `catch22`, `feasts`, or `tsfeatures`.
+The core function that automates the calculation of the feature statistics at once is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `all`, `catch22`, `feasts`, `tsfeatures` or `tsfresh`.
+
+Note that `tsfresh` is a Python package. The R package `reticulate` is used to call Python code that uses `tsfresh` and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, `tsfresh` contains approximately 800 features (*seen as available in `theft` package tests*), taking the total number of possible features accessible in `theft` to over 900. Prior to using `theft` (only if you want to use the `tsfresh` feature set - the R-based sets will run fine) you should have a working Python installation and download `tsfresh` using either `pip` or `conda`. For this reason, `tsfresh` features are not included in the `all` argument option.
 
 ```{r, message = FALSE, warning = FALSE}
 feature_matrix <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")

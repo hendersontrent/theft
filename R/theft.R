@@ -18,4 +18,5 @@
 #' @importFrom tidyr drop_na
 #' @importFrom broom augment
 #' @importFrom broom tidy
+#' @import reticulate
 NULL

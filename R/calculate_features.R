@@ -56,6 +56,52 @@ calc_tsfeatures <- function(data){
   return(outData)
 }
 
+# tsfresh
+
+calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", cleanup){
+  
+  # Load Python function
+  
+  reticulate::source_python(system.file("python", "tsfresh_calculator.py", package = "theft")) # Ships with package
+  
+  # Convert time index column to numeric to avoid {tsfresh} errors
+  
+  if(!is.numeric(data$id) || !is.numeric(data$timepoint)){
+    
+    ids <- data.frame(old_id = unique(data$id)) %>%
+      dplyr::mutate(id = dplyr::row_number())
+    
+    temp <- data %>%
+      dplyr::rename(old_id = id) %>%
+      dplyr::left_join(ids, by = c("old_id" = "old_id")) %>%
+      dplyr::group_by(id) %>%
+      dplyr::arrange(timepoint) %>%
+      dplyr::mutate(timepoint = as.numeric(dplyr::row_number())) %>%
+      dplyr::ungroup()
+    
+    # Dropping columns with dplyr::select() isn't working, so just make a new dataframe
+    
+    temp1 <- data.frame(id = temp$id,
+                        timepoint = temp$timepoint,
+                        values = temp$values)
+  } else{
+    temp1 <- data
+  }
+  
+  # Compute features and re-join back correct id labels
+  
+  ids2 <- ids %>%
+    dplyr::select(-c(id)) %>%
+    dplyr::rename(id = old_id)
+  
+  outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup) %>%
+    cbind(ids2) %>%
+    tidyr::pivot_longer(cols = !id, names_to = "names", values_to = "values") %>%
+    dplyr::mutate(method = "tsfresh")
+  
+  return(outData)
+}
+
 #------------------- Main exported calculation function ------------
 
 #' Automatically run time-series feature calculations included in the package
@@ -65,6 +111,7 @@ calc_tsfeatures <- function(data){
 #' @import feasts
 #' @import tsfeatures
 #' @import tsibble
+#' @import reticulate
 #' @importFrom tibble as_tibble
 #' @importFrom tidyr pivot_longer
 #' @importFrom data.table rbindlist
@@ -73,7 +120,8 @@ calc_tsfeatures <- function(data){
 #' @param data a dataframe with at least 4 columns: id variable, group variable, time variable, value variable
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to NULL
 #' @param time_var a string specifying the time index variable. Defaults to NULL
-#' @param feature_set The set of time-series features to calculate. Defaults to 'all'
+#' @param feature_set the set of time-series features to calculate. Defaults to 'all'
+#' @param tsfresh_cleanup a Boolean specifying whether to use the in-built 'tsfresh' relevant feature filter or not. Defaults to FALSE
 #' @return object of class DataFrame that contains the summary statistics for each feature
 #' @author Trent Henderson
 #' @export
@@ -82,12 +130,12 @@ calc_tsfeatures <- function(data){
 #' library(dplyr)
 #' d <- tsibbledata::aus_retail %>%
 #'   filter(State == "New South Wales")
-#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
+#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
 #' }
 #'
 
 calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var = NULL,
-                               feature_set = c("all", "catch22", "feasts", "tsfeatures")){
+                               feature_set = c("all", "catch22", "feasts", "tsfeatures", "tsfresh"), tsfresh_cleanup = FALSE){
   
   if(is.null(id_var) || is.null(time_var) || is.null(values_var)){
     stop("As {tsibble} currently cannot handle numeric vectors, input must be a dataframe with at least 3 columns: id, timepoint, value")
@@ -107,11 +155,11 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   # Method selection
   
-  the_sets <- c("all", "catch22", "feasts", "tsfeatures")
+  the_sets <- c("all", "catch22", "feasts", "tsfeatures", "tsfresh")
   '%ni%' <- Negate('%in%')
   
   if(feature_set %ni% the_sets){
-    stop("feature_set should be a selection or combination of 'all', 'catch22', 'feasts' or 'tsfeatures' entered as a single string or vector for multiple.")
+    stop("feature_set should be a selection or combination of 'all', 'catch22', 'feasts', 'tsfeatures', or 'tsfresh' entered as a single string or vector for multiple.")
   }
   
   #--------- Feature calcs --------
@@ -122,6 +170,8 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
                   values = dplyr::all_of(values_var))
   
   if("all" %in% feature_set){
+    
+    message("Calculating all feature sets except for 'tsfresh' to avoid Python dependence. If you want these features too, please run the function again specifying 'tsfresh' and then append the resultant dataframes.")
     
     tmp <- calc_catch22(data = data_re)
     tmp1 <- calc_feasts(data = data_re)
@@ -145,6 +195,21 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     tmp2 <- calc_tsfeatures(data = data_re)
   }
   
+  if("tsfresh" %in% feature_set){
+    
+    message("'tsfresh' requires a Python installation and the 'tsfresh' Python package to also be installed. Please ensure you have this working (see https://tsfresh.com for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): use_python = 'path_to_your_python_as_a_string_here' or use_virtualenv = 'name_of_your_virtualenv_here'")
+    
+    if(tsfresh_cleanup == TRUE){
+      cleanup <- "Yes"
+    }
+    
+    if(tsfresh_cleanup == FALSE){
+      cleanup <- "No"
+    }
+    
+    tmp3 <- calc_tsfresh(data = data_re, column_id = "id", column_sort = "timepoint", cleanup = cleanup)
+  }
+  
   tmp_all <- data.frame()
   
   if(exists("tmp")){
@@ -157,6 +222,10 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   if(exists("tmp2")){
     tmp_all <- dplyr::bind_rows(tmp_all, tmp2)
+  }
+  
+  if(exists("tmp3")){
+    tmp_all <- dplyr::bind_rows(tmp_all, tmp3)
   }
   
   return(tmp_all)

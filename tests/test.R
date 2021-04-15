@@ -26,6 +26,11 @@ outs_fe <- calculate_features(data = d, id_var = "Industry", time_var = "Month",
 outs_ts <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "tsfeatures")
 outs_22 <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "catch22")
 
+# tsfresh
+
+reticulate::use_python("~/opt/anaconda3/bin/python", required = TRUE)
+outs_tsf <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "tsfresh")
+
 #------------------- Other package functionality --------------------
 
 # Test 1: Data quality matrix
