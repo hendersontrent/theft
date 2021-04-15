@@ -120,6 +120,7 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
 #' @param data a dataframe with at least 4 columns: id variable, group variable, time variable, value variable
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to NULL
 #' @param time_var a string specifying the time index variable. Defaults to NULL
+#' @param values_var a string specifying the values variable. Defaults to NULL
 #' @param feature_set the set of time-series features to calculate. Defaults to 'all'
 #' @param tsfresh_cleanup a Boolean specifying whether to use the in-built 'tsfresh' relevant feature filter or not. Defaults to FALSE
 #' @return object of class DataFrame that contains the summary statistics for each feature
@@ -130,7 +131,8 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
 #' library(dplyr)
 #' d <- tsibbledata::aus_retail %>%
 #'   filter(State == "New South Wales")
-#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
+#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
+#'   values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
 #' }
 #'
 

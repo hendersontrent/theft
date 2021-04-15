@@ -3,7 +3,14 @@
 #' @docType package
 #' @name theft
 #' 
-#' @import dplyr
+#' @importFrom stats IQR
+#' @importFrom stats cor
+#' @importFrom stats dist
+#' @importFrom stats hclust
+#' @importFrom stats median
+#' @importFrom stats prcomp
+#' @importFrom stats reorder
+#' @importFrom stats sd
 #' @importFrom magrittr %>%
 #' @import Rcatch22
 #' @import feasts
@@ -19,4 +26,5 @@
 #' @importFrom broom augment
 #' @importFrom broom tidy
 #' @import reticulate
+#' @import dplyr
 NULL

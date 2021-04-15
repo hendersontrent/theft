@@ -6,6 +6,9 @@
 #' @import ggplot2
 #' @importFrom tidyr pivot_wider
 #' @importFrom reshape2 melt
+#' @importFrom stats hclust
+#' @importFrom stats dist
+#' @importFrom stats cor
 #' @param data a dataframe with at least 3 columns for 'id', 'names' and 'values'
 #' @param id_var a string specifying the ID variable to compute pairwise correlations between. Defaults to NULL
 #' @param names_var a string denoting the name of the variable/column that holds the feature names
@@ -16,10 +19,13 @@
 #' @examples
 #' \dontrun{
 #' library(dplyr)
+#' library(tsibbledata)
 #' d <- tsibbledata::aus_retail %>%
 #'   filter(State == "New South Wales")
-#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
-#' normed <- normalise_feature_frame(outs, names_var = "names", values_var = "values", method = "RobustSigmoid")
+#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
+#'   values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
+#' normed <- normalise_feature_frame(outs, names_var = "names", 
+#'   values_var = "values", method = "RobustSigmoid")
 #' plot_connectivity_matrix(normed, id_var = "Industry")
 #' }
 #'
@@ -58,7 +64,7 @@ plot_connectivity_matrix <- function(data, id_var = NULL, names_var = NULL, valu
   
   #--------- Correlation ----------
   
-  result <- cor(cor_dat)
+  result <- stats::cor(cor_dat)
   
   #--------- Clustering -----------
   
@@ -68,8 +74,8 @@ plot_connectivity_matrix <- function(data, id_var = NULL, names_var = NULL, valu
   
   # Perform clustering
   
-  row.order <- hclust(dist(result))$order # Hierarchical cluster on rows
-  col.order <- hclust(dist(t(result)))$order # Hierarchical cluster on columns
+  row.order <- stats::hclust(stats::dist(result))$order # Hierarchical cluster on rows
+  col.order <- stats::hclust(stats::dist(t(result)))$order # Hierarchical cluster on columns
   dat_new <- result[row.order, col.order] # Re-order matrix by cluster outputs
   cluster_out <- reshape2::melt(as.matrix(dat_new)) # Turn into dataframe
   

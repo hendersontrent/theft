@@ -20,6 +20,8 @@ calculate_features(
 
 \item{time_var}{a string specifying the time index variable. Defaults to NULL}
 
+\item{values_var}{a string specifying the values variable. Defaults to NULL}
+
 \item{feature_set}{the set of time-series features to calculate. Defaults to 'all'}
 
 \item{tsfresh_cleanup}{a Boolean specifying whether to use the in-built 'tsfresh' relevant feature filter or not. Defaults to FALSE}
@@ -35,7 +37,8 @@ Automatically run time-series feature calculations included in the package
 library(dplyr)
 d <- tsibbledata::aus_retail \%>\%
   filter(State == "New South Wales")
-outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
+outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
+  values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
 }
 
 }

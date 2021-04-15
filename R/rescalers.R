@@ -20,6 +20,7 @@ minmax_scaler <- function(x){
 
 #' This function rescales a vector of numerical values into z-scores
 #'
+#' @importFrom stats sd
 #' @param x a numeric vector, preferably of feature values computed by other {theft} package functions
 #' @return x a numeric vector, rescaled into z-scores
 #' @author Trent Henderson
@@ -33,13 +34,14 @@ zscore_scaler <- function(x){
   
   x1 <- as.vector(x) # Catches class "ts" cases
   
-  x_new <- (x-mean(x1, na.rm = TRUE))/sd(x1, na.rm = TRUE)
+  x_new <- (x-mean(x1, na.rm = TRUE))/stats::sd(x1, na.rm = TRUE)
   return(x_new)
 }
 
 #' This function rescales a vector of numerical values with a Sigmoidal transformation
 #' 
 #' @importFrom scales rescale
+#' @importFrom stats sd
 #' @param x a numeric vector, preferably of feature values computed by other {theft} package functions
 #' @param unitInt Booelan whether to rescale Sigmoidal outputs into unit interval [0,1]. Defaults to TRUE
 #' @return x a numeric rescaled vector
@@ -54,7 +56,7 @@ sigmoid_scaler <- function(x, unitInt = TRUE){
   
   x1 <- as.vector(x) # Catches class "ts" cases
   
-  x_new <- 1/(1+exp(-((x1-mean(x1, na.rm = TRUE))/sd(x1, na.rm = TRUE))))
+  x_new <- 1/(1+exp(-((x1-mean(x1, na.rm = TRUE))/stats::sd(x1, na.rm = TRUE))))
   
   if(unitInt){
     x_new <- scales::rescale(x_new, to = c(0,1))
@@ -68,6 +70,8 @@ sigmoid_scaler <- function(x, unitInt = TRUE){
 #' This function rescales a vector of numerical values with an outlier-robust Sigmoidal transformation
 #' 
 #' @importFrom scales rescale
+#' @importFrom stats median
+#' @importFrom stats IQR
 #' @param x a numeric vector, preferably of feature values computed by other {theft} package functions
 #' @param unitInt Booelan whether to rescale Sigmoidal outputs into unit interval [0,1]. Defaults to TRUE
 #' @return x a numeric rescaled vector
@@ -82,7 +86,7 @@ robustsigmoid_scaler <- function(x, unitInt = TRUE){
   
   x1 <- as.vector(x) # Catches class "ts" cases
   
-  x_new <- 1/(1+exp(-((x1-median(x1, na.rm = TRUE))/(IQR(x1, na.rm = TRUE)/1.35))))
+  x_new <- 1/(1+exp(-((x1-stats::median(x1, na.rm = TRUE))/(stats::IQR(x1, na.rm = TRUE)/1.35))))
   
   if(unitInt){
     x_new <- scales::rescale(x_new, to = c(0,1))

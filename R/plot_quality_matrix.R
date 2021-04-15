@@ -2,6 +2,7 @@
 #' @import dplyr
 #' @importFrom magrittr %>%
 #' @import ggplot2
+#' @importFrom stats reorder
 #' @param data a dataframe with at least 2 columns called 'names' and 'values' such as the output of catch22::catch22_all
 #' @return an object of class ggplot that contains the graphic
 #' @author Trent Henderson
@@ -9,9 +10,11 @@
 #' @examples
 #' \dontrun{
 #' library(dplyr)
+#' library(tsibbledata)
 #' d <- tsibbledata::aus_retail %>%
 #'   filter(State == "New South Wales")
-#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", value_var = "Turnover", feature_set = "all")
+#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
+#'   values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
 #' plot_quality_matrix(data = outs)
 #' }
 #'
@@ -75,7 +78,7 @@ plot_quality_matrix <- function(data){
   # Plot
 
   p <- tmp1 %>%
-    ggplot2::ggplot(ggplot2::aes(x = reorder(names, -ranker), y = props)) +
+    ggplot2::ggplot(ggplot2::aes(x = stats::reorder(names, -ranker), y = props)) +
     ggplot2::geom_bar(stat = "identity", ggplot2::aes(fill = quality)) +
     ggplot2::labs(title = "Data quality matrix for computed features",
                   x = "Feature",
