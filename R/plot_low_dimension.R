@@ -6,6 +6,7 @@
 #' @importFrom tidyr drop_na
 #' @importFrom broom augment
 #' @importFrom broom tidy
+#' @importFrom stats prcomp
 #' @param data a dataframe with at least 2 columns called 'names' and 'values'
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to NULL
@@ -18,10 +19,13 @@
 #' @examples
 #' \dontrun{
 #' library(dplyr)
+#' library(tsibbledata)
 #' d <- tsibbledata::aus_retail %>%
 #'   filter(State == "New South Wales")
-#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
-#' plot_low_dimension(outs, is_normalised = FALSE, id_var = "Industry", group_var = NULL, method = "RobustSigmoid")
+#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
+#'   values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
+#' plot_low_dimension(outs, is_normalised = FALSE, id_var = "Industry", 
+#'   group_var = NULL, method = "RobustSigmoid")
 #' }
 #'
 
@@ -122,7 +126,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
   set.seed(123)
 
   pca_fit <- dat_filtered %>%
-    prcomp(scale = FALSE)
+    stats::prcomp(scale = FALSE)
 
   # Retrieve eigenvalues and tidy up variance explained for plotting
 

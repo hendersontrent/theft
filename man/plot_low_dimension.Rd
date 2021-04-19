@@ -35,10 +35,13 @@ Produce a principal components analysis (PCA) on normalised feature values and r
 \examples{
 \dontrun{
 library(dplyr)
+library(tsibbledata)
 d <- tsibbledata::aus_retail \%>\%
   filter(State == "New South Wales")
-outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
-plot_low_dimension(outs, is_normalised = FALSE, id_var = "Industry", group_var = NULL, method = "RobustSigmoid")
+outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
+  values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
+plot_low_dimension(outs, is_normalised = FALSE, id_var = "Industry", 
+  group_var = NULL, method = "RobustSigmoid")
 }
 
 }

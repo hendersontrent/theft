@@ -18,9 +18,11 @@ Produce a matrix visualisation of data types computed by feature calculation fun
 \examples{
 \dontrun{
 library(dplyr)
+library(tsibbledata)
 d <- tsibbledata::aus_retail \%>\%
   filter(State == "New South Wales")
-outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", value_var = "Turnover", feature_set = "all")
+outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
+  values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
 plot_quality_matrix(data = outs)
 }
 

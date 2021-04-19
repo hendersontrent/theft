@@ -7,6 +7,8 @@
 #' @importFrom tidyr pivot_longer
 #' @importFrom tidyr drop_na
 #' @importFrom reshape2 melt
+#' @importFrom stats hclust
+#' @importFrom stats dist
 #' @param data a dataframe with at least 2 columns called 'names' and 'values'
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to NULL
@@ -17,10 +19,13 @@
 #' @examples
 #' \dontrun{
 #' library(dplyr)
+#' library(tsibbledata)
 #' d <- tsibbledata::aus_retail %>%
 #'   filter(State == "New South Wales")
-#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
-#' plot_feature_matrix(outs, is_normalised = FALSE, id_var = "Industry", method = "RobustSigmoid")
+#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
+#'   values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
+#' plot_feature_matrix(outs, is_normalised = FALSE, id_var = "Industry", 
+#'   method = "RobustSigmoid")
 #' }
 #'
 
@@ -117,8 +122,8 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = NULL, meth
     message("Dropped rows with NAs to enable clustering.")
   }
 
-  row.order <- hclust(dist(dat_filtered))$order # Hierarchical cluster on rows
-  col.order <- hclust(dist(t(dat_filtered)))$order # Hierarchical cluster on columns
+  row.order <- stats::hclust(stats::dist(dat_filtered))$order # Hierarchical cluster on rows
+  col.order <- stats::hclust(stats::dist(t(dat_filtered)))$order # Hierarchical cluster on columns
   dat_new <- dat_filtered[row.order, col.order] # Re-order matrix by cluster outputs
   cluster_out <- reshape2::melt(as.matrix(dat_new)) %>% # Turn into dataframe
     dplyr::rename(id = Var1,

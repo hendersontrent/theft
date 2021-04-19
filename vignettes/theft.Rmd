@@ -13,12 +13,12 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.height = 4,
-  fig.width = 7
+  fig.height = 6,
+  fig.width = 9
 )
 ```
 
-```{r setup, message = FALSE}
+```{r setup, message = FALSE, warning = FALSE}
 library(dplyr)
 library(theft)
 ```
@@ -36,15 +36,17 @@ d <- tsibbledata::aus_retail %>%
 
 The core function that automates the calculation of the feature statistics at once is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `all`, `catch22`, `feasts`, `tsfeatures` or `tsfresh`.
 
-Note that `tsfresh` is a Python package. The R package `reticulate` is used to call Python code that uses `tsfresh` and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, `tsfresh` contains approximately 800 features (*seen as available in `theft` package tests*), taking the total number of possible features accessible in `theft` to over 900. Prior to using `theft` (only if you want to use the `tsfresh` feature set - the R-based sets will run fine) you should have a working Python installation and download `tsfresh` using either `pip` or `conda`. For this reason, `tsfresh` features are not included in the `all` argument option.
+Note that `tsfresh` and `tsfel` are Python packages. The R package `reticulate` is used to call Python code that uses `tsfresh` and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, `tsfresh` contains approximately 800 features and `tsfel` contains approximately 350 (*seen as available in `theft` package tests*), taking the **total number of possible features accessible in `theft` to approximately 1260**. Prior to using `theft` (only if you want to use the `tsfresh` or `tsfel` feature sets - the R-based sets will run fine) you should have a working Python installation and download `tsfresh` and `tsfel` using either `pip` or `conda`. For this reason, featurs included in these two sets are not included in the `all` argument option. 
+
+Here is an example with the `tsfeatures` set:
 
 ```{r, message = FALSE, warning = FALSE}
-feature_matrix <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
+feature_matrix <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "tsfeatures")
 ```
 
-If you do not want to or need to run the entire sets included in `calculate_features` you can also access the individual feature calculations as their unique function names, for example `IN_AutoMutualInfoStats_40_gaussian_fmmi`. A list of all the included feature calculations and the set they correspond to is available as a dataframe that ships with the software package:
+If you do not want to or need to run the entire sets included in `calculate_features` you can also access the individual feature calculations as their unique function names, for example `IN_AutoMutualInfoStats_40_gaussian_fmmi`. A tidy dataframe of all the included feature calculations and the set they correspond to is available:
 
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 View(feature_list)
 ```
 
@@ -92,7 +94,7 @@ The package also comes with a built-in plotting engine for calculating and visua
 The function `plot_feature_matrix` takes the output of any included feature calculation function and produces a `ggplot` object heatmap showing the feature vectors across the `x` axis and each time series down the `y` axis. Prior to plotting, the function hierarchically clusters the data across both rows and columns to visually highlight the empirical structure.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_feature_matrix(feature_matrix, is_normalised = FALSE, id_var = "Industry", method = "RobustSigmoid")
+plot_feature_matrix(feature_matrix, is_normalised = FALSE, id_var = "id", method = "RobustSigmoid")
 ```
 
 ### Dimension reduction
@@ -100,13 +102,13 @@ plot_feature_matrix(feature_matrix, is_normalised = FALSE, id_var = "Industry", 
 The function `plot_low_dimension` takes the output of any included feature calculation function, calculates a PCA, and produces a `ggplot` object scatterplot showing the first and second principal components on the `x` and `y` axis respectively, their individual explained variance, and each time series as a point on the `x-y` space. If `plot = FALSE` the function returns a dataframe of PCA results. If a variable is specified in the `group_var` argument, the scatterplot points will be automatically coloured by group.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_low_dimension(feature_matrix, is_normalised = FALSE, id_var = "Industry", group_var = NULL, method = "RobustSigmoid", plot = TRUE)
+plot_low_dimension(feature_matrix, is_normalised = FALSE, id_var = "id", group_var = NULL, method = "RobustSigmoid", plot = TRUE)
 ```
 
 ### Connectivity matrix
 
 The function `plot_connectivity_matrix` mimics the design of functional connectivity matrices commonly represented in neuroscience research. The function automates the calculation of correlations between feature vectors of each uniquely identified entity, the hierarchical clustering of rows and columns of these correlations, and the production of the final heatmap-style graphic.
 
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 plot_connectivity_matrix(feature_matrix, id_var = "id", names_var = "names", values_var = "values")
 ```
