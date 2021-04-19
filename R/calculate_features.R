@@ -102,6 +102,28 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
   return(outData)
 }
 
+# TSFEL
+
+calc_tsfel <- function(data){
+  
+  # Load Python function
+  
+  reticulate::source_python(system.file("python", "tsfel_calculator.py", package = "theft")) # Ships with package
+  
+  # Vectorised
+  
+  outData <- data %>%
+    tibble::as_tibble() %>%
+    dplyr::group_by(id) %>%
+    dplyr::arrange(timepoint) %>%
+    dplyr::summarise(tsfel_calculator(values)) %>%
+    dplyr::ungroup() %>%
+    tidyr::pivot_longer(!id, names_to = "names", values_to = "values") %>%
+    dplyr::mutate(method = "TSFEL")
+  
+  return(outData)
+}
+
 #------------------- Main exported calculation function ------------
 
 #' Automatically run time-series feature calculations included in the package
@@ -137,7 +159,7 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
 #'
 
 calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var = NULL,
-                               feature_set = c("all", "catch22", "feasts", "tsfeatures", "tsfresh"), tsfresh_cleanup = FALSE){
+                               feature_set = c("all", "catch22", "feasts", "tsfeatures", "tsfresh", "tsfel"), tsfresh_cleanup = FALSE){
   
   if(is.null(id_var) || is.null(time_var) || is.null(values_var)){
     stop("As {tsibble} currently cannot handle numeric vectors, input must be a dataframe with at least 3 columns: id, timepoint, value")
@@ -157,11 +179,11 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   # Method selection
   
-  the_sets <- c("all", "catch22", "feasts", "tsfeatures", "tsfresh")
+  the_sets <- c("all", "catch22", "feasts", "tsfeatures", "tsfresh", "tsfel")
   '%ni%' <- Negate('%in%')
   
   if(feature_set %ni% the_sets){
-    stop("feature_set should be a selection or combination of 'all', 'catch22', 'feasts', 'tsfeatures', or 'tsfresh' entered as a single string or vector for multiple.")
+    stop("feature_set should be a selection or combination of 'all', 'catch22', 'feasts', 'tsfeatures', 'tsfresh' or 'tsfel' entered as a single string or vector for multiple.")
   }
   
   #--------- Feature calcs --------
@@ -173,7 +195,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   if("all" %in% feature_set){
     
-    message("Calculating all feature sets except for 'tsfresh' to avoid Python dependence. If you want these features too, please run the function again specifying 'tsfresh' and then append the resultant dataframes.")
+    message("Calculating all feature sets except for 'tsfresh' and 'tsfel' to avoid Python dependence. If you want these features too, please run the function again specifying 'tsfresh' or 'tsfel' and then append the resultant dataframes.")
     
     tmp <- calc_catch22(data = data_re)
     tmp1 <- calc_feasts(data = data_re)
@@ -212,6 +234,13 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     tmp3 <- calc_tsfresh(data = data_re, column_id = "id", column_sort = "timepoint", cleanup = cleanup)
   }
   
+  if("tsfel" %in% feature_set){
+    
+    message("'tsfel' requires a Python installation and the 'tsfel' Python package to also be installed. Please ensure you have this working (see https://tsfel.readthedocs.io/en/latest/ for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): use_python = 'path_to_your_python_as_a_string_here' or use_virtualenv = 'name_of_your_virtualenv_here'")
+    
+    tmp4 <- calc_tsfel(data = data_re)
+  }
+  
   tmp_all <- data.frame()
   
   if(exists("tmp")){
@@ -228,6 +257,10 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   if(exists("tmp3")){
     tmp_all <- dplyr::bind_rows(tmp_all, tmp3)
+  }
+  
+  if(exists("tmp4")){
+    tmp_all <- dplyr::bind_rows(tmp_all, tmp4)
   }
   
   return(tmp_all)

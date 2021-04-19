@@ -14,6 +14,7 @@
 library(dplyr)
 library(theft)
 library(tsibbledata)
+library(reticulate)
 
 # Retrieve some data
 
@@ -31,6 +32,10 @@ outs_22 <- calculate_features(data = d, id_var = "Industry", time_var = "Month",
 
 #reticulate::use_python("~/opt/anaconda3/bin/python", required = TRUE)
 #outs_tsf <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "tsfresh")
+
+# tsfel
+
+#outs_tsfel <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "tsfel")
 
 #------------------- Other package functionality --------------------
 

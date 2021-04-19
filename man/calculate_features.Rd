@@ -9,7 +9,7 @@ calculate_features(
   id_var = NULL,
   time_var = NULL,
   values_var = NULL,
-  feature_set = c("all", "catch22", "feasts", "tsfeatures", "tsfresh"),
+  feature_set = c("all", "catch22", "feasts", "tsfeatures", "tsfresh", "tsfel"),
   tsfresh_cleanup = FALSE
 )
 }

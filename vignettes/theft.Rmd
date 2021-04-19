@@ -36,7 +36,9 @@ d <- tsibbledata::aus_retail %>%
 
 The core function that automates the calculation of the feature statistics at once is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `all`, `catch22`, `feasts`, `tsfeatures` or `tsfresh`.
 
-Note that `tsfresh` is a Python package. The R package `reticulate` is used to call Python code that uses `tsfresh` and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, `tsfresh` contains approximately 800 features (*seen as available in `theft` package tests*), taking the total number of possible features accessible in `theft` to over 900. Prior to using `theft` (only if you want to use the `tsfresh` feature set - the R-based sets will run fine) you should have a working Python installation and download `tsfresh` using either `pip` or `conda`. For this reason, `tsfresh` features are not included in the `all` argument option. Here is an example with the `tsfeatures` set:
+Note that `tsfresh` and `tsfel` are Python packages. The R package `reticulate` is used to call Python code that uses `tsfresh` and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, `tsfresh` contains approximately 800 features and `tsfel` contains approximately 350 (*seen as available in `theft` package tests*), taking the **total number of possible features accessible in `theft` to approximately 1260**. Prior to using `theft` (only if you want to use the `tsfresh` or `tsfel` feature sets - the R-based sets will run fine) you should have a working Python installation and download `tsfresh` and `tsfel` using either `pip` or `conda`. For this reason, featurs included in these two sets are not included in the `all` argument option. 
+
+Here is an example with the `tsfeatures` set:
 
 ```{r, message = FALSE, warning = FALSE}
 feature_matrix <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "tsfeatures")
