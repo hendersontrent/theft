@@ -5,8 +5,8 @@ date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Introduction to theft}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::knitr}
+  %\usepackage[UTF-8]{inputenc}
 ---
 
 ```{r, include = FALSE}
@@ -21,6 +21,7 @@ knitr::opts_chunk$set(
 ```{r setup, message = FALSE, warning = FALSE}
 library(dplyr)
 library(theft)
+library(tsibbledata)
 ```
 
 ## Core calculation functions

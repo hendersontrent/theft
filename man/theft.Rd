@@ -4,3 +4,6 @@
 \name{theft}
 \alias{theft}
 \title{Tools for Handling Extraction of Features from Time-series}
+\description{
+Tools for Handling Extraction of Features from Time-series
+}
