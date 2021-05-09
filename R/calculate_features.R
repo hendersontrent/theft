@@ -23,8 +23,8 @@ calc_feasts <- function(data){
   tsData <- tsibble::as_tsibble(data, key = id, index = timepoint)
   
   outData <- tsData %>%
-    fabletools::features(values, fabletools::feature_set(pkgs = "feasts")) %>%
-    tidyr::pivot_longer(!id, names_to = "names", values_to = "values") %>%
+    fabletools::features(values, fabletools::feature_set(pkgs = "feasts"))  %>%
+    gather("names", "values",-id) %>%
     dplyr::mutate(method = "feasts")
   
   return(outData)
@@ -50,7 +50,7 @@ calc_tsfeatures <- function(data){
                                                                  "histogram_mode", "localsimple_taures", "sampenc",
                                                                  "spreadrandomlocal_meantaul"))) %>%
     dplyr::ungroup() %>%
-    tidyr::pivot_longer(!id, names_to = "names", values_to = "values") %>%
+    gather("names", "values",-id) %>%
     dplyr::mutate(method = "tsfeatures")
   
   return(outData)
@@ -84,21 +84,33 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
     temp1 <- data.frame(id = temp$id,
                         timepoint = temp$timepoint,
                         values = temp$values)
+    
+    # Compute features and re-join back correct id labels
+    
+    ids2 <- ids %>%
+      dplyr::select(-c(id)) %>%
+      dplyr::rename(id = old_id)
+    
+    outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup) %>%
+      cbind(ids2) %>%
+      tidyr::gather("names", "values", -id)
+      dplyr::mutate(method = "tsfresh")
+    
   } else{
-    temp1 <- data
+    temp1 <- data.frame(id = data$id,
+                        timepoint = data$timepoint,
+                        values = data$values)
+    
+    ids <- unique(temp1$id)
+    
+    # Do calculations
+    
+    outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup) %>%
+      mutate(id = ids) %>%
+      tidyr::gather("names", "values", -id)
+      dplyr::mutate(method = "tsfresh")
   }
-  
-  # Compute features and re-join back correct id labels
-  
-  ids2 <- ids %>%
-    dplyr::select(-c(id)) %>%
-    dplyr::rename(id = old_id)
-  
-  outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup) %>%
-    cbind(ids2) %>%
-    tidyr::pivot_longer(cols = !id, names_to = "names", values_to = "values") %>%
-    dplyr::mutate(method = "tsfresh")
-  
+
   return(outData)
 }
 

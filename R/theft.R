@@ -1,7 +1,9 @@
-#' Tools for Handling Extraction of Features from Time-series
 #' 
 #' @docType package
 #' @name theft
+#' @title Tools for Handling Extraction of Features from Time-series
+#' 
+#' @description Tools for Handling Extraction of Features from Time-series
 #' 
 #' @importFrom stats IQR
 #' @importFrom stats cor

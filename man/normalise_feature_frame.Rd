@@ -29,10 +29,13 @@ Scale each feature vector into a user-specified range for visualisation and mode
 \examples{
 \dontrun{
 library(dplyr)
+library(tsibbledata)
 d <- tsibbledata::aus_retail \%>\%
   filter(State == "New South Wales")
-outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
-normed <- normalise_feature_frame(outs, names_var = "names", values_var = "values", method = "RobustSigmoid")
+outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
+  values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
+outsNormed <- normalise_feature_frame(outs, names_var = "names", 
+  values_var = "values", method = "RobustSigmoid")
 }
 
 }
