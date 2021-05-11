@@ -93,7 +93,7 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
     
     outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup) %>%
       cbind(ids2) %>%
-      tidyr::gather("names", "values", -id)
+      tidyr::gather("names", "values", -id) %>%
       dplyr::mutate(method = "tsfresh")
     
   } else{
@@ -107,7 +107,7 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
     
     outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup) %>%
       mutate(id = ids) %>%
-      tidyr::gather("names", "values", -id)
+      tidyr::gather("names", "values", -id) %>%
       dplyr::mutate(method = "tsfresh")
   }
 
@@ -130,7 +130,7 @@ calc_tsfel <- function(data){
     dplyr::arrange(timepoint) %>%
     dplyr::summarise(tsfel_calculator(values)) %>%
     dplyr::ungroup() %>%
-    tidyr::pivot_longer(!id, names_to = "names", values_to = "values") %>%
+    tidyr::gather("names", "values", -id) %>%
     dplyr::mutate(method = "TSFEL")
   
   return(outData)
@@ -236,14 +236,14 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     message("'tsfresh' requires a Python installation and the 'tsfresh' Python package to also be installed. Please ensure you have this working (see https://tsfresh.com for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): use_python = 'path_to_your_python_as_a_string_here' or use_virtualenv = 'name_of_your_virtualenv_here'")
     
     if(tsfresh_cleanup == TRUE){
-      cleanup <- "Yes"
+      cleanuper <- "Yes"
     }
     
     if(tsfresh_cleanup == FALSE){
-      cleanup <- "No"
+      cleanuper <- "No"
     }
     
-    tmp3 <- calc_tsfresh(data = data_re, column_id = "id", column_sort = "timepoint", cleanup = cleanup)
+    tmp3 <- calc_tsfresh(data = data_re, column_id = "id", column_sort = "timepoint", cleanup = cleanuper)
   }
   
   if("tsfel" %in% feature_set){
