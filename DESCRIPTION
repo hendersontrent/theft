@@ -36,6 +36,7 @@ Imports:
     reticulate
 Suggests: 
     knitr,
+    rmarkdown,
     tsibbledata
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
