@@ -154,7 +154,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
       # Retrieve groups
 
       fits <- pca_fit %>%
-        broom::augment(dat) %>%
+        broom::augment(dat_filtered) %>%
         dplyr::rename(id = `.rownames`) %>%
         dplyr::mutate(id = as.factor(id))
 
@@ -205,7 +205,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
       # Draw plot
 
       fits <- pca_fit %>%
-        broom::augment(dat) %>%
+        broom::augment(dat_filtered) %>%
         dplyr::rename(id = `.rownames`) %>%
         dplyr::mutate(id = as.factor(id))
 
@@ -229,7 +229,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
     }
   } else{
     p <- pca_fit %>%
-      broom::augment(dat) %>%
+      broom::augment(dat_filtered) %>%
       dplyr::rename(id = `.rownames`)
   }
   return(p)
