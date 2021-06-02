@@ -1,16 +1,15 @@
 Package: theft
 Type: Package
 Title: Tools for Handling Extraction of Features from Time-series
-Version: 0.1.8
-Date: 2021-04-19
+Version: 0.1.9
+Date: 2021-06-02
 Authors@R: c(
   person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut"))
   )
 Maintainer: Trent Henderson <then6675@uni.sydney.edu.au>
 Description: Consolidates and calculates different sets of time-series features from multiple existing 
-    R and Python packages, and provides a simple functional API to standardise and automate the analytical 
-    workflow from feature calculation to normalisation to dimension reduction and production
-    of statistical graphics.
+    R and Python packages and provides a standardised, automated workflow from feature 
+    calculation to normalisation to dimension reduction and production of statistical graphics.
 BugReports: https://github.com/hendersontrent/theft/issues
 License: GPL-3
 Encoding: UTF-8
@@ -33,10 +32,11 @@ Imports:
     tsfeatures,
     feasts,
     Rcatch22,
-    reticulate
+    reticulate,
+    tsibbledata
 Suggests: 
     knitr,
-    rmarkdown,
-    tsibbledata
+    markdown,
+    rmarkdown
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr

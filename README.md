@@ -39,14 +39,11 @@ groups (or all) of the these features to calculate. The packages which
 Note that `tsfresh` and `tsfel` are Python packages. The R package
 `reticulate` is used to call Python code that uses `tsfresh` and applies
 it within the broader *tidy* data philosophy embodied by `theft`. At
-present, `tsfresh` contains approximately 800 features and `tsfel`
-contains approximately 350 (*seen as available in `theft` package
-tests*), taking the **total number of possible features accessible in
-`theft` to approximately 1260**. Prior to using `theft` (only if you
-want to use the `tsfresh` or `tsfel` feature sets - the R-based sets
-will run fine) you should have a working Python installation and
-download `tsfresh` using the instructions located
-[here](https://tsfresh.com) and `tsfel`
+present, depending on the input time-series, `theft` provides access to
+\~1200 features. Prior to using `theft` (only if you want to use the
+`tsfresh` or `tsfel` feature sets - the R-based sets will run fine) you
+should have a working Python installation and download `tsfresh` using
+the instructions located [here](https://tsfresh.com) and `tsfel`
 [here](https://github.com/fraunhoferportugal/tsfel).
 
 ## Statistical tools

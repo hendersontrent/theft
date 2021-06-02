@@ -24,7 +24,7 @@ calc_feasts <- function(data){
   
   outData <- tsData %>%
     fabletools::features(values, fabletools::feature_set(pkgs = "feasts"))  %>%
-    gather("names", "values",-id) %>%
+    tidyr::gather("names", "values",-id) %>%
     dplyr::mutate(method = "feasts")
   
   return(outData)
@@ -50,7 +50,7 @@ calc_tsfeatures <- function(data){
                                                                  "histogram_mode", "localsimple_taures", "sampenc",
                                                                  "spreadrandomlocal_meantaul"))) %>%
     dplyr::ungroup() %>%
-    gather("names", "values",-id) %>%
+    tidyr::gather("names", "values",-id) %>%
     dplyr::mutate(method = "tsfeatures")
   
   return(outData)
@@ -106,7 +106,7 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
     # Do calculations
     
     outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup) %>%
-      mutate(id = ids) %>%
+      dplyr::mutate(id = ids) %>%
       tidyr::gather("names", "values", -id) %>%
       dplyr::mutate(method = "tsfresh")
   }
