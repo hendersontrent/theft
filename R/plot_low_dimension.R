@@ -196,12 +196,19 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
     if(!is.null(group_var)){
 
       # Retrieve groups
-
-      fits <- pca_fit %>%
-        broom::augment(dat_filtered) %>%
-        dplyr::rename(id = `.rownames`) %>%
-        dplyr::mutate(id = as.factor(id))
-
+      
+      if(low_dim_method == "PCA"){
+        fits <- fits %>%
+          broom::augment(dat_filtered) %>%
+          dplyr::rename(id = `.rownames`) %>%
+          dplyr::mutate(id = as.factor(id)) %>%
+          rename(.fitted1 = .fittedPC1,
+                 .fitted2 = .fittedPC2)
+      } else{
+        fits <- fits %>%
+          dplyr::mutate(id = as.factor(id))
+      }
+      
       groups <- data_id %>%
         dplyr::rename(group_id = dplyr::all_of(group_var)) %>%
         dplyr::group_by(id, group_id) %>%
@@ -209,7 +216,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
         dplyr::ungroup() %>%
         dplyr::select(-c(counter)) %>%
         dplyr::mutate(id = as.factor(id))
-
+      
       fits <- fits %>%
         dplyr::inner_join(groups, by = c("id" = "id"))
 
@@ -221,7 +228,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
       # Draw plot
 
       p <- fits %>%
-        ggplot2::ggplot(ggplot2::aes(x = .fittedPC1, y = .fittedPC2))
+        ggplot2::ggplot(ggplot2::aes(x = .fitted1, y = .fitted2))
 
       if(nrow(fits) > 200){
         p <- p +
@@ -257,16 +264,21 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
     }
 
     if(is.null(group_var)){
-
-      # Draw plot
-
-      fits <- pca_fit %>%
-        broom::augment(dat_filtered) %>%
-        dplyr::rename(id = `.rownames`) %>%
-        dplyr::mutate(id = as.factor(id))
+      
+      if(low_dim_method == "PCA"){
+        fits <- fits %>%
+          broom::augment(dat_filtered) %>%
+          dplyr::rename(id = `.rownames`) %>%
+          dplyr::mutate(id = as.factor(id)) %>%
+          rename(.fitted1 = .fittedPC1,
+                 .fitted2 = .fittedPC2)
+      } else{
+        fits <- fits %>%
+          dplyr::mutate(id = as.factor(id))
+      }
 
       p <- fits %>%
-        ggplot2::ggplot(ggplot2::aes(x = .fittedPC1, y = .fittedPC2))
+        ggplot2::ggplot(ggplot2::aes(x = .fitted1, y = .fitted1))
 
       if(nrow(fits) > 200){
         p <- p +
@@ -295,7 +307,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
       }
     }
   } else{
-    p <- pca_fit %>%
+    p <- fits %>%
       broom::augment(dat_filtered) %>%
       dplyr::rename(id = `.rownames`)
   }
