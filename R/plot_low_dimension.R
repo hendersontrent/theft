@@ -7,11 +7,14 @@
 #' @importFrom broom augment
 #' @importFrom broom tidy
 #' @importFrom stats prcomp
+#' @import Rtsne
 #' @param data a dataframe with at least 2 columns called 'names' and 'values'
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to NULL
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to NULL
 #' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
+#' @param low_dim_method the low dimensional embedding method to use. Defaults to 'PCA'
+#' @param perplexity the perplexity hyperparameter to use if t-SNE algorithm is selected. Defaults to 30
 #' @param plot a Boolean as to whether a bivariate plot should be returned or the calculation dataframe. Defaults to TRUE
 #' @return if plot = TRUE, returns an object of class ggplot, if plot = FALSE returns an object of class dataframe with PCA results
 #' @author Trent Henderson
@@ -25,11 +28,15 @@
 #' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
 #'   values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
 #' plot_low_dimension(outs, is_normalised = FALSE, id_var = "Industry", 
-#'   group_var = NULL, method = "RobustSigmoid")
+#'   group_var = NULL, method = "RobustSigmoid",
+#'   low_dim_method = "PCA", perplexity = 30)
 #' }
 #'
 
-plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group_var = NULL, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"), plot = TRUE){
+plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group_var = NULL, 
+                               method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
+                               low_dim_method = c("PCA", "t-SNE"), perplexity = 30, 
+                               plot = TRUE){
 
   # Make RobustSigmoid the default
 
@@ -75,6 +82,22 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
   if(length(method) > 1){
     stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid', 'MinMax' or 'MeanSubtract'")
   }
+  
+  # Low dim method selection
+  
+  the_lowdims <- c("PCA", "t-SNE")
+  
+  if(low_dim_method %ni% the_lowdims){
+    stop("low_dim_method should be a single selection of 'PCA' or 't-SNE'")
+  }
+  
+  if(length(low_dim_method) > 1){
+    stop("low_dim_method should be a single selection of 'PCA' or 't-SNE'")
+  }
+  
+  if(low_dim_method == "t-SNE" && !is.numeric(perplexity)){
+    stop("perplexity should be an integer number, typically between 2 and 100.")
+  }
 
   #------------- Assign ID variable ---------------
 
@@ -104,8 +127,8 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
     }
   }
 
-  #------------- Perform PCA ----------------------
-
+  #------------- Perform low dim ----------------------
+  
   # Produce matrix
   
   dat <- normed %>%
@@ -120,30 +143,51 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
   
   dat_filtered <- dat_filtered %>%
     tidyr::drop_na()
-
-  # PCA calculation
-
-  set.seed(123)
-
-  pca_fit <- dat_filtered %>%
-    stats::prcomp(scale = FALSE)
-
-  # Retrieve eigenvalues and tidy up variance explained for plotting
-
-  eigens <- pca_fit %>%
-    broom::tidy(matrix = "eigenvalues") %>%
-    dplyr::filter(PC %in% c(1,2)) %>% # Filter to just the 2 going in the plot
-    dplyr::select(c(PC, percent)) %>%
-    dplyr::mutate(percent = round(percent*100), digits = 1)
-
-  eigen_pc1 <- eigens %>%
-    dplyr::filter(PC == 1)
-
-  eigen_pc2 <- eigens %>%
-    dplyr::filter(PC == 2)
-
-  eigen_pc1 <- paste0(eigen_pc1$percent,"%")
-  eigen_pc2 <- paste0(eigen_pc2$percent,"%")
+  
+  if(low_dim_method == "PCA"){
+    
+    # PCA calculation
+    
+    set.seed(123)
+    
+    fits <- dat_filtered %>%
+      stats::prcomp(scale = FALSE)
+    
+    # Retrieve eigenvalues and tidy up variance explained for plotting
+    
+    eigens <- fits %>%
+      broom::tidy(matrix = "eigenvalues") %>%
+      dplyr::filter(PC %in% c(1,2)) %>% # Filter to just the 2 going in the plot
+      dplyr::select(c(PC, percent)) %>%
+      dplyr::mutate(percent = round(percent*100), digits = 1)
+    
+    eigen_pc1 <- eigens %>%
+      dplyr::filter(PC == 1)
+    
+    eigen_pc2 <- eigens %>%
+      dplyr::filter(PC == 2)
+    
+    eigen_pc1 <- paste0(eigen_pc1$percent,"%")
+    eigen_pc2 <- paste0(eigen_pc2$percent,"%")
+  } else{
+    
+    # tSNE calculation
+    
+    set.seed(123)
+    
+    tsneOut <- Rtsne::Rtsne(as.matrix(dat_filtered), perplexity = perplexity, max_iter = 5000, dims = 2,
+                            check_duplicates = FALSE)
+    
+    # Retrieve 2-dimensional embedding and add in unique IDs
+    
+    id_ref <- dat_filtered %>%
+      tibble::rownames_to_column(var = "id") %>%
+      dplyr::select(c(id))
+    
+    fits <- data.frame(.fitted1 = tsneOut$Y[,1],
+                       .fitted2 = tsneOut$Y[,2]) %>%
+      dplyr::mutate(id = id_ref$id)
+  }
 
   #------------- Output & graphic -----------------
 
@@ -186,16 +230,30 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
         p <- p +
           ggplot2::geom_point(size = 2.25, ggplot2::aes(colour = group_id))
       }
-      p <- p +
-        ggplot2::labs(title = "Low-dimension representation of time-series",
-                      subtitle = "Each point is a time-series whose normalised feature vectors were entered into a PCA.",
-                      x = paste0("PC 1"," (",eigen_pc1,")"),
-                      y = paste0("PC 2"," (",eigen_pc2,")"),
-                      colour = NULL) +
-        ggplot2::scale_color_manual(values = available_colours) +
-        ggplot2::theme_bw() +
-        ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
-                       legend.position = "bottom")
+      
+      if(low_dim_method == "PCA"){
+        p <- p +
+          ggplot2::labs(title = "Low-dimension representation of time-series",
+                        subtitle = "Each point is a time-series whose normalised feature vectors were entered into a PCA.",
+                        x = paste0("PC 1"," (",eigen_pc1,")"),
+                        y = paste0("PC 2"," (",eigen_pc2,")"),
+                        colour = NULL) +
+          ggplot2::scale_color_manual(values = available_colours) +
+          ggplot2::theme_bw() +
+          ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
+                         legend.position = "bottom")
+      } else{
+        p <- p +
+          ggplot2::labs(title = "Low-dimension representation of time-series",
+                        subtitle = "Each point is a time-series whose normalised feature vectors were entered into t-SNE.",
+                        x = "Dimension 1",
+                        y = "Dimension 2",
+                        colour = NULL) +
+          ggplot2::scale_color_manual(values = available_colours) +
+          ggplot2::theme_bw() +
+          ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
+                         legend.position = "bottom")
+      }
     }
 
     if(is.null(group_var)){
@@ -217,13 +275,24 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
         p <- p +
           ggplot2::geom_point(size = 2, colour = "black")
       }
-      p <- p +
-        ggplot2::labs(title = "Low-dimension representation of time-series",
-                      subtitle = "Each point is a time-series whose normalised feature vectors were entered into a PCA.",
-                      x = paste0("PC 1"," (",eigen_pc1,")"),
-                      y = paste0("PC 2"," (",eigen_pc2,")")) +
-        ggplot2::theme_bw() +
-        ggplot2::theme(panel.grid.minor = ggplot2::element_blank())
+      
+      if(low_dim_method == "PCA"){
+        p <- p +
+          ggplot2::labs(title = "Low-dimension representation of time-series",
+                        subtitle = "Each point is a time-series whose normalised feature vectors were entered into a PCA.",
+                        x = paste0("PC 1"," (",eigen_pc1,")"),
+                        y = paste0("PC 2"," (",eigen_pc2,")")) +
+          ggplot2::theme_bw() +
+          ggplot2::theme(panel.grid.minor = ggplot2::element_blank())
+      } else{
+        p <- p +
+          ggplot2::labs(title = "Low-dimension representation of time-series",
+                        subtitle = "Each point is a time-series whose normalised feature vectors were entered into t-SNE.",
+                        x = "Dimension 1",
+                        y = "Dimension 2") +
+          ggplot2::theme_bw() +
+          ggplot2::theme(panel.grid.minor = ggplot2::element_blank())
+      }
     }
   } else{
     p <- pca_fit %>%
