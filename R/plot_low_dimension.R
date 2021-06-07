@@ -226,9 +226,10 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
       available_colours <- c("#E494D3", "#87DCC0", "#88BBE4", "#998AD3", "#CDF1AF")
 
       # Draw plot
-
+      
       p <- fits %>%
-        ggplot2::ggplot(ggplot2::aes(x = .fitted1, y = .fitted2))
+          dplyr::mutate(group_id = as.factor(group_id)) %>%
+          ggplot2::ggplot(ggplot2::aes(x = .fitted1, y = .fitted2))
 
       if(nrow(fits) > 200){
         p <- p +
