@@ -279,7 +279,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
       }
 
       p <- fits %>%
-        ggplot2::ggplot(ggplot2::aes(x = .fitted1, y = .fitted1))
+        ggplot2::ggplot(ggplot2::aes(x = .fitted1, y = .fitted2))
 
       if(nrow(fits) > 200){
         p <- p +
