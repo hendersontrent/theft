@@ -308,9 +308,14 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
       }
     }
   } else{
-    p <- fits %>%
-      broom::augment(dat_filtered) %>%
-      dplyr::rename(id = `.rownames`)
+    
+    if(low_dim_method == "PCA"){
+      p <- fits %>%
+        broom::augment(dat_filtered) %>%
+        dplyr::rename(id = `.rownames`)
+    } else{
+      p <- fits
+    }
   }
   return(p)
 }
