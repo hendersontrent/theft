@@ -60,10 +60,12 @@ normed1 <- normalise_feature_frame(outs_ts, names_var = "names", values_var = "v
 plot_feature_matrix(normed, is_normalised = TRUE, id_var = "id", method = "RobustSigmoid")
 plot_feature_matrix(outs_ts, is_normalised = FALSE, id_var = "id", method = "MinMax")
 
-# Test 4: PCA
+# Test 4: Low dimension
 
-plot_low_dimension(outs_ts, is_normalised = FALSE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid")
-plot_low_dimension(normed, is_normalised = TRUE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid")
+plot_low_dimension(outs_ts, is_normalised = FALSE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid", low_dim_method = "PCA")
+plot_low_dimension(normed, is_normalised = TRUE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid", low_dim_method = "PCA")
+plot_low_dimension(outs_ts, is_normalised = FALSE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 2)
+plot_low_dimension(normed, is_normalised = TRUE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 2)
 d1 <- plot_low_dimension(outs_ts, is_normalised = FALSE, id_var = "id", group_var = NULL, plot = FALSE, method = "RobustSigmoid")
 
 # Test 5: Connectivity matrix

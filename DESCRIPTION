@@ -2,7 +2,7 @@ Package: theft
 Type: Package
 Title: Tools for Handling Extraction of Features from Time-series
 Version: 0.1.9
-Date: 2021-06-02
+Date: 2021-06-07
 Authors@R: c(
   person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut"))
   )
@@ -33,7 +33,8 @@ Imports:
     feasts,
     Rcatch22,
     reticulate,
-    tsibbledata
+    tsibbledata,
+    Rtsne
 Suggests: 
     knitr,
     markdown,

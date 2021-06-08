@@ -10,6 +10,8 @@ plot_low_dimension(
   id_var = NULL,
   group_var = NULL,
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
+  low_dim_method = c("PCA", "t-SNE"),
+  perplexity = 30,
   plot = TRUE
 )
 }
@@ -23,6 +25,10 @@ plot_low_dimension(
 \item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to NULL}
 
 \item{method}{a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'}
+
+\item{low_dim_method}{the low dimensional embedding method to use. Defaults to 'PCA'}
+
+\item{perplexity}{the perplexity hyperparameter to use if t-SNE algorithm is selected. Defaults to 30}
 
 \item{plot}{a Boolean as to whether a bivariate plot should be returned or the calculation dataframe. Defaults to TRUE}
 }
@@ -41,7 +47,8 @@ d <- tsibbledata::aus_retail \%>\%
 outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
   values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
 plot_low_dimension(outs, is_normalised = FALSE, id_var = "Industry", 
-  group_var = NULL, method = "RobustSigmoid")
+  group_var = NULL, method = "RobustSigmoid",
+  low_dim_method = "PCA", perplexity = 30)
 }
 
 }
