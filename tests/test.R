@@ -45,13 +45,6 @@ plot_quality_matrix(outs_ts)
 
 # Test 2: Normalisation
 
-ar_process <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
-vec1 <- normalise_feature_vector(ar_process, method = "z-score")
-vec2 <- normalise_feature_vector(ar_process, method = "Sigmoid")
-vec3 <- normalise_feature_vector(ar_process, method = "RobustSigmoid")
-vec4 <- normalise_feature_vector(ar_process, method = "MinMax")
-vec5 <- normalise_feature_vector(ar_process, method = "MeanSubtract")
-
 normed <- normalise_feature_frame(outs_ts, names_var = "names", values_var = "values", method = c("RobustSigmoid"))
 normed1 <- normalise_feature_frame(outs_ts, names_var = "names", values_var = "values", method = c("MinMax"))
 
@@ -66,7 +59,7 @@ plot_low_dimension(outs_ts, is_normalised = FALSE, id_var = "id", group_var = NU
 plot_low_dimension(normed, is_normalised = TRUE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid", low_dim_method = "PCA")
 plot_low_dimension(outs_ts, is_normalised = FALSE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 2)
 plot_low_dimension(normed, is_normalised = TRUE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 2)
-d1 <- plot_low_dimension(outs_ts, is_normalised = FALSE, id_var = "id", group_var = NULL, plot = FALSE, method = "RobustSigmoid")
+d1 <- plot_low_dimension(outs_ts, is_normalised = FALSE, id_var = "id", group_var = NULL, plot = FALSE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 2)
 
 # Test 5: Connectivity matrix
 
