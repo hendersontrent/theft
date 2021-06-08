@@ -9,6 +9,7 @@ calculate_features(
   id_var = NULL,
   time_var = NULL,
   values_var = NULL,
+  group_var = NULL,
   feature_set = c("all", "catch22", "feasts", "tsfeatures", "tsfresh", "tsfel"),
   tsfresh_cleanup = FALSE
 )
@@ -21,6 +22,8 @@ calculate_features(
 \item{time_var}{a string specifying the time index variable. Defaults to NULL}
 
 \item{values_var}{a string specifying the values variable. Defaults to NULL}
+
+\item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to NULL}
 
 \item{feature_set}{the set of time-series features to calculate. Defaults to 'all'}
 
@@ -38,7 +41,8 @@ library(dplyr)
 d <- tsibbledata::aus_retail \%>\%
   filter(State == "New South Wales")
 outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
-  values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
+  values_var = "Turnover", group_var = NULL, feature_set = "all", 
+  tsfresh_cleanup = FALSE)
 }
 
 }

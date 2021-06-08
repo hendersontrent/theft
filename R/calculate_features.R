@@ -155,6 +155,7 @@ calc_tsfel <- function(data){
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to NULL
 #' @param time_var a string specifying the time index variable. Defaults to NULL
 #' @param values_var a string specifying the values variable. Defaults to NULL
+#' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to NULL
 #' @param feature_set the set of time-series features to calculate. Defaults to 'all'
 #' @param tsfresh_cleanup a Boolean specifying whether to use the in-built 'tsfresh' relevant feature filter or not. Defaults to FALSE
 #' @return object of class DataFrame that contains the summary statistics for each feature
@@ -166,11 +167,12 @@ calc_tsfel <- function(data){
 #' d <- tsibbledata::aus_retail %>%
 #'   filter(State == "New South Wales")
 #' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
-#'   values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
+#'   values_var = "Turnover", group_var = NULL, feature_set = "all", 
+#'   tsfresh_cleanup = FALSE)
 #' }
 #'
 
-calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var = NULL,
+calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var = NULL, group_var = NULL,
                                feature_set = c("all", "catch22", "feasts", "tsfeatures", "tsfresh", "tsfel"), tsfresh_cleanup = FALSE){
   
   if(is.null(id_var) || is.null(time_var) || is.null(values_var)){
@@ -198,12 +200,28 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     stop("feature_set should be a selection or combination of 'all', 'catch22', 'feasts', 'tsfeatures', 'tsfresh' or 'tsfel' entered as a single string or vector for multiple.")
   }
   
+  if(!is.null(group_var) && !is.character(group_var)){
+    stop("group_var should be a string specifying the variable name of your grouping variable")
+  }
+  
   #--------- Feature calcs --------
   
   data_re <- data %>%
     dplyr::rename(id = dplyr::all_of(id_var),
                   timepoint = dplyr::all_of(time_var),
                   values = dplyr::all_of(values_var))
+  
+  # Group labels
+  
+  if(!is.null(group_var)){
+    grouplabs <- data %>%
+      dplyr::rename(id = dplyr::all_of(id_var),
+                    group = dplyr::all_of(group_var)) %>%
+      dplyr::select(c(id, group)) %>%
+      dplyr::distinct() %>%
+      dplyr::mutate(id) %>%
+      dplyr::mutate(id = as.character(id))
+  }
   
   if("all" %in% feature_set){
     
@@ -273,6 +291,12 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   if(exists("tmp4")){
     tmp_all <- dplyr::bind_rows(tmp_all, tmp4)
+  }
+  
+  if(!is.null(group_var)){
+    tmp_all <- tmp_all %>%
+      dplyr::mutate(id = as.character(id)) %>%
+      dplyr::left_join(grouplabs, by = c("id" = "id"))
   }
   
   return(tmp_all)

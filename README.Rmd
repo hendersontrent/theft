@@ -39,7 +39,7 @@ Note that `tsfresh` and `tsfel` are Python packages. The R package `reticulate` 
 
 ## Statistical tools
 
-The package also contains a suite of tools for automatic normalisation of extracted feature vectors, dimension reduction, and data visualisation. The entire package is developed around principles of [tidy data](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html), meaning it integrates with and uses existing [tidyverse](https://www.tidyverse.org) and [tidyverts](https://tidyverts.org) software.
+The package also contains a suite of tools for automatic normalisation of extracted feature vectors, dimension reduction and low dimension visualisation, and other statistical graphics. The entire package is developed around principles of [tidy data](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html), meaning it integrates with and uses existing [tidyverse](https://www.tidyverse.org) and [tidyverts](https://tidyverts.org) software.
 
 ## Citation
 
