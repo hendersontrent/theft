@@ -224,7 +224,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
       # Palette from https://www.schemecolor.com/land-of-pastels.php
 
       available_colours <- c("#E494D3", "#87DCC0", "#88BBE4", "#998AD3", "#CDF1AF",
-                             "#9A91AC", "#CAA7BD", "#FFB9C4", "#FFD3D4")
+                             "#FDD1D2", "#FBEDE0", "#96D4CC", "#D4BBDD")
 
       # Draw plot
       
