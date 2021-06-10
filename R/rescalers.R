@@ -34,7 +34,7 @@ zscore_scaler <- function(x){
   
   x1 <- as.vector(x) # Catches class "ts" cases
   
-  x_new <- (x-mean(x1, na.rm = TRUE))/stats::sd(x1, na.rm = TRUE)
+  x_new <- (x1-mean(x1, na.rm = TRUE))/stats::sd(x1, na.rm = TRUE)
   return(x_new)
 }
 
