@@ -37,7 +37,7 @@ d <- tsibbledata::aus_retail %>%
 
 The core function that automates the calculation of the feature statistics at once is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `all`, `catch22`, `feasts`, `tsfeatures` or `tsfresh`.
 
-Note that `tsfresh` and `tsfel` are Python packages. The R package `reticulate` is used to call Python code that uses `tsfresh` and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, `tsfresh` contains approximately 800 features and `tsfel` contains approximately 350 (*seen as available in `theft` package tests*), taking the **total number of possible features accessible in `theft` to approximately 1260**. Prior to using `theft` (only if you want to use the `tsfresh` or `tsfel` feature sets - the R-based sets will run fine) you should have a working Python installation and download `tsfresh` and `tsfel` using either `pip` or `conda`. For this reason, features included in these two sets are not included in the `all` argument option. 
+Note that `tsfresh` and `tsfel` are Python packages. The R package `reticulate` is used to call Python code that uses `tsfresh` and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, depending on the input time-series, `theft` provides access to ~1200 features. Prior to using `theft` (only if you want to use the `tsfresh` or `tsfel` feature sets - the R-based sets will run fine) you should have a working Python installation and download `tsfresh` using the instructions located [here](https://tsfresh.com) and `tsfel` [here](https://github.com/fraunhoferportugal/tsfel). For this reason, features included in these two sets are not included in the `all` argument option. 
 
 Here is an example with the `tsfeatures` set:
 
@@ -69,13 +69,6 @@ Putting calculated feature vectors on an equal scale is crucial for any statisti
 * Min-max - `"MinMax"`
 * Mean subtraction - `"MeanSubtract"`
 
-Vector-based normalisation can be performed using the following:
-
-```{r, message = FALSE, warning = FALSE}
-ar_process <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
-outs <- normalise_feature_vector(ar_process, method = "RobustSigmoid")
-```
-
 Dataframe-based normalisation can be performed using the following:
 
 ```{r, message = FALSE, warning = FALSE}
@@ -87,7 +80,7 @@ normed <- normalise_feature_frame(feature_matrix, names_var = "names", values_va
 The package also comes with a built-in plotting engine for calculating and visualising (at present) three types of statistical graphics:
 
 * Feature by time-series matrices as heatmaps
-* Principal components analysis (PCA) dimension reduction on the feature space for each time series as scatterplots
+* Low dimension projections of the feature space for each time series as scatterplots
 * Unique ID feature connectivity matrices as correlation-driven heatmaps
 
 ### Feature matrix
@@ -100,10 +93,16 @@ plot_feature_matrix(feature_matrix, is_normalised = FALSE, id_var = "id", method
 
 ### Dimension reduction
 
-The function `plot_low_dimension` takes the output of any included feature calculation function, calculates a PCA, and produces a `ggplot` object scatterplot showing the first and second principal components on the `x` and `y` axis respectively, their individual explained variance, and each time series as a point on the `x-y` space. If `plot = FALSE` the function returns a dataframe of PCA results. If a variable is specified in the `group_var` argument, the scatterplot points will be automatically coloured by group.
+The function `plot_low_dimension` takes the output of any included feature calculation function, calculates a PCA or t-SNE, and produces a `ggplot` object scatterplot showing the first and second principal components on the `x` and `y` axis respectively, their individual explained variance, and each time series as a point on the `x-y` space. If `plot = FALSE` the function returns a dataframe of PCA results. If a variable is specified in the `group_var` argument, the scatterplot points will be automatically coloured by group.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_low_dimension(feature_matrix, is_normalised = FALSE, id_var = "id", group_var = NULL, method = "RobustSigmoid", plot = TRUE)
+plot_low_dimension(feature_matrix, is_normalised = FALSE, id_var = "id", group_var = NULL, method = "RobustSigmoid", low_dim_method = "PCA", plot = TRUE)
+```
+
+Alternatively, a t-SNE version can be specified in a similar fashion, with the `perplexity` hyperparameter able to be controlled by the user. Typical values for this range between 5 and 50, depending on the size of the data.
+
+```{r, message = FALSE, warning = FALSE}
+plot_low_dimension(feature_matrix, is_normalised = FALSE, id_var = "id", group_var = NULL, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 5, plot = TRUE)
 ```
 
 ### Connectivity matrix

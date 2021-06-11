@@ -7,7 +7,7 @@ version](http://www.r-pkg.org/badges/version/catch22)](http://www.r-pkg.org/pkg/
 downloads](http://cranlogs.r-pkg.org/badges/catch22)](http://www.r-pkg.org/pkg/theft)
 [![DOI](https://zenodo.org/badge/351259952.svg)](https://zenodo.org/badge/latestdoi/351259952)
 
-Tools for Handling Extraction of Features from Time-series (theft)
+Tools for Handling Extraction of Features from Time series (theft)
 
 ## Installation
 
@@ -64,14 +64,14 @@ meaning it integrates with and uses existing
 To cite package 'theft' in publications use:
 
   Trent Henderson (2021). theft: Tools for Handling Extraction of
-  Features from Time-series. R package version 0.1.13.
+  Features from Time series. R package version 0.1.14.
 
 A BibTeX entry for LaTeX users is
 
   @Manual{,
-    title = {theft: Tools for Handling Extraction of Features from Time-series},
+    title = {theft: Tools for Handling Extraction of Features from Time series},
     author = {Trent Henderson},
     year = {2021},
-    note = {R package version 0.1.13},
+    note = {R package version 0.1.14},
   }
 ```
