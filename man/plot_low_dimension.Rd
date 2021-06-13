@@ -44,7 +44,7 @@ library(dplyr)
 library(tsibbledata)
 
 d <- tsibbledata::aus_retail \%>\%
-  ename(Series_ID = 3)
+  rename(Series_ID = 3)
 
 feature_matrix <- calculate_features(data = d, 
   id_var = "Series_ID", 

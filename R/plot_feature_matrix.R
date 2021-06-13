@@ -20,13 +20,21 @@
 #' \dontrun{
 #' library(dplyr)
 #' library(tsibbledata)
+#' 
 #' d <- tsibbledata::aus_retail %>%
-#'   filter(State == "New South Wales")
-#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
-#'   values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
-#' plot_feature_matrix(outs, is_normalised = FALSE, id_var = "Industry", 
-#'   method = "RobustSigmoid")
+#'   rename(Series_ID = 3)
+#' 
+#' feature_matrix <- calculate_features(data = d, 
+#'   id_var = "Series_ID", 
+#'   time_var = "Month", 
+#'   values_var = "Turnover", 
+#'   group_var = "State",
+#'   feature_set = "catch22")
 #' }
+#'
+#' plot_feature_matrix(feature_matrix, is_normalised = FALSE, 
+#'   id_var = "id", 
+#'   method = "MinMax")
 #'
 
 plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = NULL, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")){
