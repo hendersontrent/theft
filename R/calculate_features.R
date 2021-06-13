@@ -220,7 +220,10 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   # Group labels
   
   if(!is.null(group_var)){
-    grouplabs <- data %>%
+    
+    grouplabs_data <- as.data.frame(data) # Catches cases where input object is of class "tsibble"
+    
+    grouplabs <- grouplabs_data %>%
       dplyr::rename(id = dplyr::all_of(id_var),
                     group = dplyr::all_of(group_var)) %>%
       dplyr::select(c(id, group)) %>%
@@ -305,6 +308,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     tmp_all <- tmp_all %>%
       dplyr::mutate(id = as.character(id)) %>%
       dplyr::left_join(grouplabs, by = c("id" = "id"))
+  } else{
   }
   return(tmp_all)
 }
