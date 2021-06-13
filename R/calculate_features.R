@@ -110,7 +110,7 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
       tidyr::gather("names", "values", -id) %>%
       dplyr::mutate(method = "tsfresh")
   }
-
+  
   return(outData)
 }
 
@@ -155,7 +155,7 @@ calc_tsfel <- function(data){
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to NULL
 #' @param time_var a string specifying the time index variable. Defaults to NULL
 #' @param values_var a string specifying the values variable. Defaults to NULL
-#' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to NULL
+#' @param group_var a string specifying the grouping variable that each unique series sits under. Defaults to NULL
 #' @param feature_set the set of time-series features to calculate. Defaults to 'all'
 #' @param tsfresh_cleanup a Boolean specifying whether to use the in-built 'tsfresh' relevant feature filter or not. Defaults to FALSE
 #' @return object of class DataFrame that contains the summary statistics for each feature
@@ -164,11 +164,17 @@ calc_tsfel <- function(data){
 #' @examples
 #' \dontrun{
 #' library(dplyr)
+#' library(tsibbledata)
+#' 
 #' d <- tsibbledata::aus_retail %>%
-#'   filter(State == "New South Wales")
-#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
-#'   values_var = "Turnover", group_var = NULL, feature_set = "all", 
-#'   tsfresh_cleanup = FALSE)
+#'   rename(Series_ID = 3)
+#' 
+#' feature_matrix <- calculate_features(data = d, 
+#'   id_var = "Series_ID", 
+#'   time_var = "Month", 
+#'   values_var = "Turnover", 
+#'   group_var = "State",
+#'   feature_set = "catch22")
 #' }
 #'
 
@@ -214,13 +220,15 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   # Group labels
   
   if(!is.null(group_var)){
-    grouplabs <- data %>%
+    
+    grouplabs_data <- as.data.frame(data) # Catches cases where input object is of class "tsibble"
+    
+    grouplabs <- grouplabs_data %>%
       dplyr::rename(id = dplyr::all_of(id_var),
                     group = dplyr::all_of(group_var)) %>%
       dplyr::select(c(id, group)) %>%
-      dplyr::distinct() %>%
-      dplyr::mutate(id) %>%
-      dplyr::mutate(id = as.character(id))
+      dplyr::distinct()
+  } else{
   }
   
   if("all" %in% feature_set){
@@ -271,33 +279,36 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     tmp4 <- calc_tsfel(data = data_re)
   }
   
-  tmp_all <- data.frame()
-  
-  if(exists("tmp")){
-    tmp_all <- dplyr::bind_rows(tmp_all, tmp)
+  if(!exists("tmp_all")){
+    tmp_all <- data.frame()
+    
+    if(exists("tmp")){
+      tmp_all <- dplyr::bind_rows(tmp_all, tmp)
+    }
+    
+    if(exists("tmp1")){
+      tmp_all <- dplyr::bind_rows(tmp_all, tmp1)
+    }
+    
+    if(exists("tmp2")){
+      tmp_all <- dplyr::bind_rows(tmp_all, tmp2)
+    }
+    
+    if(exists("tmp3")){
+      tmp_all <- dplyr::bind_rows(tmp_all, tmp3)
+    }
+    
+    if(exists("tmp4")){
+      tmp_all <- dplyr::bind_rows(tmp_all, tmp4)
+    }
+  } else{
   }
   
-  if(exists("tmp1")){
-    tmp_all <- dplyr::bind_rows(tmp_all, tmp1)
-  }
-  
-  if(exists("tmp2")){
-    tmp_all <- dplyr::bind_rows(tmp_all, tmp2)
-  }
-  
-  if(exists("tmp3")){
-    tmp_all <- dplyr::bind_rows(tmp_all, tmp3)
-  }
-  
-  if(exists("tmp4")){
-    tmp_all <- dplyr::bind_rows(tmp_all, tmp4)
-  }
-  
-  if(!is.null(group_var)){
+  if(exists("grouplabs")){
     tmp_all <- tmp_all %>%
       dplyr::mutate(id = as.character(id)) %>%
       dplyr::left_join(grouplabs, by = c("id" = "id"))
+  } else{
   }
-  
   return(tmp_all)
 }

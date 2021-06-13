@@ -42,14 +42,24 @@ Produce a principal components analysis (PCA) on normalised feature values and r
 \dontrun{
 library(dplyr)
 library(tsibbledata)
+
 d <- tsibbledata::aus_retail \%>\%
-  filter(State == "New South Wales")
-outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
-  values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
-plot_low_dimension(outs, is_normalised = FALSE, id_var = "Industry", 
-  group_var = NULL, method = "RobustSigmoid",
-  low_dim_method = "PCA", perplexity = 30)
+  rename(Series_ID = 3)
+
+feature_matrix <- calculate_features(data = d, 
+  id_var = "Series_ID", 
+  time_var = "Month", 
+  values_var = "Turnover", 
+  group_var = "State",
+  feature_set = "catch22")
 }
+
+plot_low_dimension(feature_matrix, is_normalised = FALSE, 
+ id_var = "id", 
+ group_var = "State", 
+ method = "MinMax", 
+ low_dim_method = "PCA", 
+ plot = TRUE)
 
 }
 \author{
