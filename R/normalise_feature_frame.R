@@ -65,11 +65,18 @@ ms_function <- function(data){
 #' \dontrun{
 #' library(dplyr)
 #' library(tsibbledata)
+#' 
 #' d <- tsibbledata::aus_retail %>%
-#'   filter(State == "New South Wales")
-#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
-#'   values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
-#' outsNormed <- normalise_feature_frame(outs, names_var = "names", 
+#'   rename(Series_ID = 3)
+#' 
+#' feature_matrix <- calculate_features(data = d, 
+#'   id_var = "Series_ID", 
+#'   time_var = "Month", 
+#'   values_var = "Turnover", 
+#'   group_var = "State",
+#'   feature_set = "catch22")
+#'   
+#' normed <- normalise_feature_frame(feature_matrix, names_var = "names", 
 #'   values_var = "values", method = "RobustSigmoid")
 #'}
 #'
@@ -151,13 +158,21 @@ normalise_feature_frame <- function(data, names_var = NULL, values_var = NULL, m
 #' \dontrun{
 #' library(dplyr)
 #' library(tsibbledata)
+#' 
 #' d <- tsibbledata::aus_retail %>%
-#'   filter(State == "New South Wales")
-#' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
-#'   values_var = "Turnover", feature_set = "all", tsfresh_cleanup = FALSE)
-#' outsNormed <- normalise_feature_frame(outs, names_var = "names", 
+#'   rename(Series_ID = 3)
+#' 
+#' feature_matrix <- calculate_features(data = d, 
+#'   id_var = "Series_ID", 
+#'   time_var = "Month", 
+#'   values_var = "Turnover", 
+#'   group_var = "State",
+#'   feature_set = "catch22")
+#'   
+#' normed <- normalise_feature_frame(feature_matrix, names_var = "names", 
 #'   values_var = "values", method = "RobustSigmoid")
 #'}
+#'
 
 normalize_feature_frame <- function(data, names_var = NULL, values_var = NULL, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")){
   
