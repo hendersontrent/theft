@@ -223,11 +223,9 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     grouplabs <- data %>%
       dplyr::rename(id = dplyr::all_of(id_var),
                     group = dplyr::all_of(group_var)) %>%
-      dplyr::group_by(id, group) %>%
-      dplyr::summarise(counter = n()) %>%
-      dplyr::ungroup() %>%
-      dplyr::select(-c(counter)) %>%
-      dplyr::mutate(id = as.character(id))
+      dplyr::select(c(id, group)) %>%
+      dplyr::distinct()
+  } else{
   }
   
   if("all" %in% feature_set){
@@ -303,7 +301,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   } else{
   }
   
-  if(!is.null(group_var)){
+  if(exists("grouplabs")){
     tmp_all <- tmp_all %>%
       dplyr::mutate(id = as.character(id)) %>%
       dplyr::left_join(grouplabs, by = c("id" = "id"))
