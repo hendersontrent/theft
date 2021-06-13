@@ -110,7 +110,7 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
       tidyr::gather("names", "values", -id) %>%
       dplyr::mutate(method = "tsfresh")
   }
-
+  
   return(outData)
 }
 
@@ -164,6 +164,7 @@ calc_tsfel <- function(data){
 #' @examples
 #' \dontrun{
 #' library(dplyr)
+#' library(tsibbledata)
 #' d <- tsibbledata::aus_retail %>%
 #'   filter(State == "New South Wales")
 #' outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
@@ -219,7 +220,6 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
                     group = dplyr::all_of(group_var)) %>%
       dplyr::select(c(id, group)) %>%
       dplyr::distinct() %>%
-      dplyr::mutate(id) %>%
       dplyr::mutate(id = as.character(id))
   }
   
@@ -271,26 +271,29 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     tmp4 <- calc_tsfel(data = data_re)
   }
   
-  tmp_all <- data.frame()
-  
-  if(exists("tmp")){
-    tmp_all <- dplyr::bind_rows(tmp_all, tmp)
-  }
-  
-  if(exists("tmp1")){
-    tmp_all <- dplyr::bind_rows(tmp_all, tmp1)
-  }
-  
-  if(exists("tmp2")){
-    tmp_all <- dplyr::bind_rows(tmp_all, tmp2)
-  }
-  
-  if(exists("tmp3")){
-    tmp_all <- dplyr::bind_rows(tmp_all, tmp3)
-  }
-  
-  if(exists("tmp4")){
-    tmp_all <- dplyr::bind_rows(tmp_all, tmp4)
+  if(!exists("tmp_all")){
+    tmp_all <- data.frame()
+    
+    if(exists("tmp")){
+      tmp_all <- dplyr::bind_rows(tmp_all, tmp)
+    }
+    
+    if(exists("tmp1")){
+      tmp_all <- dplyr::bind_rows(tmp_all, tmp1)
+    }
+    
+    if(exists("tmp2")){
+      tmp_all <- dplyr::bind_rows(tmp_all, tmp2)
+    }
+    
+    if(exists("tmp3")){
+      tmp_all <- dplyr::bind_rows(tmp_all, tmp3)
+    }
+    
+    if(exists("tmp4")){
+      tmp_all <- dplyr::bind_rows(tmp_all, tmp4)
+    }
+  } else{
   }
   
   if(!is.null(group_var)){
@@ -298,6 +301,5 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
       dplyr::mutate(id = as.character(id)) %>%
       dplyr::left_join(grouplabs, by = c("id" = "id"))
   }
-  
   return(tmp_all)
 }

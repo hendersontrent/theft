@@ -38,6 +38,7 @@ Automatically run time-series feature calculations included in the package
 \examples{
 \dontrun{
 library(dplyr)
+library(tsibbledata)
 d <- tsibbledata::aus_retail \%>\%
   filter(State == "New South Wales")
 outs <- calculate_features(data = d, id_var = "Industry", time_var = "Month", 
