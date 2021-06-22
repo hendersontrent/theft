@@ -2,31 +2,35 @@
 % Please edit documentation in R/plot_connectivity_matrix.R
 \name{plot_connectivity_matrix}
 \alias{plot_connectivity_matrix}
-\title{Produce a correlation matrix plot showing pairwise correlations of feature vectors by unique id with automatic hierarchical clustering.
-This function is based on functional connectivity matrices in neuroscience.}
+\title{Produce a correlation matrix plot showing pairwise correlations of feature vectors by unique id with automatic hierarchical clustering.}
 \usage{
 plot_connectivity_matrix(
   data,
+  is_normalised = FALSE,
   id_var = NULL,
   names_var = NULL,
-  values_var = NULL
+  values_var = NULL,
+  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")
 )
 }
 \arguments{
 \item{data}{a dataframe with at least 3 columns for 'id', 'names' and 'values'}
+
+\item{is_normalised}{a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE}
 
 \item{id_var}{a string specifying the ID variable to compute pairwise correlations between. Defaults to NULL}
 
 \item{names_var}{a string denoting the name of the variable/column that holds the feature names}
 
 \item{values_var}{a string denoting the name of the variable/column that holds the numerical feature values}
+
+\item{method}{a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'}
 }
 \value{
 an object of class ggplot that contains the correlation matrix graphic
 }
 \description{
 Produce a correlation matrix plot showing pairwise correlations of feature vectors by unique id with automatic hierarchical clustering.
-This function is based on functional connectivity matrices in neuroscience.
 }
 \examples{
 \dontrun{

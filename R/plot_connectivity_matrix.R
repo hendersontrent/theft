@@ -1,5 +1,4 @@
 #' Produce a correlation matrix plot showing pairwise correlations of feature vectors by unique id with automatic hierarchical clustering.
-#' This function is based on functional connectivity matrices in neuroscience.
 #' 
 #' @import dplyr
 #' @importFrom magrittr %>%
@@ -10,9 +9,11 @@
 #' @importFrom stats dist
 #' @importFrom stats cor
 #' @param data a dataframe with at least 3 columns for 'id', 'names' and 'values'
+#' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
 #' @param id_var a string specifying the ID variable to compute pairwise correlations between. Defaults to NULL
 #' @param names_var a string denoting the name of the variable/column that holds the feature names
 #' @param values_var a string denoting the name of the variable/column that holds the numerical feature values
+#' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
 #' @return an object of class ggplot that contains the correlation matrix graphic
 #' @author Trent Henderson
 #' @export
@@ -41,14 +42,34 @@
 #' }
 #'
 
-plot_connectivity_matrix <- function(data, id_var = NULL, names_var = NULL, values_var = NULL){
+plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = NULL, 
+                                     names_var = NULL, values_var = NULL,
+                                     method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")){
   
-  message("Operation assumes data has been normalised. If not, normalise feature vectors before plotting connectivity matrix - you can use theft::normalise_feature_frame for this.")
+  # Make RobustSigmoid the default
+  
+  if(missing(method)){
+    method <- "RobustSigmoid"
+  } else{
+    method <- match.arg(method)
+  }
   
   #--------- Checks ---------------
   
   if(is.null(id_var) || is.null(names_var) || is.null(values_var)){
     stop("An id, names (feature name identification), and values variable must all be specified.")
+  }
+  
+  # Method selection
+  
+  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")
+  
+  if(method %ni% the_methods){
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid', 'MinMax' or 'MeanSubtract'")
+  }
+  
+  if(length(method) > 1){
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid', 'MinMax' or 'MeanSubtract'")
   }
   
   # Dataframe length checks and tidy format wrangling
@@ -58,9 +79,28 @@ plot_connectivity_matrix <- function(data, id_var = NULL, names_var = NULL, valu
                   names = dplyr::all_of(names_var),
                   values = dplyr::all_of(values_var))
   
-  features <- unique(data_re$names)
+  #------------- Normalise data -------------------
   
-  ids_to_keep <- data_re %>%
+  if(is_normalised){
+    normed <- data_id
+  } else{
+    normed <- data_id %>%
+      dplyr::select(c(id, names, values)) %>%
+      dplyr::group_by(names) %>%
+      dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
+      dplyr::ungroup() %>%
+      tidyr::drop_na()
+    
+    if(nrow(normed) != nrow(data_id)){
+      message("Filtered out rows containing NaNs.")
+    }
+  }
+  
+  #------------- Data reshaping -------------------
+  
+  features <- unique(normed$names)
+  
+  ids_to_keep <- normed %>%
     dplyr::group_by(id) %>%
     dplyr::summarise(counter = dplyr::n()) %>%
     dplyr::ungroup() %>%
@@ -68,7 +108,7 @@ plot_connectivity_matrix <- function(data, id_var = NULL, names_var = NULL, valu
   
   ids_to_keep <- ids_to_keep$id
   
-  cor_dat <- data_re %>%
+  cor_dat <- normed %>%
     dplyr::filter(id %in% ids_to_keep) %>%
     tidyr::pivot_wider(id_cols = names, names_from = id, values_from = values) %>%
     dplyr::select(-c(names))
