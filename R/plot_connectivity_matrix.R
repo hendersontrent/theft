@@ -62,6 +62,7 @@ plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = NULL,
   
   # Method selection
   
+  '%ni%' <- Negate('%in%')
   the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")
   
   if(method %ni% the_methods){
@@ -82,16 +83,16 @@ plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = NULL,
   #------------- Normalise data -------------------
   
   if(is_normalised){
-    normed <- data_id
+    normed <- data_re
   } else{
-    normed <- data_id %>%
+    normed <- data_re %>%
       dplyr::select(c(id, names, values)) %>%
       dplyr::group_by(names) %>%
       dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
       dplyr::ungroup() %>%
       tidyr::drop_na()
     
-    if(nrow(normed) != nrow(data_id)){
+    if(nrow(normed) != nrow(data_re)){
       message("Filtered out rows containing NaNs.")
     }
   }
