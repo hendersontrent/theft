@@ -32,31 +32,6 @@ an object of class ggplot that contains the correlation matrix graphic
 \description{
 Produce a correlation matrix plot showing pairwise correlations of feature vectors by unique id with automatic hierarchical clustering.
 }
-\examples{
-\dontrun{
-library(dplyr)
-library(tsibbledata)
-
-d <- tsibbledata::aus_retail \%>\%
-  rename(Series_ID = 3)
-
-feature_matrix <- calculate_features(data = d, 
-  id_var = "Series_ID", 
-  time_var = "Month", 
-  values_var = "Turnover", 
-  group_var = "State",
-  feature_set = "catch22")
-  
-normed <- normalise_feature_frame(feature_matrix, names_var = "names", 
-  values_var = "values", method = "RobustSigmoid")
-  
-plot_connectivity_matrix(normed, 
-  id_var = "id", 
-  names_var = "names", 
-  values_var = "values")
-}
-
-}
 \author{
 Trent Henderson
 }

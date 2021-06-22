@@ -32,14 +32,12 @@
 #'   group_var = "State",
 #'   feature_set = "catch22")
 #'   
-#' normed <- normalise_feature_frame(feature_matrix, names_var = "names", 
-#'   values_var = "values", method = "RobustSigmoid")
-#'   
-#' plot_connectivity_matrix(normed, 
+#' plot_connectivity_matrix(data = feature_matrix, 
+#'   is_normalised = FALSE, 
 #'   id_var = "id", 
 #'   names_var = "names", 
-#'   values_var = "values")
-#' }
+#'   values_var = "values",
+#'   method = "RobustSigmoid")
 #'
 
 plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = NULL, 
