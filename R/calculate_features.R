@@ -227,7 +227,8 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
       dplyr::rename(id = dplyr::all_of(id_var),
                     group = dplyr::all_of(group_var)) %>%
       dplyr::select(c(id, group)) %>%
-      dplyr::distinct()
+      dplyr::distinct() %>%
+      dplyr::mutate(id = as.character(id))
   } else{
   }
   
