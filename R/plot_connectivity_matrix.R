@@ -134,7 +134,7 @@ plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = NULL,
   p <- cluster_out %>%
     ggplot2::ggplot(ggplot2::aes(x = Var1, y = Var2)) +
     ggplot2::geom_tile(ggplot2::aes(fill = value)) +
-    ggplot2::labs(title = "Feature value correlations between with hierarchical clustering",
+    ggplot2::labs(title = "Feature value correlations between unique time series with hierarchical clustering",
                   x = NULL,
                   y = NULL,
                   fill = "Correlation Coefficient") +
