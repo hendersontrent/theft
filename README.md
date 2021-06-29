@@ -57,6 +57,17 @@ meaning it integrates with and uses existing
 [tidyverse](https://www.tidyverse.org) and
 [tidyverts](https://tidyverts.org) software.
 
+## Web application
+
+An [interactive web
+application](https://dynamicsandneuralsystems.shinyapps.io/timeseriesfeaturevis/)
+has been built on top of `theft` which enables users to access all of
+the functionality included in the package from within a web browser
+without any code. The application automates the entire workflow included
+in `theft`, converts all static graphics included in the package into
+interactive visualisations, and enables downloads of feature
+calculations.
+
 ## Citation
 
 ``` 
