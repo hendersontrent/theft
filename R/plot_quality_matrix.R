@@ -87,7 +87,7 @@ plot_quality_matrix <- function(data){
   p <- tmp1 %>%
     ggplot2::ggplot(ggplot2::aes(x = stats::reorder(names, -ranker), y = props)) +
     ggplot2::geom_bar(stat = "identity", ggplot2::aes(fill = quality)) +
-    ggplot2::labs(title = "Data quality matrix for computed features",
+    ggplot2::labs(title = "Data quality for computed features",
                   x = "Feature",
                   y = "Proportion of Outputs",
                   fill = "Data Type") +
