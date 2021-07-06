@@ -139,12 +139,10 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = NULL, meth
 
   #------------- Draw graphic ---------------------
 
-  message("Rendering graphic...")
-
   p <- cluster_out %>%
     ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value)) +
     ggplot2::geom_tile() +
-    ggplot2::labs(title = "Heatmap of hierarchically-clustered scaled features and individual time series",
+    ggplot2::labs(title = "Hierarchically-clustered scaled features and unique time series",
                   x = "Feature",
                   y = "Time Series") +
     ggplot2::theme_bw() +

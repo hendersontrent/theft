@@ -253,7 +253,6 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
       if(low_dim_method == "PCA"){
         p <- p +
           ggplot2::labs(title = "Low-dimension representation of time-series",
-                        subtitle = "Each point is a time-series whose normalised feature vectors were entered into a PCA.",
                         x = paste0("PC 1"," (",eigen_pc1,")"),
                         y = paste0("PC 2"," (",eigen_pc2,")"),
                         colour = NULL) +
@@ -264,7 +263,6 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
       } else{
         p <- p +
           ggplot2::labs(title = "Low-dimension representation of time-series",
-                        subtitle = "Each point is a time-series whose normalised feature vectors were entered into t-SNE.",
                         x = "Dimension 1",
                         y = "Dimension 2",
                         colour = NULL) +
@@ -303,7 +301,6 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
       if(low_dim_method == "PCA"){
         p <- p +
           ggplot2::labs(title = "Low-dimension representation of time-series",
-                        subtitle = "Each point is a time-series whose normalised feature vectors were entered into a PCA.",
                         x = paste0("PC 1"," (",eigen_pc1,")"),
                         y = paste0("PC 2"," (",eigen_pc2,")")) +
           ggplot2::theme_bw() +
@@ -311,7 +308,6 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group
       } else{
         p <- p +
           ggplot2::labs(title = "Low-dimension representation of time-series",
-                        subtitle = "Each point is a time-series whose normalised feature vectors were entered into t-SNE.",
                         x = "Dimension 1",
                         y = "Dimension 2") +
           ggplot2::theme_bw() +

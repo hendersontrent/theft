@@ -141,8 +141,15 @@ plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = NULL,
     ggplot2::scale_fill_distiller(palette = "RdYlBu", limits = c(-1,1)) +
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
-                   legend.position = "bottom",
-                   axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
+                   legend.position = "bottom")
+  
+  if(nrow(cluster_out) <= 20){
+    p <- p +
+      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
+  } else {
+    p <- p +
+      ggplot2::theme(axis.text = ggplot2::element_blank())
+  }
   
   return(p)
 }
