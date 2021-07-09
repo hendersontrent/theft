@@ -23,19 +23,14 @@ d <- tsibbledata::aus_retail %>%
 
 #------------------- Feature extraction -----------------------------
 
-#outs_all <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
-#outs_fe <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "feasts")
-outs_ts <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "tsfeatures")
-#outs_22 <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "catch22")
-
-# tsfresh
+#outs_all <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", group_var = "State", feature_set = "all")
+#outs_22 <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", group_var = "State", feature_set = "catch22")
+#outs_fe <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", group_var = "State", feature_set = "feasts")
+outs_ts <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", group_var = "State", feature_set = "tsfeatures")
 
 #reticulate::use_python("~/opt/anaconda3/bin/python", required = TRUE)
-#outs_tsf <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "tsfresh")
-
-# tsfel
-
-#outs_tsfel <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "tsfel")
+#outs_tsfresh <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", group_var = "State", feature_set = "tsfresh")
+#outs_tsfel <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", group_var = "State", feature_set = "tsfel")
 
 #------------------- Other package functionality --------------------
 
@@ -46,12 +41,12 @@ plot_quality_matrix(outs_ts)
 # Test 2: Normalisation
 
 normed <- normalise_feature_frame(outs_ts, names_var = "names", values_var = "values", method = c("RobustSigmoid"))
-normed1 <- normalise_feature_frame(outs_ts, names_var = "names", values_var = "values", method = c("MinMax"))
 
 # Test 3: Feature matrix
 
-plot_feature_matrix(normed, is_normalised = TRUE, id_var = "id", method = "RobustSigmoid")
-plot_feature_matrix(outs_ts, is_normalised = FALSE, id_var = "id", method = "MinMax")
+plot_feature_matrix(normed, is_normalised = TRUE, id_var = "id", method = "RobustSigmoid", interactive = FALSE)
+plot_feature_matrix(outs_ts, is_normalised = FALSE, id_var = "id", method = "RobustSigmoid", interactive = FALSE)
+plot_feature_matrix(outs_ts, is_normalised = FALSE, id_var = "id", method = "RobustSigmoid", interactive = TRUE)
 
 # Test 4: Low dimension
 
@@ -63,4 +58,5 @@ d1 <- plot_low_dimension(outs_ts, is_normalised = FALSE, id_var = "id", group_va
 
 # Test 5: Connectivity matrix
 
-plot_connectivity_matrix(outs_ts, id_var = "id", names_var = "names", values_var = "values")
+plot_connectivity_matrix(outs_ts, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", interactive = FALSE)
+plot_connectivity_matrix(outs_ts, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", interactive = TRUE)

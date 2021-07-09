@@ -71,7 +71,7 @@ Putting calculated feature vectors on an equal scale is crucial for any statisti
 * z-score - `"z-score"`
 * Sigmoid - `"Sigmoid"`
 * Outlier-robust Sigmoid (credit to Ben Fulcher for creating the original [MATLAB version](https://github.com/benfulcher/hctsa)) - `"RobustSigmoid"`
-* Min-max - `"MinMax"`
+* Min-max - `"RobustSigmoid"`
 * Mean subtraction - `"MeanSubtract"`
 
 Dataframe-based normalisation can be performed using the following:
@@ -80,7 +80,7 @@ Dataframe-based normalisation can be performed using the following:
 normed <- normalise_feature_frame(feature_matrix, 
                                   names_var = "names", 
                                   values_var = "values", 
-                                  method = "MinMax")
+                                  method = "RobustSigmoid")
 ```
 
 ## Data visualisation functions
@@ -99,7 +99,18 @@ The function `plot_feature_matrix` takes the output of any included feature calc
 plot_feature_matrix(feature_matrix, 
                     is_normalised = FALSE, 
                     id_var = "id", 
-                    method = "MinMax")
+                    method = "RobustSigmoid",
+                    interactive = FALSE)
+```
+
+If you set `interactive = TRUE` the function will return an interactive plot using `plotly` which lets you hover over entries in the matrix to better understand which is which. This is especially useful if your dataset is large.
+
+```{r, message = FALSE, warning = FALSE}
+plot_feature_matrix(feature_matrix, 
+                    is_normalised = FALSE, 
+                    id_var = "id", 
+                    method = "RobustSigmoid",
+                    interactive = TRUE)
 ```
 
 ### Dimension reduction
@@ -111,7 +122,7 @@ plot_low_dimension(feature_matrix,
                    is_normalised = FALSE, 
                    id_var = "id", 
                    group_var = "group", 
-                   method = "MinMax", 
+                   method = "RobustSigmoid", 
                    low_dim_method = "PCA", 
                    plot = TRUE)
 ```
@@ -123,7 +134,7 @@ plot_low_dimension(feature_matrix,
                    is_normalised = FALSE, 
                    id_var = "id", 
                    group_var = "group", 
-                   method = "MinMax", 
+                   method = "RobustSigmoid", 
                    low_dim_method = "t-SNE", 
                    perplexity = 10, 
                    plot = TRUE)
@@ -139,5 +150,18 @@ plot_connectivity_matrix(feature_matrix,
                          id_var = "id", 
                          names_var = "names", 
                          values_var = "values",
-                         method = "MinMax")
+                         method = "RobustSigmoid",
+                         interactive = FALSE)
+```
+
+Again, if you set `interactive = TRUE` the function will return an interactive plot using `plotly` which lets you hover over entries in the matrix to better understand which is which.
+
+```{r, message = FALSE, warning = FALSE}
+plot_connectivity_matrix(feature_matrix, 
+                         is_normalised = FALSE, 
+                         id_var = "id", 
+                         names_var = "names", 
+                         values_var = "values",
+                         method = "RobustSigmoid",
+                         interactive = TRUE)
 ```
