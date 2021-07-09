@@ -7,8 +7,8 @@
 plot_low_dimension(
   data,
   is_normalised = FALSE,
-  id_var = NULL,
-  group_var = NULL,
+  id_var = "id",
+  group_var = "group",
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
   low_dim_method = c("PCA", "t-SNE"),
   perplexity = 30,
@@ -20,9 +20,9 @@ plot_low_dimension(
 
 \item{is_normalised}{a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE}
 
-\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to NULL}
+\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to "id"}
 
-\item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to NULL}
+\item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to "group"}
 
 \item{method}{a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'}
 
