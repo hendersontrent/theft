@@ -9,3 +9,18 @@
 #' }
 #'
 "feature_list"
+
+
+#' Sample of randomly-generated time series to produce function tests and vignettes
+#'
+#' The variables include:
+#'
+#' @format A tidy dataframe with 4 variables:
+#' \describe{
+#'   \item{id}{Unique identifier for the time series}
+#'   \item{timepoint}{Time index}
+#'   \item{values}{Value}
+#'   \item{process}{Group label for the type of time series}
+#' }
+#'
+"simData"

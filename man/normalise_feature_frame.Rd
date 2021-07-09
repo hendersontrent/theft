@@ -28,21 +28,17 @@ Scale each feature vector into a user-specified range for visualisation and mode
 }
 \examples{
 \dontrun{
-library(dplyr)
-library(tsibbledata)
-
-d <- tsibbledata::aus_retail \%>\%
-  rename(Series_ID = 3)
-
-feature_matrix <- calculate_features(data = d, 
-  id_var = "Series_ID", 
-  time_var = "Month", 
-  values_var = "Turnover", 
-  group_var = "State",
+featMat <- calculate_features(data = simData, 
+  id_var = "id", 
+  time_var = "timepoint", 
+  values_var = "values", 
+  group_var = "process", 
   feature_set = "catch22")
   
-normed <- normalise_feature_frame(feature_matrix, names_var = "names", 
-  values_var = "values", method = "RobustSigmoid")
+normed <- normalise_feature_frame(featMat, 
+  names_var = "names", 
+  values_var = "values", 
+  method = "RobustSigmoid")
 }
 
 }

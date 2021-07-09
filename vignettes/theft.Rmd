@@ -19,18 +19,15 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, message = FALSE, warning = FALSE}
-library(dplyr)
 library(theft)
-library(tsibbledata)
 ```
 
 ## Core calculation functions
 
-Before we look at the available functions in the package, let's first pull some time-series data.
+We are going to use a dataset that comes standard with `theft` called `simData`. This dataset contains a collection of randomly generated time series for four different types of processes. This dataset can be accessed via:
 
-```{r, message = FALSE, warning = FALSE}
-d <- tsibbledata::aus_retail %>%
-  rename(Series_ID = 3)
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+theft::simData
 ```
 
 ### Calculating feature summary statistics
@@ -42,15 +39,15 @@ Note that `tsfresh` and `tsfel` are Python packages. The R package `reticulate` 
 Here is an example with the `catch22` set:
 
 ```{r, message = FALSE, warning = FALSE}
-feature_matrix <- calculate_features(data = d, 
-                                     id_var = "Series_ID", 
-                                     time_var = "Month", 
-                                     values_var = "Turnover", 
-                                     group_var = "State",
+feature_matrix <- calculate_features(data = simData, 
+                                     id_var = "id", 
+                                     time_var = "timepoint", 
+                                     values_var = "values", 
+                                     group_var = "process", 
                                      feature_set = "catch22")
 ```
 
-If you do not want to or need to run the entire sets included in `calculate_features` you can also access the individual feature calculations as their unique function names, for example `IN_AutoMutualInfoStats_40_gaussian_fmmi`. A tidy dataframe of all the included feature calculations and the set they correspond to is available:
+If you do not want to or need to run the entire sets included in `calculate_features` you can also access the individual feature calculations as their unique function names, for example `IN_AutoMutualInfoStats_40_gaussian_fmmi`. A tidy dataframe of most of the included feature calculations and the set they correspond to is available:
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 View(feature_list)
@@ -136,7 +133,7 @@ plot_low_dimension(feature_matrix,
                    group_var = "group", 
                    method = "RobustSigmoid", 
                    low_dim_method = "t-SNE", 
-                   perplexity = 10, 
+                   perplexity = 5, 
                    plot = TRUE)
 ```
 

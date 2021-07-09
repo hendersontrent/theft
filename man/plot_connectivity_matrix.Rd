@@ -35,6 +35,25 @@ an object of class ggplot that contains the correlation matrix graphic
 \description{
 Produce a correlation matrix plot showing pairwise correlations of feature vectors by unique id with automatic hierarchical clustering.
 }
+\examples{
+\dontrun{
+featMat <- calculate_features(data = simData, 
+  id_var = "id", 
+  time_var = "timepoint", 
+  values_var = "values", 
+  group_var = "process", 
+  feature_set = "catch22")
+  
+plot_connectivity_matrix(data = featMat, 
+  is_normalised = FALSE, 
+  id_var = "id", 
+  names_var = "names", 
+  values_var = "values",
+  method = "RobustSigmoid",
+  interactive = FALSE)
+}
+
+}
 \author{
 Trent Henderson
 }

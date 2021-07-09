@@ -31,24 +31,19 @@ Produce a heatmap matrix of the calculated feature value vectors and each unique
 }
 \examples{
 \dontrun{
-library(dplyr)
-library(tsibbledata)
-
-d <- tsibbledata::aus_retail \%>\%
-  rename(Series_ID = 3)
-
-feature_matrix <- calculate_features(data = d, 
-  id_var = "Series_ID", 
-  time_var = "Month", 
-  values_var = "Turnover", 
-  group_var = "State",
+featMat <- calculate_features(data = simData, 
+  id_var = "id", 
+  time_var = "timepoint", 
+  values_var = "values", 
+  group_var = "process", 
   feature_set = "catch22")
-}
 
-plot_feature_matrix(feature_matrix, is_normalised = FALSE, 
+plot_feature_matrix(featMat, 
+  is_normalised = FALSE, 
   id_var = "id", 
   method = "MinMax",
   interactive = FALSE)
+}
 
 }
 \author{

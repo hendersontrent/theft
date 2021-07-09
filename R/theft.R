@@ -18,7 +18,6 @@
 #' @import feasts
 #' @import tsfeatures
 #' @import tsibble
-#' @import tsibbledata
 #' @importFrom scales rescale
 #' @importFrom tidyr pivot_longer
 #' @importFrom data.table rbindlist

@@ -163,17 +163,11 @@ calc_tsfel <- function(data){
 #' @export
 #' @examples
 #' \dontrun{
-#' library(dplyr)
-#' library(tsibbledata)
-#' 
-#' d <- tsibbledata::aus_retail %>%
-#'   rename(Series_ID = 3)
-#' 
-#' feature_matrix <- calculate_features(data = d, 
-#'   id_var = "Series_ID", 
-#'   time_var = "Month", 
-#'   values_var = "Turnover", 
-#'   group_var = "State",
+#' featMat <- calculate_features(data = simData, 
+#'   id_var = "id", 
+#'   time_var = "timepoint", 
+#'   values_var = "values", 
+#'   group_var = "process", 
 #'   feature_set = "catch22")
 #' }
 #'
