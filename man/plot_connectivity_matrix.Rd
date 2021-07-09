@@ -10,7 +10,8 @@ plot_connectivity_matrix(
   id_var = NULL,
   names_var = NULL,
   values_var = NULL,
-  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")
+  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
+  interactive = FALSE
 )
 }
 \arguments{
@@ -25,12 +26,33 @@ plot_connectivity_matrix(
 \item{values_var}{a string denoting the name of the variable/column that holds the numerical feature values}
 
 \item{method}{a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'}
+
+\item{interactive}{a Boolean as to whether to plot an interactive plotly graphic. Defaults to FALSE}
 }
 \value{
 an object of class ggplot that contains the correlation matrix graphic
 }
 \description{
 Produce a correlation matrix plot showing pairwise correlations of feature vectors by unique id with automatic hierarchical clustering.
+}
+\examples{
+\dontrun{
+featMat <- calculate_features(data = simData, 
+  id_var = "id", 
+  time_var = "timepoint", 
+  values_var = "values", 
+  group_var = "process", 
+  feature_set = "catch22")
+  
+plot_connectivity_matrix(data = featMat, 
+  is_normalised = FALSE, 
+  id_var = "id", 
+  names_var = "names", 
+  values_var = "values",
+  method = "RobustSigmoid",
+  interactive = FALSE)
+}
+
 }
 \author{
 Trent Henderson

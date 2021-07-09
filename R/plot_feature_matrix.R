@@ -3,6 +3,7 @@
 #' @importFrom magrittr %>%
 #' @import ggplot2
 #' @import tibble
+#' @import plotly
 #' @importFrom tidyr pivot_wider
 #' @importFrom tidyr pivot_longer
 #' @importFrom tidyr drop_na
@@ -13,31 +14,29 @@
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to NULL
 #' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
+#' @param interactive a Boolean as to whether to plot an interactive plotly graphic. Defaults to FALSE
 #' @return an object of class ggplot that contains the heatmap graphic
 #' @author Trent Henderson
 #' @export
 #' @examples
 #' \dontrun{
-#' library(dplyr)
-#' library(tsibbledata)
-#' 
-#' d <- tsibbledata::aus_retail %>%
-#'   rename(Series_ID = 3)
-#' 
-#' feature_matrix <- calculate_features(data = d, 
-#'   id_var = "Series_ID", 
-#'   time_var = "Month", 
-#'   values_var = "Turnover", 
-#'   group_var = "State",
+#' featMat <- calculate_features(data = simData, 
+#'   id_var = "id", 
+#'   time_var = "timepoint", 
+#'   values_var = "values", 
+#'   group_var = "process", 
 #'   feature_set = "catch22")
+#'
+#' plot_feature_matrix(featMat, 
+#'   is_normalised = FALSE, 
+#'   id_var = "id", 
+#'   method = "MinMax",
+#'   interactive = FALSE)
 #' }
 #'
-#' plot_feature_matrix(feature_matrix, is_normalised = FALSE, 
-#'   id_var = "id", 
-#'   method = "MinMax")
-#'
 
-plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = NULL, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")){
+plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = NULL, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
+                                interactive = FALSE){
 
   # Make RobustSigmoid the default
 
@@ -138,9 +137,19 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = NULL, meth
                   names = Var2)
 
   #------------- Draw graphic ---------------------
+  
+  if(interactive){
+    p <- cluster_out %>%
+      ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value,
+                                   text = paste('<br><b>ID:</b>', id,
+                                                '<br><b>Feature:</b>', names,
+                                                '<br><b>Scaled Value:</b>', round(value, digits = 3))))
+  } else{
+    p <- cluster_out %>%
+      ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value)) 
+  }
 
-  p <- cluster_out %>%
-    ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value)) +
+  p <- p +
     ggplot2::geom_tile() +
     ggplot2::labs(title = "Hierarchically-clustered scaled features and unique time series",
                   x = "Feature",
@@ -158,6 +167,14 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = NULL, meth
   } else{
     p <- p +
       ggplot2::labs(fill = paste0(method," scaled feature value"))
+  }
+  
+  if(interactive){
+    p <- ggplotly(p, tooltip = c("text")) %>%
+      layout(legend = list(orientation = "h", x = 0, y = -0.2)) %>%
+      config(displayModeBar = FALSE)
+  } else{
+    
   }
 
   return(p)

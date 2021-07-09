@@ -29,4 +29,5 @@
 #' @importFrom broom tidy
 #' @import reticulate
 #' @import dplyr
+#' @import plotly
 NULL

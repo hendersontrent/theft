@@ -14,35 +14,33 @@
 #' @param names_var a string denoting the name of the variable/column that holds the feature names
 #' @param values_var a string denoting the name of the variable/column that holds the numerical feature values
 #' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
+#' @param interactive a Boolean as to whether to plot an interactive plotly graphic. Defaults to FALSE
 #' @return an object of class ggplot that contains the correlation matrix graphic
 #' @author Trent Henderson
 #' @export
 #' @examples
 #' \dontrun{
-#' library(dplyr)
-#' library(tsibbledata)
-#' 
-#' d <- tsibbledata::aus_retail %>%
-#'   rename(Series_ID = 3)
-#' 
-#' feature_matrix <- calculate_features(data = d, 
-#'   id_var = "Series_ID", 
-#'   time_var = "Month", 
-#'   values_var = "Turnover", 
-#'   group_var = "State",
+#' featMat <- calculate_features(data = simData, 
+#'   id_var = "id", 
+#'   time_var = "timepoint", 
+#'   values_var = "values", 
+#'   group_var = "process", 
 #'   feature_set = "catch22")
 #'   
-#' plot_connectivity_matrix(data = feature_matrix, 
+#' plot_connectivity_matrix(data = featMat, 
 #'   is_normalised = FALSE, 
 #'   id_var = "id", 
 #'   names_var = "names", 
 #'   values_var = "values",
-#'   method = "RobustSigmoid")
+#'   method = "RobustSigmoid",
+#'   interactive = FALSE)
+#' }
 #'
 
 plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = NULL, 
                                      names_var = NULL, values_var = NULL,
-                                     method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")){
+                                     method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
+                                     interactive = FALSE){
   
   # Make RobustSigmoid the default
   
@@ -131,8 +129,18 @@ plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = NULL,
   
   #--------- Graphic --------------
   
-  p <- cluster_out %>%
-    ggplot2::ggplot(ggplot2::aes(x = Var1, y = Var2)) +
+  if(interactive){
+    p <- cluster_out %>%
+      ggplot2::ggplot(ggplot2::aes(x = Var1, y = Var2,
+                                   text = paste('<br><b>ID 1:</b>', Var1,
+                                                '<br><b>ID 2:</b>', Var2,
+                                                '<br><b>Correlation:</b>', round(value, digits = 3))))
+  } else{
+    p <- cluster_out %>%
+      ggplot2::ggplot(ggplot2::aes(x = Var1, y = Var2)) 
+  }
+  
+  p <- p +
     ggplot2::geom_tile(ggplot2::aes(fill = value)) +
     ggplot2::labs(title = "Feature value correlations between unique time series with hierarchical clustering",
                   x = NULL,
@@ -149,6 +157,14 @@ plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = NULL,
   } else {
     p <- p +
       ggplot2::theme(axis.text = ggplot2::element_blank())
+  }
+  
+  if(interactive){
+    p <- ggplotly(p, tooltip = c("text")) %>%
+      layout(legend = list(orientation = "h", x = 0, y = -0.2)) %>%
+      config(displayModeBar = FALSE)
+  } else{
+    
   }
   
   return(p)

@@ -11,56 +11,45 @@
 # Author: Trent Henderson, 07 April 2021
 #---------------------------------------
 
-library(dplyr)
 library(theft)
-library(tsibbledata)
 library(reticulate)
-
-# Retrieve some data
-
-d <- tsibbledata::aus_retail %>%
-  filter(State == "New South Wales")
 
 #------------------- Feature extraction -----------------------------
 
-#outs_all <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "all")
-#outs_fe <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "feasts")
-outs_ts <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "tsfeatures")
-#outs_22 <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "catch22")
-
-# tsfresh
+#outs_all <- calculate_features(data = simData, id_var = "id", time_var = "timepoint", values_var = "values", group_var = "process", feature_set = "all")
+outs_22 <- calculate_features(data = simData, id_var = "id", time_var = "timepoint", values_var = "values", group_var = "process", feature_set = "catch22")
+#outs_fe <- calculate_features(data = simData, id_var = "id", time_var = "timepoint", values_var = "values", group_var = "process", feature_set = "feasts")
+#outs_ts <- calculate_features(data = simData, id_var = "id", time_var = "timepoint", values_var = "values", group_var = "process", feature_set = "tsfeatures")
 
 #reticulate::use_python("~/opt/anaconda3/bin/python", required = TRUE)
-#outs_tsf <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "tsfresh")
-
-# tsfel
-
-#outs_tsfel <- calculate_features(data = d, id_var = "Industry", time_var = "Month", values_var = "Turnover", feature_set = "tsfel")
+#outs_tsfresh <- calculate_features(data = simData, id_var = "id", time_var = "timepoint", values_var = "values", group_var = "process", feature_set = "tsfresh", tsfresh_cleanup = FALSE)
+#outs_tsfel <- calculate_features(data = simData, id_var = "id", time_var = "timepoint", values_var = "values", group_var = "process", feature_set = "tsfel")
 
 #------------------- Other package functionality --------------------
 
 # Test 1: Data quality matrix
 
-plot_quality_matrix(outs_ts)
+plot_quality_matrix(outs_22)
 
 # Test 2: Normalisation
 
-normed <- normalise_feature_frame(outs_ts, names_var = "names", values_var = "values", method = c("RobustSigmoid"))
-normed1 <- normalise_feature_frame(outs_ts, names_var = "names", values_var = "values", method = c("MinMax"))
+normed <- normalise_feature_frame(outs_22, names_var = "names", values_var = "values", method = c("RobustSigmoid"))
 
 # Test 3: Feature matrix
 
-plot_feature_matrix(normed, is_normalised = TRUE, id_var = "id", method = "RobustSigmoid")
-plot_feature_matrix(outs_ts, is_normalised = FALSE, id_var = "id", method = "MinMax")
+plot_feature_matrix(normed, is_normalised = TRUE, id_var = "id", method = "RobustSigmoid", interactive = FALSE)
+plot_feature_matrix(outs_22, is_normalised = FALSE, id_var = "id", method = "RobustSigmoid", interactive = FALSE)
+plot_feature_matrix(outs_22, is_normalised = FALSE, id_var = "id", method = "RobustSigmoid", interactive = TRUE)
 
 # Test 4: Low dimension
 
-plot_low_dimension(outs_ts, is_normalised = FALSE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid", low_dim_method = "PCA")
-plot_low_dimension(normed, is_normalised = TRUE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid", low_dim_method = "PCA")
-plot_low_dimension(outs_ts, is_normalised = FALSE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 2)
-plot_low_dimension(normed, is_normalised = TRUE, id_var = "id", group_var = NULL, plot = TRUE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 2)
-d1 <- plot_low_dimension(outs_ts, is_normalised = FALSE, id_var = "id", group_var = NULL, plot = FALSE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 2)
+plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_var = "group", plot = TRUE, method = "RobustSigmoid", low_dim_method = "PCA")
+plot_low_dimension(normed, is_normalised = TRUE, id_var = "id", group_var = "group", plot = TRUE, method = "RobustSigmoid", low_dim_method = "PCA")
+plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_var = "group", plot = TRUE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 5)
+plot_low_dimension(normed, is_normalised = TRUE, id_var = "id", group_var = "group", plot = TRUE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 5)
+d1 <- plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_var = "group", plot = FALSE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 5)
 
 # Test 5: Connectivity matrix
 
-plot_connectivity_matrix(outs_ts, id_var = "id", names_var = "names", values_var = "values")
+plot_connectivity_matrix(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", interactive = FALSE)
+plot_connectivity_matrix(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", interactive = TRUE)

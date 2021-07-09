@@ -6,8 +6,10 @@
 #' @author Trent Henderson
 #' @export
 #' @examples
+#' \dontrun{
 #' x <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
 #' outs <- minmax_scaler(x)
+#' }
 #'
 
 minmax_scaler <- function(x){
@@ -26,8 +28,10 @@ minmax_scaler <- function(x){
 #' @author Trent Henderson
 #' @export
 #' @examples
+#' \dontrun{
 #' x <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
 #' outs <- zscore_scaler(x)
+#' }
 #'
 
 zscore_scaler <- function(x){
@@ -48,8 +52,10 @@ zscore_scaler <- function(x){
 #' @author Trent Henderson
 #' @export
 #' @examples
+#' \dontrun{
 #' x <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
 #' outs <- sigmoid_scaler(x)
+#' }
 #'
 
 sigmoid_scaler <- function(x, unitInt = TRUE){
@@ -78,8 +84,10 @@ sigmoid_scaler <- function(x, unitInt = TRUE){
 #' @author Trent Henderson
 #' @export
 #' @examples
+#' \dontrun{
 #' x <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
 #' outs <- robustsigmoid_scaler(x)
+#' }
 #'
 
 robustsigmoid_scaler <- function(x, unitInt = TRUE){
@@ -103,8 +111,10 @@ robustsigmoid_scaler <- function(x, unitInt = TRUE){
 #' @author Trent Henderson
 #' @export
 #' @examples
+#' \dontrun{
 #' x <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
 #' outs <- mean_scaler(x)
+#' }
 #'
 
 mean_scaler <- function(x){

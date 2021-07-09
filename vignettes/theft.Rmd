@@ -19,18 +19,15 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, message = FALSE, warning = FALSE}
-library(dplyr)
 library(theft)
-library(tsibbledata)
 ```
 
 ## Core calculation functions
 
-Before we look at the available functions in the package, let's first pull some time-series data.
+We are going to use a dataset that comes standard with `theft` called `simData`. This dataset contains a collection of randomly generated time series for four different types of processes. This dataset can be accessed via:
 
-```{r, message = FALSE, warning = FALSE}
-d <- tsibbledata::aus_retail %>%
-  rename(Series_ID = 3)
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+theft::simData
 ```
 
 ### Calculating feature summary statistics
@@ -42,15 +39,15 @@ Note that `tsfresh` and `tsfel` are Python packages. The R package `reticulate` 
 Here is an example with the `catch22` set:
 
 ```{r, message = FALSE, warning = FALSE}
-feature_matrix <- calculate_features(data = d, 
-                                     id_var = "Series_ID", 
-                                     time_var = "Month", 
-                                     values_var = "Turnover", 
-                                     group_var = "State",
+feature_matrix <- calculate_features(data = simData, 
+                                     id_var = "id", 
+                                     time_var = "timepoint", 
+                                     values_var = "values", 
+                                     group_var = "process", 
                                      feature_set = "catch22")
 ```
 
-If you do not want to or need to run the entire sets included in `calculate_features` you can also access the individual feature calculations as their unique function names, for example `IN_AutoMutualInfoStats_40_gaussian_fmmi`. A tidy dataframe of all the included feature calculations and the set they correspond to is available:
+If you do not want to or need to run the entire sets included in `calculate_features` you can also access the individual feature calculations as their unique function names, for example `IN_AutoMutualInfoStats_40_gaussian_fmmi`. A tidy dataframe of most of the included feature calculations and the set they correspond to is available:
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 View(feature_list)
@@ -71,7 +68,7 @@ Putting calculated feature vectors on an equal scale is crucial for any statisti
 * z-score - `"z-score"`
 * Sigmoid - `"Sigmoid"`
 * Outlier-robust Sigmoid (credit to Ben Fulcher for creating the original [MATLAB version](https://github.com/benfulcher/hctsa)) - `"RobustSigmoid"`
-* Min-max - `"MinMax"`
+* Min-max - `"RobustSigmoid"`
 * Mean subtraction - `"MeanSubtract"`
 
 Dataframe-based normalisation can be performed using the following:
@@ -80,7 +77,7 @@ Dataframe-based normalisation can be performed using the following:
 normed <- normalise_feature_frame(feature_matrix, 
                                   names_var = "names", 
                                   values_var = "values", 
-                                  method = "MinMax")
+                                  method = "RobustSigmoid")
 ```
 
 ## Data visualisation functions
@@ -99,7 +96,18 @@ The function `plot_feature_matrix` takes the output of any included feature calc
 plot_feature_matrix(feature_matrix, 
                     is_normalised = FALSE, 
                     id_var = "id", 
-                    method = "MinMax")
+                    method = "RobustSigmoid",
+                    interactive = FALSE)
+```
+
+If you set `interactive = TRUE` the function will return an interactive plot using `plotly` which lets you hover over entries in the matrix to better understand which is which. This is especially useful if your dataset is large.
+
+```{r, message = FALSE, warning = FALSE}
+plot_feature_matrix(feature_matrix, 
+                    is_normalised = FALSE, 
+                    id_var = "id", 
+                    method = "RobustSigmoid",
+                    interactive = TRUE)
 ```
 
 ### Dimension reduction
@@ -111,7 +119,7 @@ plot_low_dimension(feature_matrix,
                    is_normalised = FALSE, 
                    id_var = "id", 
                    group_var = "group", 
-                   method = "MinMax", 
+                   method = "RobustSigmoid", 
                    low_dim_method = "PCA", 
                    plot = TRUE)
 ```
@@ -123,9 +131,9 @@ plot_low_dimension(feature_matrix,
                    is_normalised = FALSE, 
                    id_var = "id", 
                    group_var = "group", 
-                   method = "MinMax", 
+                   method = "RobustSigmoid", 
                    low_dim_method = "t-SNE", 
-                   perplexity = 10, 
+                   perplexity = 5, 
                    plot = TRUE)
 ```
 
@@ -139,5 +147,18 @@ plot_connectivity_matrix(feature_matrix,
                          id_var = "id", 
                          names_var = "names", 
                          values_var = "values",
-                         method = "MinMax")
+                         method = "RobustSigmoid",
+                         interactive = FALSE)
+```
+
+Again, if you set `interactive = TRUE` the function will return an interactive plot using `plotly` which lets you hover over entries in the matrix to better understand which is which.
+
+```{r, message = FALSE, warning = FALSE}
+plot_connectivity_matrix(feature_matrix, 
+                         is_normalised = FALSE, 
+                         id_var = "id", 
+                         names_var = "names", 
+                         values_var = "values",
+                         method = "RobustSigmoid",
+                         interactive = TRUE)
 ```

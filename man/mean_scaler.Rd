@@ -13,8 +13,10 @@ mean_scaler(x)
 This function rescales a vector of numerical values by subtracting the mean
 }
 \examples{
+\dontrun{
 x <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
 outs <- mean_scaler(x)
+}
 
 }
 \author{

@@ -21,24 +21,20 @@ a vector of scalar values normalised into the selected range
 Scale each value into a user-specified range for visualisation and analysis
 }
 \examples{
-library(dplyr)
-library(tsibbledata)
-
-d <- tsibbledata::aus_retail \%>\%
-  rename(Series_ID = 3)
-
-feature_matrix <- calculate_features(data = d, 
-  id_var = "Series_ID", 
-  time_var = "Month", 
-  values_var = "Turnover", 
-  group_var = "State",
+\dontrun{
+featMat <- calculate_features(data = simData, 
+  id_var = "id", 
+  time_var = "timepoint", 
+  values_var = "values", 
+  group_var = "process", 
   feature_set = "catch22")
   
-x <- feature_matrix \%>\%
+x <- featMat \%>\%
   filter(names == "DN_HistogramMode_5") \%>\%
   pull(values)
   
-xnormed <- normalise_feature_vector(x, method = "MinMax")
+xnormed <- normalise_feature_vector(x, method = "RobustSigmoid")
+}
 
 }
 \author{
