@@ -162,3 +162,25 @@ plot_connectivity_matrix(feature_matrix,
                          method = "RobustSigmoid",
                          interactive = TRUE)
 ```
+
+## Group discrimination
+
+Since feature-based time-series analysis is typically geared towards classification problems, `theft` includes some functionality for exploring group separation in addition to the low dimensional representation. The `plot_feature_discrimination` produces violin plots for each feature with class labels separated on the x-axis and by colour. You can choose to normalise the features prior to plotting or simply plot the raw feature values.
+
+```{r, message = FALSE, warning = FALSE}
+plot_feature_discrimination(feature_matrix, 
+                            id_var = "id", 
+                            group_var = "group", 
+                            features = "all", 
+                            normalise = FALSE)
+```
+
+You can also pass a vector of individual feature names to the `features` argument to only view those features. This is useful if the number of features you have is very large and/or you have *a priori* knowledge about which features might be most useful.
+
+```{r, message = FALSE, warning = FALSE}
+plot_feature_discrimination(feature_matrix, 
+                            id_var = "id", 
+                            group_var = "group", 
+                            features = c("DN_HistogramMode_5", "DN_HistogramMode_10"), 
+                            normalise = FALSE)
+```
