@@ -8,6 +8,8 @@
 #' @importFrom stats hclust
 #' @importFrom stats dist
 #' @importFrom stats cor
+#' @importFrom plotly ggplotly
+#' @importFrom plotly config
 #' @param data a dataframe with at least 3 columns for 'id', 'names' and 'values'
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
 #' @param id_var a string specifying the ID variable to compute pairwise correlations between. Defaults to "id"
@@ -160,9 +162,8 @@ plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   }
   
   if(interactive){
-    p <- ggplotly(p, tooltip = c("text")) %>%
-      layout(legend = list(orientation = "h", x = 0, y = -0.2)) %>%
-      config(displayModeBar = FALSE)
+    p <- plotly::ggplotly(p, tooltip = c("text")) %>%
+      plotly::config(displayModeBar = FALSE)
   } else{
     
   }

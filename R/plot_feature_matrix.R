@@ -10,6 +10,9 @@
 #' @importFrom reshape2 melt
 #' @importFrom stats hclust
 #' @importFrom stats dist
+#' @importFrom plotly ggplotly
+#' @importFrom plotly config
+#' @importFrom RColorBrewer brewer.pal
 #' @param data a dataframe with at least 2 columns called 'names' and 'values'
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
@@ -139,19 +142,12 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   if(interactive){
     if(method %in% c("Sigmoid", "RobustSigmoid", "MinMax")){
       p <- cluster_out %>%
-        dplyr::mutate(cutcat = dplyr::case_when(
-          value >= 0 & value <= 0.2  ~ "0-0.2",
-          value > 0.2 & value <= 0.4 ~ "0.2-0.4",
-          value > 0.4 & value <= 0.6 ~ "0.4-0.6",
-          value > 0.6 & value <= 0.8 ~ "0.6-0.8",
-          value > 0.8                ~ "0.8-1")) %>%
-        ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = cutcat,
+        ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value,
                                      text = paste('<br><b>ID:</b>', id,
                                                   '<br><b>Feature:</b>', names,
                                                   '<br><b>Scaled Value:</b>', round(value, digits = 3)))) +
         ggplot2::geom_tile() +
-        ggplot2::scale_fill_brewer(type = "qual", palette = "RdYlBu",
-                                   guide = ggplot2::guide_legend(reverse = TRUE))
+        ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(RColorBrewer::brewer.pal(6, "RdYlBu")))
     } else{
       p <- cluster_out %>%
         ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value,
@@ -165,17 +161,9 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   } else{
     if(method %in% c("Sigmoid", "RobustSigmoid", "MinMax")){
       p <- cluster_out %>%
-        dplyr::mutate(cutcat = dplyr::case_when(
-          value >= 0 & value <= 0.2  ~ "0-0.2",
-          value > 0.2 & value <= 0.4 ~ "0.2-0.4",
-          value > 0.4 & value <= 0.6 ~ "0.4-0.6",
-          value > 0.6 & value <= 0.8 ~ "0.6-0.8",
-          value > 0.8                ~ "0.8-1")) %>%
-        dplyr::mutate(cutcat = factor(cutcat, levels = c("0.8-1", "0.6-0.8", "0.4-0.6", "0.2-0.4", "0-0.2"))) %>%
-        ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = cutcat))  +
+        ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value))  +
         ggplot2::geom_tile() +
-        ggplot2::scale_fill_brewer(type = "qual", palette = "RdYlBu",
-                                   guide = ggplot2::guide_legend(reverse = TRUE))
+        ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(RColorBrewer::brewer.pal(6, "RdYlBu")))
     } else{
       p <- cluster_out %>%
         ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value)) +
@@ -195,9 +183,8 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
       ggplot2::labs(fill = "Scaled value")
   
   if(interactive){
-    p <- ggplotly(p, tooltip = c("text")) %>%
-      #layout(legend = list(orientation = "h", x = 0, y = -0.2)) %>%
-      config(displayModeBar = FALSE)
+    p <- plotly::ggplotly(p, tooltip = c("text")) %>%
+      plotly::config(displayModeBar = FALSE)
   } else{
     p <- p +
       ggplot2::theme(legend.position = "bottom")

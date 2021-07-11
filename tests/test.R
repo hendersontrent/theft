@@ -41,6 +41,9 @@ plot_feature_matrix(normed, is_normalised = TRUE, id_var = "id", method = "Robus
 plot_feature_matrix(outs_22, is_normalised = FALSE, id_var = "id", method = "RobustSigmoid", interactive = FALSE)
 plot_feature_matrix(outs_22, is_normalised = FALSE, id_var = "id", method = "RobustSigmoid", interactive = TRUE)
 
+plot_feature_matrix(outs_22, is_normalised = FALSE, id_var = "id", method = "z-score", interactive = FALSE)
+plot_feature_matrix(outs_22, is_normalised = FALSE, id_var = "id", method = "z-score", interactive = TRUE)
+
 # Test 4: Low dimension
 
 plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_var = "group", plot = TRUE, method = "RobustSigmoid", low_dim_method = "PCA")

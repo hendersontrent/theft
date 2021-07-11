@@ -34,7 +34,8 @@ Imports:
     Rcatch22,
     reticulate,
     Rtsne,
-    plotly
+    plotly,
+    RColorBrewer
 Suggests: 
     knitr,
     markdown,

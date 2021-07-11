@@ -29,5 +29,7 @@
 #' @importFrom broom tidy
 #' @import reticulate
 #' @import dplyr
-#' @import plotly
+#' @importFrom plotly ggplotly
+#' @importFrom plotly config
+#' @importFrom RColorBrewer brewer.pal
 NULL
