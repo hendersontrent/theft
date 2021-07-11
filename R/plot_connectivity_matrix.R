@@ -8,11 +8,13 @@
 #' @importFrom stats hclust
 #' @importFrom stats dist
 #' @importFrom stats cor
+#' @importFrom plotly ggplotly
+#' @importFrom plotly config
 #' @param data a dataframe with at least 3 columns for 'id', 'names' and 'values'
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
-#' @param id_var a string specifying the ID variable to compute pairwise correlations between. Defaults to NULL
-#' @param names_var a string denoting the name of the variable/column that holds the feature names
-#' @param values_var a string denoting the name of the variable/column that holds the numerical feature values
+#' @param id_var a string specifying the ID variable to compute pairwise correlations between. Defaults to "id"
+#' @param names_var a string denoting the name of the variable/column that holds the feature names. Defaults to "names"
+#' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"
 #' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
 #' @param interactive a Boolean as to whether to plot an interactive plotly graphic. Defaults to FALSE
 #' @return an object of class ggplot that contains the correlation matrix graphic
@@ -37,8 +39,8 @@
 #' }
 #'
 
-plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = NULL, 
-                                     names_var = NULL, values_var = NULL,
+plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = "id", 
+                                     names_var = "names", values_var = "values",
                                      method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
                                      interactive = FALSE){
   
@@ -142,7 +144,7 @@ plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = NULL,
   
   p <- p +
     ggplot2::geom_tile(ggplot2::aes(fill = value)) +
-    ggplot2::labs(title = "Feature value correlations between unique time series with hierarchical clustering",
+    ggplot2::labs(title = "Hierarchically-clustered pairwise correlation matrix",
                   x = NULL,
                   y = NULL,
                   fill = "Correlation Coefficient") +
@@ -160,9 +162,8 @@ plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = NULL,
   }
   
   if(interactive){
-    p <- ggplotly(p, tooltip = c("text")) %>%
-      layout(legend = list(orientation = "h", x = 0, y = -0.2)) %>%
-      config(displayModeBar = FALSE)
+    p <- plotly::ggplotly(p, tooltip = c("text")) %>%
+      plotly::config(displayModeBar = FALSE)
   } else{
     
   }

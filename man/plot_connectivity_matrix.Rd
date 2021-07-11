@@ -7,9 +7,9 @@
 plot_connectivity_matrix(
   data,
   is_normalised = FALSE,
-  id_var = NULL,
-  names_var = NULL,
-  values_var = NULL,
+  id_var = "id",
+  names_var = "names",
+  values_var = "values",
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
   interactive = FALSE
 )
@@ -19,11 +19,11 @@ plot_connectivity_matrix(
 
 \item{is_normalised}{a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE}
 
-\item{id_var}{a string specifying the ID variable to compute pairwise correlations between. Defaults to NULL}
+\item{id_var}{a string specifying the ID variable to compute pairwise correlations between. Defaults to "id"}
 
-\item{names_var}{a string denoting the name of the variable/column that holds the feature names}
+\item{names_var}{a string denoting the name of the variable/column that holds the feature names. Defaults to "names"}
 
-\item{values_var}{a string denoting the name of the variable/column that holds the numerical feature values}
+\item{values_var}{a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"}
 
 \item{method}{a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'}
 

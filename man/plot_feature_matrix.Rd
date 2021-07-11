@@ -7,7 +7,7 @@
 plot_feature_matrix(
   data,
   is_normalised = FALSE,
-  id_var = NULL,
+  id_var = "id",
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
   interactive = FALSE
 )
@@ -17,7 +17,7 @@ plot_feature_matrix(
 
 \item{is_normalised}{a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE}
 
-\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to NULL}
+\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to "id"}
 
 \item{method}{a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'}
 

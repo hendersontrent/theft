@@ -6,17 +6,17 @@
 \usage{
 normalise_feature_frame(
   data,
-  names_var = NULL,
-  values_var = NULL,
+  names_var = "names",
+  values_var = "values",
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")
 )
 }
 \arguments{
 \item{data}{a dataframe with at least 2 columns: names variable (feature names) and value variable}
 
-\item{names_var}{a string denoting the name of the variable/column that holds the feature names}
+\item{names_var}{a string denoting the name of the variable/column that holds the feature names. Defaults to "names"}
 
-\item{values_var}{a string denoting the name of the variable/column that holds the numerical feature values}
+\item{values_var}{a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"}
 
 \item{method}{a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'}
 }

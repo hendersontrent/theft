@@ -10,8 +10,8 @@
 #' @import Rtsne
 #' @param data a dataframe with at least 2 columns called 'names' and 'values'
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
-#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to NULL
-#' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to NULL
+#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
+#' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
 #' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
 #' @param low_dim_method the low dimensional embedding method to use. Defaults to 'PCA'
 #' @param perplexity the perplexity hyperparameter to use if t-SNE algorithm is selected. Defaults to 30
@@ -38,7 +38,7 @@
 #' }
 #'
 
-plot_low_dimension <- function(data, is_normalised = FALSE, id_var = NULL, group_var = NULL, 
+plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group_var = "group", 
                                method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
                                low_dim_method = c("PCA", "t-SNE"), perplexity = 30, 
                                plot = TRUE){

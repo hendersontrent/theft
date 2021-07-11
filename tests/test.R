@@ -41,6 +41,9 @@ plot_feature_matrix(normed, is_normalised = TRUE, id_var = "id", method = "Robus
 plot_feature_matrix(outs_22, is_normalised = FALSE, id_var = "id", method = "RobustSigmoid", interactive = FALSE)
 plot_feature_matrix(outs_22, is_normalised = FALSE, id_var = "id", method = "RobustSigmoid", interactive = TRUE)
 
+plot_feature_matrix(outs_22, is_normalised = FALSE, id_var = "id", method = "z-score", interactive = FALSE)
+plot_feature_matrix(outs_22, is_normalised = FALSE, id_var = "id", method = "z-score", interactive = TRUE)
+
 # Test 4: Low dimension
 
 plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_var = "group", plot = TRUE, method = "RobustSigmoid", low_dim_method = "PCA")
@@ -53,3 +56,10 @@ d1 <- plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_va
 
 plot_connectivity_matrix(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", interactive = FALSE)
 plot_connectivity_matrix(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", interactive = TRUE)
+
+# Test 6: Feature discrimination
+
+plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", features = "all", normalise = FALSE)
+plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", features = c("CO_f1ecac", "CO_FirstMin_ac"), normalise = FALSE)
+plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", features = "all", normalise = TRUE, method = "RobustSigmoid")
+plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", features = c("CO_f1ecac", "CO_FirstMin_ac"), normalise = TRUE, method = "RobustSigmoid")

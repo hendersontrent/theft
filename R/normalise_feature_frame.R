@@ -55,8 +55,8 @@ ms_function <- function(data){
 #' Scale each feature vector into a user-specified range for visualisation and modelling
 #' @import dplyr
 #' @param data a dataframe with at least 2 columns: names variable (feature names) and value variable
-#' @param names_var a string denoting the name of the variable/column that holds the feature names
-#' @param values_var a string denoting the name of the variable/column that holds the numerical feature values
+#' @param names_var a string denoting the name of the variable/column that holds the feature names. Defaults to "names"
+#' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"
 #' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
 #' @return a dataframe with the value column rescaled into the specified range
 #' @author Trent Henderson
@@ -77,7 +77,8 @@ ms_function <- function(data){
 #' }
 #'
 
-normalise_feature_frame <- function(data, names_var = NULL, values_var = NULL, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")){
+normalise_feature_frame <- function(data, names_var = "names", values_var = "values", 
+                                    method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")){
   
   # Make RobustSigmoid the default
   
@@ -144,8 +145,8 @@ normalise_feature_frame <- function(data, names_var = NULL, values_var = NULL, m
 #' Scale each feature vector into a user-specified range for visualisation and modelling
 #' @import dplyr
 #' @param data a dataframe with at least 2 columns: names variable (feature names) and value variable
-#' @param names_var a string denoting the name of the variable/column that holds the feature names
-#' @param values_var a string denoting the name of the variable/column that holds the numerical feature values
+#' @param names_var a string denoting the name of the variable/column that holds the feature names. Defaults to "names"
+#' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"
 #' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
 #' @return a dataframe with the value column rescaled into the specified range
 #' @author Trent Henderson
@@ -166,7 +167,8 @@ normalise_feature_frame <- function(data, names_var = NULL, values_var = NULL, m
 #' }
 #'
 
-normalize_feature_frame <- function(data, names_var = NULL, values_var = NULL, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")){
+normalize_feature_frame <- function(data, names_var = "names", values_var = "values", 
+                                    method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")){
   
   # Make RobustSigmoid the default
   

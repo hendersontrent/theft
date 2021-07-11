@@ -3,16 +3,18 @@
 #' @importFrom magrittr %>%
 #' @import ggplot2
 #' @import tibble
-#' @import plotly
 #' @importFrom tidyr pivot_wider
 #' @importFrom tidyr pivot_longer
 #' @importFrom tidyr drop_na
 #' @importFrom reshape2 melt
 #' @importFrom stats hclust
 #' @importFrom stats dist
+#' @importFrom plotly ggplotly
+#' @importFrom plotly config
+#' @importFrom RColorBrewer brewer.pal
 #' @param data a dataframe with at least 2 columns called 'names' and 'values'
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
-#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to NULL
+#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
 #' @param interactive a Boolean as to whether to plot an interactive plotly graphic. Defaults to FALSE
 #' @return an object of class ggplot that contains the heatmap graphic
@@ -35,8 +37,9 @@
 #' }
 #'
 
-plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = NULL, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
-                                interactive = FALSE){
+plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id", 
+                                 method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
+                                 interactive = FALSE){
 
   # Make RobustSigmoid the default
 
@@ -94,17 +97,14 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = NULL, meth
 
   if(is_normalised){
     normed <- data_id
-  } else if (is_normalised == FALSE & nrow(data_id) == 22){
-    message("Not enough data to standardise feature vectors. Using raw calculated values.")
-    normed <- data_id
-  }else{
+  } else{
     normed <- data_id %>%
       dplyr::select(c(id, names, values)) %>%
       dplyr::group_by(names) %>%
       dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
       dplyr::ungroup() %>%
       tidyr::drop_na()
-
+    
     if(nrow(normed) != nrow(data_id)){
       message("Filtered out rows containing NaNs.")
     }
@@ -139,42 +139,54 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = NULL, meth
   #------------- Draw graphic ---------------------
   
   if(interactive){
-    p <- cluster_out %>%
-      ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value,
-                                   text = paste('<br><b>ID:</b>', id,
-                                                '<br><b>Feature:</b>', names,
-                                                '<br><b>Scaled Value:</b>', round(value, digits = 3))))
+    if(method %in% c("Sigmoid", "RobustSigmoid", "MinMax")){
+      p <- cluster_out %>%
+        ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value,
+                                     text = paste('<br><b>ID:</b>', id,
+                                                  '<br><b>Feature:</b>', names,
+                                                  '<br><b>Scaled Value:</b>', round(value, digits = 3)))) +
+        ggplot2::geom_tile() +
+        ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(RColorBrewer::brewer.pal(6, "RdYlBu")))
+    } else{
+      p <- cluster_out %>%
+        ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value,
+                                     text = paste('<br><b>ID:</b>', id,
+                                                  '<br><b>Feature:</b>', names,
+                                                  '<br><b>Scaled Value:</b>', round(value, digits = 3)))) +
+        ggplot2::geom_tile() +
+        ggplot2::scale_fill_distiller(palette = "RdYlBu")
+    } 
+    
   } else{
-    p <- cluster_out %>%
-      ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value)) 
+    if(method %in% c("Sigmoid", "RobustSigmoid", "MinMax")){
+      p <- cluster_out %>%
+        ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value))  +
+        ggplot2::geom_tile() +
+        ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(RColorBrewer::brewer.pal(6, "RdYlBu")))
+    } else{
+      p <- cluster_out %>%
+        ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value)) +
+        ggplot2::geom_tile() +
+        ggplot2::scale_fill_distiller(palette = "RdYlBu")
+    }
   }
 
   p <- p +
-    ggplot2::geom_tile() +
-    ggplot2::labs(title = "Hierarchically-clustered scaled features and unique time series",
+    ggplot2::labs(title = "Hierarchically-clustered data matrix",
                   x = "Feature",
                   y = "Time Series") +
-    ggplot2::theme_bw() +
-    ggplot2::scale_fill_distiller(palette = "RdYlBu") +
-    ggplot2::theme(legend.position = "bottom",
-                   axis.text.y = ggplot2::element_blank(),
+    ggplot2::theme_bw() + 
+    ggplot2::theme(axis.text.y = ggplot2::element_blank(),
                    axis.text.x = ggplot2::element_text(angle = 90, hjust = 1),
-                   panel.grid = ggplot2::element_blank())
-  
-  if(is_normalised){
-    p <- p +
-      ggplot2::labs(fill = "Scaled feature value")
-  } else{
-    p <- p +
-      ggplot2::labs(fill = paste0(method," scaled feature value"))
-  }
+                   panel.grid = ggplot2::element_blank()) +
+      ggplot2::labs(fill = "Scaled value")
   
   if(interactive){
-    p <- ggplotly(p, tooltip = c("text")) %>%
-      layout(legend = list(orientation = "h", x = 0, y = -0.2)) %>%
-      config(displayModeBar = FALSE)
+    p <- plotly::ggplotly(p, tooltip = c("text")) %>%
+      plotly::config(displayModeBar = FALSE)
   } else{
-    
+    p <- p +
+      ggplot2::theme(legend.position = "bottom")
   }
 
   return(p)
