@@ -207,7 +207,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
           broom::augment(dat_filtered) %>%
           dplyr::rename(id = `.rownames`) %>%
           dplyr::mutate(id = as.factor(id)) %>%
-          rename(.fitted1 = .fittedPC1,
+          dplyr::rename(.fitted1 = .fittedPC1,
                  .fitted2 = .fittedPC2)
       } else{
         fits <- fits %>%
@@ -275,8 +275,8 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
           broom::augment(dat_filtered) %>%
           dplyr::rename(id = `.rownames`) %>%
           dplyr::mutate(id = as.factor(id)) %>%
-          rename(.fitted1 = .fittedPC1,
-                 .fitted2 = .fittedPC2)
+          dplyr::rename(.fitted1 = .fittedPC1,
+                        .fitted2 = .fittedPC2)
       } else{
         fits <- fits %>%
           dplyr::mutate(id = as.factor(id))
