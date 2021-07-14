@@ -63,3 +63,7 @@ plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", feature
 plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", features = c("CO_f1ecac", "CO_FirstMin_ac"), normalise = FALSE)
 plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", features = "all", normalise = TRUE, method = "RobustSigmoid")
 plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", features = c("CO_f1ecac", "CO_FirstMin_ac"), normalise = TRUE, method = "RobustSigmoid")
+
+# Test 7: Processing hctsa formatted file
+
+d2 <- process_hctsa_file("https://cloudstor.aarnet.edu.au/plus/s/6sRD6IPMJyZLNlN/download")

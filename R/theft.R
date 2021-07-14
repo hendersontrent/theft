@@ -27,6 +27,7 @@
 #' @importFrom tidyr drop_na
 #' @importFrom broom augment
 #' @importFrom broom tidy
+#' @importFrom R.matlab readMat
 #' @import reticulate
 #' @import dplyr
 #' @importFrom plotly ggplotly
