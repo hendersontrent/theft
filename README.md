@@ -49,9 +49,9 @@ the instructions located [here](https://tsfresh.com) and `tsfel`
 ## Statistical tools
 
 The package also contains a suite of tools for automatic normalisation
-of extracted feature vectors, dimension reduction and low dimension
-visualisation, and other statistical graphics. The entire package is
-developed around principles of [tidy
+of extracted feature vectors, low dimensional projection, class
+discrimination visualisation, and data matrix visualisation. The entire
+package is developed around principles of [tidy
 data](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html),
 meaning it integrates with and uses existing
 [tidyverse](https://www.tidyverse.org) and
@@ -75,7 +75,7 @@ calculations.
 To cite package 'theft' in publications use:
 
   Trent Henderson (2021). theft: Tools for Handling Extraction of
-  Features from Time series. R package version 0.1.21.
+  Features from Time series. R package version 0.1.22.
 
 A BibTeX entry for LaTeX users is
 
@@ -83,6 +83,6 @@ A BibTeX entry for LaTeX users is
     title = {theft: Tools for Handling Extraction of Features from Time series},
     author = {Trent Henderson},
     year = {2021},
-    note = {R package version 0.1.21},
+    note = {R package version 0.1.22},
   }
 ```
