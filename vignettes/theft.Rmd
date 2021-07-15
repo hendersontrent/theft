@@ -24,7 +24,7 @@ library(theft)
 
 ## Core calculation functions
 
-We are going to use a dataset that comes standard with `theft` called `simData`. This dataset contains a collection of randomly generated time series for four different types of processes. The dataset can be accessed via:
+We are going to use a dataset that comes standard with `theft` called `simData`. This dataset contains a collection of randomly generated time series for six different types of processes. The dataset can be accessed via:
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 theft::simData
