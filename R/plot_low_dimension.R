@@ -227,8 +227,8 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
 
       # Define a nice colour palette
 
-      available_colours <- c("#4382BB", "#A15D98", "#218B82", "#EB96AA", "#84A6D6",
-                             "#98D4BB", "#E4CEE0", "#2CCED2", "#7B92AA", "#37667E")
+      available_colours <- c("#ef6ade", "#75eab6", "#2a6866", "#14bae1", "#ad0599", 
+                             "#513886", "#7f73ed", "#e4b8ec", "#0b29d0", "#3986da")
 
       # Draw plot
       

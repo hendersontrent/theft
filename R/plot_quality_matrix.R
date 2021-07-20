@@ -71,9 +71,9 @@ plot_quality_matrix <- function(data){
 
   # Define a nice colour palette
 
-  my_palette <- c("-Inf or Inf" = "#4382BB",
-                  "NaN" = "#EB96AA",
-                  "Good" = "#98D4BB")
+  my_palette <- c("-Inf or Inf" = "#14bae1",
+                  "NaN" = "#ef6ade",
+                  "Good" = "#75eab6")
 
   # Plot
 
