@@ -12,7 +12,8 @@ plot_low_dimension(
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
   low_dim_method = c("PCA", "t-SNE"),
   perplexity = 30,
-  plot = TRUE
+  plot = TRUE,
+  show_covariance = FALSE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ plot_low_dimension(
 \item{perplexity}{the perplexity hyperparameter to use if t-SNE algorithm is selected. Defaults to 30}
 
 \item{plot}{a Boolean as to whether a bivariate plot should be returned or the calculation dataframe. Defaults to TRUE}
+
+\item{show_covariance}{a Boolean as to whether covariance ellipses should be shown on the plot. Defaults to FALSE}
 }
 \value{
 if plot = TRUE, returns an object of class ggplot, if plot = FALSE returns an object of class dataframe with PCA results
@@ -53,7 +56,8 @@ plot_low_dimension(featMat,
   group_var = "State", 
   method = "RobustSigmoid", 
   low_dim_method = "PCA", 
-  plot = TRUE)
+  plot = TRUE,
+  show_covariance = TRUE)
 }
 
 }

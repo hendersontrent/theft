@@ -127,7 +127,8 @@ plot_low_dimension(feature_matrix,
                    group_var = "group", 
                    method = "RobustSigmoid", 
                    low_dim_method = "PCA", 
-                   plot = TRUE)
+                   plot = TRUE,
+                   show_covariance = TRUE)
 ```
 
 Alternatively, a t-SNE version can be specified in a similar fashion, with the `perplexity` hyperparameter able to be controlled by the user. Typical values for this range between 5 and 50, depending on the size of the data.
@@ -140,7 +141,8 @@ plot_low_dimension(feature_matrix,
                    method = "RobustSigmoid", 
                    low_dim_method = "t-SNE", 
                    perplexity = 5, 
-                   plot = TRUE)
+                   plot = TRUE,
+                   show_covariance = FALSE)
 ```
 
 ### Connectivity matrix
