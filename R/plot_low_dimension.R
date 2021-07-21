@@ -16,6 +16,7 @@
 #' @param low_dim_method the low dimensional embedding method to use. Defaults to 'PCA'
 #' @param perplexity the perplexity hyperparameter to use if t-SNE algorithm is selected. Defaults to 30
 #' @param plot a Boolean as to whether a bivariate plot should be returned or the calculation dataframe. Defaults to TRUE
+#' @param show_covariance a Boolean as to whether covariance ellipses should be shown on the plot. Defaults to FALSE
 #' @return if plot = TRUE, returns an object of class ggplot, if plot = FALSE returns an object of class dataframe with PCA results
 #' @author Trent Henderson
 #' @export
@@ -34,14 +35,15 @@
 #'   group_var = "State", 
 #'   method = "RobustSigmoid", 
 #'   low_dim_method = "PCA", 
-#'   plot = TRUE)
+#'   plot = TRUE,
+#'   show_covariance = TRUE)
 #' }
 #'
 
 plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group_var = "group", 
                                method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
                                low_dim_method = c("PCA", "t-SNE"), perplexity = 30, 
-                               plot = TRUE){
+                               plot = TRUE, show_covariance = FALSE){
 
   # Make RobustSigmoid the default
 
@@ -235,6 +237,15 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
       p <- fits %>%
           dplyr::mutate(group_id = as.factor(group_id)) %>%
           ggplot2::ggplot(ggplot2::aes(x = .fitted1, y = .fitted2))
+      
+      if(show_covariance){
+        p <- p +
+          ggplot2::stat_ellipse(ggplot2::aes(x = .fitted1, y = .fitted2, fill = group_id), geom = "polygon", alpha = 0.2) +
+          ggplot2::guides(fill = FALSE) +
+          ggplot2::scale_fill_manual(values = available_colours)
+      } else{
+        
+      }
 
       if(nrow(fits) > 200){
         p <- p +
