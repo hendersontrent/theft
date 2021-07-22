@@ -40,7 +40,7 @@ Note that `tsfresh` and `tsfel` are Python packages. The R package
 `reticulate` is used to call Python code that uses `tsfresh` and applies
 it within the broader *tidy* data philosophy embodied by `theft`. At
 present, depending on the input time-series, `theft` provides access to
-\~1200 features. Prior to using `theft` (only if you want to use the
+\~1000 features. Prior to using `theft` (only if you want to use the
 `tsfresh` or `tsfel` feature sets - the R-based sets will run fine) you
 should have a working Python installation and download `tsfresh` using
 the instructions located [here](https://tsfresh.com) and `tsfel`
@@ -75,7 +75,7 @@ calculations.
 To cite package 'theft' in publications use:
 
   Trent Henderson (2021). theft: Tools for Handling Extraction of
-  Features from Time series. R package version 0.1.25.
+  Features from Time series. R package version 0.1.26.
 
 A BibTeX entry for LaTeX users is
 
@@ -83,6 +83,6 @@ A BibTeX entry for LaTeX users is
     title = {theft: Tools for Handling Extraction of Features from Time series},
     author = {Trent Henderson},
     year = {2021},
-    note = {R package version 0.1.25},
+    note = {R package version 0.1.26},
   }
 ```
