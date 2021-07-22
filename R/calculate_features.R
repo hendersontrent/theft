@@ -138,16 +138,16 @@ calc_tsfel <- function(data){
 
 #------------------- Main exported calculation function ------------
 
-#' Automatically run time-series feature calculations included in the package
+#' Compute features on an input time series dataset
 #' @import dplyr
 #' @importFrom magrittr %>%
+#' @importFrom tibble as_tibble
+#' @importFrom tidyr pivot_longer
+#' @import tsibble
 #' @import Rcatch22
 #' @importFrom tsfeatures lumpiness stability max_level_shift max_var_shift max_kl_shift crossing_points flat_spots hurst compengine autocorr_features pred_features station_features dist_features scal_features embed2_incircle firstzero_ac ac_9 firstmin_ac trev_num motiftwo_entro3 binarize_mean walker_propcross localsimple_taures sampen_first sampenc std1st_der spreadrandomlocal_meantaul histogram_mode outlierinclude_mdrmd fluctanal_prop_r1 entropy tsfeatures stl_features acf_features pacf_features holt_parameters hw_parameters heterogeneity nonlinearity arch_stat
 #' @import feasts
-#' @import tsibble
 #' @import reticulate
-#' @importFrom tibble as_tibble
-#' @importFrom tidyr pivot_longer
 #' @importFrom data.table rbindlist
 #' @importFrom fabletools features
 #' @importFrom fabletools feature_set
@@ -176,7 +176,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
                                feature_set = c("all", "catch22", "feasts", "tsfeatures", "tsfresh", "tsfel"), tsfresh_cleanup = FALSE){
   
   if(is.null(id_var) || is.null(time_var) || is.null(values_var)){
-    stop("As {tsibble} currently cannot handle numeric vectors, input must be a dataframe with at least 3 columns: id, timepoint, value")
+    stop("Input must be a dataframe with at least 3 columns: id, timepoint, value")
   }
   
   # Make 'all' the default
@@ -296,6 +296,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     if(exists("tmp4")){
       tmp_all <- dplyr::bind_rows(tmp_all, tmp4)
     }
+    
   } else{
   }
   

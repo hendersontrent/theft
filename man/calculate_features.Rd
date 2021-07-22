@@ -2,7 +2,7 @@
 % Please edit documentation in R/calculate_features.R
 \name{calculate_features}
 \alias{calculate_features}
-\title{Automatically run time-series feature calculations included in the package}
+\title{Compute features on an input time series dataset}
 \usage{
 calculate_features(
   data,
@@ -33,7 +33,7 @@ calculate_features(
 object of class DataFrame that contains the summary statistics for each feature
 }
 \description{
-Automatically run time-series feature calculations included in the package
+Compute features on an input time series dataset
 }
 \examples{
 \dontrun{

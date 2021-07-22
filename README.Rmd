@@ -35,11 +35,11 @@ devtools::install_github("hendersontrent/theft")
 * [tsfresh](https://tsfresh.com)
 * [TSFEL](https://tsfel.readthedocs.io/en/latest/)
 
-Note that `tsfresh` and `tsfel` are Python packages. The R package `reticulate` is used to call Python code that uses `tsfresh` and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, depending on the input time-series, `theft` provides access to ~1000 features. Prior to using `theft` (only if you want to use the `tsfresh` or `tsfel` feature sets - the R-based sets will run fine) you should have a working Python installation and download `tsfresh` using the instructions located [here](https://tsfresh.com) and `tsfel` [here](https://github.com/fraunhoferportugal/tsfel).
+Note that `tsfresh` and `tsfel` are Python packages. The R package `reticulate` is used to call Python code that uses `tsfresh` and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, depending on the input time-series, `theft` provides access to ~1000 features. Prior to using `theft` (only if you want to use the `tsfresh` or `tsfel` feature sets - the R-based sets will run fine) you should have a working Python installation and download `tsfresh` using the instructions located [here](https://tsfresh.com) or `tsfel` [here](https://github.com/fraunhoferportugal/tsfel).
 
-## Statistical tools
+## Statistical and graphical tools
 
-The package also contains a suite of tools for automatic normalisation of extracted feature vectors, low dimensional projection, class discrimination visualisation, and data matrix visualisation. The entire package is developed around principles of [tidy data](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html), meaning it integrates with and uses existing [tidyverse](https://www.tidyverse.org) and [tidyverts](https://tidyverts.org) software.
+The package also contains a suite of tools for automatic normalisation of extracted feature vectors, low dimensional projections, class discrimination visualisations, and data matrix visualisations.
 
 ## Web application
 
