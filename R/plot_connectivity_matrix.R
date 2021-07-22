@@ -144,7 +144,7 @@ plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   
   p <- p +
     ggplot2::geom_tile(ggplot2::aes(fill = value)) +
-    ggplot2::labs(title = "Hierarchically-clustered pairwise correlation matrix",
+    ggplot2::labs(title = "Pairwise correlation matrix",
                   x = NULL,
                   y = NULL,
                   fill = "Correlation Coefficient") +
