@@ -38,7 +38,7 @@
 #'
 
 plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id", 
-                                 method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
+                                 method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                  interactive = FALSE){
 
   # Make RobustSigmoid the default
@@ -72,14 +72,14 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
 
   # Method selection
 
-  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")
+  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
 
   if(method %ni% the_methods){
-    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid', 'MinMax' or 'MeanSubtract'")
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
 
   if(length(method) > 1){
-    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid', 'MinMax' or 'MeanSubtract'")
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
 
   #------------- Assign ID variable ---------------

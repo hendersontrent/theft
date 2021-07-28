@@ -6,7 +6,7 @@
 \usage{
 normalise_feature_vector(
   x,
-  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")
+  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
 )
 }
 \arguments{

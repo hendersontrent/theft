@@ -30,7 +30,7 @@
 
 plot_feature_discrimination <- function(data, id_var = "id", group_var = "group", features = "all",
                                         normalise = FALSE,
-                                        method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")){
+                                        method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")){
   
   # Make RobustSigmoid the default
   
@@ -69,6 +69,16 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
   
   if(!is.null(features) && !is.character(features)){
     stop("features should be a string or vector of string specifying exact feature names to filter by. If you want all features, write 'all'. This is the default.")
+  }
+  
+  # Normalisation
+  
+  if(normalise == TRUE && method %ni% the_methods){
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
+  }
+  
+  if(normalise == TRUE && length(method) > 1){
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
   
   #------------- Assign ID variable ---------------

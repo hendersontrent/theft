@@ -70,7 +70,7 @@ calculations.
 To cite package 'theft' in publications use:
 
   Trent Henderson (2021). theft: Tools for Handling Extraction of
-  Features from Time series. R package version 0.1.27.
+  Features from Time series. R package version 0.1.28.
 
 A BibTeX entry for LaTeX users is
 
@@ -78,6 +78,6 @@ A BibTeX entry for LaTeX users is
     title = {theft: Tools for Handling Extraction of Features from Time series},
     author = {Trent Henderson},
     year = {2021},
-    note = {R package version 0.1.27},
+    note = {R package version 0.1.28},
   }
 ```

@@ -9,7 +9,7 @@ plot_low_dimension(
   is_normalised = FALSE,
   id_var = "id",
   group_var = "group",
-  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
+  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
   low_dim_method = c("PCA", "t-SNE"),
   perplexity = 30,
   plot = TRUE,

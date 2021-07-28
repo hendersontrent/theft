@@ -10,7 +10,7 @@ plot_feature_discrimination(
   group_var = "group",
   features = "all",
   normalise = FALSE,
-  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")
+  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
 )
 }
 \arguments{

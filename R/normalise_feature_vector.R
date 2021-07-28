@@ -21,7 +21,7 @@
 #' }
 #'
 
-normalise_feature_vector <- function(x, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")){
+normalise_feature_vector <- function(x, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")){
 
   # Make RobustSigmoid the default
 
@@ -41,15 +41,15 @@ normalise_feature_vector <- function(x, method = c("z-score", "Sigmoid", "Robust
 
   # Method selection
 
-  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")
+  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
   '%ni%' <- Negate('%in%')
 
   if(method %ni% the_methods){
-    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid', 'MinMax' or 'MeanSubtract'")
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
 
   if(length(method) > 1){
-    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid', 'MinMax' or 'MeanSubtract'")
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
 
   #--------- Apply scaling ---------
@@ -68,10 +68,6 @@ normalise_feature_vector <- function(x, method = c("z-score", "Sigmoid", "Robust
 
   if(method == "MinMax"){
     x_norm <- minmax_scaler(x)
-  }
-
-  if(method == "MeanSubtract"){
-    x_norm <- mean_scaler(x)
   }
 
   return(x_norm)
@@ -101,7 +97,7 @@ normalise_feature_vector <- function(x, method = c("z-score", "Sigmoid", "Robust
 #' }
 #'
 
-normalize_feature_vector <- function(x, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")){
+normalize_feature_vector <- function(x, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")){
   
   # Make RobustSigmoid the default
   
@@ -121,15 +117,15 @@ normalize_feature_vector <- function(x, method = c("z-score", "Sigmoid", "Robust
   
   # Method selection
   
-  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")
+  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
   '%ni%' <- Negate('%in%')
   
   if(method %ni% the_methods){
-    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid', 'MinMax' or 'MeanSubtract'")
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
   
   if(length(method) > 1){
-    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid', 'MinMax' or 'MeanSubtract'")
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
   
   #--------- Apply scaling ---------
@@ -148,10 +144,6 @@ normalize_feature_vector <- function(x, method = c("z-score", "Sigmoid", "Robust
   
   if(method == "MinMax"){
     x_norm <- minmax_scaler(x)
-  }
-  
-  if(method == "MeanSubtract"){
-    x_norm <- mean_scaler(x)
   }
   
   return(x_norm)
