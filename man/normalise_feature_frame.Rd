@@ -8,7 +8,7 @@ normalise_feature_frame(
   data,
   names_var = "names",
   values_var = "values",
-  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")
+  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
 )
 }
 \arguments{

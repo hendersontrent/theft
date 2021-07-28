@@ -41,7 +41,7 @@
 
 plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = "id", 
                                      names_var = "names", values_var = "values",
-                                     method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
+                                     method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                      interactive = FALSE){
   
   # Make RobustSigmoid the default
@@ -61,14 +61,14 @@ plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   # Method selection
   
   '%ni%' <- Negate('%in%')
-  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract")
+  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
   
   if(method %ni% the_methods){
-    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid', 'MinMax' or 'MeanSubtract'")
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
   
   if(length(method) > 1){
-    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid', 'MinMax' or 'MeanSubtract'")
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
   
   # Dataframe length checks and tidy format wrangling

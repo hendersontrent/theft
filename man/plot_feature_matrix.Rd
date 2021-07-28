@@ -8,7 +8,7 @@ plot_feature_matrix(
   data,
   is_normalised = FALSE,
   id_var = "id",
-  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax", "MeanSubtract"),
+  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
   interactive = FALSE
 )
 }

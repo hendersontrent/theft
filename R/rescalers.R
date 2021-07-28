@@ -104,23 +104,3 @@ robustsigmoid_scaler <- function(x, unitInt = TRUE){
   
   return(x_new)
 }
-
-#' This function rescales a vector of numerical values by subtracting the mean
-#'
-#' @param x a numeric vector, preferably of feature values computed by other {theft} package functions
-#' @author Trent Henderson
-#' @export
-#' @examples
-#' \dontrun{
-#' x <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
-#' outs <- mean_scaler(x)
-#' }
-#'
-
-mean_scaler <- function(x){
-  
-  x1 <- as.vector(x) # Catches class "ts" cases
-  
-  x_new <- x1-mean(x1, na.rm = TRUE)
-  return(x_new)
-}
