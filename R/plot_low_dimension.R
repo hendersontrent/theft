@@ -122,7 +122,11 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
   if(is_normalised){
     normed <- data_id
   } else{
+    
     normed <- data_id %>%
+      dplyr::filter(!is.nan(values))
+    
+    normed <- normed %>%
       dplyr::select(c(id, names, values)) %>%
       dplyr::group_by(names) %>%
       dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
@@ -227,11 +231,6 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
       fits <- fits %>%
         dplyr::inner_join(groups, by = c("id" = "id"))
 
-      # Define a nice colour palette
-
-      available_colours <- c("#ef6ade", "#75eab6", "#2a6866", "#14bae1", "#ad0599", 
-                             "#513886", "#7f73ed", "#e4b8ec", "#0b29d0", "#3986da")
-
       # Draw plot
       
       p <- fits %>%
@@ -242,7 +241,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
         p <- p +
           ggplot2::stat_ellipse(ggplot2::aes(x = .fitted1, y = .fitted2, fill = group_id), geom = "polygon", alpha = 0.2) +
           ggplot2::guides(fill = FALSE) +
-          ggplot2::scale_fill_manual(values = available_colours)
+          ggplot2::scale_fill_brewer(palette = "Dark2")
       } else{
         
       }
@@ -261,7 +260,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
                         x = paste0("PC 1"," (",eigen_pc1,")"),
                         y = paste0("PC 2"," (",eigen_pc2,")"),
                         colour = NULL) +
-          ggplot2::scale_color_manual(values = available_colours) +
+          ggplot2::scale_colour_brewer(palette = "Dark2") +
           ggplot2::theme_bw() +
           ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
                          legend.position = "bottom")
@@ -271,7 +270,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
                         x = "Dimension 1",
                         y = "Dimension 2",
                         colour = NULL) +
-          ggplot2::scale_color_manual(values = available_colours) +
+          ggplot2::scale_colour_brewer(palette = "Dark2") +
           ggplot2::theme_bw() +
           ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
                          legend.position = "bottom")

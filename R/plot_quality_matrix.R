@@ -69,11 +69,11 @@ plot_quality_matrix <- function(data){
 
   #--------------- Draw plot ------------------------
 
-  # Define a nice colour palette
+  # Define a nice colour palette consistent with RColorBrewer in other functions
 
-  my_palette <- c("-Inf or Inf" = "#14bae1",
-                  "NaN" = "#ef6ade",
-                  "Good" = "#75eab6")
+  my_palette <- c("-Inf or Inf" = "#7570B3",
+                  "NaN" = "#D95F02",
+                  "Good" = "#1B9E77")
 
   # Plot
 

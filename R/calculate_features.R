@@ -157,7 +157,7 @@ calc_kats <- function(data){
   unique_times <- unique(data$timepoint)
   
   datetimes <- data.frame(timepoint = unique_times) %>%
-    dplyr::mutate(time = seq(as.Date("1700-01-01"), by = "day", length.out = length(unique_times)))
+    dplyr::mutate(time = seq(as.Date("1800-01-01"), by = "day", length.out = length(unique_times)))
   
   data2 <- data %>%
     dplyr::left_join(datetimes, by = c("timepoint" = "timepoint")) %>%
@@ -274,7 +274,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     
     grouplabs_data <- as.data.frame(data) # Catches cases where input object is of class "tsibble"
     
-    grouplabs <- grouplabs_data %>%
+    grouplabs_data <- grouplabs_data %>%
       dplyr::rename(id = dplyr::all_of(id_var),
                     group = dplyr::all_of(group_var)) %>%
       dplyr::select(c(id, group)) %>%
@@ -368,10 +368,10 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   } else{
   }
   
-  if(exists("grouplabs")){
+  if(exists("grouplabs_data")){
     tmp_all <- tmp_all %>%
       dplyr::mutate(id = as.character(id)) %>%
-      dplyr::left_join(grouplabs, by = c("id" = "id"))
+      dplyr::left_join(grouplabs_data, by = c("id" = "id"))
   } else{
   }
   return(tmp_all)

@@ -96,7 +96,11 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
   #------------- Normalise data -------------------
   
   if(normalise){
+    
     normed <- data_id %>%
+      dplyr::filter(!is.nan(values))
+    
+    normed <- normed %>%
       dplyr::select(c(id, group, names, values)) %>%
       dplyr::group_by(names) %>%
       dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
@@ -123,11 +127,6 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 
   #------------- Produce plots --------------------
   
-  # Define a nice colour palette
-  
-  available_colours <- c("#ef6ade", "#75eab6", "#2a6866", "#14bae1", "#ad0599", 
-                         "#513886", "#7f73ed", "#e4b8ec", "#0b29d0", "#3986da")
-  
   # Draw plot
   
   p <- tmp %>%
@@ -138,7 +137,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
     ggplot2::labs(title = "Group discrimination by feature",
                   x = "Group",
                   y = "Value") +
-    ggplot2::scale_color_manual(values = available_colours) +
+    ggplot2::scale_colour_brewer(palette = "Dark2") +
     ggplot2::theme_bw() +
     ggplot2::theme(legend.position = "none",
                    panel.grid.minor = ggplot2::element_blank(),

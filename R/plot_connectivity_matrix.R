@@ -83,7 +83,11 @@ plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   if(is_normalised){
     normed <- data_re
   } else{
+    
     normed <- data_re %>%
+      dplyr::filter(!is.nan(values))
+    
+    normed <- normed %>%
       dplyr::select(c(id, names, values)) %>%
       dplyr::group_by(names) %>%
       dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
