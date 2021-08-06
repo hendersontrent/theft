@@ -1,6 +1,8 @@
 #------------------- Helper functions to reduce length -------------
 
+#--------
 # catch22
+#--------
 
 calc_catch22 <- function(data){
   
@@ -16,7 +18,9 @@ calc_catch22 <- function(data){
   return(outData)
 }
 
+#-------
 # feasts
+#-------
 
 calc_feasts <- function(data){
   
@@ -30,7 +34,9 @@ calc_feasts <- function(data){
   return(outData)
 }
 
+#-----------
 # tsfeatures
+#-----------
 
 calc_tsfeatures <- function(data){
   
@@ -56,7 +62,9 @@ calc_tsfeatures <- function(data){
   return(outData)
 }
 
+#--------
 # tsfresh
+#--------
 
 calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", cleanup){
   
@@ -114,7 +122,9 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
   return(outData)
 }
 
+#------
 # TSFEL
+#------
 
 calc_tsfel <- function(data){
   
@@ -136,7 +146,9 @@ calc_tsfel <- function(data){
   return(outData)
 }
 
+#-----
 # Kats
+#-----
 
 calc_kats <- function(data){
   
