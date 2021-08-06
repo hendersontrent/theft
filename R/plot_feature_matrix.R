@@ -98,8 +98,10 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   if(is_normalised){
     normed <- data_id
   } else{
+    
     normed <- data_id %>%
       dplyr::select(c(id, names, values)) %>%
+      tidyr::drop_na() %>%
       dplyr::group_by(names) %>%
       dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
       dplyr::ungroup() %>%
@@ -116,9 +118,9 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
     tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
     tibble::column_to_rownames(var = "id")
   
-  # Remove any columns with all NAs to avoid whole dataframe being dropped
+  # Remove any columns with >50% NAs to prevent masses of rows getting dropped due to poor features
   
-  dat_filtered <- dat[colSums(!is.na(dat)) > 0]
+  dat_filtered <- dat[, which(colMeans(!is.na(dat)) > 0.5)]
   
   # Drop any remaining rows with NAs
 

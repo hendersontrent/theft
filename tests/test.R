@@ -24,6 +24,7 @@ outs_22 <- calculate_features(data = simData, id_var = "id", time_var = "timepoi
 #reticulate::use_python("~/opt/anaconda3/bin/python", required = TRUE)
 #outs_tsfresh <- calculate_features(data = simData, id_var = "id", time_var = "timepoint", values_var = "values", group_var = "process", feature_set = "tsfresh", tsfresh_cleanup = FALSE)
 #outs_tsfel <- calculate_features(data = simData, id_var = "id", time_var = "timepoint", values_var = "values", group_var = "process", feature_set = "tsfel")
+#outs_kats <- calculate_features(data = simData, id_var = "id", time_var = "timepoint", values_var = "values", group_var = "process", feature_set = "kats")
 
 #------------------- Other package functionality --------------------
 

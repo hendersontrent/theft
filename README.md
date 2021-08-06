@@ -24,26 +24,29 @@ devtools::install_github("hendersontrent/theft")
 
 `theft` is a software package for R that facilitates user-friendly
 access to a structured analytical pipeline for the computation,
-analysis, and visualisation of time-series features. The package pulls
-and concatenates a large number of time-series feature statistic methods
-from a range of existing R packages and lets the user specify which
-groups (or all) of the these features to calculate. The packages which
-`theft` currently steals features from include:
+analysis, and visualisation of time-series features. The package
+provides a single point of access to a large number of time-series
+features from a range of existing R and Python packages and lets the
+user specify which groups (or all) of the these features to calculate.
+The packages which `theft` currently ‘steals’ features from include:
 
   - [Rcatch22](https://github.com/hendersontrent/Rcatch22)
   - [feasts](https://feasts.tidyverts.org)
   - [tsfeatures](https://github.com/robjhyndman/tsfeatures)
+  - [Kats](https://facebookresearch.github.io/Kats/)
   - [tsfresh](https://tsfresh.com)
   - [TSFEL](https://tsfel.readthedocs.io/en/latest/)
 
-Note that `tsfresh` and `tsfel` are Python packages. The R package
-`reticulate` is used to call Python code that uses `tsfresh` and applies
-it within the broader *tidy* data philosophy embodied by `theft`. At
-present, depending on the input time-series, `theft` provides access to
-\~1000 features. Prior to using `theft` (only if you want to use the
-`tsfresh` or `tsfel` feature sets - the R-based sets will run fine) you
-should have a working Python installation and download `tsfresh` using
-the instructions located [here](https://tsfresh.com) or `tsfel`
+Note that `Kats`, `tsfresh` and `tsfel` are Python packages. The R
+package `reticulate` is used to call Python code that uses these
+packages and applies it within the broader *tidy* data philosophy
+embodied by `theft`. At present, depending on the input time series,
+`theft` provides access to \~1000 features. Prior to using `theft` (only
+if you want to use the `Kats`, `tsfresh` or `tsfel` feature sets - the
+R-based sets will run fine) you should have a working Python
+installation and download `Kats` using the instructions located
+[here](https://facebookresearch.github.io/Kats/), `tsfresh`
+[here](https://tsfresh.com) or `tsfel`
 [here](https://github.com/fraunhoferportugal/tsfel).
 
 ## Statistical and graphical tools
@@ -70,7 +73,7 @@ calculations.
 To cite package 'theft' in publications use:
 
   Trent Henderson (2021). theft: Tools for Handling Extraction of
-  Features from Time series. R package version 0.1.28.
+  Features from Time series. R package version 0.1.29.
 
 A BibTeX entry for LaTeX users is
 
@@ -78,6 +81,6 @@ A BibTeX entry for LaTeX users is
     title = {theft: Tools for Handling Extraction of Features from Time series},
     author = {Trent Henderson},
     year = {2021},
-    note = {R package version 0.1.28},
+    note = {R package version 0.1.29},
   }
 ```

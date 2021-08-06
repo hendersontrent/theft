@@ -1,6 +1,8 @@
 #------------------- Helper functions to reduce length -------------
 
+#--------
 # catch22
+#--------
 
 calc_catch22 <- function(data){
   
@@ -16,7 +18,9 @@ calc_catch22 <- function(data){
   return(outData)
 }
 
+#-------
 # feasts
+#-------
 
 calc_feasts <- function(data){
   
@@ -30,7 +34,9 @@ calc_feasts <- function(data){
   return(outData)
 }
 
+#-----------
 # tsfeatures
+#-----------
 
 calc_tsfeatures <- function(data){
   
@@ -56,7 +62,9 @@ calc_tsfeatures <- function(data){
   return(outData)
 }
 
+#--------
 # tsfresh
+#--------
 
 calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", cleanup){
   
@@ -114,7 +122,9 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
   return(outData)
 }
 
+#------
 # TSFEL
+#------
 
 calc_tsfel <- function(data){
   
@@ -132,6 +142,53 @@ calc_tsfel <- function(data){
     dplyr::ungroup() %>%
     tidyr::gather("names", "values", -id) %>%
     dplyr::mutate(method = "TSFEL")
+  
+  return(outData)
+}
+
+#-----
+# Kats
+#-----
+
+calc_kats <- function(data){
+  
+  # Convert numeric time index to datetime as Kats requires it
+  
+  unique_times <- unique(data$timepoint)
+  
+  datetimes <- data.frame(timepoint = unique_times) %>%
+    dplyr::mutate(time = seq(as.Date("1800-01-01"), by = "day", length.out = length(unique_times)))
+  
+  data2 <- data %>%
+    dplyr::left_join(datetimes, by = c("timepoint" = "timepoint")) %>%
+    dplyr::select(-c(timepoint)) %>%
+    dplyr::rename(value = values) # Kats convention
+  
+  # Load Python function
+  
+  reticulate::source_python(system.file("python", "kats_calculator.py", package = "theft")) # Ships with package
+  
+  # Run calculations and wrangle
+  
+  ids <- unique(data2$id)
+  storage <- list()
+  
+  for(i in ids){
+    
+    inData <- data2 %>%
+      dplyr::filter(id == i) %>%
+      dplyr::select(c(time, value)) %>%
+      dplyr::arrange(time)
+    
+    outDataTmp <- as.data.frame(kats_calculator(inData)) %>%
+      tidyr::gather("names", "values") %>%
+      dplyr::mutate(id = i) %>%
+      dplyr::mutate(method = "Kats")
+    
+    storage[[i]] <- outDataTmp
+  }
+  
+  outData <- data.table::rbindlist(storage, use.names = TRUE)
   
   return(outData)
 }
@@ -173,7 +230,7 @@ calc_tsfel <- function(data){
 #'
 
 calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var = NULL, group_var = NULL,
-                               feature_set = c("all", "catch22", "feasts", "tsfeatures", "tsfresh", "tsfel"), tsfresh_cleanup = FALSE){
+                               feature_set = c("all", "catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel"), tsfresh_cleanup = FALSE){
   
   if(is.null(id_var) || is.null(time_var) || is.null(values_var)){
     stop("Input must be a dataframe with at least 3 columns: id, timepoint, value")
@@ -193,11 +250,11 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   # Method selection
   
-  the_sets <- c("all", "catch22", "feasts", "tsfeatures", "tsfresh", "tsfel")
+  the_sets <- c("all", "catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel")
   '%ni%' <- Negate('%in%')
   
   if(feature_set %ni% the_sets){
-    stop("feature_set should be a selection or combination of 'all', 'catch22', 'feasts', 'tsfeatures', 'tsfresh' or 'tsfel' entered as a single string or vector for multiple.")
+    stop("feature_set should be a selection or combination of 'all', 'catch22', 'feasts', 'tsfeatures', 'kats', 'tsfresh' or 'tsfel' entered as a single string or vector for multiple.")
   }
   
   if(!is.null(group_var) && !is.character(group_var)){
@@ -217,7 +274,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     
     grouplabs_data <- as.data.frame(data) # Catches cases where input object is of class "tsibble"
     
-    grouplabs <- grouplabs_data %>%
+    grouplabs_data <- grouplabs_data %>%
       dplyr::rename(id = dplyr::all_of(id_var),
                     group = dplyr::all_of(group_var)) %>%
       dplyr::select(c(id, group)) %>%
@@ -228,7 +285,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   if("all" %in% feature_set){
     
-    message("Calculating all feature sets except for 'tsfresh' and 'tsfel' to avoid Python dependence. If you want these features too, please run the function again specifying 'tsfresh' or 'tsfel' and then append the resultant dataframes.")
+    message("Calculating all feature sets except for 'kats', 'tsfresh' and 'tsfel' to avoid Python dependence. If you want these features too, please run the function again specifying 'kats', 'tsfresh' or 'tsfel' and then append the resultant dataframes.")
     
     tmp <- calc_catch22(data = data_re)
     tmp1 <- calc_feasts(data = data_re)
@@ -274,6 +331,13 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     tmp4 <- calc_tsfel(data = data_re)
   }
   
+  if("kats" %in% feature_set){
+    
+    message("'kats' requires a Python installation and the 'kats' Python package to also be installed. Please ensure you have this working (see https://facebookresearch.github.io/Kats/ for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): use_python = 'path_to_your_python_as_a_string_here' or use_virtualenv = 'name_of_your_virtualenv_here'")
+    
+    tmp5 <- calc_kats(data = data_re)
+  }
+  
   if(!exists("tmp_all")){
     tmp_all <- data.frame()
     
@@ -297,13 +361,17 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
       tmp_all <- dplyr::bind_rows(tmp_all, tmp4)
     }
     
+    if(exists("tmp5")){
+      tmp_all <- dplyr::bind_rows(tmp_all, tmp5)
+    }
+    
   } else{
   }
   
-  if(exists("grouplabs")){
+  if(exists("grouplabs_data")){
     tmp_all <- tmp_all %>%
       dplyr::mutate(id = as.character(id)) %>%
-      dplyr::left_join(grouplabs, by = c("id" = "id"))
+      dplyr::left_join(grouplabs_data, by = c("id" = "id"))
   } else{
   }
   return(tmp_all)
