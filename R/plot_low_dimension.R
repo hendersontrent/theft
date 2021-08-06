@@ -144,9 +144,9 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
     tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
     tibble::column_to_rownames(var = "id")
   
-  # Remove any columns with all NAs to avoid whole dataframe being dropped
+  # Remove any columns with >50% NAs to prevent masses of rows getting dropped due to poor features
   
-  dat_filtered <- dat[colSums(!is.na(dat)) > 0]
+  dat_filtered <- dat[, which(colMeans(!is.na(dat)) > 0.5)]
   
   # Drop any remaining rows with NAs
   
