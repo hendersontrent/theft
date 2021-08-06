@@ -98,9 +98,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
   if(normalise){
     
     normed <- data_id %>%
-      dplyr::filter(!is.nan(values))
-    
-    normed <- normed %>%
+      dplyr::filter(!is.nan(values)) %>%
       dplyr::select(c(id, group, names, values)) %>%
       dplyr::group_by(names) %>%
       dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%

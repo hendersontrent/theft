@@ -100,9 +100,7 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   } else{
     
     normed <- data_id %>%
-      dplyr::filter(!is.nan(values))
-    
-    normed <- normed %>%
+      dplyr::filter(!is.nan(values)) %>%
       dplyr::select(c(id, names, values)) %>%
       dplyr::group_by(names) %>%
       dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
