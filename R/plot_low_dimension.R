@@ -138,19 +138,14 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
 
   #------------- Perform low dim ----------------------
   
-  # Produce matrix
+  # Produce matrix and z-score for PCA stability
   
-  dat <- normed %>%
+  dat_filtered <- normed %>%
+    dplyr::group_by(names) %>%
+    dplyr::mutate(values = normalise_feature_vector(values, method = "z-score")) %>%
+    dplyr::ungroup() %>%
     tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
-    tibble::column_to_rownames(var = "id")
-  
-  # Remove any columns with >50% NAs to prevent masses of rows getting dropped due to poor features
-  
-  dat_filtered <- dat[, which(colMeans(!is.na(dat)) > 0.5)]
-  
-  # Drop any remaining rows with NAs
-  
-  dat_filtered <- dat_filtered %>%
+    tibble::column_to_rownames(var = "id") %>%
     tidyr::drop_na()
   
   if(low_dim_method == "PCA"){
@@ -160,7 +155,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
     set.seed(123)
     
     fits <- dat_filtered %>%
-      stats::prcomp(center = TRUE, scale = TRUE)
+      stats::prcomp(scale = FALSE)
     
     # Retrieve eigenvalues and tidy up variance explained for plotting
     
