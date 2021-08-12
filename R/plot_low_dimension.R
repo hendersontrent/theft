@@ -160,7 +160,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
     set.seed(123)
     
     fits <- dat_filtered %>%
-      stats::prcomp(scale = FALSE)
+      stats::prcomp(center = TRUE, scale = TRUE)
     
     # Retrieve eigenvalues and tidy up variance explained for plotting
     
