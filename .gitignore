@@ -41,3 +41,7 @@ vignettes/*.pdf
 # Helper production folder (e.g. hex sticker, Rda etc.)
 
 helpers/*
+
+# Mac OS
+
+.DS_Store
