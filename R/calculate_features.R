@@ -152,6 +152,10 @@ calc_tsfel <- function(data){
 
 calc_kats <- function(data){
   
+  # Load Python function
+  
+  reticulate::source_python(system.file("python", "kats_calculator.py", package = "theft")) # Ships with package
+  
   # Convert numeric time index to datetime as Kats requires it
   
   unique_times <- unique(data$timepoint)
@@ -159,36 +163,18 @@ calc_kats <- function(data){
   datetimes <- data.frame(timepoint = unique_times) %>%
     dplyr::mutate(time = seq(as.Date("1800-01-01"), by = "day", length.out = length(unique_times)))
   
-  data2 <- data %>%
+  # Join in datetimes and run computations
+  
+  outData <- data %>%
     dplyr::left_join(datetimes, by = c("timepoint" = "timepoint")) %>%
     dplyr::select(-c(timepoint)) %>%
-    dplyr::rename(value = values) # Kats convention
-  
-  # Load Python function
-  
-  reticulate::source_python(system.file("python", "kats_calculator.py", package = "theft")) # Ships with package
-  
-  # Run calculations and wrangle
-  
-  ids <- unique(data2$id)
-  storage <- list()
-  
-  for(i in ids){
-    
-    inData <- data2 %>%
-      dplyr::filter(id == i) %>%
-      dplyr::select(c(time, value)) %>%
-      dplyr::arrange(time)
-    
-    outDataTmp <- as.data.frame(kats_calculator(inData)) %>%
-      tidyr::gather("names", "values") %>%
-      dplyr::mutate(id = i) %>%
-      dplyr::mutate(method = "Kats")
-    
-    storage[[i]] <- outDataTmp
-  }
-  
-  outData <- data.table::rbindlist(storage, use.names = TRUE)
+    dplyr::group_by(id) %>%
+    dplyr::arrange(time) %>%
+    dplyr::summarise(results = list(kats_calculator(timepoints = time, values = values))) %>%
+    tidyr::unnest_wider(results) %>%
+    dplyr::ungroup() %>%
+    tidyr::pivot_longer(cols = !id, names_to = "names", values_to = "values") %>%
+    dplyr::mutate(method = "Kats")
   
   return(outData)
 }
@@ -199,7 +185,9 @@ calc_kats <- function(data){
 #' @import dplyr
 #' @importFrom magrittr %>%
 #' @importFrom tibble as_tibble
+#' @importFrom tidyr gather
 #' @importFrom tidyr pivot_longer
+#' @importFrom tidyr unnest_wider
 #' @import tsibble
 #' @import Rcatch22
 #' @importFrom tsfeatures lumpiness stability max_level_shift max_var_shift max_kl_shift crossing_points flat_spots hurst compengine autocorr_features pred_features station_features dist_features scal_features embed2_incircle firstzero_ac ac_9 firstmin_ac trev_num motiftwo_entro3 binarize_mean walker_propcross localsimple_taures sampen_first sampenc std1st_der spreadrandomlocal_meantaul histogram_mode outlierinclude_mdrmd fluctanal_prop_r1 entropy tsfeatures stl_features acf_features pacf_features holt_parameters hw_parameters heterogeneity nonlinearity arch_stat

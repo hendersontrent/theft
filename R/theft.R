@@ -19,12 +19,14 @@
 #' @import feasts
 #' @import tsibble
 #' @importFrom scales rescale
+#' @importFrom tidyr gather
+#' @importFrom tidyr unnest_wider
 #' @importFrom tidyr pivot_longer
+#' @importFrom tidyr drop_na
 #' @importFrom data.table rbindlist
 #' @importFrom fabletools features
 #' @importFrom fabletools feature_set
 #' @import tibble
-#' @importFrom tidyr drop_na
 #' @importFrom broom augment
 #' @importFrom broom tidy
 #' @importFrom R.matlab readMat

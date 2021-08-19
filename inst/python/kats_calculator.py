@@ -8,7 +8,7 @@
 # Author: Trent Henderson, 24 June 2021
 #---------------------------------------
 
-def kats_calculator(data):
+def kats_calculator(timepoints, values):
     
     import pandas as pd
     from kats.consts import TimeSeriesData
@@ -16,6 +16,7 @@ def kats_calculator(data):
     
     # Transform data to correct object
     
+    data = pd.DataFrame({'time':timepoints, 'value':values})
     data['time'] = pd.to_datetime(data['time'])
     data['time'] = [x.date() for x in data.time]
     data = TimeSeriesData(data)
