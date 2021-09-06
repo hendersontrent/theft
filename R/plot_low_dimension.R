@@ -15,7 +15,7 @@
 #' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
 #' @param low_dim_method the low dimensional embedding method to use. Defaults to 'PCA'
 #' @param perplexity the perplexity hyperparameter to use if t-SNE algorithm is selected. Defaults to 30
-#' @param plot a Boolean as to whether a bivariate plot should be returned or the calculation dataframe. Defaults to TRUE
+#' @param plot a Boolean as to whether a plot or model fit information should be returned. Defaults to TRUE
 #' @param show_covariance a Boolean as to whether covariance ellipses should be shown on the plot. Defaults to FALSE
 #' @return if plot = TRUE, returns an object of class ggplot, if plot = FALSE returns an object of class dataframe with PCA results
 #' @author Trent Henderson
@@ -315,8 +315,8 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
     
     if(low_dim_method == "PCA"){
       p <- fits %>%
-        broom::augment(dat_filtered) %>%
-        dplyr::rename(id = `.rownames`)
+        broom::tidy(matrix = "eigenvalues") %>%
+        dplyr::select(c(PC, percent))
     } else{
       p <- fits
     }
