@@ -100,7 +100,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
   if(normalise){
     
     normed <- data_id %>%
-      dplyr::select(c(id, names, values)) %>%
+      dplyr::select(c(id, names, values, group)) %>%
       tidyr::drop_na() %>%
       dplyr::group_by(names) %>%
       dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
