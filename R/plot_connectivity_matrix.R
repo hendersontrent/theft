@@ -150,7 +150,7 @@ plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = "id",
                   x = NULL,
                   y = NULL,
                   fill = "Correlation Coefficient") +
-    ggplot2::scale_fill_distiller(palette = "RdYlBu", limits = c(-1,1)) +
+    ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1,1)) +
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
                    legend.position = "bottom")

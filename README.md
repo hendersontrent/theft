@@ -11,7 +11,7 @@ Tools for Handling Extraction of Features from Time series (theft)
 
 ## Installation
 
-*Coming to CRAN soon… Stay posted\!*
+*Coming to CRAN soon… Stay posted!*
 
 You can install the development version of `theft` from GitHub using the
 following:
@@ -30,12 +30,12 @@ features from a range of existing R and Python packages and lets the
 user specify which groups (or all) of the these features to calculate.
 The packages which `theft` currently ‘steals’ features from include:
 
-  - [Rcatch22](https://github.com/hendersontrent/Rcatch22)
-  - [feasts](https://feasts.tidyverts.org)
-  - [tsfeatures](https://github.com/robjhyndman/tsfeatures)
-  - [Kats](https://facebookresearch.github.io/Kats/)
-  - [tsfresh](https://tsfresh.com)
-  - [TSFEL](https://tsfel.readthedocs.io/en/latest/)
+-   [Rcatch22](https://github.com/hendersontrent/Rcatch22)
+-   [feasts](https://feasts.tidyverts.org)
+-   [tsfeatures](https://github.com/robjhyndman/tsfeatures)
+-   [Kats](https://facebookresearch.github.io/Kats/)
+-   [tsfresh](https://tsfresh.com)
+-   [TSFEL](https://tsfel.readthedocs.io/en/latest/)
 
 Note that `Kats`, `tsfresh` and `tsfel` are Python packages. The R
 package `reticulate` is used to call Python code that uses these
@@ -68,19 +68,17 @@ calculations.
 
 ## Citation
 
-``` 
 
-To cite package 'theft' in publications use:
+    To cite package 'theft' in publications use:
 
-  Trent Henderson (2021). theft: Tools for Handling Extraction of
-  Features from Time series. R package version 0.1.32.
+      Trent Henderson (2021). theft: Tools for Handling Extraction of
+      Features from Time series. R package version 0.1.33.
 
-A BibTeX entry for LaTeX users is
+    A BibTeX entry for LaTeX users is
 
-  @Manual{,
-    title = {theft: Tools for Handling Extraction of Features from Time series},
-    author = {Trent Henderson},
-    year = {2021},
-    note = {R package version 0.1.32},
-  }
-```
+      @Manual{,
+        title = {theft: Tools for Handling Extraction of Features from Time series},
+        author = {Trent Henderson},
+        year = {2021},
+        note = {R package version 0.1.33},
+      }
