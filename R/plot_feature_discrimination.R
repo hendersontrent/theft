@@ -73,6 +73,8 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
   
   # Normalisation
   
+  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
+  
   if(normalise == TRUE && method %ni% the_methods){
     stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
