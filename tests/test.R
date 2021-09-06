@@ -52,7 +52,8 @@ plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_var = "g
 plot_low_dimension(normed, is_normalised = TRUE, id_var = "id", group_var = "group", plot = TRUE, method = "RobustSigmoid", low_dim_method = "PCA")
 plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_var = "group", plot = TRUE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 5)
 plot_low_dimension(normed, is_normalised = TRUE, id_var = "id", group_var = "group", plot = TRUE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 5)
-d1 <- plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_var = "group", plot = FALSE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 5)
+d1 <- plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_var = "group", plot = FALSE, method = "RobustSigmoid", low_dim_method = "PCA")
+d2 <- plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_var = "group", plot = FALSE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 5)
 
 # Test 5: Connectivity matrix
 

@@ -31,7 +31,7 @@ plot_low_dimension(
 
 \item{perplexity}{the perplexity hyperparameter to use if t-SNE algorithm is selected. Defaults to 30}
 
-\item{plot}{a Boolean as to whether a bivariate plot should be returned or the calculation dataframe. Defaults to TRUE}
+\item{plot}{a Boolean as to whether a plot or model fit information should be returned. Defaults to TRUE}
 
 \item{show_covariance}{a Boolean as to whether covariance ellipses should be shown on the plot. Defaults to FALSE}
 }
