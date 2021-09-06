@@ -73,6 +73,8 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
   
   # Normalisation
   
+  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
+  
   if(normalise == TRUE && method %ni% the_methods){
     stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
@@ -98,7 +100,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
   if(normalise){
     
     normed <- data_id %>%
-      dplyr::select(c(id, names, values)) %>%
+      dplyr::select(c(id, names, values, group)) %>%
       tidyr::drop_na() %>%
       dplyr::group_by(names) %>%
       dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
