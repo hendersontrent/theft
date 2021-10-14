@@ -144,30 +144,32 @@ plot_low_dimension(feature_matrix,
                    show_covariance = FALSE)
 ```
 
-### Connectivity matrix
+### Correlation matrix
 
-The function `plot_connectivity_matrix` mimics the design of functional connectivity matrices commonly represented in neuroscience research. The function automates the calculation of correlations between feature vectors of each uniquely identified entity, the hierarchical clustering of rows and columns of these correlations, and the production of the final heatmap-style graphic.
+The function `plot_correlation_matrix` automates the calculation of correlations between feature vectors of each uniquely identified entity, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap-style graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the `cor_method` argument to `spearman`.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_connectivity_matrix(feature_matrix, 
-                         is_normalised = FALSE, 
-                         id_var = "id", 
-                         names_var = "names", 
-                         values_var = "values",
-                         method = "RobustSigmoid",
-                         interactive = FALSE)
+plot_correlation_matrix(feature_matrix, 
+                        is_normalised = FALSE, 
+                        id_var = "id", 
+                        names_var = "names", 
+                        values_var = "values",
+                        method = "RobustSigmoid",
+                        cor_method = "pearson",
+                        interactive = FALSE)
 ```
 
 Again, if you set `interactive = TRUE` the function will return an interactive plot using `plotly` which lets you hover over entries in the matrix to better understand which is which.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_connectivity_matrix(feature_matrix, 
-                         is_normalised = FALSE, 
-                         id_var = "id", 
-                         names_var = "names", 
-                         values_var = "values",
-                         method = "RobustSigmoid",
-                         interactive = TRUE)
+plot_correlation_matrix(feature_matrix, 
+                        is_normalised = FALSE, 
+                        id_var = "id", 
+                        names_var = "names", 
+                        values_var = "values",
+                        method = "RobustSigmoid",
+                        cor_method = "spearman",
+                        interactive = TRUE)
 ```
 
 ## Group discrimination

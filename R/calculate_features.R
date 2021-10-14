@@ -224,14 +224,14 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     stop("Input must be a dataframe with at least 3 columns: id, timepoint, value")
   }
   
-  # Make 'all' the default
+  # Make 'catch22' the default
   
   if(missing(feature_set)){
-    feature_set <- "all"
+    feature_set <- "catch22"
   }
   
   if(is.null(feature_set)){
-    feature_set <- "all"
+    feature_set <- "catch22"
   }
   
   #--------- Error catches ---------
@@ -356,7 +356,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   } else{
   }
   
-  if(exists("grouplabs_data")){
+  if(!is.null(group_var)){
     tmp_all <- tmp_all %>%
       dplyr::mutate(id = as.character(id)) %>%
       dplyr::left_join(grouplabs_data, by = c("id" = "id"))
