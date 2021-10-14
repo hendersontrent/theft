@@ -53,6 +53,18 @@ feature_matrix <- calculate_features(data = simData,
                                      feature_set = "catch22")
 ```
 
+Note that for the `catch22` set you can set the additional `catch24` argument to calculate the mean and standard deviation in addition to the standard 22 features:
+
+```{r, message = FALSE, warning = FALSE}
+feature_matrix <- calculate_features(data = simData, 
+                                     id_var = "id", 
+                                     time_var = "timepoint", 
+                                     values_var = "values", 
+                                     group_var = "process", 
+                                     feature_set = "catch22",
+                                     catch24 = TRUE)
+```
+
 If you do not want to or need to run the entire sets included in `calculate_features` you can also access the individual feature calculations as their unique function names, for example `IN_AutoMutualInfoStats_40_gaussian_fmmi`. A tidy dataframe of most of the included feature calculations and the set they correspond to is available:
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
