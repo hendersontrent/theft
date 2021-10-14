@@ -57,7 +57,8 @@ d2 <- plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_va
 
 # Test 5: Correlation matrix
 
-plot_correlation_matrix(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", interactive = FALSE)
+plot_correlation_matrix(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", cor_method = "pearson", interactive = FALSE)
+plot_correlation_matrix(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", cor_method = "spearman", interactive = FALSE)
 plot_correlation_matrix(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", interactive = TRUE)
 
 # Test 6: Feature discrimination

@@ -135,7 +135,7 @@ plot_correlation_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   
   #--------- Correlation ----------
   
-  result <- stats::cor(cor_dat)
+  result <- stats::cor(cor_dat, method = cor_method)
   
   #--------- Clustering -----------
   
