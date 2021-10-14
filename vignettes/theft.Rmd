@@ -144,9 +144,9 @@ plot_low_dimension(feature_matrix,
                    show_covariance = FALSE)
 ```
 
-### Connectivity matrix
+### Correlation matrix
 
-The function `plot_connectivity_matrix` mimics the design of functional connectivity matrices commonly represented in neuroscience research. The function automates the calculation of correlations between feature vectors of each uniquely identified entity, the hierarchical clustering of rows and columns of these correlations, and the production of the final heatmap-style graphic.
+The function `plot_correlation_matrix` automates the calculation of correlations between feature vectors of each uniquely identified entity, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap-style graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the `cor_method` argument to `spearman`.
 
 ```{r, message = FALSE, warning = FALSE}
 plot_connectivity_matrix(feature_matrix, 
@@ -155,6 +155,7 @@ plot_connectivity_matrix(feature_matrix,
                          names_var = "names", 
                          values_var = "values",
                          method = "RobustSigmoid",
+                         cor_method = "pearson",
                          interactive = FALSE)
 ```
 

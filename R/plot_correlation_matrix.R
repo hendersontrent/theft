@@ -29,7 +29,7 @@
 #'   group_var = "process", 
 #'   feature_set = "catch22")
 #'   
-#' plot_connectivity_matrix(data = featMat, 
+#' plot_correlation_matrix(data = featMat, 
 #'   is_normalised = FALSE, 
 #'   id_var = "id", 
 #'   names_var = "names", 
@@ -39,12 +39,13 @@
 #' }
 #'
 
-plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = "id", 
-                                     names_var = "names", values_var = "values",
-                                     method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
-                                     interactive = FALSE){
+plot_correlation_matrix <- function(data, is_normalised = FALSE, id_var = "id", 
+                                    names_var = "names", values_var = "values",
+                                    method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+                                    cor_method = c("pearson", "spearman"),
+                                    interactive = FALSE){
   
-  # Make RobustSigmoid the default
+  # Make RobustSigmoid and pearson the default
   
   if(missing(method)){
     method <- "RobustSigmoid"
@@ -52,7 +53,13 @@ plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = "id",
     method <- match.arg(method)
   }
   
-  #--------- Checks ---------------
+  if(missing(cor_method)){
+    cor_method <- "pearson"
+  } else{
+    cor_method <- match.arg(cor_method)
+  }
+  
+  #------------ Checks ---------------
   
   if(is.null(id_var) || is.null(names_var) || is.null(values_var)){
     stop("An id, names (feature name identification), and values variable must all be specified.")
@@ -69,6 +76,18 @@ plot_connectivity_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   
   if(length(method) > 1){
     stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
+  }
+  
+  # Correlation method selection
+  
+  the_cor_methods <- c("pearson", "spearman")
+  
+  if(cor_method %ni% the_cor_methods){
+    stop("cor_method should be a single selection of 'pearson' or 'spearman'")
+  }
+  
+  if(length(cor_method) > 1){
+    stop("cor_method should be a single selection of 'pearson' or 'spearman'")
   }
   
   # Dataframe length checks and tidy format wrangling
