@@ -4,14 +4,14 @@
 # catch22
 #--------
 
-calc_catch22 <- function(data){
+calc_catch22 <- function(data, catch24){
   
   outData <- data %>%
     tibble::as_tibble() %>%
     dplyr::group_by(id) %>%
     dplyr::arrange(timepoint) %>%
-    dplyr::summarise(names = Rcatch22::catch22_all(values)$names,
-                     values = Rcatch22::catch22_all(values)$values) %>%
+    dplyr::summarise(names = Rcatch22::catch22_all(values, catch24 = catch24)$names,
+                     values = Rcatch22::catch22_all(values, catch24 = catch24)$values) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(method = "catch22")
   
@@ -202,6 +202,7 @@ calc_kats <- function(data){
 #' @param values_var a string specifying the values variable. Defaults to NULL
 #' @param group_var a string specifying the grouping variable that each unique series sits under. Defaults to NULL
 #' @param feature_set the set of time-series features to calculate. Defaults to 'all'
+#' @param catch24 a Boolean specifying whether to compute catch24 in addition to catch22 if catch22 is one of the feature sets selected. Defaults to FALSE
 #' @param tsfresh_cleanup a Boolean specifying whether to use the in-built 'tsfresh' relevant feature filter or not. Defaults to FALSE
 #' @return object of class DataFrame that contains the summary statistics for each feature
 #' @author Trent Henderson
@@ -218,7 +219,9 @@ calc_kats <- function(data){
 #'
 
 calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var = NULL, group_var = NULL,
-                               feature_set = c("all", "catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel"), tsfresh_cleanup = FALSE){
+                               feature_set = c("all", "catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel"), 
+                               catch24 = FALSE,
+                               tsfresh_cleanup = FALSE){
   
   if(is.null(id_var) || is.null(time_var) || is.null(values_var)){
     stop("Input must be a dataframe with at least 3 columns: id, timepoint, value")
@@ -275,7 +278,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     
     message("Calculating all feature sets except for 'kats', 'tsfresh' and 'tsfel' to avoid Python dependence. If you want these features too, please run the function again specifying 'kats', 'tsfresh' or 'tsfel' and then append the resultant dataframes.")
     
-    tmp <- calc_catch22(data = data_re)
+    tmp <- calc_catch22(data = data_re, catch24 = catch24)
     tmp1 <- calc_feasts(data = data_re)
     tmp2 <- calc_tsfeatures(data = data_re)
     
@@ -284,7 +287,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   if("catch22" %in% feature_set){
     
-    tmp <- calc_catch22(data = data_re)
+    tmp <- calc_catch22(data = data_re, catch24 = catch24)
   }
   
   if("feasts" %in% feature_set){

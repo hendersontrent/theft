@@ -11,6 +11,7 @@ calculate_features(
   values_var = NULL,
   group_var = NULL,
   feature_set = c("all", "catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel"),
+  catch24 = FALSE,
   tsfresh_cleanup = FALSE
 )
 }
@@ -26,6 +27,8 @@ calculate_features(
 \item{group_var}{a string specifying the grouping variable that each unique series sits under. Defaults to NULL}
 
 \item{feature_set}{the set of time-series features to calculate. Defaults to 'all'}
+
+\item{catch24}{a Boolean specifying whether to compute catch24 in addition to catch22 if catch22 is one of the feature sets selected. Defaults to FALSE}
 
 \item{tsfresh_cleanup}{a Boolean specifying whether to use the in-built 'tsfresh' relevant feature filter or not. Defaults to FALSE}
 }
