@@ -11,6 +11,7 @@
 # Author: Trent Henderson, 07 April 2021
 #---------------------------------------
 
+library(dplyr)
 library(theft)
 library(reticulate)
 
@@ -72,3 +73,10 @@ plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", feature
 # Test 7: Processing hctsa formatted file
 
 d2 <- process_hctsa_file("https://cloudstor.aarnet.edu.au/plus/s/6sRD6IPMJyZLNlN/download")
+
+#------------------- Non-real value catches --------------------
+
+data1 <- data.frame(values = c(1,2,3,NA,Inf,-Inf,NA,8,9,10)) %>% mutate(id = "1", timepoint = row_number())
+data2 <- data.frame(values = c(1,2,3,4,5,6,7,8,9,10)) %>% mutate(id = "2", timepoint = row_number())
+data <- bind_rows(data1, data2)
+outs_NA <- calculate_features(data, id_var = "id", time_var = "timepoint", values_var = "values", feature_set = "catch22")
