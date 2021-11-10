@@ -252,12 +252,43 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     stop("group_var should be a string specifying the variable name of your grouping variable")
   }
   
-  #--------- Feature calcs --------
+  #--------- Quality by ID --------
   
   data_re <- data %>%
     dplyr::rename(id = dplyr::all_of(id_var),
                   timepoint = dplyr::all_of(time_var),
                   values = dplyr::all_of(values_var))
+  
+  quality_check <- data_re %>%
+    dplyr::group_by(id) %>%
+    dplyr::summarise(good_or_not = check_vector_quality(values)) %>%
+    dplyr::ungroup()
+  
+  good_ids <- quality_check %>%
+    dplyr::filter(good_or_not == TRUE)
+  
+  bad_ids <- quality_check %>%
+    dplyr::filter(good_or_not == FALSE)
+  
+  bad_list <- bad_ids$id
+  
+  if(length(bad_list) > 0){
+    for(b in bad_list){
+      print(paste0("Removed ID: ", b, "due to non-real values."))
+    }
+    message(paste0("Total IDs removed due to non-real values: ", bad_ids$id, " (", round(nrow(bad_ids) / (nrow(good_ids) + nrow(bad_ids)), digits = 2)*100, "%)"))
+  } else{
+    message("No IDs removed. All value vectors good for feature extraction.")
+  }
+  
+  data_re <- data_re %>%
+    filter(id %in% good_ids$id)
+  
+  if(nrow(data_re) == 0){
+    stop("No IDs remaining to calculate features after removing IDs with non-real values.")
+  }
+  
+  #--------- Feature calcs --------
   
   # Group labels
   
