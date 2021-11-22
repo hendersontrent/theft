@@ -158,13 +158,12 @@ plot_low_dimension(feature_matrix,
 
 ### Correlation matrix
 
-The function `plot_correlation_matrix` automates the calculation of correlations between feature vectors of each uniquely identified entity, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap-style graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the `cor_method` argument to `spearman`.
+The function `plot_correlation_matrix` automates the calculation of correlations between time-series values of each unique time series, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap-style graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the `cor_method` argument to `spearman`.
 
 ```{r, message = FALSE, warning = FALSE}
 plot_correlation_matrix(feature_matrix, 
                         is_normalised = FALSE, 
                         id_var = "id", 
-                        names_var = "names", 
                         values_var = "values",
                         method = "RobustSigmoid",
                         cor_method = "pearson",
@@ -184,9 +183,21 @@ plot_correlation_matrix(feature_matrix,
                         interactive = TRUE)
 ```
 
-## Group discrimination
+## Time-series classification
 
-Since feature-based time-series analysis is typically geared towards classification problems, `theft` includes some functionality for exploring group separation in addition to the low dimensional representation. The `plot_feature_discrimination` produces violin plots for each feature with class labels separated on the x-axis and by colour. You can choose to normalise the features prior to plotting or simply plot the raw feature values.
+Since feature-based time-series analysis has shown particular promise for classification problems, `theft` includes functionality for exploring group separation in addition to the low dimensional representation. The `compute_top_features` function takes the computed time series x feature matrix and performs the following:
+
+1. Computes a classification algorithm on the entire input dataframe
+2. Extracts individual feature performance from the classification algorithm
+3. Filters the time series x feature matrix to the top `n` performing features (where `n` is specified by the user)
+4. Plots a feature x feature correlation matrix as a heatmap for the top performing features
+5. Plots a matrix of violin plots coloured by class label for the top performing features
+
+This function returns an object with three components to summarise the above steps:
+
+1. `ResultsTable` -- a dataframe containing feature names, feature set membership, and performance statistics for the top performing features
+2. `FeatureFeatureCorrelations` -- a `ggplot` containing the pairwise correlations between top performing features represented as a heatmap
+3. `DiscriminationPlots` -- a `ggplot` containing a matrix of violin plots showing class discrimination by feature
 
 ```{r, message = FALSE, warning = FALSE}
 plot_feature_discrimination(feature_matrix, 
@@ -196,15 +207,7 @@ plot_feature_discrimination(feature_matrix,
                             normalise = FALSE)
 ```
 
-You can also pass a vector of individual feature names to the `features` argument to only view those features. This is useful if the number of features you have is very large and/or you have *a priori* knowledge about which features might be most useful.
-
-```{r, message = FALSE, warning = FALSE}
-plot_feature_discrimination(feature_matrix, 
-                            id_var = "id", 
-                            group_var = "group", 
-                            features = c("DN_HistogramMode_5", "DN_HistogramMode_10"), 
-                            normalise = FALSE)
-```
+The three core functions that comprise `compute_top_features` are all available individually for your own usage as `fit_feature_classifier`, `plot_correlation_matrix`, and `plot_feature_discrimination`.
 
 ## Reading and processing hctsa-formatted files
 
