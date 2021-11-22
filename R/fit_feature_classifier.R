@@ -26,6 +26,54 @@
 
 fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
   
-  xx
+  #---------- Check arguments ------------
+  
+  expected_cols_1 <- "names"
+  expected_cols_2 <- "values"
+  the_cols <- colnames(data)
+  '%ni%' <- Negate('%in%')
+  
+  if(expected_cols_1 %ni% the_cols){
+    stop("data should contain at least two columns called 'names' and 'values'. These are automatically produced by feature calculations such as calculate_features(). Please consider running one of these first and then passing the resultant dataframe in to this function.")
+  }
+  
+  if(expected_cols_2 %ni% the_cols){
+    stop("data should contain at least two columns called 'names' and 'values'. These are automatically produced by feature calculations such as calculate_features(). Please consider running one of these first and then passing the resultant dataframe in to this function.")
+  }
+  
+  if(!is.numeric(data$values)){
+    stop("'values' column in data should be a numerical vector.")
+  }
+  
+  if(!is.null(id_var) && !is.character(id_var)){
+    stop("id_var should be a string specifying a variable in the input data that uniquely identifies each observation.")
+  }
+  
+  #------------- Renaming columns -------------
+  
+  if (is.null(id_var)){
+    stop("Data is not uniquely identifiable. Please add a unique identifier variable.")
+  }
+  
+  if(!is.null(id_var)){
+    data_id <- data %>%
+      dplyr::rename(id = dplyr::all_of(id_var),
+                    group = dplyr::all_of(group_var))
+  }
+  
+  #------------- Normalise data --------------
+  
+  normed <- data_id %>%
+      dplyr::select(c(id, names, values, group)) %>%
+      tidyr::drop_na() %>%
+      dplyr::group_by(names) %>%
+      dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
+      dplyr::ungroup() %>%
+      tidyr::drop_na()
+    
+  if(nrow(normed) != nrow(data_id)){
+    message("Filtered out rows containing NaNs.")
+  }
+  
   
 }

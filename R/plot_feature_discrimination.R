@@ -65,10 +65,6 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
     stop("group_var should be a string specifying a variable in the input data that identifies an aggregate group each observation relates to.")
   }
   
-  if(!is.null(features) && !is.character(features)){
-    stop("features should be a string or vector of string specifying exact feature names to filter by. If you want all features, write 'all'. This is the default.")
-  }
-  
   # Normalisation
   
   the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
