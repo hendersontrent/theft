@@ -94,6 +94,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
   # Fit model
   
   set.seed(123)
+  message("Fitting classifier...")
   m1 <- svm(group ~ ., data = normed, kernel = "linear", probability = TRUE)
   
   # Return results
