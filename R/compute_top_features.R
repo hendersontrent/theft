@@ -1,4 +1,4 @@
-#' Produce a matrix of violin plots for each feature to show class discrimination
+#' Return an object containing results from top-performing features on a classification task
 #' @import dplyr
 #' @importFrom magrittr %>%
 #' @import ggplot2
@@ -8,7 +8,7 @@
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
 #' @param normalise a Boolean of whether to normalise features before plotting. Defaults to FALSE
 #' @param method a rescaling/normalising method to apply if normalise = TRUE. Defaults to 'RobustSigmoid'
-#' @return an object of class ggplot containing the graphics
+#' @return an object of class list containing a dataframe of results, a feature x feature matrix plot, and a violin plot
 #' @author Trent Henderson
 #' @export
 #' @examples
@@ -20,15 +20,20 @@
 #'   group_var = "process", 
 #'   feature_set = "catch22")
 #'   
-#' plot_feature_discrimination(featMat,
+#' compute_top_features(featMat,
 #'   id_var = "id",
-#'   group_var = "group") 
+#'   names_var = "names",
+#'   group_var = "group",
+#'   values_var = "values",
+#'   num_features = 10,
+#'   normalise = FALSE,
+#'   method = "RobustSigmoid") 
 #' }
 #' 
 
-plot_feature_discrimination <- function(data, id_var = "id", group_var = "group",
-                                        normalise = FALSE,
-                                        method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")){
+compute_top_features <- function(data, id_var = "id", names_var = "names", group_var = "group",
+                                 values_var = "values", num_features = 10, normalise = FALSE,
+                                 method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")){
   
   # Make RobustSigmoid the default
   
@@ -81,7 +86,15 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
     stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
   
-  #------------- Assign ID variable ---------------
+  # Default feature number
+  
+  if(!is.numeric(num_features)){
+    stop("num_features should be a positive integer >= 2 specifying the number of features to produce analysis for.")
+  }
+  
+  if(num_features < 2){
+    stop("num_features should be a positive integer >= 2 specifying the number of features to produce analysis for.")
+  }
   
   if(is.null(id_var)){
     stop("Data is not uniquely identifiable. Please add a unique identifier variable.")
@@ -90,53 +103,56 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
   if(!is.null(id_var)){
     data_id <- data %>%
       dplyr::rename(id = dplyr::all_of(id_var),
+                    names = dplyr::all_of(names_var),
                     group = dplyr::all_of(group_var))
   }
   
-  #------------- Normalise data -------------------
-  
-  if(normalise){
-    
-    normed <- data_id %>%
-      dplyr::select(c(id, names, values, group)) %>%
-      tidyr::drop_na() %>%
-      dplyr::group_by(names) %>%
-      dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
-      dplyr::ungroup() %>%
-      tidyr::drop_na()
-    
-    if(nrow(normed) != nrow(data_id)){
-      message("Filtered out rows containing NaNs.")
-    }
-  } else{
-    normed <- data_id
-  }
-
-  #------------- Produce plots --------------------
-  
-  # Draw plot
-  
-  p <- normed %>%
-    dplyr::mutate(group = as.factor(group)) %>%
-    ggplot2::ggplot(ggplot2::aes(x = group, y = values, colour = group)) +
-    ggplot2::geom_violin() +
-    ggplot2::geom_point(size = 1, alpha = 0.9, position = ggplot2::position_jitter(w = 0.05)) +
-    ggplot2::labs(title = "Group discrimination for top performing features",
-                  x = "Group",
-                  y = "Value") +
-    ggplot2::scale_colour_brewer(palette = "Dark2") +
-    ggplot2::theme_bw() +
-    ggplot2::theme(legend.position = "none",
-                   panel.grid.minor = ggplot2::element_blank(),
-                   strip.background = ggplot2::element_blank())
-  
-  if(normalise){
-    p <- p +
-      ggplot2::facet_wrap(~names, ncol = 4)
-  } else{
-    p <- p +
-      ggplot2::facet_wrap(~names, ncol = 4, scales = "free_y")
+  if(num_features > length(unique(data_id$names))){
+    stop("num_features should be less than or equal to the number of unique features in your data.")
   }
   
-  return(p)
+  #---------------  Computations ----------------
+  
+  #---------------
+  # Classification
+  #---------------
+  
+  classifierOutputs <- fit_feature_classifier(featMat)
+  
+  ResultsTable <- classifierOutputs %>%
+    dplyr::top_n(accuracy, num_features)
+  
+  # Filter original data to just the top performers
+  
+  featMatFiltered <- featMat %>%
+    dplyr::filter(names %in% c(ResultsTable$names))
+  
+  #---------------
+  # Feature x 
+  # feature plot
+  #---------------
+  
+  FeatureFeatureCorrelations <- plot_correlation_matrix(featMatFiltered, 
+                                                        is_normalised = FALSE, 
+                                                        id_var = "id", 
+                                                        values_var = "values",
+                                                        method = method,
+                                                        interactive = FALSE)
+  
+  #---------------
+  # Violin plot
+  #---------------
+  
+  DiscriminationPlots <- plot_feature_discrimination(featMatFiltered, 
+                                                     id_var = id_var, 
+                                                     group_var = group_var,
+                                                     normalise = normalise,
+                                                     method = method)
+  
+  #---------------  Returns ---------------------
+  
+  # Compile into one object and return
+  
+  myList <- list(ResultsTable, FeatureFeatureCorrelations, DiscriminationPlots)
+  return(myList)
 }

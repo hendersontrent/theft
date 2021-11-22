@@ -13,7 +13,6 @@
 #' @param data a dataframe with at least 3 columns for 'id', 'names' and 'values'
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
 #' @param id_var a string specifying the ID variable to compute pairwise correlations between. Defaults to "id"
-#' @param names_var a string denoting the name of the variable/column that holds the feature names. Defaults to "names"
 #' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"
 #' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
 #' @param interactive a Boolean as to whether to plot an interactive plotly graphic. Defaults to FALSE
@@ -32,7 +31,6 @@
 #' plot_correlation_matrix(data = featMat, 
 #'   is_normalised = FALSE, 
 #'   id_var = "id", 
-#'   names_var = "names", 
 #'   values_var = "values",
 #'   method = "RobustSigmoid",
 #'   interactive = FALSE)
@@ -40,7 +38,7 @@
 #'
 
 plot_correlation_matrix <- function(data, is_normalised = FALSE, id_var = "id", 
-                                    names_var = "names", values_var = "values",
+                                    values_var = "values",
                                     method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                     cor_method = c("pearson", "spearman"),
                                     interactive = FALSE){
@@ -61,8 +59,8 @@ plot_correlation_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   
   #------------ Checks ---------------
   
-  if(is.null(id_var) || is.null(names_var) || is.null(values_var)){
-    stop("An id, names (feature name identification), and values variable must all be specified.")
+  if(is.null(id_var) || is.null(values_var)){
+    stop("An id variable and values variable from your dataframe must be specified.")
   }
   
   # Method selection
@@ -94,7 +92,6 @@ plot_correlation_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   
   data_re <- data %>%
     dplyr::rename(id = dplyr::all_of(id_var),
-                  names = dplyr::all_of(names_var),
                   values = dplyr::all_of(values_var))
   
   #------------- Normalise data -------------------
@@ -104,11 +101,9 @@ plot_correlation_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   } else{
     
     normed <- data_re %>%
-      dplyr::select(c(id, names, values)) %>%
+      dplyr::select(c(id, values)) %>%
       tidyr::drop_na() %>%
-      dplyr::group_by(names) %>%
       dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
-      dplyr::ungroup() %>%
       tidyr::drop_na()
     
     if(nrow(normed) != nrow(data_re)){
@@ -116,20 +111,9 @@ plot_correlation_matrix <- function(data, is_normalised = FALSE, id_var = "id",
     }
   }
   
-  #------------- Data reshaping -------------------
-  
-  features <- unique(normed$names)
-  
-  ids_to_keep <- normed %>%
-    dplyr::group_by(id) %>%
-    dplyr::summarise(counter = dplyr::n()) %>%
-    dplyr::ungroup() %>%
-    dplyr::filter(counter == length(features))
-  
-  ids_to_keep <- ids_to_keep$id
+  #------------- Data reshaping -------------
   
   cor_dat <- normed %>%
-    dplyr::filter(id %in% ids_to_keep) %>%
     tidyr::pivot_wider(id_cols = names, names_from = id, values_from = values) %>%
     dplyr::select(-c(names))
   
@@ -168,7 +152,7 @@ plot_correlation_matrix <- function(data, is_normalised = FALSE, id_var = "id",
     ggplot2::labs(title = "Pairwise correlation matrix",
                   x = NULL,
                   y = NULL,
-                  fill = "Correlation Coefficient") +
+                  fill = "Correlation coefficient") +
     ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1,1)) +
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
