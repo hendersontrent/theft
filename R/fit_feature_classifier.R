@@ -3,6 +3,7 @@
 #' @importFrom magrittr %>%
 #' @import ggplot2
 #' @importFrom tidyr drop_na
+#' @importFrom tidyr pivot_wider
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
@@ -61,19 +62,41 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
                     group = dplyr::all_of(group_var))
   }
   
-  #------------- Normalise data --------------
+  #------------- Preprocess data --------------
+  
+  # Normalisation
   
   normed <- data_id %>%
-      dplyr::select(c(id, names, values, group)) %>%
-      tidyr::drop_na() %>%
-      dplyr::group_by(names) %>%
-      dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
-      dplyr::ungroup() %>%
-      tidyr::drop_na()
+    dplyr::select(c(id, names, values, group)) %>%
+    tidyr::drop_na() %>%
+    dplyr::group_by(names) %>%
+    dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
+    dplyr::ungroup() %>%
+    tidyr::drop_na()
     
   if(nrow(normed) != nrow(data_id)){
     message("Filtered out rows containing NaNs.")
   }
   
+  # Widening for model matrix
   
+  normed <- normed %>%
+    pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
+    dplyr::select(-c(id)) %>%
+    mutate(group = as.factor(group))
+  
+  #------------- Fit classifier --------------
+  
+  # Get number of classes in the dataset to determine if binary or multiclass problem
+  
+  num_classes <- length(unique(normed$group))
+  
+  # Fit model
+  
+  set.seed(123)
+  m1 <- svm(group ~ ., data = normed, kernel = "linear", probability = TRUE)
+  
+  # Return results
+  
+  x
 }
