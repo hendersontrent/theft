@@ -91,11 +91,28 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
   
   num_classes <- length(unique(normed$group))
   
-  # Fit model
+  # Loop over features and fit model
   
+  features <- seq(from = 2, to = ncol(normed))
+  results <- list()
   set.seed(123)
-  message("Fitting classifier...")
-  m1 <- svm(group ~ ., data = normed, kernel = "linear", probability = TRUE)
+  message("Performing 5 repeats of 10-fold CV for a linear SVM for each feature. This may take a while depending on the number of features in your dataset.")
+  
+  for(f in features){
+    
+    message(paste0("Fitting classifier: ", match(f, features),"/",length(features)))
+    
+    tmp <- normed %>%
+      dplyr::select(c(group, f))
+    
+    # Do 5 repeats of 10-fold CV
+    
+    m1 <- e1071::svm(group ~ ., data = normed, kernel = "linear", probability = TRUE)
+  }
+  
+  # Bind together
+  
+  classificationResults <- data.table::rbindlist()
   
   # Return results
   
