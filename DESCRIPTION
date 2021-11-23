@@ -37,7 +37,7 @@ Imports:
     R.matlab,
     plotly,
     RColorBrewer,
-    caret
+    e1071
 Suggests: 
     knitr,
     markdown,

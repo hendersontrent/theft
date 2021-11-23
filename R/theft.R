@@ -36,5 +36,5 @@
 #' @importFrom plotly ggplotly
 #' @importFrom plotly config
 #' @importFrom RColorBrewer brewer.pal
-#' @importFrom caret train trainControl confusionMatrix
+#' @importFrom e1071 svm
 NULL

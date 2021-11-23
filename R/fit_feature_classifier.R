@@ -5,7 +5,7 @@
 #' @importFrom tidyr drop_na
 #' @importFrom tidyr pivot_wider
 #' @importFrom tibble rownames_to_column
-#' @importFrom caret train trainControl confusionMatrix
+#' @importFrom e1071 svm
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
@@ -99,9 +99,8 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
   results <- list()
   feature_names <- colnames(normed)
   feature_names <- feature_names[!feature_names %in% c("group")] # Remove group column name
-  ctrl <- caret::trainControl(method = "repeatedcv", repeats = 5) # Specify 5 repeats of 10-fold CV
   set.seed(123)
-  message("Performing 5 repeats of 10-fold CV for a linear SVM for each feature. This may take a while depending on the number of features in your dataset.")
+  message("Performing 10-fold CV for a linear SVM for each feature. This may take a while depending on the number of features in your dataset.")
   
   for(f in features){
     
@@ -112,17 +111,12 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
     
     # Fit classifier
     
-    m1 <- caret::train(group ~., data = tmp, method = "svmLinear", trControl = ctrl)
+    m1 <- e1071::svm(group ~., data = tmp, kernel = "linear", cross = 10, probability = TRUE)
     
     # Get outputs and put into dataframe
     
-    outs <- caret::confusionMatrix(trainWide$group, predict(m1))
-    
-    accuracy <- as.data.frame(outs$overall) %>%
-      tibble::rownames_to_column(var = "metric") %>%
-      dplyr::filter(metric == "Accuracy") %>%
-      dplyr::select(c(2)) %>%
-      dplyr::pull()
+    cm <- table(trainWide$group, predict(m1))
+    accuracy <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] + cm[1,2] + cm[2,1])
     
     featResults <- data.frame(feature = feature_names[f],
                               accuracy = accuracy)
@@ -130,7 +124,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
     results[[f]] <- featResults
   }
   
-  # Bind feature results together
+  # Bind feature results together and return
   
   classificationResults <- data.table::rbindlist(results, use.names = TRUE)
   return(classificationResults)
