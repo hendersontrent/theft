@@ -4,6 +4,8 @@
 #' @import ggplot2
 #' @importFrom tidyr drop_na
 #' @importFrom tidyr pivot_wider
+#' @importFrom tibble rownames_to_column
+#' @importFrom caret train trainControl confusionMatrix
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
@@ -91,10 +93,13 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
   
   num_classes <- length(unique(normed$group))
   
-  # Loop over features and fit model
+  # Loop over features and fit linear SVM with 10-fold cross-validation
   
   features <- seq(from = 2, to = ncol(normed))
   results <- list()
+  feature_names <- colnames(normed)
+  feature_names <- feature_names[!feature_names %in% c("group")] # Remove group column name
+  ctrl <- caret::trainControl(method = "repeatedcv", repeats = 5) # Specify 5 repeats of 10-fold CV
   set.seed(123)
   message("Performing 5 repeats of 10-fold CV for a linear SVM for each feature. This may take a while depending on the number of features in your dataset.")
   
@@ -105,16 +110,28 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
     tmp <- normed %>%
       dplyr::select(c(group, f))
     
-    # Do 5 repeats of 10-fold CV
+    # Fit classifier
     
-    m1 <- e1071::svm(group ~ ., data = normed, kernel = "linear", probability = TRUE)
+    m1 <- caret::train(group ~., data = tmp, method = "svmLinear", trControl = ctrl)
+    
+    # Get outputs and put into dataframe
+    
+    outs <- caret::confusionMatrix(trainWide$group, predict(m1))
+    
+    accuracy <- as.data.frame(outs$overall) %>%
+      tibble::rownames_to_column(var = "metric") %>%
+      dplyr::filter(metric == "Accuracy") %>%
+      dplyr::select(c(2)) %>%
+      dplyr::pull()
+    
+    featResults <- data.frame(feature = feature_names[f],
+                              accuracy = accuracy)
+    
+    results[[f]] <- featResults
   }
   
-  # Bind together
+  # Bind feature results together
   
-  classificationResults <- data.table::rbindlist()
-  
-  # Return results
-  
-  x
+  classificationResults <- data.table::rbindlist(results, use.names = TRUE)
+  return(classificationResults)
 }
