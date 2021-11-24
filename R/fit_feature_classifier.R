@@ -6,6 +6,7 @@
 #' @importFrom tidyr pivot_wider
 #' @importFrom tibble rownames_to_column
 #' @importFrom e1071 svm
+#' @importFrom data.table rbindlist
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
@@ -83,15 +84,11 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
   # Widening for model matrix
   
   normed <- normed %>%
-    pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
+    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
     dplyr::select(-c(id)) %>%
-    mutate(group = as.factor(group))
+    dplyr::mutate(group = as.factor(group))
   
-  #------------- Fit classifier --------------
-  
-  # Get number of classes in the dataset to determine if binary or multiclass problem
-  
-  num_classes <- length(unique(normed$group))
+  #------------- Fit classifiers -------------
   
   # Loop over features and fit linear SVM with 10-fold cross-validation
   
@@ -100,7 +97,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
   feature_names <- colnames(normed)
   feature_names <- feature_names[!feature_names %in% c("group")] # Remove group column name
   set.seed(123)
-  message("Performing 10-fold CV for a linear SVM for each feature. This may take a while depending on the number of features in your dataset.")
+  message("Performing linear SVM with 10-fold CV for each feature and with shuffled class labels to form an empirical null for each feature. This may take a while depending on the number of features in your dataset.")
   
   for(f in features){
     
@@ -113,13 +110,17 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
     
     m1 <- e1071::svm(group ~., data = tmp, kernel = "linear", cross = 10, probability = TRUE)
     
-    # Get outputs and put into dataframe
+    # Get outputs for main model
     
     cm <- table(trainWide$group, predict(m1))
     accuracy <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] + cm[1,2] + cm[2,1])
     
+    # Put results into dataframe
+    
     featResults <- data.frame(feature = feature_names[f],
-                              accuracy = accuracy)
+                              accuracy = accuracy,
+                              test_statistic = statistic,
+                              p_value_corrected = p_value)
     
     results[[f]] <- featResults
   }
