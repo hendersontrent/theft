@@ -2,7 +2,11 @@
 #' @import dplyr
 #' @importFrom magrittr %>%
 #' @import ggplot2
-#' @importFrom tidyr drop_na
+#' @importFrom tidyr drop_na pivot_wider
+#' @importFrom stats hclust
+#' @importFrom stats dist
+#' @importFrom stats cor
+#' @importFrom reshape2 melt
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
@@ -32,7 +36,7 @@
 #' 
 
 compute_top_features <- function(data, id_var = "id", names_var = "names", group_var = "group",
-                                 values_var = "values", num_features = 10, normalise = FALSE,
+                                 values_var = "values", num_features = 40, normalise = FALSE,
                                  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")){
   
   # Make RobustSigmoid the default
@@ -108,7 +112,8 @@ compute_top_features <- function(data, id_var = "id", names_var = "names", group
   }
   
   if(num_features > length(unique(data_id$names))){
-    stop("num_features should be less than or equal to the number of unique features in your data.")
+    num_features <- length(unique(data_id$names))
+    message(paste0("Number of specified features exceeds number of features in your data. Automatically adjusting to ", num_features))
   }
   
   #---------------  Computations ----------------
@@ -117,35 +122,75 @@ compute_top_features <- function(data, id_var = "id", names_var = "names", group
   # Classification
   #---------------
   
-  classifierOutputs <- fit_feature_classifier(featMat)
+  classifierOutputs <- fit_feature_classifier(data_id, id_var = "id", group_var = "group")
   
   ResultsTable <- classifierOutputs %>%
-    dplyr::top_n(accuracy, num_features)
+    dplyr::slice_min(p_value, n = num_features)
   
   # Filter original data to just the top performers
   
-  featMatFiltered <- featMat %>%
-    dplyr::filter(names %in% c(ResultsTable$names))
+  dataFiltered <- data_id %>%
+    dplyr::filter(names %in% ResultsTable$feature)
   
   #---------------
   # Feature x 
   # feature plot
   #---------------
   
-  FeatureFeatureCorrelations <- plot_correlation_matrix(featMatFiltered, 
-                                                        is_normalised = FALSE, 
-                                                        id_var = "id", 
-                                                        values_var = "values",
-                                                        method = method,
-                                                        interactive = FALSE)
+  # Wrangle dataframe
+  
+  cor_dat <- dataFiltered %>%
+    dplyr::select(c(id, names, values)) %>%
+    tidyr::drop_na() %>%
+    dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
+    tidyr::drop_na() %>%
+    tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
+    dplyr::select(-c(id))
+  
+  # Calculate correlations
+  
+  result <- stats::cor(cor_dat, method = "pearson")
+  
+  # Wrangle into tidy format
+  
+  melted <- reshape2::melt(result)
+  
+  # Perform clustering
+  
+  row.order <- stats::hclust(stats::dist(result))$order # Hierarchical cluster on rows
+  col.order <- stats::hclust(stats::dist(t(result)))$order # Hierarchical cluster on columns
+  dat_new <- result[row.order, col.order] # Re-order matrix by cluster outputs
+  cluster_out <- reshape2::melt(as.matrix(dat_new)) # Turn into dataframe
+  
+  # Draw plot
+  
+  FeatureFeatureCorrelations <- cluster_out %>%
+    ggplot2::ggplot(ggplot2::aes(x = Var1, y = Var2)) +
+    ggplot2::geom_tile(ggplot2::aes(fill = value)) +
+    ggplot2::labs(title = "Pairwise correlation matrix of top features",
+                  x = NULL,
+                  y = NULL,
+                  fill = "Pearson correlation coefficient") +
+    ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1,1)) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(panel.grid = ggplot2::element_blank(),
+                   legend.position = "bottom")
+  
+  if(length(unique(ResultsTable$feature)) <= 22){
+    FeatureFeatureCorrelations <- FeatureFeatureCorrelations +
+      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
+  } else {
+    FeatureFeatureCorrelations <- FeatureFeatureCorrelations +
+      ggplot2::theme(axis.text = ggplot2::element_blank())
+  }
   
   #---------------
   # Violin plot
   #---------------
   
-  DiscriminationPlots <- plot_feature_discrimination(featMatFiltered, 
-                                                     id_var = id_var, 
-                                                     group_var = group_var,
+  DiscriminationPlots <- plot_feature_discrimination(dataFiltered, 
+                                                     id_var = "id", 
+                                                     group_var = "group",
                                                      normalise = normalise,
                                                      method = method)
   
@@ -154,5 +199,6 @@ compute_top_features <- function(data, id_var = "id", names_var = "names", group
   # Compile into one object and return
   
   myList <- list(ResultsTable, FeatureFeatureCorrelations, DiscriminationPlots)
+  names(myList) <- c("ResultsTable", "FeatureFeatureCorrelations", "DiscriminationPlots")
   return(myList)
 }
