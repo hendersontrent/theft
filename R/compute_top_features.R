@@ -132,6 +132,12 @@ compute_top_features <- function(data, id_var = "id", names_var = "names", group
                     group = dplyr::all_of(group_var))
   }
   
+  num_classes <- length(unique(data_id$group)) # Get number of classes in the data
+  
+  if(num_classes == 1){
+    stop("Your data only has one class label. At least two are required to performed analysis.")
+  }
+  
   if(num_features > length(unique(data_id$names))){
     num_features <- length(unique(data_id$names))
     message(paste0("Number of specified features exceeds number of features in your data. Automatically adjusting to ", num_features))

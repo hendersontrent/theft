@@ -28,7 +28,8 @@
 #' }
 #' 
 
-fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
+fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
+                                   method = c("t-test", "lm", "linear svm", "rbf svm")){
   
   #---------- Check arguments ------------
   
@@ -51,6 +52,38 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
   
   if(!is.null(id_var) && !is.character(id_var)){
     stop("id_var should be a string specifying a variable in the input data that uniquely identifies each observation.")
+  }
+  
+  # Set defaults for classification method
+  
+  methods <- c("t-test", "lm", "linear svm", "rbf svm")
+  
+  if(method %ni% methods){
+    stop("classification_method should be a single string specification of 't-test', 'lm', 'linear svm', or 'rbf svm'.")
+  }
+  
+  if(length(method) != 1){
+    stop("classification_method should be a single string specification of 't-test', 'lm', 'linear svm', or 'rbf svm'.")
+  }
+  
+  num_classes <- length(unique(normed$group)) # Get number of classes in the data
+  
+  if(num_classes == 1){
+    stop("Your data only has one class label. At least two are required to performed analysis.")
+  }
+  
+  if(is.null(method) && num_classes == 2){
+    method <- "t-test"
+    message("method is NULL. Running t-test for 2-class problem.")
+  }
+  
+  if(is.null(method) && num_classes > 2){
+    method <- "linear svm"
+    message("method is NULL. Running linear svm for multiclass problem.")
+  }
+  
+  if(method == "t-test" && num_classes > 2){
+    stop("t-test can only be run for 2-class problems.")
   }
   
   #------------- Renaming columns -------------
@@ -90,18 +123,6 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
   
   #------------- Fit classifiers -------------
   
-  # Get number of classes in the data
-  
-  num_classes <- length(unique(normed$group))
-  
-  if(num_classes == 1){
-    stop("Your data only has one class label. At least two are required to performed analysis.")
-  } else if(num_classes == 2){
-    operation <- "t-test"
-  } else{
-    operation <- "svm"
-  }
-  
   # Loop over features and fit appropriate model
   
   features <- seq(from = 2, to = ncol(normed))
@@ -113,7 +134,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
   
   for(f in features){
     
-    if(num_classes == 2){
+    if(method == "t-test"){
       
       # Filter dataset
       
@@ -133,7 +154,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
       statistic <- mod$statistic
       p_value <- mod$p.value
       
-    } else{
+    } else if (method == "linear svm"){
       
       message(paste0("Fitting classifier: ", match(f, features),"/",length(features)))
       
@@ -149,6 +170,42 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
       cm <- table(tmp$group, predict(mod))
       statistic <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] + cm[1,2] + cm[2,1])
       statistic_name <- "Classification accuracy"
+      
+    } else if (method == "rbf svm"){
+      
+      message(paste0("Fitting classifier: ", match(f, features),"/",length(features)))
+      
+      tmp <- normed %>%
+        dplyr::select(c(group, dplyr::all_of(f)))
+      
+      # Fit classifier
+      
+      mod <- e1071::svm(group ~., data = tmp, kernel = "radial", cross = 10, probability = TRUE)
+      
+      # Get outputs
+      
+      cm <- table(tmp$group, predict(mod))
+      statistic <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] + cm[1,2] + cm[2,1])
+      statistic_name <- "Classification accuracy"
+      
+    } else {
+      
+      # Filter dataset
+      
+      tmp <- normed %>%
+        dplyr::select(c(group, dplyr::all_of(f))) %>%
+        dplyr::rename(values = 2) %>%
+        dplyr::mutate(group = as.factor(group))
+      
+      # Perform calculations between the two groups
+      
+      mod <- lm(values ~ group, data = tmp)
+      
+      # Extract statistics
+      
+      statistic_name <- "Linear regression coefficient"
+      statistic <- summary(mod)$coefficients[,3]
+      p_value <- summary(mod)$coefficients[,4]
     }
     
     # Put results into dataframe
