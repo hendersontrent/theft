@@ -109,23 +109,36 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
   feature_names <- colnames(normed)
   feature_names <- feature_names[!feature_names %in% c("group")] # Remove group column name
   set.seed(123)
-  message("Performing linear SVM with 10-fold CV for each feature and with shuffled class labels to form an empirical null for each feature. This may take a while depending on the number of features in your dataset.")
+  message("Performing calculations... This may take a while depending on the number of features in your dataset.")
   
   for(f in features){
     
     if(num_classes == 2){
       
+      # Filter dataset
+      
+      tmp <- normed %>%
+        dplyr::select(c(group, dplyr::all_of(f)))
+      
+      # Perform calculations between the two groups
+      
       class_names <- unique(normed$group)
       x <- normed[!normed$group %in% class_names[2]]
       y <- normed[!normed$group %in% class_names[1]]
-      mod <- t.test(x,y)
+      mod <- t.test(x, y)
+      
+      # Extract statistics
+      
+      statistic_name <- "Welch Two Sample t-test"
+      statistic <- mod$statistic
+      p_value <- mod$p.value
       
     } else{
       
       message(paste0("Fitting classifier: ", match(f, features),"/",length(features)))
       
       tmp <- normed %>%
-        dplyr::select(c(group, f))
+        dplyr::select(c(group, dplyr::all_of(f)))
       
       # Fit classifier
       
@@ -134,15 +147,16 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
       # Get outputs for main model
       
       cm <- table(trainWide$group, predict(m1))
-      accuracy <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] + cm[1,2] + cm[2,1])
+      statistic <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] + cm[1,2] + cm[2,1])
+      statistic_name <- "Classification accuracy"
     }
     
     # Put results into dataframe
     
     featResults <- data.frame(feature = feature_names[f],
-                              accuracy = accuracy,
-                              test_statistic = statistic,
-                              p_value_corrected = p_value)
+                              test_statistic_name = statistic_name,
+                              test_statistic_value = statistic,
+                              p_value = p_value)
     
     results[[f]] <- featResults
   }
