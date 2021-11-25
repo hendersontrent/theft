@@ -90,7 +90,19 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
   
   #------------- Fit classifiers -------------
   
-  # Loop over features and fit linear SVM with 10-fold cross-validation
+  # Get number of classes in the data
+  
+  num_classes <- length(unique(normed$group))
+  
+  if(num_classes == 1){
+    stop("Your data only has one class label. At least two are required to performed analysis.")
+  } else if(num_classes == 2){
+    operation <- "t-test"
+  } else{
+    operation <- "svm"
+  }
+  
+  # Loop over features and fit appropriate model
   
   features <- seq(from = 2, to = ncol(normed))
   results <- list()
@@ -101,19 +113,29 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
   
   for(f in features){
     
-    message(paste0("Fitting classifier: ", match(f, features),"/",length(features)))
-    
-    tmp <- normed %>%
-      dplyr::select(c(group, f))
-    
-    # Fit classifier
-    
-    m1 <- e1071::svm(group ~., data = tmp, kernel = "linear", cross = 10, probability = TRUE)
-    
-    # Get outputs for main model
-    
-    cm <- table(trainWide$group, predict(m1))
-    accuracy <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] + cm[1,2] + cm[2,1])
+    if(num_classes == 2){
+      
+      class_names <- unique(normed$group)
+      x <- normed[!normed$group %in% class_names[2]]
+      y <- normed[!normed$group %in% class_names[1]]
+      mod <- t.test(x,y)
+      
+    } else{
+      
+      message(paste0("Fitting classifier: ", match(f, features),"/",length(features)))
+      
+      tmp <- normed %>%
+        dplyr::select(c(group, f))
+      
+      # Fit classifier
+      
+      m1 <- e1071::svm(group ~., data = tmp, kernel = "linear", cross = 10, probability = TRUE)
+      
+      # Get outputs for main model
+      
+      cm <- table(trainWide$group, predict(m1))
+      accuracy <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] + cm[1,2] + cm[2,1])
+    }
     
     # Put results into dataframe
     
