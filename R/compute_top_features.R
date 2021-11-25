@@ -164,7 +164,7 @@ compute_top_features <- function(data, id_var = "id", names_var = "names", group
   
   # Draw plot
   
-  FeatureFeatureCorrelations <- cluster_out %>%
+  FeatureFeatureCorrelationPlots <- cluster_out %>%
     ggplot2::ggplot(ggplot2::aes(x = Var1, y = Var2)) +
     ggplot2::geom_tile(ggplot2::aes(fill = value)) +
     ggplot2::labs(title = "Pairwise correlation matrix of top features",
@@ -177,10 +177,10 @@ compute_top_features <- function(data, id_var = "id", names_var = "names", group
                    legend.position = "bottom")
   
   if(length(unique(ResultsTable$feature)) <= 22){
-    FeatureFeatureCorrelations <- FeatureFeatureCorrelations +
+    FeatureFeatureCorrelationPlots <- FeatureFeatureCorrelationPlots +
       ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
   } else {
-    FeatureFeatureCorrelations <- FeatureFeatureCorrelations +
+    FeatureFeatureCorrelationPlots <- FeatureFeatureCorrelationPlots +
       ggplot2::theme(axis.text = ggplot2::element_blank())
   }
   
@@ -188,17 +188,17 @@ compute_top_features <- function(data, id_var = "id", names_var = "names", group
   # Violin plot
   #---------------
   
-  DiscriminationPlots <- plot_feature_discrimination(dataFiltered, 
-                                                     id_var = "id", 
-                                                     group_var = "group",
-                                                     normalise = normalise,
-                                                     method = method)
+  ViolinPlots <- plot_feature_discrimination(dataFiltered, 
+                                             id_var = "id", 
+                                             group_var = "group",
+                                             normalise = normalise,
+                                             method = method)
   
   #---------------  Returns ---------------------
   
   # Compile into one object and return
   
-  myList <- list(ResultsTable, FeatureFeatureCorrelations, DiscriminationPlots)
-  names(myList) <- c("ResultsTable", "FeatureFeatureCorrelations", "DiscriminationPlots")
+  myList <- list(ResultsTable, FeatureFeatureCorrelationPlots, ViolinPlots)
+  names(myList) <- c("ResultsTable", "FeatureFeatureCorrelationPlots", "ViolinPlots")
   return(myList)
 }
