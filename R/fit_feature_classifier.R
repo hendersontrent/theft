@@ -109,7 +109,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
   feature_names <- colnames(normed)
   feature_names <- feature_names[!feature_names %in% c("group")] # Remove group column name
   set.seed(123)
-  message("Performing calculations... This may take a while depending on the number of features in your dataset.")
+  message("Performing calculations... This may take a while depending on the number of features and classes in your dataset.")
   
   for(f in features){
     
@@ -153,7 +153,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
     
     # Put results into dataframe
     
-    featResults <- data.frame(feature = feature_names[f],
+    featResults <- data.frame(feature = feature_names[f-1],
                               test_statistic_name = statistic_name,
                               test_statistic_value = statistic,
                               p_value = p_value)
