@@ -12,6 +12,7 @@
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
 #' @param normalise a Boolean of whether to normalise features before plotting. Defaults to FALSE
 #' @param method a rescaling/normalising method to apply if normalise = TRUE. Defaults to 'RobustSigmoid'
+#' @param cor_method the correlation method to use. Defaults to 'pearson'
 #' @return an object of class list containing a dataframe of results, a feature x feature matrix plot, and a violin plot
 #' @author Trent Henderson
 #' @export
@@ -31,13 +32,15 @@
 #'   values_var = "values",
 #'   num_features = 10,
 #'   normalise = FALSE,
-#'   method = "RobustSigmoid") 
+#'   method = "RobustSigmoid",
+#'   cor_method = "pearson) 
 #' }
 #' 
 
 compute_top_features <- function(data, id_var = "id", names_var = "names", group_var = "group",
                                  values_var = "values", num_features = 40, normalise = FALSE,
-                                 method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")){
+                                 method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+                                 cor_method = c("pearson", "spearman")){
   
   # Make RobustSigmoid the default
   
@@ -45,6 +48,12 @@ compute_top_features <- function(data, id_var = "id", names_var = "names", group
     method <- "RobustSigmoid"
   } else{
     method <- match.arg(method)
+  }
+  
+  if(missing(cor_method)){
+    cor_method <- "pearson"
+  } else{
+    cor_method <- match.arg(cor_method)
   }
   
   # Check other arguments
@@ -88,6 +97,18 @@ compute_top_features <- function(data, id_var = "id", names_var = "names", group
   
   if(normalise == TRUE && length(method) > 1){
     stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
+  }
+  
+  # Correlation method selection
+  
+  the_cor_methods <- c("pearson", "spearman")
+  
+  if(cor_method %ni% the_cor_methods){
+    stop("cor_method should be a single selection of 'pearson' or 'spearman'")
+  }
+  
+  if(length(cor_method) > 1){
+    stop("cor_method should be a single selection of 'pearson' or 'spearman'")
   }
   
   # Default feature number
