@@ -15,6 +15,7 @@
 #' @param id_var a string specifying the ID variable to compute pairwise correlations between. Defaults to "id"
 #' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"
 #' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
+#' @param cor_method the correlation method to use. Defaults to 'pearson'
 #' @param interactive a Boolean as to whether to plot an interactive plotly graphic. Defaults to FALSE
 #' @return an object of class ggplot that contains the correlation matrix graphic
 #' @author Trent Henderson
@@ -33,6 +34,7 @@
 #'   id_var = "id", 
 #'   values_var = "values",
 #'   method = "RobustSigmoid",
+#'   cor_method = "person",
 #'   interactive = FALSE)
 #' }
 #'
