@@ -122,9 +122,9 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
       
       # Perform calculations between the two groups
       
-      class_names <- unique(normed$group)
-      x <- normed[!normed$group %in% class_names[2]]
-      y <- normed[!normed$group %in% class_names[1]]
+      class_names <- (unique(tmp$group))
+      x <- tmp %>% dplyr::filter(group == class_names[1]) %>% dplyr::pull(2)
+      y <- tmp %>% dplyr::filter(group == class_names[2]) %>% dplyr::pull(2)
       mod <- t.test(x, y)
       
       # Extract statistics
@@ -142,11 +142,11 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group"){
       
       # Fit classifier
       
-      m1 <- e1071::svm(group ~., data = tmp, kernel = "linear", cross = 10, probability = TRUE)
+      mod <- e1071::svm(group ~., data = tmp, kernel = "linear", cross = 10, probability = TRUE)
       
       # Get outputs for main model
       
-      cm <- table(trainWide$group, predict(m1))
+      cm <- table(tmp$group, predict(mod))
       statistic <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] + cm[1,2] + cm[2,1])
       statistic_name <- "Classification accuracy"
     }
