@@ -67,16 +67,16 @@ plot_correlation_matrix(simData, is_normalised = FALSE, id_var = "id", values_va
 
 # Multiclass
 
-classifer_outputs <- compute_top_features(outs_22, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "linear svm")
-classifer_outputs_2 <- compute_top_features(outs_22, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "rbf svm")
+classifier_outputs <- compute_top_features(outs_22, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "linear svm")
+classifier_outputs_2 <- compute_top_features(outs_22, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "rbf svm")
 
 # Two-class
 
 twoclass <- outs_22 %>%
   filter(group %in% c("Gaussian Noise", "AR(1)"))
 
-classifer_outputs_two <- compute_top_features(twoclass, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "t-test")
-classifer_outputs_two_2 <- compute_top_features(twoclass, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "binomial logistic")
+classifier_outputs_two <- compute_top_features(twoclass, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "t-test")
+classifier_outputs_two_2 <- compute_top_features(twoclass, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "binomial logistic")
 
 # Test 7: Processing hctsa formatted file
 
