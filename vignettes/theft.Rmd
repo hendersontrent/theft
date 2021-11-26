@@ -176,7 +176,6 @@ Again, if you set `interactive = TRUE` the function will return an interactive p
 plot_correlation_matrix(feature_matrix, 
                         is_normalised = FALSE, 
                         id_var = "id", 
-                        names_var = "names", 
                         values_var = "values",
                         method = "RobustSigmoid",
                         cor_method = "spearman",
@@ -193,21 +192,29 @@ Since feature-based time-series analysis has shown particular promise for classi
 4. Plots a feature x feature correlation matrix as a heatmap for the top performing features
 5. Plots a matrix of violin plots coloured by class label for the top performing features
 
+This analysis is useful because it can help guide researchers toward more efficient and appropriate interpretation of high-performing features (if any exist) and helps protect against over-interpretation of feature values.
+
 This function returns an object with three components to summarise the above steps:
 
 1. `ResultsTable` -- a dataframe containing feature names, feature set membership, and performance statistics for the top performing features
-2. `FeatureFeatureCorrelations` -- a `ggplot` containing the pairwise correlations between top performing features represented as a heatmap
-3. `DiscriminationPlots` -- a `ggplot` containing a matrix of violin plots showing class discrimination by feature
+2. `FeatureFeatureCorrelationPlot` -- a `ggplot` containing the pairwise correlations between top performing features represented as a heatmap
+3. `ViolinPlots` -- a `ggplot` containing a matrix of violin plots showing class discrimination by feature
+
+The code below produces analysis for a multiclass problem using a linear support vector machine.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_feature_discrimination(feature_matrix, 
-                            id_var = "id", 
-                            group_var = "group", 
-                            features = "all", 
-                            normalise = FALSE)
+classifer_outputs <- compute_top_features(outs_22, 
+                                          id_var = "id", 
+                                          group_var = "group", 
+                                          normalise = TRUE, 
+                                          method = "z-score", 
+                                          cor_method = "pearson", 
+                                          test_method = "linear svm")
 ```
 
-The three core functions that comprise `compute_top_features` are all available individually for your own usage as `fit_feature_classifier`, `plot_correlation_matrix`, and `plot_feature_discrimination`.
+For two-class problems, users can fit either `"t-test"` or `"binomial logistic"` models as string arguments to `test_method`, and for multiclass problems the options are either `"linear svm"` or `"rbf svm"`.
+
+The core functions that comprise `compute_top_features` are available individually for use as `fit_feature_classifier` and `plot_feature_discrimination`. The feature-feature correlation plot is a modified version of `plot_correlation_matrix`.
 
 ## Reading and processing hctsa-formatted files
 

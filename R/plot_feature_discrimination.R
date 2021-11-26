@@ -32,7 +32,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
   
   # Make RobustSigmoid the default
   
-  if(missing(method)){
+  if(normalise == TRUE && missing(method)){
     method <- "RobustSigmoid"
   } else{
     method <- match.arg(method)

@@ -28,22 +28,19 @@
 #'   
 #' compute_top_features(featMat,
 #'   id_var = "id",
-#'   names_var = "names",
 #'   group_var = "group",
-#'   values_var = "values",
 #'   num_features = 10,
 #'   normalise = FALSE,
-#'   method = "RobustSigmoid",
 #'   cor_method = "pearson",
 #'   test_method = "linear svm") 
 #' }
 #' 
 
-compute_top_features <- function(data, id_var = "id", names_var = "names", group_var = "group",
-                                 values_var = "values", num_features = 40, normalise = FALSE,
+compute_top_features <- function(data, id_var = "id", group_var = "group",
+                                 num_features = 40, normalise = FALSE,
                                  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                  cor_method = c("pearson", "spearman"),
-                                 test_method = c("t-test", "logistic", "linear svm", "rbf svm")){
+                                 test_method = c("t-test", "binomial logistic", "linear svm", "rbf svm")){
   
   # Make RobustSigmoid the default
   
@@ -84,10 +81,6 @@ compute_top_features <- function(data, id_var = "id", names_var = "names", group
   
   if(!is.null(group_var) && !is.character(group_var)){
     stop("group_var should be a string specifying a variable in the input data that identifies an aggregate group each observation relates to.")
-  }
-  
-  if(!is.null(features) && !is.character(features)){
-    stop("features should be a string or vector of string specifying exact feature names to filter by. If you want all features, write 'all'. This is the default.")
   }
   
   # Normalisation
@@ -131,7 +124,6 @@ compute_top_features <- function(data, id_var = "id", names_var = "names", group
   if(!is.null(id_var)){
     data_id <- data %>%
       dplyr::rename(id = dplyr::all_of(id_var),
-                    names = dplyr::all_of(names_var),
                     group = dplyr::all_of(group_var))
   }
   
@@ -139,6 +131,20 @@ compute_top_features <- function(data, id_var = "id", names_var = "names", group
   
   if(num_classes == 1){
     stop("Your data only has one class label. At least two are required to performed analysis.")
+  }
+  
+  if(missing(test_method) && num_classes == 2){
+    test_method <- "t-test"
+    message("test_method is NULL. Running t-test for 2-class problem.")
+  }
+  
+  if(missing(test_method) && num_classes > 2){
+    test_method <- "linear svm"
+    message("test_method is NULL. Running linear svm for multiclass problem.")
+  }
+  
+  if(test_method %in% c("t-test", "logistic") && num_classes > 2){
+    stop("t-test can only be run for 2-class problems.")
   }
   
   if(num_features > length(unique(data_id$names))){
@@ -194,7 +200,7 @@ compute_top_features <- function(data, id_var = "id", names_var = "names", group
   
   # Draw plot
   
-  FeatureFeatureCorrelationPlots <- cluster_out %>%
+  FeatureFeatureCorrelationPlot <- cluster_out %>%
     ggplot2::ggplot(ggplot2::aes(x = Var1, y = Var2)) +
     ggplot2::geom_tile(ggplot2::aes(fill = value)) +
     ggplot2::labs(title = "Pairwise correlation matrix of top features",
@@ -207,10 +213,10 @@ compute_top_features <- function(data, id_var = "id", names_var = "names", group
                    legend.position = "bottom")
   
   if(length(unique(ResultsTable$feature)) <= 22){
-    FeatureFeatureCorrelationPlots <- FeatureFeatureCorrelationPlots +
+    FeatureFeatureCorrelationPlot <- FeatureFeatureCorrelationPlot +
       ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
   } else {
-    FeatureFeatureCorrelationPlots <- FeatureFeatureCorrelationPlots +
+    FeatureFeatureCorrelationPlot <- FeatureFeatureCorrelationPlot +
       ggplot2::theme(axis.text = ggplot2::element_blank())
   }
   
@@ -228,7 +234,7 @@ compute_top_features <- function(data, id_var = "id", names_var = "names", group
   
   # Compile into one object and return
   
-  myList <- list(ResultsTable, FeatureFeatureCorrelationPlots, ViolinPlots)
-  names(myList) <- c("ResultsTable", "FeatureFeatureCorrelationPlots", "ViolinPlots")
+  myList <- list(ResultsTable, FeatureFeatureCorrelationPlot, ViolinPlots)
+  names(myList) <- c("ResultsTable", "FeatureFeatureCorrelationPlot", "ViolinPlots")
   return(myList)
 }

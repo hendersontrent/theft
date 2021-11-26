@@ -59,16 +59,24 @@ d2 <- plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_va
 
 # Test 5: Correlation matrix
 
-plot_correlation_matrix(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", cor_method = "pearson", interactive = FALSE)
-plot_correlation_matrix(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", cor_method = "spearman", interactive = FALSE)
-plot_correlation_matrix(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", interactive = TRUE)
+plot_correlation_matrix(simData, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", cor_method = "pearson", interactive = FALSE)
+plot_correlation_matrix(simData, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", cor_method = "spearman", interactive = FALSE)
+plot_correlation_matrix(simData, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", interactive = TRUE)
 
-# Test 6: Feature discrimination
+# Test 6: Classification functionality
 
-plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", features = "all", normalise = FALSE)
-plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", features = c("CO_f1ecac", "CO_FirstMin_ac"), normalise = FALSE)
-plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", features = "all", normalise = TRUE, method = "RobustSigmoid")
-plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", features = c("CO_f1ecac", "CO_FirstMin_ac"), normalise = TRUE, method = "RobustSigmoid")
+# Multiclass
+
+classifer_outputs <- compute_top_features(outs_22, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "linear svm")
+classifer_outputs_2 <- compute_top_features(outs_22, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "rbf svm")
+
+# Two-class
+
+twoclass <- outs_22 %>%
+  filter(group %in% c("Gaussian Noise", "AR(1)"))
+
+classifer_outputs_two <- compute_top_features(twoclass, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "t-test")
+classifer_outputs_two_2 <- compute_top_features(twoclass, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "binomial logistic")
 
 # Test 7: Processing hctsa formatted file
 

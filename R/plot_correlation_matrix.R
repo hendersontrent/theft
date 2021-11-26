@@ -1,4 +1,4 @@
-#' Produce a correlation matrix plot showing pairwise correlations of feature vectors by unique id with automatic hierarchical clustering.
+#' Produce a correlation matrix plot showing pairwise correlations of time series with automatic hierarchical clustering
 #' 
 #' @import dplyr
 #' @importFrom magrittr %>%
@@ -10,7 +10,7 @@
 #' @importFrom stats cor
 #' @importFrom plotly ggplotly
 #' @importFrom plotly config
-#' @param data a dataframe with at least 3 columns for 'id', 'names' and 'values'
+#' @param data a dataframewith at least 2 columns for 'id' and 'values' variables
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
 #' @param id_var a string specifying the ID variable to compute pairwise correlations between. Defaults to "id"
 #' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"
@@ -116,8 +116,7 @@ plot_correlation_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   #------------- Data reshaping -------------
   
   cor_dat <- normed %>%
-    tidyr::pivot_wider(id_cols = names, names_from = id, values_from = values) %>%
-    dplyr::select(-c(names))
+    tidyr::pivot_wider(names_from = id, values_from = values)
   
   #--------- Correlation ----------
   

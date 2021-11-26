@@ -31,7 +31,7 @@
 #' 
 
 fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
-                                   test_method = c("t-test", "logistic", "linear svm", "rbf svm")){
+                                   test_method = c("t-test", "binomial logistic", "linear svm", "rbf svm")){
   
   #---------- Check arguments ------------
   
@@ -58,34 +58,34 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   
   # Set defaults for classification method
   
-  methods <- c("t-test", "logistic", "linear svm", "rbf svm")
+  methods <- c("t-test", "binomial logistic", "linear svm", "rbf svm")
   
   if(test_method %ni% methods){
-    stop("test_method should be a single string specification of 't-test', 'logistic', 'linear svm', or 'rbf svm'.")
+    stop("test_method should be a single string specification of 't-test', 'binomial logistic', 'linear svm', or 'rbf svm'.")
   }
   
   if(length(test_method) != 1){
-    stop("test_method should be a single string specification of 't-test', 'logistic', 'linear svm', or 'rbf svm'.")
+    stop("test_method should be a single string specification of 't-test', 'binomial logistic', 'linear svm', or 'rbf svm'.")
   }
   
-  num_classes <- length(unique(normed$group)) # Get number of classes in the data
+  num_classes <- length(unique(data$group)) # Get number of classes in the data
   
   if(num_classes == 1){
     stop("Your data only has one class label. At least two are required to performed analysis.")
   }
   
-  if(is.null(test_method) && num_classes == 2){
+  if(missing(test_method) && num_classes == 2){
     test_method <- "t-test"
     message("test_method is NULL. Running t-test for 2-class problem.")
   }
   
-  if(is.null(test_method) && num_classes > 2){
+  if(missing(test_method) && num_classes > 2){
     test_method <- "linear svm"
     message("test_method is NULL. Running linear svm for multiclass problem.")
   }
   
-  if(test_method %in% c("t-test", "logistic") && num_classes > 2){
-    stop("t-test can only be run for 2-class problems.")
+  if(test_method %in% c("t-test", "binomial logistic") && num_classes > 2){
+    stop("t-test and binomial logistic regression can only be run for 2-class problems.")
   }
   
   #------------- Renaming columns -------------
@@ -108,7 +108,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     dplyr::select(c(id, names, values, group)) %>%
     tidyr::drop_na() %>%
     dplyr::group_by(names) %>%
-    dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
+    dplyr::mutate(values = normalise_feature_vector(values, method = "z-score")) %>%
     dplyr::ungroup() %>%
     tidyr::drop_na()
     
@@ -190,7 +190,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       statistic <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] + cm[1,2] + cm[2,1])
       statistic_name <- "Classification accuracy"
       
-    } else {
+    } else{
       
       # Filter dataset
       
@@ -205,17 +205,24 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       
       # Extract statistics
       
-      statistic_name <- "Logistic regression coefficient z-value"
+      statistic_name <- "Binomial logistic coefficient z-test"
       statistic <- as.numeric(summary(mod)$coefficients[,3][2])
       p_value <- as.numeric(summary(mod)$coefficients[,4][2])
+      
     }
     
     # Put results into dataframe
     
-    featResults <- data.frame(feature = feature_names[f-1],
-                              test_statistic_name = statistic_name,
-                              test_statistic_value = statistic,
-                              p_value = p_value)
+    if(test_method %in% c("t-test", "logistic")){
+      featResults <- data.frame(feature = feature_names[f-1],
+                                test_statistic_name = statistic_name,
+                                test_statistic_value = statistic,
+                                p_value = p_value)
+    } else{
+      featResults <- data.frame(feature = feature_names[f-1],
+                                test_statistic_name = statistic_name,
+                                test_statistic_value = statistic)
+    }
     
     results[[f]] <- featResults
   }
