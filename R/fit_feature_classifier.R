@@ -7,9 +7,11 @@
 #' @importFrom tibble rownames_to_column
 #' @importFrom e1071 svm
 #' @importFrom data.table rbindlist
+#' @importFrom stats glm binomial
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
+#' @param test_method the algorithm to use for quantifying class separation
 #' @return an object of class dataframe containing results
 #' @author Trent Henderson
 #' @export
@@ -29,7 +31,7 @@
 #' 
 
 fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
-                                   method = c("t-test", "lm", "linear svm", "rbf svm")){
+                                   test_method = c("t-test", "logistic", "linear svm", "rbf svm")){
   
   #---------- Check arguments ------------
   
@@ -56,14 +58,14 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   
   # Set defaults for classification method
   
-  methods <- c("t-test", "lm", "linear svm", "rbf svm")
+  methods <- c("t-test", "logistic", "linear svm", "rbf svm")
   
-  if(method %ni% methods){
-    stop("classification_method should be a single string specification of 't-test', 'lm', 'linear svm', or 'rbf svm'.")
+  if(test_method %ni% methods){
+    stop("test_method should be a single string specification of 't-test', 'logistic', 'linear svm', or 'rbf svm'.")
   }
   
-  if(length(method) != 1){
-    stop("classification_method should be a single string specification of 't-test', 'lm', 'linear svm', or 'rbf svm'.")
+  if(length(test_method) != 1){
+    stop("test_method should be a single string specification of 't-test', 'logistic', 'linear svm', or 'rbf svm'.")
   }
   
   num_classes <- length(unique(normed$group)) # Get number of classes in the data
@@ -72,17 +74,17 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     stop("Your data only has one class label. At least two are required to performed analysis.")
   }
   
-  if(is.null(method) && num_classes == 2){
-    method <- "t-test"
-    message("method is NULL. Running t-test for 2-class problem.")
+  if(is.null(test_method) && num_classes == 2){
+    test_method <- "t-test"
+    message("test_method is NULL. Running t-test for 2-class problem.")
   }
   
-  if(is.null(method) && num_classes > 2){
-    method <- "linear svm"
-    message("method is NULL. Running linear svm for multiclass problem.")
+  if(is.null(test_method) && num_classes > 2){
+    test_method <- "linear svm"
+    message("test_method is NULL. Running linear svm for multiclass problem.")
   }
   
-  if(method == "t-test" && num_classes > 2){
+  if(test_method %in% c("t-test", "logistic") && num_classes > 2){
     stop("t-test can only be run for 2-class problems.")
   }
   
@@ -134,7 +136,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   
   for(f in features){
     
-    if(method == "t-test"){
+    if(test_method == "t-test"){
       
       # Filter dataset
       
@@ -154,7 +156,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       statistic <- mod$statistic
       p_value <- mod$p.value
       
-    } else if (method == "linear svm"){
+    } else if (test_method == "linear svm"){
       
       message(paste0("Fitting classifier: ", match(f, features),"/",length(features)))
       
@@ -171,7 +173,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       statistic <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] + cm[1,2] + cm[2,1])
       statistic_name <- "Classification accuracy"
       
-    } else if (method == "rbf svm"){
+    } else if (test_method == "rbf svm"){
       
       message(paste0("Fitting classifier: ", match(f, features),"/",length(features)))
       
@@ -199,13 +201,13 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       
       # Perform calculations between the two groups
       
-      mod <- lm(values ~ group, data = tmp)
+      mod <- stats::glm(group ~ values, data = tmp, family = stats::binomial())
       
       # Extract statistics
       
-      statistic_name <- "Linear regression coefficient"
-      statistic <- summary(mod)$coefficients[,3]
-      p_value <- summary(mod)$coefficients[,4]
+      statistic_name <- "Logistic regression coefficient z-value"
+      statistic <- as.numeric(summary(mod)$coefficients[,3][2])
+      p_value <- as.numeric(summary(mod)$coefficients[,4][2])
     }
     
     # Put results into dataframe

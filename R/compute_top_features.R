@@ -13,6 +13,7 @@
 #' @param normalise a Boolean of whether to normalise features before plotting. Defaults to FALSE
 #' @param method a rescaling/normalising method to apply if normalise = TRUE. Defaults to 'RobustSigmoid'
 #' @param cor_method the correlation method to use. Defaults to 'pearson'
+#' @param test_method the algorithm to use for quantifying class separation
 #' @return an object of class list containing a dataframe of results, a feature x feature matrix plot, and a violin plot
 #' @author Trent Henderson
 #' @export
@@ -33,14 +34,16 @@
 #'   num_features = 10,
 #'   normalise = FALSE,
 #'   method = "RobustSigmoid",
-#'   cor_method = "pearson) 
+#'   cor_method = "pearson",
+#'   test_method = "linear svm") 
 #' }
 #' 
 
 compute_top_features <- function(data, id_var = "id", names_var = "names", group_var = "group",
                                  values_var = "values", num_features = 40, normalise = FALSE,
                                  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
-                                 cor_method = c("pearson", "spearman")){
+                                 cor_method = c("pearson", "spearman"),
+                                 test_method = c("t-test", "logistic", "linear svm", "rbf svm")){
   
   # Make RobustSigmoid the default
   
@@ -149,7 +152,7 @@ compute_top_features <- function(data, id_var = "id", names_var = "names", group
   # Classification
   #---------------
   
-  classifierOutputs <- fit_feature_classifier(data_id, id_var = "id", group_var = "group")
+  classifierOutputs <- fit_feature_classifier(data_id, id_var = "id", group_var = "group", test_method = test_method)
   
   ResultsTable <- classifierOutputs %>%
     dplyr::slice_min(p_value, n = num_features)
