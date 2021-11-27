@@ -65,9 +65,9 @@ plot_ts_correlations(simData, is_normalised = FALSE, id_var = "id", values_var =
 
 # Test 6: Feature correlations
 
-plot_ts_correlations(outs_22, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", cor_method = "pearson", interactive = FALSE)
-plot_ts_correlations(outs_22, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", cor_method = "spearman", interactive = FALSE)
-plot_ts_correlations(outs_22, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", interactive = TRUE)
+plot_feature_correlations(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", cor_method = "pearson", interactive = FALSE)
+plot_feature_correlations(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", cor_method = "spearman", interactive = FALSE)
+plot_feature_correlations(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", interactive = TRUE)
 
 # Test 7: Classification functionality
 

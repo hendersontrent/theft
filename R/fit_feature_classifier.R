@@ -102,23 +102,9 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   
   #------------- Preprocess data --------------
   
-  # Normalisation
-  
-  normed <- data_id %>%
-    dplyr::select(c(id, names, values, group)) %>%
-    tidyr::drop_na() %>%
-    dplyr::group_by(names) %>%
-    dplyr::mutate(values = normalise_feature_vector(values, method = "z-score")) %>%
-    dplyr::ungroup() %>%
-    tidyr::drop_na()
-    
-  if(nrow(normed) != nrow(data_id)){
-    message("Filtered out rows containing NaNs.")
-  }
-  
   # Widening for model matrix
   
-  normed <- normed %>%
+  data_id <- data_id %>%
     tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
     dplyr::select(-c(id)) %>%
     dplyr::mutate(group = as.factor(group))
@@ -127,11 +113,11 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   
   # Loop over features and fit appropriate model
   
-  features <- seq(from = 2, to = ncol(normed))
+  features <- seq(from = 2, to = ncol(data_id))
   results <- list()
-  feature_names <- colnames(normed)
+  resultsNULL <- list()
+  feature_names <- colnames(data_id)
   feature_names <- feature_names[!feature_names %in% c("group")] # Remove group column name
-  set.seed(123)
   message("Performing calculations... This may take a while depending on the number of features and classes in your dataset.")
   
   for(f in features){
@@ -140,7 +126,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       
       # Filter dataset
       
-      tmp <- normed %>%
+      tmp <- data_id %>%
         dplyr::select(c(group, dplyr::all_of(f)))
       
       # Perform calculations between the two groups
@@ -162,9 +148,9 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       # Main procedure
       #---------------
       
-      message(paste0("Fitting classifier: ", match(f, features),"/",length(features), "with 10-fold CV and generating empirical null sample."))
+      message(paste0("Fitting classifier: ", match(f, features),"/",length(features), " with 10-fold CV and generating 10 empirical null samples."))
       
-      tmp <- normed %>%
+      tmp <- data_id %>%
         dplyr::select(c(group, dplyr::all_of(f)))
       
       # Fit classifier
@@ -181,30 +167,102 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       # Empirical null
       #---------------
       
+      # Generate shuffled class labels
       
+      nullList <- list()
+      repeats <- seq(from = 100, to = 1000, by = 100)
+      
+      for(r in repeats){
+        
+        set.seed(r)
+        y <- tmp %>% dplyr::pull(1)
+        y <- as.character(y)
+        shuffles <- sample(y, replace = FALSE)
+        
+        tmp2 <- tmp %>%
+          dplyr::mutate(group = shuffles,
+                        group = as.factor(group))
+        
+        # Fit classifier
+        
+        modNULL <- e1071::svm(group ~., data = tmp2, kernel = "linear", cross = 10, probability = TRUE)
+        
+        # Get outputs for main model
+        
+        cmNULL <- table(tmp$group, predict(modNULL))
+        statisticNULL <- (cmNULL[1,1] + cmNULL[2,2]) / (cmNULL[1,1] + cmNULL[2,2] + cmNULL[1,2] + cmNULL[2,1])
+        nullStorage <- data.frame(test_statistic_value = statisticNULL)
+        nullList[[r]] <- nullStorage
+      }
+      
+      # Bind empirical nulls together
+      
+      tmpNULLs <- data.table::rbindlist(nullList, use.names = TRUE) %>%
+        dplyr::pull(1)
       
     } else if (test_method == "rbf svm"){
       
-      message(paste0("Fitting classifier: ", match(f, features),"/",length(features)))
+      #---------------
+      # Main procedure
+      #---------------
       
-      tmp <- normed %>%
+      message(paste0("Fitting classifier: ", match(f, features),"/",length(features), " with 10-fold CV and generating 10 empirical null samples."))
+      
+      tmp <- data_id %>%
         dplyr::select(c(group, dplyr::all_of(f)))
       
       # Fit classifier
       
       mod <- e1071::svm(group ~., data = tmp, kernel = "radial", cross = 10, probability = TRUE)
       
-      # Get outputs
+      # Get outputs for main model
       
       cm <- table(tmp$group, predict(mod))
       statistic <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] + cm[1,2] + cm[2,1])
       statistic_name <- "Classification accuracy"
       
+      #---------------
+      # Empirical null
+      #---------------
+      
+      # Generate shuffled class labels
+      
+      nullList <- list()
+      repeats <- seq(from = 100, to = 1000, by = 100)
+      
+      for(r in repeats){
+        
+        set.seed(r)
+        y <- tmp %>% dplyr::pull(1)
+        y <- as.character(y)
+        shuffles <- sample(y, replace = FALSE)
+        
+        tmp2 <- tmp %>%
+          dplyr::mutate(group = shuffles,
+                        group = as.factor(group))
+        
+        # Fit classifier
+        
+        modNULL <- e1071::svm(group ~., data = tmp2, kernel = "radial", cross = 10, probability = TRUE)
+        
+        # Get outputs for main model
+        
+        cmNULL <- table(tmp$group, predict(modNULL))
+        statisticNULL <- (cmNULL[1,1] + cmNULL[2,2]) / (cmNULL[1,1] + cmNULL[2,2] + cmNULL[1,2] + cmNULL[2,1])
+        nullStorage <- data.frame(test_statistic_value = statisticNULL)
+        nullList[[r]] <- nullStorage
+      }
+      
+      # Bind empirical nulls together
+      
+      tmpNULLs <- data.table::rbindlist(nullList, use.names = TRUE) %>%
+        dplyr::pull(1)
+      
     } else{
       
       # Filter dataset
       
-      tmp <- normed %>%
+      tmp <- data_id %>%
         dplyr::select(c(group, dplyr::all_of(f))) %>%
         dplyr::rename(values = 2) %>%
         dplyr::mutate(group = as.factor(group))
@@ -218,7 +276,6 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       statistic_name <- "Binomial logistic coefficient z-test"
       statistic <- as.numeric(summary(mod)$coefficients[,3][2])
       p_value <- as.numeric(summary(mod)$coefficients[,4][2])
-      
     }
     
     # Put results into dataframe
@@ -229,9 +286,15 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                 test_statistic_value = statistic,
                                 p_value = p_value)
     } else{
+      
       featResults <- data.frame(feature = feature_names[f-1],
                                 test_statistic_name = statistic_name,
                                 test_statistic_value = statistic)
+      
+      featResultsNULL <- data.frame(test_statistic_value = tmpNULLs) %>%
+        dplyr::mutate(feature = feature_names[f-1])
+      
+      resultsNULL[[f]] <- featResultsNULL
     }
     
     results[[f]] <- featResults
@@ -240,5 +303,23 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   # Bind feature results together and return
   
   classificationResults <- data.table::rbindlist(results, use.names = TRUE)
-  return(classificationResults)
+  
+  if(test_method %in% c("t-test", "logistic")){
+    return(classificationResults)
+    
+  } else{
+    
+    classificationResultsNULL <- data.table::rbindlist(resultsNULL, use.names = TRUE)
+    
+    # Compute p-value
+    
+    null_dist_mean <- mean(classificationResultsNULL$test_statistic_value, na.rm = TRUE)
+    null_dist_sd <- sd(classificationResultsNULL$test_statistic_value, na.rm = TRUE)
+    p_value <- 
+    
+    classificationResults <- classificationResults %>%
+      dplyr::mutate(p_value = p_value)
+    
+    return(classificationResults)
+  }
 }
