@@ -280,7 +280,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
     # Put results into dataframe
     
-    if(test_method %in% c("t-test", "logistic")){
+    if(test_method %in% c("t-test", "binomial logistic")){
       featResults <- data.frame(feature = feature_names[f-1],
                                 test_statistic_name = statistic_name,
                                 test_statistic_value = statistic,
@@ -304,7 +304,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   
   classificationResults <- data.table::rbindlist(results, use.names = TRUE)
   
-  if(test_method %in% c("t-test", "logistic")){
+  if(test_method %in% c("t-test", "binomial logistic")){
     return(classificationResults)
     
   } else{

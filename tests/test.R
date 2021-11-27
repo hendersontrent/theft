@@ -59,9 +59,9 @@ d2 <- plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_va
 
 # Test 5: Time-series correlations
 
-plot_ts_correlations(simData, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", cor_method = "pearson", interactive = FALSE)
-plot_ts_correlations(simData, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", cor_method = "spearman", interactive = FALSE)
-plot_ts_correlations(simData, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", interactive = TRUE)
+plot_ts_correlations(simData, is_normalised = FALSE, id_var = "id", time_var = "timepoint", values_var = "values", method = "RobustSigmoid", cor_method = "pearson", interactive = FALSE)
+plot_ts_correlations(simData, is_normalised = FALSE, id_var = "id", time_var = "timepoint", values_var = "values", method = "RobustSigmoid", cor_method = "spearman", interactive = FALSE)
+plot_ts_correlations(simData, is_normalised = FALSE, id_var = "id", time_var = "timepoint", values_var = "values", method = "RobustSigmoid", interactive = TRUE)
 
 # Test 6: Feature correlations
 

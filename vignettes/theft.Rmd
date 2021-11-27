@@ -166,6 +166,7 @@ The function `plot_ts_correlations` automates the calculation of correlations be
 plot_ts_correlations(simData, 
                      is_normalised = FALSE, 
                      id_var = "id", 
+                     time_var = "timepoint",
                      values_var = "values",
                      method = "RobustSigmoid",
                      cor_method = "pearson",
@@ -178,6 +179,7 @@ Again, if you set `interactive = TRUE` the function will return an interactive p
 plot_ts_correlations(simData, 
                      is_normalised = FALSE, 
                      id_var = "id", 
+                     time_var = "timepoint",
                      values_var = "values",
                      method = "RobustSigmoid",
                      cor_method = "spearman",
@@ -228,7 +230,14 @@ classifer_outputs <- compute_top_features(outs_22,
                                           test_method = "linear svm")
 ```
 
-For two-class problems, users can fit either `"t-test"` or `"binomial logistic"` models as string arguments to `test_method`, and for multiclass problems the options are either `"linear svm"` or `"rbf svm"`.
+Each component can be accessed through regular use of the `$` operator or through list indexing (both return the same object):
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+View(classifier_outputs$ResultsTable)
+View(classifier_outputs[[1]])
+```
+
+For two-class problems, users can fit any of the available models (which includes `"t-test"` `"binomial logistic"`, `"linear svm"`, and `"rbf svm"`) as string arguments to `test_method`. For multiclass problems the options are currently either `"linear svm"` or `"rbf svm"`.
 
 The core functions that comprise `compute_top_features` are available individually for use as `fit_feature_classifier` and `plot_feature_discrimination`. The feature-feature correlation plot is a modified version of `plot_correlation_matrix`.
 

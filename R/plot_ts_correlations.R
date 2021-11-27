@@ -13,6 +13,7 @@
 #' @param data a dataframewith at least 2 columns for 'id' and 'values' variables
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
 #' @param id_var a string specifying the ID variable to compute pairwise correlations between. Defaults to "id"
+#' @param time_var a string specifying the time index variable. Defaults to NULL
 #' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"
 #' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
 #' @param cor_method the correlation method to use. Defaults to 'pearson'
@@ -25,6 +26,7 @@
 #' plot_ts_correlations(data = featMat, 
 #'   is_normalised = FALSE, 
 #'   id_var = "id", 
+#'   time_var = "timepoint",
 #'   values_var = "values",
 #'   method = "RobustSigmoid",
 #'   cor_method = "person",
@@ -33,10 +35,10 @@
 #'
 
 plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id", 
-                                    values_var = "values",
-                                    method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
-                                    cor_method = c("pearson", "spearman"),
-                                    interactive = FALSE){
+                                 time_var = "timepoint", values_var = "values",
+                                 method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+                                 cor_method = c("pearson", "spearman"),
+                                 interactive = FALSE){
   
   # Make RobustSigmoid and pearson the default
   
@@ -54,8 +56,8 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
   
   #------------ Checks ---------------
   
-  if(is.null(id_var) || is.null(values_var)){
-    stop("An id variable and values variable from your dataframe must be specified.")
+  if(is.null(id_var) || is.null(time_var) || is.null(values_var)){
+    stop("An id variable, time variable, and values variable from your dataframe must be specified.")
   }
   
   # Method selection

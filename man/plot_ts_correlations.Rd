@@ -8,6 +8,7 @@ plot_ts_correlations(
   data,
   is_normalised = FALSE,
   id_var = "id",
+  time_var = "timepoint",
   values_var = "values",
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
   cor_method = c("pearson", "spearman"),
@@ -20,6 +21,8 @@ plot_ts_correlations(
 \item{is_normalised}{a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE}
 
 \item{id_var}{a string specifying the ID variable to compute pairwise correlations between. Defaults to "id"}
+
+\item{time_var}{a string specifying the time index variable. Defaults to NULL}
 
 \item{values_var}{a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"}
 
@@ -40,6 +43,7 @@ Produce a correlation matrix plot showing pairwise correlations of time series w
 plot_ts_correlations(data = featMat, 
   is_normalised = FALSE, 
   id_var = "id", 
+  time_var = "timepoint",
   values_var = "values",
   method = "RobustSigmoid",
   cor_method = "person",
