@@ -194,6 +194,7 @@ Similarly, one can also plot correlations between feature vectors using `plot_fe
 plot_feature_correlations(feature_matrix, 
                           is_normalised = FALSE, 
                           id_var = "id", 
+                          names_var = "names",
                           values_var = "values",
                           method = "RobustSigmoid",
                           cor_method = "pearson",
@@ -221,7 +222,7 @@ This function returns an object with three components to summarise the above ste
 The code below produces analysis for a multiclass problem using a linear support vector machine.
 
 ```{r, message = FALSE, warning = FALSE}
-classifer_outputs <- compute_top_features(outs_22, 
+classifier_outputs <- compute_top_features(feature_matrix, 
                                           id_var = "id", 
                                           group_var = "group", 
                                           normalise = TRUE, 
@@ -230,16 +231,33 @@ classifer_outputs <- compute_top_features(outs_22,
                                           test_method = "linear svm")
 ```
 
-Each component can be accessed through regular use of the `$` operator or through list indexing (both return the same object):
+Each component can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
+
+```{r, message = FALSE, warning = FALSE}
+head(classifier_outputs$ResultsTable)
+```
+
+We could equivalently achieve the same with:
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
-View(classifier_outputs$ResultsTable)
-View(classifier_outputs[[1]])
+head(classifier_outputs[[1]])
+```
+
+The feature-feature correlation plots are accessed as the second object:
+
+```{r, message = FALSE, warning = FALSE}
+print(classifier_outputs$FeatureFeatureCorrelationPlot)
+```
+
+The violin plots are accessed as the third object:
+
+```{r, message = FALSE, warning = FALSE}
+print(classifier_outputs$ViolinPlots)
 ```
 
 For two-class problems, users can fit any of the available models (which includes `"t-test"` `"binomial logistic"`, `"linear svm"`, and `"rbf svm"`) as string arguments to `test_method`. For multiclass problems the options are currently either `"linear svm"` or `"rbf svm"`.
 
-The core functions that comprise `compute_top_features` are available individually for use as `fit_feature_classifier` and `plot_feature_discrimination`. The feature-feature correlation plot is a modified version of `plot_correlation_matrix`.
+The core functions that comprise `compute_top_features` are available individually for use as `fit_feature_classifier` and `plot_feature_discrimination`. The feature-feature correlation plot is a modified version of `plot_feature_correlations`.
 
 ## Reading and processing hctsa-formatted files
 
