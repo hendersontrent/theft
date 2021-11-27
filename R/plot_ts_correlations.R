@@ -22,14 +22,7 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' featMat <- calculate_features(data = simData, 
-#'   id_var = "id", 
-#'   time_var = "timepoint", 
-#'   values_var = "values", 
-#'   group_var = "process", 
-#'   feature_set = "catch22")
-#'   
-#' plot_correlation_matrix(data = featMat, 
+#' plot_ts_correlations(data = featMat, 
 #'   is_normalised = FALSE, 
 #'   id_var = "id", 
 #'   values_var = "values",
@@ -39,7 +32,7 @@
 #' }
 #'
 
-plot_correlation_matrix <- function(data, is_normalised = FALSE, id_var = "id", 
+plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id", 
                                     values_var = "values",
                                     method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                     cor_method = c("pearson", "spearman"),
@@ -94,6 +87,7 @@ plot_correlation_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   
   data_re <- data %>%
     dplyr::rename(id = dplyr::all_of(id_var),
+                  timepoint = dplyr::all_of(time_var),
                   values = dplyr::all_of(values_var))
   
   #------------- Normalise data -------------------
@@ -103,7 +97,7 @@ plot_correlation_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   } else{
     
     normed <- data_re %>%
-      dplyr::select(c(id, values)) %>%
+      dplyr::select(c(id, timepoint, values)) %>%
       tidyr::drop_na() %>%
       dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
       tidyr::drop_na()
@@ -116,7 +110,9 @@ plot_correlation_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   #------------- Data reshaping -------------
   
   cor_dat <- normed %>%
-    tidyr::pivot_wider(names_from = id, values_from = values)
+    tidyr::pivot_wider(id_cols = timepoint, names_from = id, values_from = values) %>%
+    dplyr::select(-c(timepoint)) %>%
+    tidyr::drop_na()
   
   #--------- Correlation ----------
   

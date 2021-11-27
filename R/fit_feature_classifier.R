@@ -158,7 +158,11 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       
     } else if (test_method == "linear svm"){
       
-      message(paste0("Fitting classifier: ", match(f, features),"/",length(features)))
+      #---------------
+      # Main procedure
+      #---------------
+      
+      message(paste0("Fitting classifier: ", match(f, features),"/",length(features), "with 10-fold CV and generating empirical null sample."))
       
       tmp <- normed %>%
         dplyr::select(c(group, dplyr::all_of(f)))
@@ -172,6 +176,12 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       cm <- table(tmp$group, predict(mod))
       statistic <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] + cm[1,2] + cm[2,1])
       statistic_name <- "Classification accuracy"
+      
+      #---------------
+      # Empirical null
+      #---------------
+      
+      
       
     } else if (test_method == "rbf svm"){
       
