@@ -57,13 +57,19 @@ plot_low_dimension(normed, is_normalised = TRUE, id_var = "id", group_var = "gro
 d1 <- plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_var = "group", plot = FALSE, method = "RobustSigmoid", low_dim_method = "PCA")
 d2 <- plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_var = "group", plot = FALSE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 5)
 
-# Test 5: Correlation matrix
+# Test 5: Time-series correlations
 
-plot_correlation_matrix(simData, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", cor_method = "pearson", interactive = FALSE)
-plot_correlation_matrix(simData, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", cor_method = "spearman", interactive = FALSE)
-plot_correlation_matrix(simData, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", interactive = TRUE)
+plot_ts_correlations(simData, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", cor_method = "pearson", interactive = FALSE)
+plot_ts_correlations(simData, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", cor_method = "spearman", interactive = FALSE)
+plot_ts_correlations(simData, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", interactive = TRUE)
 
-# Test 6: Classification functionality
+# Test 6: Feature correlations
+
+plot_ts_correlations(outs_22, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", cor_method = "pearson", interactive = FALSE)
+plot_ts_correlations(outs_22, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", cor_method = "spearman", interactive = FALSE)
+plot_ts_correlations(outs_22, is_normalised = FALSE, id_var = "id", values_var = "values", method = "RobustSigmoid", interactive = TRUE)
+
+# Test 7: Classification functionality
 
 # Multiclass
 
@@ -78,7 +84,7 @@ twoclass <- outs_22 %>%
 classifier_outputs_two <- compute_top_features(twoclass, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "t-test")
 classifier_outputs_two_2 <- compute_top_features(twoclass, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "binomial logistic")
 
-# Test 7: Processing hctsa formatted file
+# Test 8: Processing hctsa formatted file
 
 d2 <- process_hctsa_file("https://cloudstor.aarnet.edu.au/plus/s/6sRD6IPMJyZLNlN/download")
 

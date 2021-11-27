@@ -158,28 +158,44 @@ plot_low_dimension(feature_matrix,
 
 ### Correlation matrix
 
-The function `plot_correlation_matrix` automates the calculation of correlations between time-series values of each unique time series, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap-style graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the `cor_method` argument to `spearman`.
+#### Time-series correlations
+
+The function `plot_ts_correlations` automates the calculation of correlations between values of each unique time series, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap-style graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the `cor_method` argument to `spearman`.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_correlation_matrix(feature_matrix, 
-                        is_normalised = FALSE, 
-                        id_var = "id", 
-                        values_var = "values",
-                        method = "RobustSigmoid",
-                        cor_method = "pearson",
-                        interactive = FALSE)
+plot_ts_correlations(simData, 
+                     is_normalised = FALSE, 
+                     id_var = "id", 
+                     values_var = "values",
+                     method = "RobustSigmoid",
+                     cor_method = "pearson",
+                     interactive = FALSE)
 ```
 
 Again, if you set `interactive = TRUE` the function will return an interactive plot using `plotly` which lets you hover over entries in the matrix to better understand which is which.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_correlation_matrix(feature_matrix, 
-                        is_normalised = FALSE, 
-                        id_var = "id", 
-                        values_var = "values",
-                        method = "RobustSigmoid",
-                        cor_method = "spearman",
-                        interactive = TRUE)
+plot_ts_correlations(simData, 
+                     is_normalised = FALSE, 
+                     id_var = "id", 
+                     values_var = "values",
+                     method = "RobustSigmoid",
+                     cor_method = "spearman",
+                     interactive = TRUE)
+```
+
+#### Feature correlations
+
+Similarly, one can also plot correlations between feature vectors using `plot_feature_correlations`. The general argument structure is the same as `plot_ts_correlations`.
+
+```{r, message = FALSE, warning = FALSE}
+plot_feature_correlations(feature_matrix, 
+                          is_normalised = FALSE, 
+                          id_var = "id", 
+                          values_var = "values",
+                          method = "RobustSigmoid",
+                          cor_method = "pearson",
+                          interactive = FALSE)
 ```
 
 ## Time-series classification
