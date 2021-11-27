@@ -158,53 +158,106 @@ plot_low_dimension(feature_matrix,
 
 ### Correlation matrix
 
-The function `plot_correlation_matrix` automates the calculation of correlations between feature vectors of each uniquely identified entity, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap-style graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the `cor_method` argument to `spearman`.
+#### Time-series correlations
+
+The function `plot_ts_correlations` automates the calculation of correlations between values of each unique time series, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap-style graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the `cor_method` argument to `spearman`.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_correlation_matrix(feature_matrix, 
-                        is_normalised = FALSE, 
-                        id_var = "id", 
-                        names_var = "names", 
-                        values_var = "values",
-                        method = "RobustSigmoid",
-                        cor_method = "pearson",
-                        interactive = FALSE)
+plot_ts_correlations(simData, 
+                     is_normalised = FALSE, 
+                     id_var = "id", 
+                     time_var = "timepoint",
+                     values_var = "values",
+                     method = "RobustSigmoid",
+                     cor_method = "pearson",
+                     interactive = FALSE)
 ```
 
 Again, if you set `interactive = TRUE` the function will return an interactive plot using `plotly` which lets you hover over entries in the matrix to better understand which is which.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_correlation_matrix(feature_matrix, 
-                        is_normalised = FALSE, 
-                        id_var = "id", 
-                        names_var = "names", 
-                        values_var = "values",
-                        method = "RobustSigmoid",
-                        cor_method = "spearman",
-                        interactive = TRUE)
+plot_ts_correlations(simData, 
+                     is_normalised = FALSE, 
+                     id_var = "id", 
+                     time_var = "timepoint",
+                     values_var = "values",
+                     method = "RobustSigmoid",
+                     cor_method = "spearman",
+                     interactive = TRUE)
 ```
 
-## Group discrimination
+#### Feature correlations
 
-Since feature-based time-series analysis is typically geared towards classification problems, `theft` includes some functionality for exploring group separation in addition to the low dimensional representation. The `plot_feature_discrimination` produces violin plots for each feature with class labels separated on the x-axis and by colour. You can choose to normalise the features prior to plotting or simply plot the raw feature values.
+Similarly, one can also plot correlations between feature vectors using `plot_feature_correlations`. The general argument structure is the same as `plot_ts_correlations`.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_feature_discrimination(feature_matrix, 
-                            id_var = "id", 
-                            group_var = "group", 
-                            features = "all", 
-                            normalise = FALSE)
+plot_feature_correlations(feature_matrix, 
+                          is_normalised = FALSE, 
+                          id_var = "id", 
+                          names_var = "names",
+                          values_var = "values",
+                          method = "RobustSigmoid",
+                          cor_method = "pearson",
+                          interactive = FALSE)
 ```
 
-You can also pass a vector of individual feature names to the `features` argument to only view those features. This is useful if the number of features you have is very large and/or you have *a priori* knowledge about which features might be most useful.
+## Time-series classification
+
+Since feature-based time-series analysis has shown particular promise for classification problems, `theft` includes functionality for exploring group separation in addition to the low dimensional representation. The `compute_top_features` function takes the computed time series x feature matrix and performs the following:
+
+1. Computes a classification algorithm on the entire input dataframe
+2. Extracts individual feature performance from the classification algorithm
+3. Filters the time series x feature matrix to the top `n` performing features (where `n` is specified by the user)
+4. Plots a feature x feature correlation matrix as a heatmap for the top performing features
+5. Plots a matrix of violin plots coloured by class label for the top performing features
+
+This analysis is useful because it can help guide researchers toward more efficient and appropriate interpretation of high-performing features (if any exist) and helps protect against over-interpretation of feature values.
+
+This function returns an object with three components to summarise the above steps:
+
+1. `ResultsTable` -- a dataframe containing feature names, feature set membership, and performance statistics for the top performing features
+2. `FeatureFeatureCorrelationPlot` -- a `ggplot` containing the pairwise correlations between top performing features represented as a heatmap
+3. `ViolinPlots` -- a `ggplot` containing a matrix of violin plots showing class discrimination by feature
+
+The code below produces analysis for a multiclass problem using a linear support vector machine.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_feature_discrimination(feature_matrix, 
-                            id_var = "id", 
-                            group_var = "group", 
-                            features = c("DN_HistogramMode_5", "DN_HistogramMode_10"), 
-                            normalise = FALSE)
+classifier_outputs <- compute_top_features(feature_matrix, 
+                                          id_var = "id", 
+                                          group_var = "group", 
+                                          normalise = TRUE, 
+                                          method = "z-score", 
+                                          cor_method = "pearson", 
+                                          test_method = "linear svm")
 ```
+
+Each component can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
+
+```{r, message = FALSE, warning = FALSE}
+head(classifier_outputs$ResultsTable)
+```
+
+We could equivalently achieve the same with:
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+head(classifier_outputs[[1]])
+```
+
+The feature-feature correlation plots are accessed as the second object:
+
+```{r, message = FALSE, warning = FALSE}
+print(classifier_outputs$FeatureFeatureCorrelationPlot)
+```
+
+The violin plots are accessed as the third object:
+
+```{r, message = FALSE, warning = FALSE}
+print(classifier_outputs$ViolinPlots)
+```
+
+For two-class problems, users can fit any of the available models (which includes `"t-test"` `"binomial logistic"`, `"linear svm"`, and `"rbf svm"`) as string arguments to `test_method`. For multiclass problems the options are currently either `"linear svm"` or `"rbf svm"`.
+
+The core functions that comprise `compute_top_features` are available individually for use as `fit_feature_classifier` and `plot_feature_discrimination`. The feature-feature correlation plot is a modified version of `plot_feature_correlations`.
 
 ## Reading and processing hctsa-formatted files
 

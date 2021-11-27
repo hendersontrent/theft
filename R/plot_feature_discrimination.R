@@ -6,7 +6,6 @@
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
-#' @param features a string or vector of strings specifying which features to filter by. Defaults to "all"
 #' @param normalise a Boolean of whether to normalise features before plotting. Defaults to FALSE
 #' @param method a rescaling/normalising method to apply if normalise = TRUE. Defaults to 'RobustSigmoid'
 #' @return an object of class ggplot containing the graphics
@@ -23,18 +22,17 @@
 #'   
 #' plot_feature_discrimination(featMat,
 #'   id_var = "id",
-#'   group_var = "group",
-#'   features = "all") 
+#'   group_var = "group") 
 #' }
 #' 
 
-plot_feature_discrimination <- function(data, id_var = "id", group_var = "group", features = "all",
+plot_feature_discrimination <- function(data, id_var = "id", group_var = "group",
                                         normalise = FALSE,
                                         method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")){
   
   # Make RobustSigmoid the default
   
-  if(missing(method)){
+  if(normalise == TRUE && missing(method)){
     method <- "RobustSigmoid"
   } else{
     method <- match.arg(method)
@@ -65,10 +63,6 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
   
   if(!is.null(group_var) && !is.character(group_var)){
     stop("group_var should be a string specifying a variable in the input data that identifies an aggregate group each observation relates to.")
-  }
-  
-  if(!is.null(features) && !is.character(features)){
-    stop("features should be a string or vector of string specifying exact feature names to filter by. If you want all features, write 'all'. This is the default.")
   }
   
   # Normalisation
@@ -113,28 +107,17 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
   } else{
     normed <- data_id
   }
-  
-  #------------- Perform filtering ----------------
-  
-  if(features == "all" && length(features) == 1){
-    tmp <- normed
-  }
-  
-  if(features != "all" && length(features) >= 1){
-    tmp <- normed %>%
-      dplyr::filter(names %in% features)
-  }
 
   #------------- Produce plots --------------------
   
   # Draw plot
   
-  p <- tmp %>%
+  p <- normed %>%
     dplyr::mutate(group = as.factor(group)) %>%
     ggplot2::ggplot(ggplot2::aes(x = group, y = values, colour = group)) +
     ggplot2::geom_violin() +
     ggplot2::geom_point(size = 1, alpha = 0.9, position = ggplot2::position_jitter(w = 0.05)) +
-    ggplot2::labs(title = "Group discrimination by feature",
+    ggplot2::labs(title = "Group discrimination for top performing features",
                   x = "Group",
                   y = "Value") +
     ggplot2::scale_colour_brewer(palette = "Dark2") +

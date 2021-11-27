@@ -22,6 +22,7 @@
 #' @importFrom tidyr gather
 #' @importFrom tidyr unnest_wider
 #' @importFrom tidyr pivot_longer
+#' @importFrom tidyr pivot_wider
 #' @importFrom tidyr drop_na
 #' @importFrom data.table rbindlist
 #' @importFrom fabletools features
@@ -35,4 +36,5 @@
 #' @importFrom plotly ggplotly
 #' @importFrom plotly config
 #' @importFrom RColorBrewer brewer.pal
+#' @importFrom e1071 svm
 NULL

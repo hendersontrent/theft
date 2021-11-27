@@ -57,20 +57,34 @@ plot_low_dimension(normed, is_normalised = TRUE, id_var = "id", group_var = "gro
 d1 <- plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_var = "group", plot = FALSE, method = "RobustSigmoid", low_dim_method = "PCA")
 d2 <- plot_low_dimension(outs_22, is_normalised = FALSE, id_var = "id", group_var = "group", plot = FALSE, method = "RobustSigmoid", low_dim_method = "t-SNE", perplexity = 5)
 
-# Test 5: Correlation matrix
+# Test 5: Time-series correlations
 
-plot_correlation_matrix(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", cor_method = "pearson", interactive = FALSE)
-plot_correlation_matrix(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", cor_method = "spearman", interactive = FALSE)
-plot_correlation_matrix(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", interactive = TRUE)
+plot_ts_correlations(simData, is_normalised = FALSE, id_var = "id", time_var = "timepoint", values_var = "values", method = "RobustSigmoid", cor_method = "pearson", interactive = FALSE)
+plot_ts_correlations(simData, is_normalised = FALSE, id_var = "id", time_var = "timepoint", values_var = "values", method = "RobustSigmoid", cor_method = "spearman", interactive = FALSE)
+plot_ts_correlations(simData, is_normalised = FALSE, id_var = "id", time_var = "timepoint", values_var = "values", method = "RobustSigmoid", interactive = TRUE)
 
-# Test 6: Feature discrimination
+# Test 6: Feature correlations
 
-plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", features = "all", normalise = FALSE)
-plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", features = c("CO_f1ecac", "CO_FirstMin_ac"), normalise = FALSE)
-plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", features = "all", normalise = TRUE, method = "RobustSigmoid")
-plot_feature_discrimination(outs_22, id_var = "id", group_var = "group", features = c("CO_f1ecac", "CO_FirstMin_ac"), normalise = TRUE, method = "RobustSigmoid")
+plot_feature_correlations(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", cor_method = "pearson", interactive = FALSE)
+plot_feature_correlations(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", cor_method = "spearman", interactive = FALSE)
+plot_feature_correlations(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", interactive = TRUE)
 
-# Test 7: Processing hctsa formatted file
+# Test 7: Classification functionality
+
+# Multiclass
+
+classifier_outputs <- compute_top_features(outs_22, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "linear svm")
+classifier_outputs_2 <- compute_top_features(outs_22, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "rbf svm")
+
+# Two-class
+
+twoclass <- outs_22 %>%
+  filter(group %in% c("Gaussian Noise", "AR(1)"))
+
+classifier_outputs_two <- compute_top_features(twoclass, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "t-test")
+classifier_outputs_two_2 <- compute_top_features(twoclass, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "binomial logistic")
+
+# Test 8: Processing hctsa formatted file
 
 d2 <- process_hctsa_file("https://cloudstor.aarnet.edu.au/plus/s/6sRD6IPMJyZLNlN/download")
 

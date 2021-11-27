@@ -52,19 +52,27 @@ installation and download `Kats` using the instructions located
 ## Statistical and graphical tools
 
 The package also contains a suite of tools for automatic normalisation
-of extracted feature vectors, low dimensional projections, class
-discrimination visualisations, and data matrix visualisations.
+of extracted feature vectors, low dimensional projections, data matrix
+visualisations, top feature classification analyses, and class
+discrimination visualisations.
 
 ## Web application
 
 An [interactive web
 application](https://dynamicsandneuralsystems.shinyapps.io/timeseriesfeaturevis/)
-has been built on top of `theft` which enables users to access all of
+has been built on top of `theft` which enables users to access most of
 the functionality included in the package from within a web browser
 without any code. The application automates the entire workflow included
 in `theft`, converts all static graphics included in the package into
 interactive visualisations, and enables downloads of feature
-calculations.
+calculations. Note that since `theft` is an active development project,
+not all functionality has been copied across to the webtool yet.
+
+## Ongoing work
+
+This package is an ongoing project with development occurring at a rapid
+rate. As such, there is no guarantee that all functions operate
+correctly yet.
 
 ## Citation
 
@@ -72,7 +80,7 @@ calculations.
     To cite package 'theft' in publications use:
 
       Trent Henderson (2021). theft: Tools for Handling Extraction of
-      Features from Time series. R package version 0.2.0.
+      Features from Time series. R package version 0.3.0.
 
     A BibTeX entry for LaTeX users is
 
@@ -80,5 +88,5 @@ calculations.
         title = {theft: Tools for Handling Extraction of Features from Time series},
         author = {Trent Henderson},
         year = {2021},
-        note = {R package version 0.2.0},
+        note = {R package version 0.3.0},
       }

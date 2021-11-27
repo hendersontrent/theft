@@ -8,7 +8,6 @@ plot_feature_discrimination(
   data,
   id_var = "id",
   group_var = "group",
-  features = "all",
   normalise = FALSE,
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
 )
@@ -19,8 +18,6 @@ plot_feature_discrimination(
 \item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to "id"}
 
 \item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to "group"}
-
-\item{features}{a string or vector of strings specifying which features to filter by. Defaults to "all"}
 
 \item{normalise}{a Boolean of whether to normalise features before plotting. Defaults to FALSE}
 
@@ -43,8 +40,7 @@ featMat <- calculate_features(data = simData,
   
 plot_feature_discrimination(featMat,
   id_var = "id",
-  group_var = "group",
-  features = "all") 
+  group_var = "group") 
 }
 
 }
