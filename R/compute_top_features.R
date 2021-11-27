@@ -158,17 +158,14 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   # Classification
   #---------------
   
+  # Fit algorithm
+  
   classifierOutputs <- fit_feature_classifier(data_id, id_var = "id", group_var = "group", test_method = test_method)
   
-  # Temporary solution until I get p-values for multiclass methods
+  # Filter results to get list of top features
   
-  if(test_method %in% c("t-test", "binomial logistic")){
-    ResultsTable <- classifierOutputs %>%
-      dplyr::slice_min(p_value, n = num_features)
-  } else{
-    ResultsTable <- classifierOutputs %>%
-      dplyr::slice_max(test_statistic_value, n = num_features)
-  }
+  ResultsTable <- classifierOutputs %>%
+    dplyr::slice_min(p_value, n = num_features)
   
   # Filter original data to just the top performers
   

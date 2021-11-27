@@ -309,16 +309,33 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
   } else{
     
-    classificationResultsNULL <- data.table::rbindlist(resultsNULL, use.names = TRUE)
+    classificationResultsNULL <- data.table::rbindlist(resultsNULL, use.names = TRUE) %>%
+      dplyr::filter(!is.nan(test_statistic_value))
     
-    # Compute p-value
+    # Compute p-values
     
-    null_dist_mean <- mean(classificationResultsNULL$test_statistic_value, na.rm = TRUE)
-    null_dist_sd <- sd(classificationResultsNULL$test_statistic_value, na.rm = TRUE)
-    p_value <- 
+    extraStorage <- list()
+    
+    for(f in feature_names){
+      
+      tmp <- classificationResults %>%
+        filter(feature == f)
+      
+      count_above <- classificationResultsNULL %>%
+        dplyr::filter(test_statistic_value >= tmp$test_statistic_value)
+      
+      p_value <- nrow(count_above) / nrow(classificationResultsNULL)
+      
+      classificationResults_p_values <- data.frame(feature = f,
+                                                   p_value = p_value)
+      
+      extraStorage[[f]] <- classificationResults_p_values
+    }
+    
+    extraNULL <- data.table::rbindlist(extraStorage, use.names = TRUE)
     
     classificationResults <- classificationResults %>%
-      dplyr::mutate(p_value = p_value)
+      dplyr::left_join(extraNULL, by = c("feature" = "feature"))
     
     return(classificationResults)
   }
