@@ -159,8 +159,19 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       
       # Get outputs for main model
       
-      cm <- table(tmp$group, predict(mod))
-      statistic <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] + cm[1,2] + cm[2,1])
+      cm <- as.data.frame(table(tmp$group, predict(mod))) %>%
+        dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
+      
+      same_total <- cm %>%
+        dplyr::filter(flag == "Same") %>%
+        summarise(Freq = sum(Freq)) %>%
+        pull()
+      
+      all_total <- cm %>%
+        summarise(Freq = sum(Freq)) %>%
+        pull()
+      
+      statistic <- same_total / all_total
       statistic_name <- "Classification accuracy"
       
       #---------------
@@ -185,12 +196,23 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
         
         # Fit classifier
         
-        modNULL <- e1071::svm(group ~., data = tmp2, kernel = "linear", cross = 10, probability = TRUE)
+        modNULL <- e1071::svm(group ~., data = tmp2, kernel = "linear", probability = TRUE)
         
-        # Get outputs for main model
+        # Get outputs
         
-        cmNULL <- table(tmp$group, predict(modNULL))
-        statisticNULL <- (cmNULL[1,1] + cmNULL[2,2]) / (cmNULL[1,1] + cmNULL[2,2] + cmNULL[1,2] + cmNULL[2,1])
+        cmNULL <- as.data.frame(table(tmp2$group, predict(modNULL))) %>%
+          dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
+        
+        same_totalNULL <- cmNULL %>%
+          dplyr::filter(flag == "Same") %>%
+          summarise(Freq = sum(Freq)) %>%
+          pull()
+        
+        all_totalNULL <- cmNULL %>%
+          summarise(Freq = sum(Freq)) %>%
+          pull()
+        
+        statisticNULL <- same_totalNULL / all_totalNULL
         nullStorage <- data.frame(test_statistic_value = statisticNULL)
         nullList[[r]] <- nullStorage
       }
@@ -217,8 +239,19 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       
       # Get outputs for main model
       
-      cm <- table(tmp$group, predict(mod))
-      statistic <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] + cm[1,2] + cm[2,1])
+      cm <- as.data.frame(table(tmp$group, predict(mod))) %>%
+        dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
+      
+      same_total <- cm %>%
+        dplyr::filter(flag == "Same") %>%
+        summarise(Freq = sum(Freq)) %>%
+        pull()
+      
+      all_total <- cm %>%
+        summarise(Freq = sum(Freq)) %>%
+        pull()
+      
+      statistic <- same_total / all_total
       statistic_name <- "Classification accuracy"
       
       #---------------
@@ -243,12 +276,23 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
         
         # Fit classifier
         
-        modNULL <- e1071::svm(group ~., data = tmp2, kernel = "radial", cross = 10, probability = TRUE)
+        modNULL <- e1071::svm(group ~., data = tmp2, kernel = "radial", probability = TRUE)
         
-        # Get outputs for main model
+        # Get outputs
         
-        cmNULL <- table(tmp$group, predict(modNULL))
-        statisticNULL <- (cmNULL[1,1] + cmNULL[2,2]) / (cmNULL[1,1] + cmNULL[2,2] + cmNULL[1,2] + cmNULL[2,1])
+        cmNULL <- as.data.frame(table(tmp2$group, predict(modNULL))) %>%
+          dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
+        
+        same_totalNULL <- cmNULL %>%
+          dplyr::filter(flag == "Same") %>%
+          summarise(Freq = sum(Freq)) %>%
+          pull()
+        
+        all_totalNULL <- cmNULL %>%
+          summarise(Freq = sum(Freq)) %>%
+          pull()
+        
+        statisticNULL <- same_totalNULL / all_totalNULL
         nullStorage <- data.frame(test_statistic_value = statisticNULL)
         nullList[[r]] <- nullStorage
       }
