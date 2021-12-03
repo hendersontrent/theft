@@ -200,7 +200,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
         
         # Get outputs
         
-        cmNULL <- as.data.frame(table(tmp$group, predict(mod))) %>%
+        cmNULL <- as.data.frame(table(tmp2$group, predict(modNULL))) %>%
           dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
         
         same_totalNULL <- cmNULL %>%
