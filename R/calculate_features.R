@@ -259,6 +259,11 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
                   timepoint = dplyr::all_of(time_var),
                   values = dplyr::all_of(values_var))
   
+  if(!is.null(group_var)){
+    data_re <- data_re %>%
+      dplyr::rename(group = dplyr::all_of(group_var))
+  }
+  
   quality_check <- data_re %>%
     dplyr::group_by(id) %>%
     dplyr::summarise(good_or_not = check_vector_quality(values)) %>%
@@ -393,8 +398,9 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   if(!is.null(group_var)){
     tmp_all <- tmp_all %>%
       dplyr::mutate(id = as.character(id)) %>%
-      dplyr::left_join(grouplabs_data, by = c("id" = "id"))
+      dplyr::inner_join(grouplabs_data, by = c("id" = "id"))
   } else{
   }
+  
   return(tmp_all)
 }
