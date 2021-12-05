@@ -137,11 +137,11 @@ calc_tsfel <- function(data){
   
   outData <- data %>%
     tibble::as_tibble() %>%
-    dplyr::group_by(id) %>%
+    dplyr::group_by(id, group) %>%
     dplyr::arrange(timepoint) %>%
     dplyr::summarise(tsfel_calculator(values)) %>%
     dplyr::ungroup() %>%
-    tidyr::gather("names", "values", -id) %>%
+    tidyr::gather("names", "values", -c(id, group)) %>%
     dplyr::mutate(method = "TSFEL")
   
   return(outData)
@@ -169,12 +169,12 @@ calc_kats <- function(data){
   outData <- data %>%
     dplyr::left_join(datetimes, by = c("timepoint" = "timepoint")) %>%
     dplyr::select(-c(timepoint)) %>%
-    dplyr::group_by(id) %>%
+    dplyr::group_by(id, group) %>%
     dplyr::arrange(time) %>%
     dplyr::summarise(results = list(kats_calculator(timepoints = time, values = values))) %>%
     tidyr::unnest_wider(results) %>%
     dplyr::ungroup() %>%
-    tidyr::pivot_longer(cols = !id, names_to = "names", values_to = "values") %>%
+    tidyr::gather("names", "values", -c(id, group)) %>%
     dplyr::mutate(method = "Kats")
   
   return(outData)
