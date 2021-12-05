@@ -8,7 +8,7 @@ calc_catch22 <- function(data, catch24){
   
   outData <- data %>%
     tibble::as_tibble() %>%
-    dplyr::group_by(id) %>%
+    dplyr::group_by(id, group) %>%
     dplyr::arrange(timepoint) %>%
     dplyr::summarise(names = Rcatch22::catch22_all(values, catch24 = catch24)$names,
                      values = Rcatch22::catch22_all(values, catch24 = catch24)$values) %>%
