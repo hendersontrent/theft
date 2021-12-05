@@ -24,11 +24,11 @@ calc_catch22 <- function(data, catch24){
 
 calc_feasts <- function(data){
   
-  tsData <- tsibble::as_tsibble(data, key = id, index = timepoint)
+  tsData <- tsibble::as_tsibble(data, key = c(id, group), index = timepoint)
   
   outData <- tsData %>%
     fabletools::features(values, fabletools::feature_set(pkgs = "feasts"))  %>%
-    tidyr::gather("names", "values",-id) %>%
+    tidyr::gather("names", "values", -id) %>%
     dplyr::mutate(method = "feasts")
   
   return(outData)
@@ -41,12 +41,13 @@ calc_feasts <- function(data){
 calc_tsfeatures <- function(data){
   
   outData <- data %>%
+    rename(group = process) %>%
     tibble::as_tibble() %>%
-    dplyr::group_by(id) %>%
+    dplyr::group_by(id, group) %>%
     dplyr::arrange(timepoint) %>%
     dplyr::select(-c(timepoint)) %>%
     dplyr::summarise(values = list(values)) %>%
-    dplyr::group_by(id) %>%
+    dplyr::group_by(id, group) %>%
     dplyr::summarise(tsfeatures::tsfeatures(values, features = c("frequency", "stl_features", "entropy", "acf_features",
                                                                  "compengine", "arch_stat", "crossing_points", "flat_spots",
                                                                  "heterogeneity", "holt_parameters", "hurst", 
@@ -56,7 +57,7 @@ calc_tsfeatures <- function(data){
                                                                  "histogram_mode", "localsimple_taures", "sampenc",
                                                                  "spreadrandomlocal_meantaul"))) %>%
     dplyr::ungroup() %>%
-    tidyr::gather("names", "values",-id) %>%
+    tidyr::gather("names", "values", -c(id, group)) %>%
     dplyr::mutate(method = "tsfeatures")
   
   return(outData)
@@ -298,12 +299,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   # Group labels
   
   if(!is.null(group_var)){
-    
-    grouplabs_data <- as.data.frame(data) # Catches cases where input object is of class "tsibble"
-    
-    grouplabs_data <- grouplabs_data %>%
-      dplyr::rename(id = dplyr::all_of(id_var),
-                    group = dplyr::all_of(group_var)) %>%
+    grouplabs_data <- data_re %>%
       dplyr::select(c(id, group)) %>%
       dplyr::distinct() %>%
       dplyr::mutate(id = as.character(id))
@@ -395,7 +391,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   } else{
   }
   
-  if(!is.null(group_var)){
+  if(!is.null(group_var) && c("group") %ni% colnames(tmp_all)){
     tmp_all <- tmp_all %>%
       dplyr::mutate(id = as.character(id)) %>%
       dplyr::inner_join(grouplabs_data, by = c("id" = "id"))
