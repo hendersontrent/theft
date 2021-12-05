@@ -296,16 +296,6 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   #--------- Feature calcs --------
   
-  # Group labels
-  
-  if(!is.null(group_var)){
-    grouplabs_data <- data_re %>%
-      dplyr::select(c(id, group)) %>%
-      dplyr::distinct() %>%
-      dplyr::mutate(id = as.character(id))
-  } else{
-  }
-  
   if("all" %in% feature_set){
     
     message("Calculating all feature sets except for 'kats', 'tsfresh' and 'tsfel' to avoid Python dependence. If you want these features too, please run the function again specifying 'kats', 'tsfresh' or 'tsfel' and then append the resultant dataframes.")
@@ -388,13 +378,6 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
       tmp_all <- dplyr::bind_rows(tmp_all, tmp5)
     }
     
-  } else{
-  }
-  
-  if(!is.null(group_var) && c("group") %ni% colnames(tmp_all)){
-    tmp_all <- tmp_all %>%
-      dplyr::mutate(id = as.character(id)) %>%
-      dplyr::inner_join(grouplabs_data, by = c("id" = "id"))
   } else{
   }
   
