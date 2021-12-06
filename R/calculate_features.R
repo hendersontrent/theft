@@ -6,14 +6,25 @@
 
 calc_catch22 <- function(data, catch24){
   
-  outData <- data %>%
-    tibble::as_tibble() %>%
-    dplyr::group_by(id, group) %>%
-    dplyr::arrange(timepoint) %>%
-    dplyr::summarise(names = Rcatch22::catch22_all(values, catch24 = catch24)$names,
-                     values = Rcatch22::catch22_all(values, catch24 = catch24)$values) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(method = "catch22")
+  if(c("group") %in% colnames(data)){
+    outData <- data %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(id, group) %>%
+      dplyr::arrange(timepoint) %>%
+      dplyr::summarise(names = Rcatch22::catch22_all(values, catch24 = catch24)$names,
+                       values = Rcatch22::catch22_all(values, catch24 = catch24)$values) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(method = "catch22")
+  } else{
+    outData <- data %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(id) %>%
+      dplyr::arrange(timepoint) %>%
+      dplyr::summarise(names = Rcatch22::catch22_all(values, catch24 = catch24)$names,
+                       values = Rcatch22::catch22_all(values, catch24 = catch24)$values) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(method = "catch22")
+  }
   
   return(outData)
 }
@@ -24,7 +35,11 @@ calc_catch22 <- function(data, catch24){
 
 calc_feasts <- function(data){
   
-  tsData <- tsibble::as_tsibble(data, key = c(id, group), index = timepoint)
+  if(c("group") %in% colnames(data)){
+    tsData <- tsibble::as_tsibble(data, key = c(id, group), index = timepoint)
+  } else{
+    tsData <- tsibble::as_tsibble(data, key = c(id), index = timepoint)
+  }
   
   outData <- tsData %>%
     fabletools::features(values, fabletools::feature_set(pkgs = "feasts"))  %>%
@@ -40,25 +55,45 @@ calc_feasts <- function(data){
 
 calc_tsfeatures <- function(data){
   
-  outData <- data %>%
-    rename(group = process) %>%
-    tibble::as_tibble() %>%
-    dplyr::group_by(id, group) %>%
-    dplyr::arrange(timepoint) %>%
-    dplyr::select(-c(timepoint)) %>%
-    dplyr::summarise(values = list(values)) %>%
-    dplyr::group_by(id, group) %>%
-    dplyr::summarise(tsfeatures::tsfeatures(values, features = c("frequency", "stl_features", "entropy", "acf_features",
-                                                                 "compengine", "arch_stat", "crossing_points", "flat_spots",
-                                                                 "heterogeneity", "holt_parameters", "hurst", 
-                                                                 "lumpiness", "max_kl_shift", "max_level_shift", "max_var_shift", 
-                                                                 "nonlinearity", "pacf_features", "stability", "unitroot_kpss",
-                                                                 "unitroot_pp", "embed2_incircle", "firstzero_ac",
-                                                                 "histogram_mode", "localsimple_taures", "sampenc",
-                                                                 "spreadrandomlocal_meantaul"))) %>%
-    dplyr::ungroup() %>%
-    tidyr::gather("names", "values", -c(id, group)) %>%
-    dplyr::mutate(method = "tsfeatures")
+  if(c("group") %in% colnames(data)){
+    outData <- data %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(id, group) %>%
+      dplyr::arrange(timepoint) %>%
+      dplyr::select(-c(timepoint)) %>%
+      dplyr::summarise(values = list(values)) %>%
+      dplyr::group_by(id, group) %>%
+      dplyr::summarise(tsfeatures::tsfeatures(values, features = c("frequency", "stl_features", "entropy", "acf_features",
+                                                                   "compengine", "arch_stat", "crossing_points", "flat_spots",
+                                                                   "heterogeneity", "holt_parameters", "hurst", 
+                                                                   "lumpiness", "max_kl_shift", "max_level_shift", "max_var_shift", 
+                                                                   "nonlinearity", "pacf_features", "stability", "unitroot_kpss",
+                                                                   "unitroot_pp", "embed2_incircle", "firstzero_ac",
+                                                                   "histogram_mode", "localsimple_taures", "sampenc",
+                                                                   "spreadrandomlocal_meantaul"))) %>%
+      dplyr::ungroup() %>%
+      tidyr::gather("names", "values", -c(id, group)) %>%
+      dplyr::mutate(method = "tsfeatures")
+  } else{
+    outData <- data %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(id) %>%
+      dplyr::arrange(timepoint) %>%
+      dplyr::select(-c(timepoint)) %>%
+      dplyr::summarise(values = list(values)) %>%
+      dplyr::group_by(id) %>%
+      dplyr::summarise(tsfeatures::tsfeatures(values, features = c("frequency", "stl_features", "entropy", "acf_features",
+                                                                   "compengine", "arch_stat", "crossing_points", "flat_spots",
+                                                                   "heterogeneity", "holt_parameters", "hurst", 
+                                                                   "lumpiness", "max_kl_shift", "max_level_shift", "max_var_shift", 
+                                                                   "nonlinearity", "pacf_features", "stability", "unitroot_kpss",
+                                                                   "unitroot_pp", "embed2_incircle", "firstzero_ac",
+                                                                   "histogram_mode", "localsimple_taures", "sampenc",
+                                                                   "spreadrandomlocal_meantaul"))) %>%
+      dplyr::ungroup() %>%
+      tidyr::gather("names", "values", -c(id)) %>%
+      dplyr::mutate(method = "tsfeatures")
+  }
   
   return(outData)
 }
@@ -68,6 +103,12 @@ calc_tsfeatures <- function(data){
 #--------
 
 calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", cleanup){
+  
+  if(c("group") %in% colnames(data)){
+    xx
+  } else{
+    xx
+  }
   
   # Load Python function
   
@@ -133,16 +174,25 @@ calc_tsfel <- function(data){
   
   reticulate::source_python(system.file("python", "tsfel_calculator.py", package = "theft")) # Ships with package
   
-  # Vectorised
-  
-  outData <- data %>%
-    tibble::as_tibble() %>%
-    dplyr::group_by(id, group) %>%
-    dplyr::arrange(timepoint) %>%
-    dplyr::summarise(tsfel_calculator(values)) %>%
-    dplyr::ungroup() %>%
-    tidyr::gather("names", "values", -c(id, group)) %>%
-    dplyr::mutate(method = "TSFEL")
+  if(c("group") %in% colnames(data)){
+    outData <- data %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(id, group) %>%
+      dplyr::arrange(timepoint) %>%
+      dplyr::summarise(tsfel_calculator(values)) %>%
+      dplyr::ungroup() %>%
+      tidyr::gather("names", "values", -c(id, group)) %>%
+      dplyr::mutate(method = "TSFEL")
+  } else{
+    outData <- data %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(id) %>%
+      dplyr::arrange(timepoint) %>%
+      dplyr::summarise(tsfel_calculator(values)) %>%
+      dplyr::ungroup() %>%
+      tidyr::gather("names", "values", -c(id)) %>%
+      dplyr::mutate(method = "TSFEL")
+  }
   
   return(outData)
 }
@@ -166,16 +216,29 @@ calc_kats <- function(data){
   
   # Join in datetimes and run computations
   
-  outData <- data %>%
-    dplyr::left_join(datetimes, by = c("timepoint" = "timepoint")) %>%
-    dplyr::select(-c(timepoint)) %>%
-    dplyr::group_by(id, group) %>%
-    dplyr::arrange(time) %>%
-    dplyr::summarise(results = list(kats_calculator(timepoints = time, values = values))) %>%
-    tidyr::unnest_wider(results) %>%
-    dplyr::ungroup() %>%
-    tidyr::gather("names", "values", -c(id, group)) %>%
-    dplyr::mutate(method = "Kats")
+  if(c("group") %in% colnames(data)){
+    outData <- data %>%
+      dplyr::left_join(datetimes, by = c("timepoint" = "timepoint")) %>%
+      dplyr::select(-c(timepoint)) %>%
+      dplyr::group_by(id, group) %>%
+      dplyr::arrange(time) %>%
+      dplyr::summarise(results = list(kats_calculator(timepoints = time, values = values))) %>%
+      tidyr::unnest_wider(results) %>%
+      dplyr::ungroup() %>%
+      tidyr::gather("names", "values", -c(id, group)) %>%
+      dplyr::mutate(method = "Kats")
+  } else{
+    outData <- data %>%
+      dplyr::left_join(datetimes, by = c("timepoint" = "timepoint")) %>%
+      dplyr::select(-c(timepoint)) %>%
+      dplyr::group_by(id) %>%
+      dplyr::arrange(time) %>%
+      dplyr::summarise(results = list(kats_calculator(timepoints = time, values = values))) %>%
+      tidyr::unnest_wider(results) %>%
+      dplyr::ungroup() %>%
+      tidyr::gather("names", "values", -c(id)) %>%
+      dplyr::mutate(method = "Kats")
+  }
   
   return(outData)
 }
