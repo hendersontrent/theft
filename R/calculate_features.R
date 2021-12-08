@@ -106,7 +106,7 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
   
   if("group" %in% colnames(data)){
     groups <- data %>%
-      dplyr::group_by(id, group) %>%
+      dplyr::select(c(id, group)) %>%
       dplyr::distinct()
   } else{
   }
@@ -364,7 +364,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   }
   
   data_re <- data_re %>%
-    filter(id %in% good_ids$id)
+    dplyr::filter(id %in% good_ids$id)
   
   if(nrow(data_re) == 0){
     stop("No IDs remaining to calculate features after removing IDs with non-real values.")
@@ -402,28 +402,28 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
       cleanuper <- "No"
     }
     
-    message("Running computations for tsfresh...")
+    message("\nRunning computations for tsfresh...")
     tmp_tsfresh <- calc_tsfresh(data = data_re, column_id = "id", column_sort = "timepoint", cleanup = cleanuper)
   }
   
   if("tsfel" %in% feature_set){
     
     message("'tsfel' requires a Python installation and the 'tsfel' Python package to also be installed. Please ensure you have this working (see https://tsfel.readthedocs.io/en/latest/ for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): use_python = 'path_to_your_python_as_a_string_here' or use_virtualenv = 'name_of_your_virtualenv_here'")
-    message("Running computations for tsfel...")
+    message("\nRunning computations for tsfel...")
     tmp_tsfel <- calc_tsfel(data = data_re)
   }
   
   if("kats" %in% feature_set){
     
     message("'kats' requires a Python installation and the 'kats' Python package to also be installed. Please ensure you have this working (see https://facebookresearch.github.io/Kats/ for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): use_python = 'path_to_your_python_as_a_string_here' or use_virtualenv = 'name_of_your_virtualenv_here'")
-    message("Running computations for kats...")
+    message("\nRunning computations for kats...")
     tmp_kats <- calc_kats(data = data_re)
   }
   
   tmp_all_features <- data.frame()
   
   if(length(feature_set) > 1){
-    message("Binding feature dataframes together...")
+    message("\nBinding feature dataframes together...")
   }
     
   if(exists("tmp_catch22")){
