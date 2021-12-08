@@ -6,14 +6,25 @@
 
 calc_catch22 <- function(data, catch24){
   
-  outData <- data %>%
-    tibble::as_tibble() %>%
-    dplyr::group_by(id) %>%
-    dplyr::arrange(timepoint) %>%
-    dplyr::summarise(names = Rcatch22::catch22_all(values, catch24 = catch24)$names,
-                     values = Rcatch22::catch22_all(values, catch24 = catch24)$values) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(method = "catch22")
+  if("group" %in% colnames(data)){
+    outData <- data %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(id, group) %>%
+      dplyr::arrange(timepoint) %>%
+      dplyr::summarise(names = Rcatch22::catch22_all(values, catch24 = catch24)$names,
+                       values = Rcatch22::catch22_all(values, catch24 = catch24)$values) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(method = "catch22")
+  } else{
+    outData <- data %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(id) %>%
+      dplyr::arrange(timepoint) %>%
+      dplyr::summarise(names = Rcatch22::catch22_all(values, catch24 = catch24)$names,
+                       values = Rcatch22::catch22_all(values, catch24 = catch24)$values) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(method = "catch22")
+  }
   
   return(outData)
 }
@@ -24,12 +35,21 @@ calc_catch22 <- function(data, catch24){
 
 calc_feasts <- function(data){
   
-  tsData <- tsibble::as_tsibble(data, key = id, index = timepoint)
-  
-  outData <- tsData %>%
-    fabletools::features(values, fabletools::feature_set(pkgs = "feasts"))  %>%
-    tidyr::gather("names", "values",-id) %>%
-    dplyr::mutate(method = "feasts")
+  if("group" %in% colnames(data)){
+    tsData <- tsibble::as_tsibble(data, key = c(id, group), index = timepoint)
+    
+    outData <- tsData %>%
+      fabletools::features(values, fabletools::feature_set(pkgs = "feasts"))  %>%
+      tidyr::gather("names", "values", -c(id, group)) %>%
+      dplyr::mutate(method = "feasts")
+  } else{
+    tsData <- tsibble::as_tsibble(data, key = c(id), index = timepoint)
+    
+    outData <- tsData %>%
+      fabletools::features(values, fabletools::feature_set(pkgs = "feasts"))  %>%
+      tidyr::gather("names", "values", -id) %>%
+      dplyr::mutate(method = "feasts")
+  }
   
   return(outData)
 }
@@ -40,24 +60,40 @@ calc_feasts <- function(data){
 
 calc_tsfeatures <- function(data){
   
-  outData <- data %>%
-    tibble::as_tibble() %>%
-    dplyr::group_by(id) %>%
-    dplyr::arrange(timepoint) %>%
-    dplyr::select(-c(timepoint)) %>%
-    dplyr::summarise(values = list(values)) %>%
-    dplyr::group_by(id) %>%
-    dplyr::summarise(tsfeatures::tsfeatures(values, features = c("frequency", "stl_features", "entropy", "acf_features",
-                                                                 "compengine", "arch_stat", "crossing_points", "flat_spots",
-                                                                 "heterogeneity", "holt_parameters", "hurst", 
-                                                                 "lumpiness", "max_kl_shift", "max_level_shift", "max_var_shift", 
-                                                                 "nonlinearity", "pacf_features", "stability", "unitroot_kpss",
-                                                                 "unitroot_pp", "embed2_incircle", "firstzero_ac",
-                                                                 "histogram_mode", "localsimple_taures", "sampenc",
-                                                                 "spreadrandomlocal_meantaul"))) %>%
-    dplyr::ungroup() %>%
-    tidyr::gather("names", "values",-id) %>%
-    dplyr::mutate(method = "tsfeatures")
+  featureList <- c("frequency", "stl_features", "entropy", "acf_features",
+                   "compengine", "arch_stat", "crossing_points", "flat_spots",
+                   "heterogeneity", "holt_parameters", "hurst", 
+                   "lumpiness", "max_kl_shift", "max_level_shift", "max_var_shift", 
+                   "nonlinearity", "pacf_features", "stability", "unitroot_kpss",
+                   "unitroot_pp", "embed2_incircle", "firstzero_ac",
+                   "histogram_mode", "localsimple_taures", "sampenc",
+                   "spreadrandomlocal_meantaul")
+  
+  if("group" %in% colnames(data)){
+    outData <- data %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(id, group) %>%
+      dplyr::arrange(timepoint) %>%
+      dplyr::select(-c(timepoint)) %>%
+      dplyr::summarise(values = list(values)) %>%
+      dplyr::group_by(id, group) %>%
+      dplyr::summarise(tsfeatures::tsfeatures(values, features = featureList)) %>%
+      dplyr::ungroup() %>%
+      tidyr::gather("names", "values", -c(id, group)) %>%
+      dplyr::mutate(method = "tsfeatures")
+  } else{
+    outData <- data %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(id) %>%
+      dplyr::arrange(timepoint) %>%
+      dplyr::select(-c(timepoint)) %>%
+      dplyr::summarise(values = list(values)) %>%
+      dplyr::group_by(id) %>%
+      dplyr::summarise(tsfeatures::tsfeatures(values, features = featureList)) %>%
+      dplyr::ungroup() %>%
+      tidyr::gather("names", "values", -c(id)) %>%
+      dplyr::mutate(method = "tsfeatures")
+  }
   
   return(outData)
 }
@@ -67,6 +103,13 @@ calc_tsfeatures <- function(data){
 #--------
 
 calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", cleanup){
+  
+  if("group" %in% colnames(data)){
+    groups <- data %>%
+      dplyr::select(c(id, group)) %>%
+      dplyr::distinct()
+  } else{
+  }
   
   # Load Python function
   
@@ -119,6 +162,12 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
       dplyr::mutate(method = "tsfresh")
   }
   
+  if(c("group") %in% colnames(data)){
+    outData <- outData %>%
+      dplyr::inner_join(groups, by = c("id" = "id"))
+  } else{
+  }
+  
   return(outData)
 }
 
@@ -132,16 +181,25 @@ calc_tsfel <- function(data){
   
   reticulate::source_python(system.file("python", "tsfel_calculator.py", package = "theft")) # Ships with package
   
-  # Vectorised
-  
-  outData <- data %>%
-    tibble::as_tibble() %>%
-    dplyr::group_by(id) %>%
-    dplyr::arrange(timepoint) %>%
-    dplyr::summarise(tsfel_calculator(values)) %>%
-    dplyr::ungroup() %>%
-    tidyr::gather("names", "values", -id) %>%
-    dplyr::mutate(method = "TSFEL")
+  if("group" %in% colnames(data)){
+    outData <- data %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(id, group) %>%
+      dplyr::arrange(timepoint) %>%
+      dplyr::summarise(tsfel_calculator(values)) %>%
+      dplyr::ungroup() %>%
+      tidyr::gather("names", "values", -c(id, group)) %>%
+      dplyr::mutate(method = "TSFEL")
+  } else{
+    outData <- data %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(id) %>%
+      dplyr::arrange(timepoint) %>%
+      dplyr::summarise(tsfel_calculator(values)) %>%
+      dplyr::ungroup() %>%
+      tidyr::gather("names", "values", -c(id)) %>%
+      dplyr::mutate(method = "TSFEL")
+  }
   
   return(outData)
 }
@@ -165,16 +223,29 @@ calc_kats <- function(data){
   
   # Join in datetimes and run computations
   
-  outData <- data %>%
-    dplyr::left_join(datetimes, by = c("timepoint" = "timepoint")) %>%
-    dplyr::select(-c(timepoint)) %>%
-    dplyr::group_by(id) %>%
-    dplyr::arrange(time) %>%
-    dplyr::summarise(results = list(kats_calculator(timepoints = time, values = values))) %>%
-    tidyr::unnest_wider(results) %>%
-    dplyr::ungroup() %>%
-    tidyr::pivot_longer(cols = !id, names_to = "names", values_to = "values") %>%
-    dplyr::mutate(method = "Kats")
+  if("group" %in% colnames(data)){
+    outData <- data %>%
+      dplyr::left_join(datetimes, by = c("timepoint" = "timepoint")) %>%
+      dplyr::select(-c(timepoint)) %>%
+      dplyr::group_by(id, group) %>%
+      dplyr::arrange(time) %>%
+      dplyr::summarise(results = list(kats_calculator(timepoints = time, values = values))) %>%
+      tidyr::unnest_wider(results) %>%
+      dplyr::ungroup() %>%
+      tidyr::gather("names", "values", -c(id, group)) %>%
+      dplyr::mutate(method = "Kats")
+  } else{
+    outData <- data %>%
+      dplyr::left_join(datetimes, by = c("timepoint" = "timepoint")) %>%
+      dplyr::select(-c(timepoint)) %>%
+      dplyr::group_by(id) %>%
+      dplyr::arrange(time) %>%
+      dplyr::summarise(results = list(kats_calculator(timepoints = time, values = values))) %>%
+      tidyr::unnest_wider(results) %>%
+      dplyr::ungroup() %>%
+      tidyr::gather("names", "values", -c(id)) %>%
+      dplyr::mutate(method = "Kats")
+  }
   
   return(outData)
 }
@@ -219,7 +290,7 @@ calc_kats <- function(data){
 #'
 
 calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var = NULL, group_var = NULL,
-                               feature_set = c("all", "catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel"), 
+                               feature_set = c("catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel"), 
                                catch24 = FALSE,
                                tsfresh_cleanup = FALSE){
   
@@ -231,25 +302,27 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   if(missing(feature_set)){
     feature_set <- "catch22"
+    message("No feature set entered. Running catch22 by default.")
   }
   
   if(is.null(feature_set)){
     feature_set <- "catch22"
+    message("No feature set entered. Running catch22 by default.")
   }
   
   #--------- Error catches ---------
   
   # Method selection
   
-  the_sets <- c("all", "catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel")
+  the_sets <- c("catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel")
   '%ni%' <- Negate('%in%')
   
   if(feature_set %ni% the_sets){
-    stop("feature_set should be a selection or combination of 'all', 'catch22', 'feasts', 'tsfeatures', 'kats', 'tsfresh' or 'tsfel' entered as a single string or vector for multiple.")
+    stop("feature_set should be a single string selection or vector combination of 'catch22', 'feasts', 'tsfeatures', 'kats', 'tsfresh' or 'tsfel'.")
   }
   
   if(!is.null(group_var) && !is.character(group_var)){
-    stop("group_var should be a string specifying the variable name of your grouping variable")
+    stop("group_var should be a string specifying the variable name of your grouping variable.")
   }
   
   #--------- Quality by ID --------
@@ -261,7 +334,11 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   if(!is.null(group_var)){
     data_re <- data_re %>%
-      dplyr::rename(group = dplyr::all_of(group_var))
+      dplyr::rename(group = dplyr::all_of(group_var)) %>%
+      dplyr::select(c(id, timepoint, values, group))
+  } else{
+    data_re <- data_re %>%
+      dplyr::select(c(id, timepoint, values))
   }
   
   quality_check <- data_re %>%
@@ -287,7 +364,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   }
   
   data_re <- data_re %>%
-    filter(id %in% good_ids$id)
+    dplyr::filter(id %in% good_ids$id)
   
   if(nrow(data_re) == 0){
     stop("No IDs remaining to calculate features after removing IDs with non-real values.")
@@ -295,45 +372,22 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   #--------- Feature calcs --------
   
-  # Group labels
-  
-  if(!is.null(group_var)){
-    
-    grouplabs_data <- as.data.frame(data) # Catches cases where input object is of class "tsibble"
-    
-    grouplabs_data <- grouplabs_data %>%
-      dplyr::rename(id = dplyr::all_of(id_var),
-                    group = dplyr::all_of(group_var)) %>%
-      dplyr::select(c(id, group)) %>%
-      dplyr::distinct() %>%
-      dplyr::mutate(id = as.character(id))
-  } else{
-  }
-  
-  if("all" %in% feature_set){
-    
-    message("Calculating all feature sets except for 'kats', 'tsfresh' and 'tsfel' to avoid Python dependence. If you want these features too, please run the function again specifying 'kats', 'tsfresh' or 'tsfel' and then append the resultant dataframes.")
-    
-    tmp <- calc_catch22(data = data_re, catch24 = catch24)
-    tmp1 <- calc_feasts(data = data_re)
-    tmp2 <- calc_tsfeatures(data = data_re)
-    
-    tmp_all <- dplyr::bind_rows(tmp, tmp1, tmp2)
-  }
-  
   if("catch22" %in% feature_set){
     
-    tmp <- calc_catch22(data = data_re, catch24 = catch24)
+    message("Running computations for catch22...")
+    tmp_catch22 <- calc_catch22(data = data_re, catch24 = catch24)
   }
   
   if("feasts" %in% feature_set){
     
-    tmp1 <- calc_feasts(data = data_re)
+    message("Running computations for feasts...")
+    tmp_feasts <- calc_feasts(data = data_re)
   }
   
   if("tsfeatures" %in% feature_set){
     
-    tmp2 <- calc_tsfeatures(data = data_re)
+    message("Running computations for tsfeatures..")
+    tmp_tsfeatures <- calc_tsfeatures(data = data_re)
   }
   
   if("tsfresh" %in% feature_set){
@@ -348,59 +402,53 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
       cleanuper <- "No"
     }
     
-    tmp3 <- calc_tsfresh(data = data_re, column_id = "id", column_sort = "timepoint", cleanup = cleanuper)
+    message("\nRunning computations for tsfresh...")
+    tmp_tsfresh <- calc_tsfresh(data = data_re, column_id = "id", column_sort = "timepoint", cleanup = cleanuper)
   }
   
   if("tsfel" %in% feature_set){
     
     message("'tsfel' requires a Python installation and the 'tsfel' Python package to also be installed. Please ensure you have this working (see https://tsfel.readthedocs.io/en/latest/ for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): use_python = 'path_to_your_python_as_a_string_here' or use_virtualenv = 'name_of_your_virtualenv_here'")
-    
-    tmp4 <- calc_tsfel(data = data_re)
+    message("\nRunning computations for tsfel...")
+    tmp_tsfel <- calc_tsfel(data = data_re)
   }
   
   if("kats" %in% feature_set){
     
     message("'kats' requires a Python installation and the 'kats' Python package to also be installed. Please ensure you have this working (see https://facebookresearch.github.io/Kats/ for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): use_python = 'path_to_your_python_as_a_string_here' or use_virtualenv = 'name_of_your_virtualenv_here'")
-    
-    tmp5 <- calc_kats(data = data_re)
+    message("\nRunning computations for kats...")
+    tmp_kats <- calc_kats(data = data_re)
   }
   
-  if(!exists("tmp_all")){
-    tmp_all <- data.frame()
+  tmp_all_features <- data.frame()
+  
+  if(length(feature_set) > 1){
+    message("\nBinding feature dataframes together...")
+  }
     
-    if(exists("tmp")){
-      tmp_all <- dplyr::bind_rows(tmp_all, tmp)
-    }
+  if(exists("tmp_catch22")){
+    tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_catch22)
+  }
     
-    if(exists("tmp1")){
-      tmp_all <- dplyr::bind_rows(tmp_all, tmp1)
-    }
+  if(exists("tmp_feasts")){
+    tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_feasts)
+  }
     
-    if(exists("tmp2")){
-      tmp_all <- dplyr::bind_rows(tmp_all, tmp2)
-    }
+  if(exists("tmp_tsfeatures")){
+    tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_tsfeatures)
+  }
     
-    if(exists("tmp3")){
-      tmp_all <- dplyr::bind_rows(tmp_all, tmp3)
-    }
+  if(exists("tmp_tsfresh")){
+    tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_tsfresh)
+  }
     
-    if(exists("tmp4")){
-      tmp_all <- dplyr::bind_rows(tmp_all, tmp4)
-    }
+  if(exists("tmp_tsfel")){
+    tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_tsfel)
+  }
     
-    if(exists("tmp5")){
-      tmp_all <- dplyr::bind_rows(tmp_all, tmp5)
-    }
-    
-  } else{
+  if(exists("tmp_kats")){
+    tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_kats)
   }
   
-  if(!is.null(group_var)){
-    tmp_all <- tmp_all %>%
-      dplyr::mutate(id = as.character(id)) %>%
-      dplyr::inner_join(grouplabs_data, by = c("id" = "id"))
-  } else{
-  }
-  
-  return(tmp_all)
+  return(tmp_all_features)
 }
