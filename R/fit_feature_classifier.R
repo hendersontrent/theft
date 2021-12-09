@@ -116,6 +116,8 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     dplyr::select(-c(id)) %>%
     dplyr::mutate(group = as.factor(group))
   
+  # Delete columns (features) with NaNs and track the number that are deleted
+  
   ncols <- ncol(data_id)
   
   data_id <- data_id %>%
