@@ -163,14 +163,21 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   classifierOutputs <- fit_feature_classifier(data_id, id_var = "id", group_var = "group", test_method = test_method)
   
   # Filter results to get list of top features
+  # NOTE: In the future, all should be filtered on p-values once computations are correct in fit_feature_classifier()
   
-  ResultsTable <- classifierOutputs %>%
-    dplyr::slice_min(p_value, n = num_features)
+  if(test_method %in% c("t-test", "binomial logistic")){
+    ResultsTable <- classifierOutputs %>%
+      dplyr::slice_min(p_value, n = num_features)
+  } else{
+    ResultsTable <- classifierOutputs %>%
+      dplyr::slice_max(test_statistic_value, n = num_features)
+  }
   
   # Filter original data to just the top performers
   
   dataFiltered <- data_id %>%
-    dplyr::filter(names %in% ResultsTable$feature)
+    dplyr::filter(names %in% ResultsTable$feature) %>%
+    dplyr::mutate()
   
   #---------------
   # Feature x 
