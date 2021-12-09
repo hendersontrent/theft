@@ -219,11 +219,11 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   FeatureFeatureCorrelationPlot <- cluster_out %>%
     ggplot2::ggplot(ggplot2::aes(x = Var1, y = Var2)) +
     ggplot2::geom_tile(ggplot2::aes(fill = value)) +
-    ggplot2::labs(title = "Pairwise correlation matrix of top features",
+    ggplot2::labs(title = paste0("Pairwise correlation matrix of top ", num_features, " features"),
                   x = NULL,
                   y = NULL,
                   fill = "Pearson correlation coefficient") +
-    ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1,1)) +
+    ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1, 1)) +
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
                    legend.position = "bottom")

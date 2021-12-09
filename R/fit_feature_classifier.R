@@ -116,6 +116,17 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     dplyr::select(-c(id)) %>%
     dplyr::mutate(group = as.factor(group))
   
+  # Check group variable NAs
+  
+  nrows <- nrow(data_id)
+  
+  data_id <- data_id %>%
+    dplyr::filter(!is.na(group))
+  
+  if(nrow(data_id) < nrows){
+    message(paste0("Dropped ", nrows - nrow(data_id), " rows due to NaN values in the 'group' variable column."))
+  }
+  
   # Delete columns (features) with NaNs and track the number that are deleted
   
   ncols <- ncol(data_id)
