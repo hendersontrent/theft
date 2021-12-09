@@ -60,15 +60,20 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   expected_cols_1 <- "names"
   expected_cols_2 <- "values"
+  expected_cols_3 <- "method"
   the_cols <- colnames(data)
   '%ni%' <- Negate('%in%')
   
   if(expected_cols_1 %ni% the_cols){
-    stop("data should contain at least two columns called 'names' and 'values'. These are automatically produced by feature calculations such as calculate_features(). Please consider running one of these first and then passing the resultant dataframe in to this function.")
+    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by calculate_features(). Please consider running this first and then passing the resultant dataframe in to this function.")
   }
   
   if(expected_cols_2 %ni% the_cols){
-    stop("data should contain at least two columns called 'names' and 'values'. These are automatically produced by feature calculations such as calculate_features(). Please consider running one of these first and then passing the resultant dataframe in to this function.")
+    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by calculate_features(). Please consider running this first and then passing the resultant dataframe in to this function.")
+  }
+  
+  if(expected_cols_3 %ni% the_cols){
+    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by calculate_features(). Please consider running this first and then passing the resultant dataframe in to this function.")
   }
   
   if(!is.numeric(data$values)){
@@ -176,8 +181,8 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   # Filter original data to just the top performers
   
   dataFiltered <- data_id %>%
-    dplyr::filter(names %in% ResultsTable$feature) %>%
-    dplyr::mutate()
+    dplyr::mutate(names = paste0(method, "_", names)) %>%
+    dplyr::filter(names %in% ResultsTable$feature)
   
   #---------------
   # Feature x 
