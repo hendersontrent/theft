@@ -37,15 +37,20 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   
   expected_cols_1 <- "names"
   expected_cols_2 <- "values"
+  expected_cols_3 <- "method"
   the_cols <- colnames(data)
   '%ni%' <- Negate('%in%')
   
   if(expected_cols_1 %ni% the_cols){
-    stop("data should contain at least two columns called 'names' and 'values'. These are automatically produced by feature calculations such as calculate_features(). Please consider running one of these first and then passing the resultant dataframe in to this function.")
+    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by calculate_features(). Please consider running this first and then passing the resultant dataframe in to this function.")
   }
   
   if(expected_cols_2 %ni% the_cols){
-    stop("data should contain at least two columns called 'names' and 'values'. These are automatically produced by feature calculations such as calculate_features(). Please consider running one of these first and then passing the resultant dataframe in to this function.")
+    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by calculate_features(). Please consider running this first and then passing the resultant dataframe in to this function.")
+  }
+  
+  if(expected_cols_3 %ni% the_cols){
+    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by calculate_features(). Please consider running this first and then passing the resultant dataframe in to this function.")
   }
   
   if(!is.numeric(data$values)){
@@ -105,9 +110,33 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   # Widening for model matrix
   
   data_id <- data_id %>%
-    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
+    dplyr::mutate(names_long = paste0(method, "_", names)) %>%
+    dplyr::select(-c(names, method)) %>%
+    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names_long", values_from = "values") %>%
     dplyr::select(-c(id)) %>%
     dplyr::mutate(group = as.factor(group))
+  
+  # Check group variable NAs
+  
+  nrows <- nrow(data_id)
+  
+  data_id <- data_id %>%
+    dplyr::filter(!is.na(group))
+  
+  if(nrow(data_id) < nrows){
+    message(paste0("Dropped ", nrows - nrow(data_id), " rows due to NaN values in the 'group' variable column."))
+  }
+  
+  # Delete columns (features) with NaNs and track the number that are deleted
+  
+  ncols <- ncol(data_id)
+  
+  data_id <- data_id %>%
+    dplyr::select_if(~ !any(is.na(.)))
+  
+  if(ncol(data_id) < ncols){
+    message(paste0("Dropped ", ncols - ncol(data_id), " features due to NaN values."))
+  }
   
   #------------- Fit classifiers -------------
   

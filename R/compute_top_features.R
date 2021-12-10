@@ -60,15 +60,20 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   expected_cols_1 <- "names"
   expected_cols_2 <- "values"
+  expected_cols_3 <- "method"
   the_cols <- colnames(data)
   '%ni%' <- Negate('%in%')
   
   if(expected_cols_1 %ni% the_cols){
-    stop("data should contain at least two columns called 'names' and 'values'. These are automatically produced by feature calculations such as calculate_features(). Please consider running one of these first and then passing the resultant dataframe in to this function.")
+    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by calculate_features(). Please consider running this first and then passing the resultant dataframe in to this function.")
   }
   
   if(expected_cols_2 %ni% the_cols){
-    stop("data should contain at least two columns called 'names' and 'values'. These are automatically produced by feature calculations such as calculate_features(). Please consider running one of these first and then passing the resultant dataframe in to this function.")
+    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by calculate_features(). Please consider running this first and then passing the resultant dataframe in to this function.")
+  }
+  
+  if(expected_cols_3 %ni% the_cols){
+    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by calculate_features(). Please consider running this first and then passing the resultant dataframe in to this function.")
   }
   
   if(!is.numeric(data$values)){
@@ -163,13 +168,20 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   classifierOutputs <- fit_feature_classifier(data_id, id_var = "id", group_var = "group", test_method = test_method)
   
   # Filter results to get list of top features
+  # NOTE: In the future, all should be filtered on p-values once computations are correct in fit_feature_classifier()
   
-  ResultsTable <- classifierOutputs %>%
-    dplyr::slice_min(p_value, n = num_features)
+  if(test_method %in% c("t-test", "binomial logistic")){
+    ResultsTable <- classifierOutputs %>%
+      dplyr::slice_min(p_value, n = num_features)
+  } else{
+    ResultsTable <- classifierOutputs %>%
+      dplyr::slice_max(test_statistic_value, n = num_features)
+  }
   
   # Filter original data to just the top performers
   
   dataFiltered <- data_id %>%
+    dplyr::mutate(names = paste0(method, "_", names)) %>%
     dplyr::filter(names %in% ResultsTable$feature)
   
   #---------------
@@ -182,6 +194,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   cor_dat <- dataFiltered %>%
     dplyr::select(c(id, names, values)) %>%
     tidyr::drop_na() %>%
+    dplyr::group_by(names) %>%
     dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
     tidyr::drop_na() %>%
     tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
@@ -207,11 +220,11 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   FeatureFeatureCorrelationPlot <- cluster_out %>%
     ggplot2::ggplot(ggplot2::aes(x = Var1, y = Var2)) +
     ggplot2::geom_tile(ggplot2::aes(fill = value)) +
-    ggplot2::labs(title = "Pairwise correlation matrix of top features",
+    ggplot2::labs(title = paste0("Pairwise correlation matrix of top ", num_features, " features"),
                   x = NULL,
                   y = NULL,
                   fill = "Pearson correlation coefficient") +
-    ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1,1)) +
+    ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1, 1)) +
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
                    legend.position = "bottom")
