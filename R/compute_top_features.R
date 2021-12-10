@@ -194,6 +194,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   cor_dat <- dataFiltered %>%
     dplyr::select(c(id, names, values)) %>%
     tidyr::drop_na() %>%
+    dplyr::group_by(names) %>%
     dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
     tidyr::drop_na() %>%
     tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
