@@ -122,9 +122,9 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     stop("Your data only has one class label. At least two are required to performed analysis.")
   }
   
-  if(missing(test_method) && num_classes > 1){
-    test_method <- "t-test"
-    message("test_method is NULL. Running t-test for 2-class problem.")
+  if((missing(test_method) || is.null(test_method)) && num_classes > 1){
+    test_method <- "linear svm"
+    message("test_method is missing. Running linear svm as a default.")
   }
   
   #------------- Renaming columns -------------
