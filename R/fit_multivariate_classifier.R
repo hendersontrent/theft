@@ -156,21 +156,26 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     
     for(s in sets){
       
+      #------------- Preprocess data -------------
+      
       setData <- data_id %>%
         dplyr::filter(method == s)
       
       inputData <- prepare_model_matrix(data = setData)
       
+      #------------- Fit classifiers -------------
+      
     }
     
   } else{
     
+    #------------- Preprocess data -------------
+    
     inputData <- prepare_model_matrix(data = data_id)
     
+    #------------- Fit classifiers -------------
+    
+    
+    
   }
-  
-  #------------- Fit classifiers -------------
-  
-  
-  
 }
