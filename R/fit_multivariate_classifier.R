@@ -74,7 +74,7 @@ prepare_model_matrix <- function(data){
 
 fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group",
                                         by_set = FALSE,
-                                        test_method = c("t-test", "binomial logistic", "linear svm", "rbf svm")){
+                                        test_method = c("linear svm", "rbf svm")){
   
   #---------- Check arguments ------------
   
@@ -106,7 +106,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   
   # Set defaults for classification method
   
-  methods <- c("t-test", "binomial logistic", "linear svm", "rbf svm")
+  methods <- c("linear svm", "rbf svm")
   
   if(test_method %ni% methods){
     stop("test_method should be a single string specification of 't-test', 'binomial logistic', 'linear svm', or 'rbf svm'.")
@@ -122,18 +122,9 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     stop("Your data only has one class label. At least two are required to performed analysis.")
   }
   
-  if(missing(test_method) && num_classes == 2){
+  if(missing(test_method) && num_classes > 1){
     test_method <- "t-test"
     message("test_method is NULL. Running t-test for 2-class problem.")
-  }
-  
-  if(missing(test_method) && num_classes > 2){
-    test_method <- "linear svm"
-    message("test_method is NULL. Running linear svm for multiclass problem.")
-  }
-  
-  if(test_method %in% c("t-test", "binomial logistic") && num_classes > 2){
-    stop("t-test and binomial logistic regression can only be run for 2-class problems.")
   }
   
   #------------- Renaming columns -------------
@@ -175,7 +166,85 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     
     #------------- Fit classifiers -------------
     
+    #---------------
+    # Main procedure
+    #---------------
     
+    # Fit classifier
     
+    if(test_method == "linear svm"){
+      mod <- e1071::svm(group ~., data = inputData, kernel = "linear", cross = 10, probability = TRUE)
+    } else{
+      mod <- e1071::svm(group ~., data = inputData, kernel = "radial", cross = 10, probability = TRUE)
+    }
+    
+    # Get outputs for main model
+    
+    cm <- as.data.frame(table(inputData$group, predict(mod))) %>%
+      dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
+    
+    same_total <- cm %>%
+      dplyr::filter(flag == "Same") %>%
+      summarise(Freq = sum(Freq)) %>%
+      pull()
+    
+    all_total <- cm %>%
+      summarise(Freq = sum(Freq)) %>%
+      pull()
+    
+    statistic <- same_total / all_total
+    statistic_name <- "Classification accuracy"
+    
+    #---------------
+    # Empirical null
+    #---------------
+    
+    # Generate shuffled class labels
+    
+    nullList <- list()
+    repeats <- seq(from = 100, to = 1000, by = 100)
+    
+    for(r in repeats){
+      
+      set.seed(r)
+      y <- inputData %>% dplyr::pull(1)
+      y <- as.character(y)
+      shuffles <- sample(y, replace = FALSE)
+      
+      inputData2 <- inputData %>%
+        dplyr::mutate(group = shuffles,
+                      group = as.factor(group))
+      
+      # Fit classifier
+      
+      if(test_method == "linear svm"){
+        mod <- e1071::svm(group ~., data = inputData2, kernel = "linear", cross = 10, probability = TRUE)
+      } else{
+        mod <- e1071::svm(group ~., data = inputData2, kernel = "radial", cross = 10, probability = TRUE)
+      }
+      
+      # Get outputs
+      
+      cmNULL <- as.data.frame(table(inputData2$group, predict(modNULL))) %>%
+        dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
+      
+      same_totalNULL <- cmNULL %>%
+        dplyr::filter(flag == "Same") %>%
+        summarise(Freq = sum(Freq)) %>%
+        pull()
+      
+      all_totalNULL <- cmNULL %>%
+        summarise(Freq = sum(Freq)) %>%
+        pull()
+      
+      statisticNULL <- same_totalNULL / all_totalNULL
+      nullStorage <- data.frame(test_statistic_value = statisticNULL)
+      nullList[[r]] <- nullStorage
+    }
+    
+    # Bind empirical nulls together
+    
+    tmpNULLs <- data.table::rbindlist(nullList, use.names = TRUE) %>%
+      dplyr::pull(1)
   }
 }
