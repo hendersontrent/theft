@@ -1,3 +1,42 @@
+#--------------- Helper function ----------------
+
+prepare_model_matrix <- function(data){
+  
+  # Widening for model matrix
+  
+  my_matrix <- data %>%
+    dplyr::mutate(names_long = paste0(method, "_", names)) %>%
+    dplyr::select(-c(names, method)) %>%
+    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names_long", values_from = "values") %>%
+    dplyr::select(-c(id)) %>%
+    dplyr::mutate(group = as.factor(group))
+  
+  # Check group variable NAs
+  
+  nrows <- nrow(my_matrix)
+  
+  my_matrix <- my_matrix %>%
+    dplyr::filter(!is.na(group))
+  
+  if(nrow(my_matrix) < nrows){
+    message(paste0("Dropped ", nrows - nrow(my_matrix), " rows due to NaN values in the 'group' variable column."))
+  }
+  
+  # Delete columns (features) with NaNs and track the number that are deleted
+  
+  ncols <- ncol(my_matrix)
+  
+  my_matrix <- my_matrix %>%
+    dplyr::select_if(~ !any(is.na(.)))
+  
+  if(ncol(my_matrix) < ncols){
+    message(paste0("Dropped ", ncols - ncol(my_matrix), " features due to NaN values."))
+  }
+  return(my_matrix)
+}
+
+#---------------- Main function ----------------
+
 #' Fit a classifier to feature matrix using all features or by set
 #' @import dplyr
 #' @importFrom magrittr %>%
@@ -108,5 +147,30 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       dplyr::rename(id = dplyr::all_of(id_var),
                     group = dplyr::all_of(group_var))
   }
+  
+  #------------- Preprocess data --------------
+  
+  if(by_set){
+    
+    sets <- unique(data_id$method)
+    
+    for(s in sets){
+      
+      setData <- data_id %>%
+        dplyr::filter(method == s)
+      
+      inputData <- prepare_model_matrix(data = setData)
+      
+    }
+    
+  } else{
+    
+    inputData <- prepare_model_matrix(data = data_id)
+    
+  }
+  
+  #------------- Fit classifiers -------------
+  
+  
   
 }
