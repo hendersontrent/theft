@@ -225,7 +225,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
         
         # Fit classifier
         
-        modNULL <- e1071::svm(group ~., data = tmp2, kernel = "linear", probability = TRUE)
+        modNULL <- e1071::svm(group ~., data = tmp2, kernel = "linear", cross = 10, probability = TRUE)
         
         # Get outputs
         
@@ -305,7 +305,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
         
         # Fit classifier
         
-        modNULL <- e1071::svm(group ~., data = tmp2, kernel = "radial", probability = TRUE)
+        modNULL <- e1071::svm(group ~., data = tmp2, kernel = "radial", cross = 10, probability = TRUE)
         
         # Get outputs
         
