@@ -10,7 +10,9 @@
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
-#' @param normalise a Boolean of whether to normalise features before plotting. Defaults to FALSE
+#' @param num_features the number of top features to retain and explore. Defaults to 40
+#' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
+#' @param normalise_violin_plots a Boolean of whether to normalise features before plotting. Defaults to FALSE
 #' @param method a rescaling/normalising method to apply if normalise = TRUE. Defaults to 'RobustSigmoid'
 #' @param cor_method the correlation method to use. Defaults to 'pearson'
 #' @param test_method the algorithm to use for quantifying class separation
@@ -30,14 +32,16 @@
 #'   id_var = "id",
 #'   group_var = "group",
 #'   num_features = 10,
-#'   normalise = FALSE,
+#'   is_normalised = FALSE,
+#'   normalise_violin_plots = FALSE,
 #'   cor_method = "pearson",
 #'   test_method = "linear svm") 
 #' }
 #' 
 
 compute_top_features <- function(data, id_var = "id", group_var = "group",
-                                 num_features = 40, normalise = FALSE,
+                                 num_features = 40, is_normalised = FALSE,
+                                 normalise_violin_plots = FALSE,
                                  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                  cor_method = c("pearson", "spearman"),
                                  test_method = c("t-test", "binomial logistic", "linear svm", "rbf svm")){
@@ -165,7 +169,8 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Fit algorithm
   
-  classifierOutputs <- fit_feature_classifier(data_id, id_var = "id", group_var = "group", test_method = test_method)
+  classifierOutputs <- fit_feature_classifier(data_id, id_var = "id", group_var = "group",
+                                              is_normalised = is_normalised, test_method = test_method)
   
   # Filter results to get list of top features
   # NOTE: In the future, all should be filtered on p-values once computations are correct in fit_feature_classifier()
@@ -237,7 +242,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   ViolinPlots <- plot_feature_discrimination(dataFiltered, 
                                              id_var = "id", 
                                              group_var = "group",
-                                             normalise = normalise,
+                                             normalise = normalise_violin_plots,
                                              method = method)
   
   #---------------  Returns ---------------------

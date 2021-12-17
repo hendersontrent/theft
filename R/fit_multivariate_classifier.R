@@ -50,6 +50,8 @@ prepare_model_matrix <- function(data){
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
+#' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
+#' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
 #' @param by_set Boolean specifying whether to compute classifiers for each feature set. Defaults to FALSE
 #' @param test_method the algorithm to use for quantifying class separation
 #' @return an object of class dataframe containing results
@@ -67,12 +69,14 @@ prepare_model_matrix <- function(data){
 #' fit_multivariate_classifier(featMat,
 #'   id_var = "id",
 #'   group_var = "group",
+#'   method = "RobustSigmoid",
 #'   by_set = FALSE,
 #'   test_method = "linear svm") 
 #' }
 #' 
 
 fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group",
+                                        is_normalised = FALSE, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"), 
                                         by_set = FALSE,
                                         test_method = c("linear svm", "rbf svm")){
   
@@ -104,6 +108,18 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     stop("id_var should be a string specifying a variable in the input data that uniquely identifies each observation.")
   }
   
+  # Method selection
+  
+  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
+  
+  if(method %ni% the_methods){
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
+  }
+  
+  if(length(method) > 1){
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
+  }
+  
   # Set defaults for classification method
   
   methods <- c("linear svm", "rbf svm")
@@ -114,17 +130,6 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   
   if(length(test_method) != 1){
     stop("test_method should be a single string specification of 't-test', 'binomial logistic', 'linear svm', or 'rbf svm'.")
-  }
-  
-  num_classes <- length(unique(data$group)) # Get number of classes in the data
-  
-  if(num_classes == 1){
-    stop("Your data only has one class label. At least two are required to performed analysis.")
-  }
-  
-  if((missing(test_method) || is.null(test_method)) && num_classes > 1){
-    test_method <- "linear svm"
-    message("test_method is missing. Running linear svm as a default.")
   }
   
   #------------- Renaming columns -------------
@@ -139,11 +144,41 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
                     group = dplyr::all_of(group_var))
   }
   
+  num_classes <- length(unique(data_id$group)) # Get number of classes in the data
+  
+  if(num_classes == 1){
+    stop("Your data only has one class label. At least two are required to performed analysis.")
+  }
+  
+  if((missing(test_method) || is.null(test_method)) && num_classes > 1){
+    test_method <- "linear svm"
+    message("test_method is missing. Running linear svm as a default.")
+  }
+  
+  #------------- Normalise data -------------------
+  
+  if(is_normalised){
+    normed <- data_id
+  } else{
+    
+    normed <- data_id %>%
+      dplyr::select(c(id, names, values, method)) %>%
+      tidyr::drop_na() %>%
+      dplyr::group_by(names) %>%
+      dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
+      dplyr::ungroup() %>%
+      tidyr::drop_na()
+    
+    if(nrow(normed) != nrow(data_id)){
+      message("Filtered out rows containing NaNs.")
+    }
+  }
+  
   #------------- Preprocess data --------------
   
   if(by_set){
     
-    sets <- unique(data_id$method)
+    sets <- unique(normed$method)
     
     for(s in sets){
       
