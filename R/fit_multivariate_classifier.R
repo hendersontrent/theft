@@ -47,11 +47,11 @@ prepare_model_matrix <- function(data){
 #' @importFrom e1071 svm
 #' @importFrom data.table rbindlist
 #' @importFrom stats glm binomial
+#' @importFrom stats sd
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
-#' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
 #' @param by_set Boolean specifying whether to compute classifiers for each feature set. Defaults to FALSE
 #' @param test_method the algorithm to use for quantifying class separation
 #' @return an object of class dataframe containing results
@@ -69,15 +69,14 @@ prepare_model_matrix <- function(data){
 #' fit_multivariate_classifier(featMat,
 #'   id_var = "id",
 #'   group_var = "group",
-#'   method = "RobustSigmoid",
+#'   is_normalised = FALSE,
 #'   by_set = FALSE,
 #'   test_method = "linear svm") 
 #' }
 #' 
 
 fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group",
-                                        is_normalised = FALSE, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"), 
-                                        by_set = FALSE,
+                                        by_set = FALSE, is_normalised = FALSE,
                                         test_method = c("linear svm", "rbf svm")){
   
   #---------- Check arguments ------------
@@ -162,10 +161,9 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   } else{
     
     normed <- data_id %>%
-      dplyr::select(c(id, names, values, method)) %>%
       tidyr::drop_na() %>%
       dplyr::group_by(names) %>%
-      dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
+      dplyr::mutate(values = (values - mean(values, na.rm = TRUE)) / stats::sd(values, na.rm = TRUE)) %>%
       dplyr::ungroup() %>%
       tidyr::drop_na()
     
@@ -184,7 +182,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       
       #------------- Preprocess data -------------
       
-      setData <- data_id %>%
+      setData <- normed %>%
         dplyr::filter(method == s)
       
       inputData <- prepare_model_matrix(data = setData)
@@ -197,7 +195,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     
     #------------- Preprocess data -------------
     
-    inputData <- prepare_model_matrix(data = data_id)
+    inputData <- prepare_model_matrix(data = normed)
     
     #------------- Fit classifiers -------------
     

@@ -8,6 +8,7 @@
 #' @importFrom e1071 svm
 #' @importFrom data.table rbindlist
 #' @importFrom stats glm binomial
+#' @importFrom stats sd
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
@@ -118,7 +119,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     normed <- data_id %>%
       tidyr::drop_na() %>%
       dplyr::group_by(names) %>%
-      dplyr::mutate(values = (values - base::mean(values, na.rm = TRUE)) / stats::sd(values, na.rm = TRUE)) %>%
+      dplyr::mutate(values = (values - mean(values, na.rm = TRUE)) / stats::sd(values, na.rm = TRUE)) %>%
       dplyr::ungroup() %>%
       tidyr::drop_na()
     
