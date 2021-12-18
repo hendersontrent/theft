@@ -1,38 +1,53 @@
 #--------------- Helper function ----------------
 
-prepare_model_matrix <- function(data){
+prepare_model_matrices <- function(mydata){
   
-  # Widening for model matrix
+  # Train-test split
   
-  my_matrix <- data %>%
-    dplyr::mutate(names_long = paste0(method, "_", names)) %>%
-    dplyr::select(-c(names, method)) %>%
-    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names_long", values_from = "values") %>%
-    dplyr::select(-c(id)) %>%
+  set.seed(123)
+  bound <- floor((nrow(mydata)/4)*3)
+  mydata <- mydata[sample(nrow(mydata)), ]
+  train <- mydata[1:bound, ]
+  test <- mydata[(bound + 1):nrow(mydata), ]
+  
+  # Get train mean and SD for normalisation
+  
+  train_scales <- train %>%
+    group_by(names) %>%
+    summarise(mean = mean(values, na.rm = TRUE),
+              sd = stats::sd(values, na.rm = TRUE)) %>%
+    ungroup()
+  
+  # Normalise train and test sets
+  
+  train <- train %>%
+    dplyr::left_join(train_scales, by = c("names" = "names")) %>%
+    dplyr::group_by(names) %>%
+    dplyr::mutate(values = (values - mean) / sd) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-c(mean, sd))
+  
+  test <- test %>%
+    dplyr::left_join(train_scales, by = c("names" = "names")) %>%
+    dplyr::group_by(names) %>%
+    dplyr::mutate(values = (values - mean) / sd) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-c(mean, sd))
+  
+  # Widen data matrices
+  
+  train <- train %>%
+    tidyr::pivot_wider(id_cols = c("id", "method", "group"), names_from = "names", values_from = "values") %>%
+    dplyr::select(-c(id, method)) %>%
     dplyr::mutate(group = as.factor(group))
   
-  # Check group variable NAs
+  test <- test %>%
+    tidyr::pivot_wider(id_cols = c("id", "method", "group"), names_from = "names", values_from = "values") %>%
+    dplyr::select(-c(id, method)) %>%
+    dplyr::mutate(group = as.factor(group))
   
-  nrows <- nrow(my_matrix)
-  
-  my_matrix <- my_matrix %>%
-    dplyr::filter(!is.na(group))
-  
-  if(nrow(my_matrix) < nrows){
-    message(paste0("Dropped ", nrows - nrow(my_matrix), " rows due to NaN values in the 'group' variable column."))
-  }
-  
-  # Delete columns (features) with NaNs and track the number that are deleted
-  
-  ncols <- ncol(my_matrix)
-  
-  my_matrix <- my_matrix %>%
-    dplyr::select_if(~ !any(is.na(.)))
-  
-  if(ncol(my_matrix) < ncols){
-    message(paste0("Dropped ", ncols - ncol(my_matrix), " features due to NaN values."))
-  }
-  return(my_matrix)
+  myMatrix <- list(train, test)
+  return(myMatrix)
 }
 
 #---------------- Main function ----------------
@@ -51,7 +66,6 @@ prepare_model_matrix <- function(data){
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
-#' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
 #' @param by_set Boolean specifying whether to compute classifiers for each feature set. Defaults to FALSE
 #' @param test_method the algorithm to use for quantifying class separation
 #' @return an object of class dataframe containing results
@@ -69,14 +83,13 @@ prepare_model_matrix <- function(data){
 #' fit_multivariate_classifier(featMat,
 #'   id_var = "id",
 #'   group_var = "group",
-#'   is_normalised = FALSE,
 #'   by_set = FALSE,
 #'   test_method = "linear svm") 
 #' }
 #' 
 
 fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group",
-                                        by_set = FALSE, is_normalised = FALSE,
+                                        by_set = FALSE,
                                         test_method = c("linear svm", "rbf svm")){
   
   #---------- Check arguments ------------
@@ -154,24 +167,6 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     message("test_method is missing. Running linear svm as a default.")
   }
   
-  #------------- Normalise data -------------------
-  
-  if(is_normalised){
-    normed <- data_id
-  } else{
-    
-    normed <- data_id %>%
-      tidyr::drop_na() %>%
-      dplyr::group_by(names) %>%
-      dplyr::mutate(values = (values - mean(values, na.rm = TRUE)) / stats::sd(values, na.rm = TRUE)) %>%
-      dplyr::ungroup() %>%
-      tidyr::drop_na()
-    
-    if(nrow(normed) != nrow(data_id)){
-      message("Filtered out rows containing NaNs.")
-    }
-  }
-  
   #------------- Preprocess data --------------
   
   if(by_set){
@@ -185,7 +180,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       setData <- normed %>%
         dplyr::filter(method == s)
       
-      inputData <- prepare_model_matrix(data = setData)
+      inputData <- prepare_model_matrices(mydata = setData)
       
       #------------- Fit classifiers -------------
       
@@ -195,7 +190,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     
     #------------- Preprocess data -------------
     
-    inputData <- prepare_model_matrix(data = normed)
+    inputData <- prepare_model_matrices(mydata = data_id)
     
     #------------- Fit classifiers -------------
     
@@ -206,14 +201,14 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     # Fit classifier
     
     if(test_method == "linear svm"){
-      mod <- e1071::svm(group ~., data = inputData, kernel = "linear", cross = 10, probability = TRUE)
+      mod <- e1071::svm(group ~., data = as.data.frame(inputData[1]), kernel = "linear", cross = 10, probability = TRUE)
     } else{
-      mod <- e1071::svm(group ~., data = inputData, kernel = "radial", cross = 10, probability = TRUE)
+      mod <- e1071::svm(group ~., data = as.data.frame(inputData[1]), kernel = "radial", cross = 10, probability = TRUE)
     }
     
     # Get outputs for main model
     
-    cm <- as.data.frame(table(inputData$group, predict(mod))) %>%
+    cm <- as.data.frame(table(as.data.frame(inputData[2]), predict(mod))) %>%
       dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
     
     same_total <- cm %>%

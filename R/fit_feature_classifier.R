@@ -12,7 +12,6 @@
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
-#' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
 #' @param test_method the algorithm to use for quantifying class separation
 #' @return an object of class dataframe containing results
 #' @author Trent Henderson
@@ -29,13 +28,11 @@
 #' fit_feature_classifier(featMat,
 #'   id_var = "id",
 #'   group_var = "group",
-#'   is_normalised = FALSE,
 #'   test_method = "linear svm") 
 #' }
 #' 
 
 fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
-                                   is_normalised = FALSE,
                                    test_method = c("t-test", "binomial logistic", "linear svm", "rbf svm")){
   
   #---------- Check arguments ------------
@@ -112,21 +109,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   
   #------------- Normalise data -------------------
   
-  if(is_normalised){
-    normed <- data_id
-  } else{
-    
-    normed <- data_id %>%
-      tidyr::drop_na() %>%
-      dplyr::group_by(names) %>%
-      dplyr::mutate(values = (values - mean(values, na.rm = TRUE)) / stats::sd(values, na.rm = TRUE)) %>%
-      dplyr::ungroup() %>%
-      tidyr::drop_na()
-    
-    if(nrow(normed) != nrow(data_id)){
-      message("Filtered out rows containing NaNs.")
-    }
-  }
+  
   
   #------------- Preprocess data --------------
   
