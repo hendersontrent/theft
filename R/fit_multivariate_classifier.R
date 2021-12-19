@@ -1,49 +1,52 @@
 #--------------- Helper function ----------------
 
-prepare_model_matrices <- function(mydata){
+prepare_model_matrices <- function(mydata, seed){
+  
+  # Pivot wider for correct train-test splits
+  
+  mydata2 <- mydata %>%
+    dplyr::select(-c(method)) %>%
+    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
   
   # Train-test split
   
-  set.seed(123)
-  bound <- floor((nrow(mydata)/4)*3)
-  mydata <- mydata[sample(nrow(mydata)), ]
-  train <- mydata[1:bound, ]
-  test <- mydata[(bound + 1):nrow(mydata), ]
+  set.seed(seed)
+  bound <- floor((nrow(mydata2)/4)*3)
+  mydata2 <- mydata2[sample(nrow(mydata2)), ]
+  train <- mydata2[1:bound, ]
+  test <- mydata2[(bound + 1):nrow(mydata2), ]
   
   # Get train mean and SD for normalisation
   
   train_scales <- train %>%
-    group_by(names) %>%
-    summarise(mean = mean(values, na.rm = TRUE),
-              sd = stats::sd(values, na.rm = TRUE)) %>%
-    ungroup()
+    tidyr::pivot_longer(cols = 3:ncol(train), names_to = "names", values_to = "values") %>%
+    dplyr::group_by(names) %>%
+    dplyr::summarise(mean = mean(values, na.rm = TRUE),
+                     sd = stats::sd(values, na.rm = TRUE)) %>%
+    dplyr::ungroup()
   
-  # Normalise train and test sets
+  # Normalise train and test sets and widen model matrices
   
   train <- train %>%
+    tidyr::pivot_longer(cols = 3:ncol(train), names_to = "names", values_to = "values") %>%
     dplyr::left_join(train_scales, by = c("names" = "names")) %>%
     dplyr::group_by(names) %>%
     dplyr::mutate(values = (values - mean) / sd) %>%
     dplyr::ungroup() %>%
-    dplyr::select(-c(mean, sd))
-  
-  test <- test %>%
-    dplyr::left_join(train_scales, by = c("names" = "names")) %>%
-    dplyr::group_by(names) %>%
-    dplyr::mutate(values = (values - mean) / sd) %>%
-    dplyr::ungroup() %>%
-    dplyr::select(-c(mean, sd))
-  
-  # Widen data matrices
-  
-  train <- train %>%
-    tidyr::pivot_wider(id_cols = c("id", "method", "group"), names_from = "names", values_from = "values") %>%
-    dplyr::select(-c(id, method)) %>%
+    dplyr::select(-c(mean, sd)) %>%
+    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
+    dplyr::select(-c(id)) %>%
     dplyr::mutate(group = as.factor(group))
   
   test <- test %>%
-    tidyr::pivot_wider(id_cols = c("id", "method", "group"), names_from = "names", values_from = "values") %>%
-    dplyr::select(-c(id, method)) %>%
+    tidyr::pivot_longer(cols = 3:ncol(test), names_to = "names", values_to = "values") %>%
+    dplyr::left_join(train_scales, by = c("names" = "names")) %>%
+    dplyr::group_by(names) %>%
+    dplyr::mutate(values = (values - mean) / sd) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-c(mean, sd)) %>%
+    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
+    dplyr::select(-c(id)) %>%
     dplyr::mutate(group = as.factor(group))
   
   myMatrix <- list(train, test)
@@ -180,7 +183,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       setData <- normed %>%
         dplyr::filter(method == s)
       
-      inputData <- prepare_model_matrices(mydata = setData)
+      inputData <- prepare_model_matrices(mydata = setData, seed = 123)
       
       #------------- Fit classifiers -------------
       
@@ -190,7 +193,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     
     #------------- Preprocess data -------------
     
-    inputData <- prepare_model_matrices(mydata = data_id)
+    inputData <- prepare_model_matrices(mydata = data_id, seed = 123)
     
     #------------- Fit classifiers -------------
     
@@ -208,7 +211,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     
     # Get outputs for main model
     
-    cm <- as.data.frame(table(as.data.frame(inputData[2]), predict(mod))) %>%
+    cm <- as.data.frame(table(as.data.frame(inputData[2])$group, predict(mod, newdata = as.data.frame(inputData[2])))) %>%
       dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
     
     same_total <- cm %>%
