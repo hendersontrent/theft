@@ -175,6 +175,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   if(by_set){
     
     sets <- unique(normed$method)
+    storage <- list()
     
     for(s in sets){
       
@@ -249,14 +250,14 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       # Fit classifier
       
       if(test_method == "linear svm"){
-        mod <- e1071::svm(group ~., data = inputData2, kernel = "linear", cross = 10, probability = TRUE)
+        modNULL <- e1071::svm(group ~., data = as.data.frame(inputData2[1]), kernel = "linear", cross = 10, probability = TRUE)
       } else{
-        mod <- e1071::svm(group ~., data = inputData2, kernel = "radial", cross = 10, probability = TRUE)
+        modNULL <- e1071::svm(group ~., data = as.data.frame(inputData2[1]), kernel = "radial", cross = 10, probability = TRUE)
       }
       
-      # Get outputs
+      # Get outputs for main model
       
-      cmNULL <- as.data.frame(table(inputData2$group, predict(modNULL))) %>%
+      cmNULL <- as.data.frame(table(as.data.frame(inputData2[2])$group, predict(mod, newdata = as.data.frame(inputData2[2])))) %>%
         dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
       
       same_totalNULL <- cmNULL %>%
