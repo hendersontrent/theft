@@ -70,6 +70,7 @@ prepare_model_matrices <- function(mydata, seed){
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
 #' @param by_set Boolean specifying whether to compute classifiers for each feature set. Defaults to FALSE
+#' @param num_splits an integer specifying the number of train-test splits to perform for error bars. Defaults to 5
 #' @param test_method the algorithm to use for quantifying class separation
 #' @return an object of class dataframe containing results
 #' @author Trent Henderson
@@ -87,12 +88,13 @@ prepare_model_matrices <- function(mydata, seed){
 #'   id_var = "id",
 #'   group_var = "group",
 #'   by_set = FALSE,
+#'   num_splits = 5,
 #'   test_method = "linear svm") 
 #' }
 #' 
 
 fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group",
-                                        by_set = FALSE,
+                                        by_set = FALSE, num_splits = 5,
                                         test_method = c("linear svm", "rbf svm")){
   
   #---------- Check arguments ------------
@@ -145,6 +147,12 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   
   if(length(test_method) != 1){
     stop("test_method should be a single string specification of 't-test', 'binomial logistic', 'linear svm', or 'rbf svm'.")
+  }
+  
+  # Splits
+  
+  if(!is.integer(num_splits) || num_splits < 1){
+    stop("num_splits should be an integer >=1 specifying the number of train-test splits to perform.")
   }
   
   #------------- Renaming columns -------------
