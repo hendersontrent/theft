@@ -61,7 +61,7 @@ prepare_model_matrices <- function(mydata, seed){
 # Model fitting
 #--------------
 
-fit_multivariate_models <- function(mydata1, mydata2){
+fit_multivariate_models <- function(mydata1, mydata2, test_method){
   
   # Main procedure
   
@@ -163,7 +163,7 @@ fit_multivariate_models <- function(mydata1, mydata2){
 #'   id_var = "id",
 #'   group_var = "group",
 #'   by_set = FALSE,
-#'   num_splits = 5,
+#'   num_splits = 10,
 #'   test_method = "linear svm") 
 #' }
 #' 
@@ -200,33 +200,25 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     stop("id_var should be a string specifying a variable in the input data that uniquely identifies each observation.")
   }
   
-  # Method selection
-  
-  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
-  
-  if(method %ni% the_methods){
-    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
-  }
-  
-  if(length(method) > 1){
-    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
-  }
-  
   # Set defaults for classification method
   
   methods <- c("linear svm", "rbf svm")
   
   if(test_method %ni% methods){
-    stop("test_method should be a single string specification of 't-test', 'binomial logistic', 'linear svm', or 'rbf svm'.")
+    stop("test_method should be a single string specification of 'linear svm' or 'rbf svm'.")
   }
   
   if(length(test_method) != 1){
-    stop("test_method should be a single string specification of 't-test', 'binomial logistic', 'linear svm', or 'rbf svm'.")
+    stop("test_method should be a single string specification of 'linear svm' or 'rbf svm'.")
   }
   
   # Splits
   
-  if(!is.integer(num_splits) || num_splits < 1){
+  if(!is.numeric(num_splits)){
+    stop("num_splits should be an integer >=1 specifying the number of train-test splits to perform.")
+  }
+  
+  if(num_splits < 1){
     stop("num_splits should be an integer >=1 specifying the number of train-test splits to perform.")
   }
   
@@ -271,7 +263,8 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
         
         message(paste0("Performing computations for ", s, ", split ", n, "/", num_splits))
         inputData <- prepare_model_matrices(mydata = setData, seed = n)
-        modelOutputs <- fit_multivariate_models(mydata1 = as.data.frame(inputData[1]), mydata2 = as.data.frame(inputData[2]))
+        modelOutputs <- fit_multivariate_models(mydata1 = as.data.frame(inputData[1]), mydata2 = as.data.frame(inputData[2]),
+                                                test_method = test_method)
         storage2[[n]] <- modelOutputs
       }
       results2 <- data.table::rbindlist(storage2, use.names = TRUE) %>%
@@ -289,9 +282,11 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       
       message(paste0("Performing computations for split ", n, "/", num_splits))
       inputData <- prepare_model_matrices(mydata = data_id, seed = n)
-      modelOutputs <- fit_multivariate_models(mydata1 = as.data.frame(inputData[1]), mydata2 = as.data.frame(inputData[2]))
+      modelOutputs <- fit_multivariate_models(mydata1 = as.data.frame(inputData[1]), mydata2 = as.data.frame(inputData[2]),
+                                              test_method = test_method)
       storage[[n]] <- modelOutputs
     }
     results <- data.table::rbindlist(storage, use.names = TRUE)
   }
+  return(results)
 }
