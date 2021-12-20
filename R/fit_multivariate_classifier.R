@@ -1,6 +1,26 @@
 #--------------- Helper functions ----------------
 
 #-------------
+# Data widener
+#-------------
+
+widener <- function(mydata){
+  
+  tmpWide <- mydata %>%
+    tidyr::pivot_longer(cols = 3:ncol(mydata), names_to = "names", values_to = "values") %>%
+    dplyr::left_join(train_scales, by = c("names" = "names")) %>%
+    dplyr::group_by(names) %>%
+    dplyr::mutate(values = (values - mean) / sd) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-c(mean, sd)) %>%
+    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
+    dplyr::select(-c(id)) %>%
+    dplyr::mutate(group = as.factor(group))
+  
+  return(tmpWide)
+}
+
+#-------------
 # Model matrix
 #-------------
 
@@ -9,8 +29,20 @@ prepare_model_matrices <- function(mydata, seed){
   # Pivot wider for correct train-test splits
   
   mydata2 <- mydata %>%
+    dplyr::mutate(names = paste0(method, "_", names)) %>%
     dplyr::select(-c(method)) %>%
     tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
+  
+  # Check NAs
+  
+  nrows <- nrow(mydata2)
+  
+  mydata2 <- mydata2 %>%
+    dplyr::filter(!is.na(group))
+  
+  if(nrow(mydata2) < nrows){
+    message(paste0("Dropped ", nrows - nrow(mydata2), " time series due to NaN values in the 'group' variable."))
+  }
   
   # Train-test split
   
@@ -31,27 +63,8 @@ prepare_model_matrices <- function(mydata, seed){
   
   # Normalise train and test sets and widen model matrices
   
-  train <- train %>%
-    tidyr::pivot_longer(cols = 3:ncol(train), names_to = "names", values_to = "values") %>%
-    dplyr::left_join(train_scales, by = c("names" = "names")) %>%
-    dplyr::group_by(names) %>%
-    dplyr::mutate(values = (values - mean) / sd) %>%
-    dplyr::ungroup() %>%
-    dplyr::select(-c(mean, sd)) %>%
-    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
-    dplyr::select(-c(id)) %>%
-    dplyr::mutate(group = as.factor(group))
-  
-  test <- test %>%
-    tidyr::pivot_longer(cols = 3:ncol(test), names_to = "names", values_to = "values") %>%
-    dplyr::left_join(train_scales, by = c("names" = "names")) %>%
-    dplyr::group_by(names) %>%
-    dplyr::mutate(values = (values - mean) / sd) %>%
-    dplyr::ungroup() %>%
-    dplyr::select(-c(mean, sd)) %>%
-    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
-    dplyr::select(-c(id)) %>%
-    dplyr::mutate(group = as.factor(group))
+  train <- widener(train)
+  test <- widener(test)
   
   myMatrix <- list(train, test)
   return(myMatrix)
@@ -139,7 +152,6 @@ fit_multivariate_models <- function(mydata1, mydata2, test_method){
 #' @importFrom tibble rownames_to_column
 #' @importFrom e1071 svm
 #' @importFrom data.table rbindlist
-#' @importFrom stats glm binomial
 #' @importFrom stats sd
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
@@ -245,7 +257,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     message("test_method is missing. Running linear svm as a default.")
   }
   
-  #------------- Preprocess data --------------
+  #------------- Fit models -------------------
   
   if(by_set){
     

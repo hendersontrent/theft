@@ -107,10 +107,6 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     stop("t-test and binomial logistic regression can only be run for 2-class problems.")
   }
   
-  #------------- Normalise data -------------------
-  
-  
-  
   #------------- Preprocess data --------------
   
   # Widening for model matrix
@@ -122,7 +118,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     dplyr::select(-c(id)) %>%
     dplyr::mutate(group = as.factor(group))
   
-  # Check group variable NAs
+  # Check NAs
   
   nrows <- nrow(data_id)
   
