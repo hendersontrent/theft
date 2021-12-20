@@ -108,7 +108,7 @@ fit_multivariate_models <- function(mydata1, mydata2){
     
   # Get outputs for model
     
-  cmNULL <- as.data.frame(table(inputData2$group, predict(modNULL, newdata = mydata2))) %>%
+  cmNULL <- as.data.frame(table(mydata2$group, predict(modNULL, newdata = mydata2))) %>%
     dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
     
   same_totalNULL <- cmNULL %>%
@@ -281,9 +281,12 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     
     for(n in 1:num_splits){
       
+      message(paste0("Performing computations for split ", n, "/", num_splits))
       inputData <- prepare_model_matrices(mydata = data_id, seed = n)
-      modelOutputs <- fit_multivariate_models(mydata1 = as.data.frame(inputData[1], mydata2 = as.data.frame(inputData[2])))
-      
+      modelOutputs <- fit_multivariate_models(mydata1 = as.data.frame(inputData[1]), mydata2 = as.data.frame(inputData[2]))
+      storage[[n]] <- modelOutputs
     }
+    
+    results <- data.table::rbindlist(storage, use.names = TRUE)
   }
 }
