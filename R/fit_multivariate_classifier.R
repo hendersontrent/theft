@@ -4,11 +4,11 @@
 # Data widener
 #-------------
 
-widener <- function(mydata){
+widener <- function(mydata, scaledata){
   
   tmpWide <- mydata %>%
     tidyr::pivot_longer(cols = 3:ncol(mydata), names_to = "names", values_to = "values") %>%
-    dplyr::left_join(train_scales, by = c("names" = "names")) %>%
+    dplyr::left_join(scaledata, by = c("names" = "names")) %>%
     dplyr::group_by(names) %>%
     dplyr::mutate(values = (values - mean) / sd) %>%
     dplyr::ungroup() %>%
@@ -63,8 +63,8 @@ prepare_model_matrices <- function(mydata, seed){
   
   # Normalise train and test sets and widen model matrices
   
-  train <- widener(train)
-  test <- widener(test)
+  train <- widener(train, train_scales)
+  test <- widener(test, train_scales)
   
   myMatrix <- list(train, test)
   return(myMatrix)
