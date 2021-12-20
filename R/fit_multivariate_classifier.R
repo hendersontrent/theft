@@ -1,4 +1,8 @@
-#--------------- Helper function ----------------
+#--------------- Helper functions ----------------
+
+#-------------
+# Model matrix
+#-------------
 
 prepare_model_matrices <- function(mydata, seed){
   
@@ -51,6 +55,88 @@ prepare_model_matrices <- function(mydata, seed){
   
   myMatrix <- list(train, test)
   return(myMatrix)
+}
+
+#--------------
+# Model fitting
+#--------------
+
+fit_multivariate_models <- function(mydata1, mydata2){
+  
+  # Main procedure
+  
+  if(test_method == "linear svm"){
+    mod <- e1071::svm(group ~., data = mydata1, kernel = "linear", cross = 10, probability = TRUE)
+  } else{
+    mod <- e1071::svm(group ~., data = mydata1, kernel = "radial", cross = 10, probability = TRUE)
+  }
+  
+  # Get outputs for main model
+  
+  cm <- as.data.frame(table(mydata2$group, predict(mod, newdata = mydata2))) %>%
+    dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
+  
+  same_total <- cm %>%
+    dplyr::filter(flag == "Same") %>%
+    summarise(Freq = sum(Freq)) %>%
+    pull()
+  
+  all_total <- cm %>%
+    summarise(Freq = sum(Freq)) %>%
+    pull()
+  
+  statistic <- same_total / all_total
+  statistic_name <- "Classification accuracy"
+  
+  # Empirical null
+  
+  # Generate shuffled class labels
+  
+  nullList <- list()
+  repeats <- seq(from = 100, to = 1000, by = 100)
+  
+  for(r in repeats){
+    
+    set.seed(r)
+    y <- mydata1 %>% dplyr::pull(1)
+    y <- as.character(y)
+    shuffles <- sample(y, replace = FALSE)
+    
+    inputData2 <- mydata1 %>%
+      dplyr::mutate(group = shuffles,
+                    group = as.factor(group))
+    
+    # Fit classifier
+    
+    if(test_method == "linear svm"){
+      modNULL <- e1071::svm(group ~., data = inputData2, kernel = "linear", cross = 10, probability = TRUE)
+    } else{
+      modNULL <- e1071::svm(group ~., data = inputData2, kernel = "radial", cross = 10, probability = TRUE)
+    }
+    
+    # Get outputs for main model
+    
+    cmNULL <- as.data.frame(table(inputData2$group, predict(mod, newdata = inputData2))) %>%
+      dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
+    
+    same_totalNULL <- cmNULL %>%
+      dplyr::filter(flag == "Same") %>%
+      summarise(Freq = sum(Freq)) %>%
+      pull()
+    
+    all_totalNULL <- cmNULL %>%
+      summarise(Freq = sum(Freq)) %>%
+      pull()
+    
+    statisticNULL <- same_totalNULL / all_totalNULL
+    nullStorage <- data.frame(test_statistic_value = statisticNULL)
+    nullList[[r]] <- nullStorage
+  }
+  
+  # Bind empirical nulls together
+  
+  tmpNULLs <- data.table::rbindlist(nullList, use.names = TRUE) %>%
+    dplyr::pull(1)
 }
 
 #---------------- Main function ----------------
@@ -202,89 +288,13 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     
     #------------- Preprocess data -------------
     
-    inputData <- prepare_model_matrices(mydata = data_id, seed = 123)
+    storage <- list()
     
-    #------------- Fit classifiers -------------
-    
-    #---------------
-    # Main procedure
-    #---------------
-    
-    # Fit classifier
-    
-    if(test_method == "linear svm"){
-      mod <- e1071::svm(group ~., data = as.data.frame(inputData[1]), kernel = "linear", cross = 10, probability = TRUE)
-    } else{
-      mod <- e1071::svm(group ~., data = as.data.frame(inputData[1]), kernel = "radial", cross = 10, probability = TRUE)
+    for(n in 1:num_splits){
+      
+      inputData <- prepare_model_matrices(mydata = data_id, seed = n)
+      modelOutputs <- fit_multivariate_models(mydata1 = as.data.frame(inputData[1], mydata2 = as.data.frame(inputData[2])))
+      
     }
-    
-    # Get outputs for main model
-    
-    cm <- as.data.frame(table(as.data.frame(inputData[2])$group, predict(mod, newdata = as.data.frame(inputData[2])))) %>%
-      dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
-    
-    same_total <- cm %>%
-      dplyr::filter(flag == "Same") %>%
-      summarise(Freq = sum(Freq)) %>%
-      pull()
-    
-    all_total <- cm %>%
-      summarise(Freq = sum(Freq)) %>%
-      pull()
-    
-    statistic <- same_total / all_total
-    statistic_name <- "Classification accuracy"
-    
-    #---------------
-    # Empirical null
-    #---------------
-    
-    # Generate shuffled class labels
-    
-    nullList <- list()
-    repeats <- seq(from = 100, to = 1000, by = 100)
-    
-    for(r in repeats){
-      
-      set.seed(r)
-      y <- inputData %>% dplyr::pull(1)
-      y <- as.character(y)
-      shuffles <- sample(y, replace = FALSE)
-      
-      inputData2 <- inputData %>%
-        dplyr::mutate(group = shuffles,
-                      group = as.factor(group))
-      
-      # Fit classifier
-      
-      if(test_method == "linear svm"){
-        modNULL <- e1071::svm(group ~., data = as.data.frame(inputData2[1]), kernel = "linear", cross = 10, probability = TRUE)
-      } else{
-        modNULL <- e1071::svm(group ~., data = as.data.frame(inputData2[1]), kernel = "radial", cross = 10, probability = TRUE)
-      }
-      
-      # Get outputs for main model
-      
-      cmNULL <- as.data.frame(table(as.data.frame(inputData2[2])$group, predict(mod, newdata = as.data.frame(inputData2[2])))) %>%
-        dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
-      
-      same_totalNULL <- cmNULL %>%
-        dplyr::filter(flag == "Same") %>%
-        summarise(Freq = sum(Freq)) %>%
-        pull()
-      
-      all_totalNULL <- cmNULL %>%
-        summarise(Freq = sum(Freq)) %>%
-        pull()
-      
-      statisticNULL <- same_totalNULL / all_totalNULL
-      nullStorage <- data.frame(test_statistic_value = statisticNULL)
-      nullList[[r]] <- nullStorage
-    }
-    
-    # Bind empirical nulls together
-    
-    tmpNULLs <- data.table::rbindlist(nullList, use.names = TRUE) %>%
-      dplyr::pull(1)
   }
 }
