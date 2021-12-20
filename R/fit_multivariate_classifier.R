@@ -257,25 +257,31 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   
   if(by_set){
     
-    sets <- unique(normed$method)
+    sets <- unique(data_id$method)
     storage <- list()
     
     for(s in sets){
       
-      #------------- Preprocess data -------------
+      storage2 <- list()
       
-      setData <- normed %>%
+      setData <- data_id %>%
         dplyr::filter(method == s)
       
-      inputData <- prepare_model_matrices(mydata = setData, seed = 123)
+      for(n in 1:num_splits){
+        
+        message(paste0("Performing computations for ", s, ", split ", n, "/", num_splits))
+        inputData <- prepare_model_matrices(mydata = setData, seed = n)
+        modelOutputs <- fit_multivariate_models(mydata1 = as.data.frame(inputData[1]), mydata2 = as.data.frame(inputData[2]))
+        storage2[[n]] <- modelOutputs
+      }
+      results2 <- data.table::rbindlist(storage2, use.names = TRUE) %>%
+        dplyr::mutate(method = s)
       
-      #------------- Fit classifiers -------------
-      
+      storage[[s]] <- results2
     }
+    results <- data.table::rbindlist(storage, use.names = TRUE)
     
   } else{
-    
-    #------------- Preprocess data -------------
     
     storage <- list()
     
@@ -286,7 +292,6 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       modelOutputs <- fit_multivariate_models(mydata1 = as.data.frame(inputData[1]), mydata2 = as.data.frame(inputData[2]))
       storage[[n]] <- modelOutputs
     }
-    
     results <- data.table::rbindlist(storage, use.names = TRUE)
   }
 }
