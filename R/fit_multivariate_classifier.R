@@ -89,45 +89,43 @@ fit_multivariate_models <- function(mydata1, mydata2){
   statistic_name <- "Classification accuracy"
   
   # Empirical null
-  
-  for(r in repeats){
     
-    y <- mydata1 %>% dplyr::pull(group)
-    y <- as.character(y)
-    shuffles <- sample(y, replace = FALSE)
+  y <- mydata1 %>% dplyr::pull(group)
+  y <- as.character(y)
+  shuffles <- sample(y, replace = FALSE)
     
-    inputData2 <- mydata1 %>%
-      dplyr::mutate(group = shuffles,
-                    group = as.factor(group))
+  inputData2 <- mydata1 %>%
+    dplyr::mutate(group = shuffles,
+                  group = as.factor(group))
     
-    # Fit classifier
+  # Fit classifier
     
-    if(test_method == "linear svm"){
-      modNULL <- e1071::svm(group ~., data = inputData2, kernel = "linear", cross = 10, probability = TRUE)
-    } else{
-      modNULL <- e1071::svm(group ~., data = inputData2, kernel = "radial", cross = 10, probability = TRUE)
-    }
+  if(test_method == "linear svm"){
+    modNULL <- e1071::svm(group ~., data = inputData2, kernel = "linear", cross = 10, probability = TRUE)
+  } else{
+    modNULL <- e1071::svm(group ~., data = inputData2, kernel = "radial", cross = 10, probability = TRUE)
+  }
     
-    # Get outputs for main model
+  # Get outputs for model
     
-    cmNULL <- as.data.frame(table(inputData2$group, predict(modNULL, newdata = mydata2))) %>%
-      dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
+  cmNULL <- as.data.frame(table(inputData2$group, predict(modNULL, newdata = mydata2))) %>%
+    dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
     
-    same_totalNULL <- cmNULL %>%
-      dplyr::filter(flag == "Same") %>%
-      summarise(Freq = sum(Freq)) %>%
-      pull()
+  same_totalNULL <- cmNULL %>%
+    dplyr::filter(flag == "Same") %>%
+    summarise(Freq = sum(Freq)) %>%
+    pull()
     
-    all_totalNULL <- cmNULL %>%
-      summarise(Freq = sum(Freq)) %>%
-      pull()
+  all_totalNULL <- cmNULL %>%
+    summarise(Freq = sum(Freq)) %>%
+    pull()
     
-    statisticNULL <- same_totalNULL / all_totalNULL
+  statisticNULL <- same_totalNULL / all_totalNULL
     
-    outputs <- data.frame(category = c("Main", "Null"),
-                          statistic = c(statistic, statisticNULL))
+  outputs <- data.frame(category = c("Main", "Null"),
+                        statistic = c(statistic, statisticNULL))
     
-    return(outputs)
+  return(outputs)
 }
 
 #---------------- Main function ----------------
