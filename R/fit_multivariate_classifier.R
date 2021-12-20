@@ -90,15 +90,9 @@ fit_multivariate_models <- function(mydata1, mydata2){
   
   # Empirical null
   
-  # Generate shuffled class labels
-  
-  nullList <- list()
-  repeats <- seq(from = 100, to = 1000, by = 100)
-  
   for(r in repeats){
     
-    set.seed(r)
-    y <- mydata1 %>% dplyr::pull(1)
+    y <- mydata1 %>% dplyr::pull(group)
     y <- as.character(y)
     shuffles <- sample(y, replace = FALSE)
     
@@ -116,7 +110,7 @@ fit_multivariate_models <- function(mydata1, mydata2){
     
     # Get outputs for main model
     
-    cmNULL <- as.data.frame(table(inputData2$group, predict(mod, newdata = inputData2))) %>%
+    cmNULL <- as.data.frame(table(inputData2$group, predict(modNULL, newdata = mydata2))) %>%
       dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
     
     same_totalNULL <- cmNULL %>%
@@ -129,14 +123,11 @@ fit_multivariate_models <- function(mydata1, mydata2){
       pull()
     
     statisticNULL <- same_totalNULL / all_totalNULL
-    nullStorage <- data.frame(test_statistic_value = statisticNULL)
-    nullList[[r]] <- nullStorage
-  }
-  
-  # Bind empirical nulls together
-  
-  tmpNULLs <- data.table::rbindlist(nullList, use.names = TRUE) %>%
-    dplyr::pull(1)
+    
+    outputs <- data.frame(category = c("Main", "Null"),
+                          statistic = c(statistic, statisticNULL))
+    
+    return(outputs)
 }
 
 #---------------- Main function ----------------
