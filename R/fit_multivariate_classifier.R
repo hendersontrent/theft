@@ -17,6 +17,8 @@ widener <- function(mydata, scaledata, train = FALSE){
     dplyr::select(-c(id)) %>%
     dplyr::mutate(group = as.factor(group))
   
+  # Delete columns that were problematic for the train set so they can be removed from test set later
+  
   if(train){
     
     removals <- sapply(tmpWide, function(x) sum(is.na(x)))
