@@ -4,11 +4,11 @@
 # Data widener
 #-------------
 
-widener <- function(mydata, scaledata){
+widener <- function(mydata, scaledata, train = FALSE){
   
   tmpWide <- mydata %>%
     tidyr::pivot_longer(cols = 3:ncol(mydata), names_to = "names", values_to = "values") %>%
-    dplyr::left_join(scaledata, by = c("names" = "names")) %>%
+    dplyr::inner_join(scaledata, by = c("names" = "names")) %>%
     dplyr::group_by(names) %>%
     dplyr::mutate(values = (values - mean) / sd) %>%
     dplyr::ungroup() %>%
@@ -17,7 +17,19 @@ widener <- function(mydata, scaledata){
     dplyr::select(-c(id)) %>%
     dplyr::mutate(group = as.factor(group))
   
-  return(tmpWide)
+  if(train){
+    
+    removals <- sapply(tmpWide, function(x) sum(is.na(x)))
+    removals <- removals[removals > 0]
+    
+    tmpWide <- tmpWide %>%
+      dplyr::select(!dplyr::all_of(removals))
+    
+    return(tmpWide)
+    
+  } else{
+    return(tmpWide)
+  }
 }
 
 #-------------
@@ -75,8 +87,13 @@ prepare_model_matrices <- function(mydata, seed){
   
   # Normalise train and test sets and widen model matrices
   
-  train <- widener(train, train_scales)
-  test <- widener(test, train_scales)
+  train <- widener(train, train_scales, train = TRUE)
+  test <- widener(test, train_scales, train = FALSE)
+  
+  traincols <- names(train)
+  
+  test <- test %>%
+    dplyr::select(dplyr::all_of(traincols))
   
   myMatrix <- list(train, test)
   return(myMatrix)
@@ -287,6 +304,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
         
         message(paste0("Performing computations for ", s, ", split ", n, "/", num_splits))
         inputData <- prepare_model_matrices(mydata = setData, seed = n)
+        
         modelOutputs <- fit_multivariate_models(mydata1 = as.data.frame(inputData[1]), mydata2 = as.data.frame(inputData[2]),
                                                 test_method = test_method)
         storage2[[n]] <- modelOutputs
@@ -306,6 +324,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       
       message(paste0("Performing computations for split ", n, "/", num_splits))
       inputData <- prepare_model_matrices(mydata = data_id, seed = n)
+      
       modelOutputs <- fit_multivariate_models(mydata1 = as.data.frame(inputData[1]), mydata2 = as.data.frame(inputData[2]),
                                               test_method = test_method)
       storage[[n]] <- modelOutputs
