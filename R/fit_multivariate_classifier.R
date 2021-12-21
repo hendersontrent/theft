@@ -33,6 +33,18 @@ prepare_model_matrices <- function(mydata, seed){
     dplyr::select(-c(method)) %>%
     tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
   
+  ncols <- ncol(mydata2)
+  
+  # Delete features that are all NaNs and features with constant values
+  
+  mydata2 <- mydata2 %>%
+    dplyr::select_if(~sum(!is.na(.)) > 0) %>%
+    dplyr::select(where(~dplyr::n_distinct(.) > 1))
+  
+  if(ncol(mydata2) < ncols){
+    message(paste0("Dropped ", ncols - ncol(mydata2), " features due to containing NAs or only a constant."))
+  }
+  
   # Check NAs
   
   nrows <- nrow(mydata2)
