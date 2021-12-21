@@ -27,11 +27,8 @@ widener <- function(mydata, scaledata, trainset = FALSE){
     tmpWide <- tmpWide %>%
       dplyr::select(!dplyr::all_of(removals))
     
-    return(tmpWide)
-    
-  } else{
-    return(tmpWide)
   }
+  return(tmpWide)
 }
 
 #-------------
