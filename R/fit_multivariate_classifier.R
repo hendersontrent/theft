@@ -4,7 +4,7 @@
 # Data widener
 #-------------
 
-widener <- function(mydata, scaledata, train = FALSE){
+widener <- function(mydata, scaledata, trainset = FALSE){
   
   tmpWide <- mydata %>%
     tidyr::pivot_longer(cols = 3:ncol(mydata), names_to = "names", values_to = "values") %>%
@@ -19,7 +19,7 @@ widener <- function(mydata, scaledata, train = FALSE){
   
   # Delete columns that were problematic for the train set so they can be removed from test set later
   
-  if(train){
+  if(trainset){
     
     removals <- sapply(tmpWide, function(x) sum(is.na(x)))
     removals <- removals[removals > 0]
@@ -89,8 +89,8 @@ prepare_model_matrices <- function(mydata, seed){
   
   # Normalise train and test sets and widen model matrices
   
-  train <- widener(train, train_scales, train = TRUE)
-  test <- widener(test, train_scales, train = FALSE)
+  train <- widener(train, train_scales, trainset = TRUE)
+  test <- widener(test, train_scales, trainset = FALSE)
   
   traincols <- names(train)
   
@@ -188,7 +188,7 @@ fit_multivariate_models <- function(mydata1, mydata2, test_method){
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
 #' @param by_set Boolean specifying whether to compute classifiers for each feature set. Defaults to FALSE
-#' @param num_splits an integer specifying the number of train-test splits to perform for error bars. Defaults to 10
+#' @param num_splits an integer specifying the number of 75/25 train-test splits to perform for error bars. Defaults to 10
 #' @param test_method the algorithm to use for quantifying class separation
 #' @return an object of class dataframe containing results
 #' @author Trent Henderson
