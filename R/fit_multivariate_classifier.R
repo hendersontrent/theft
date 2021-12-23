@@ -4,10 +4,10 @@
 # Data widener
 #-------------
 
-widener <- function(mydata, scaledata, trainset = FALSE){
+widener <- function(data, scaledata){
   
-  tmpWide <- mydata %>%
-    tidyr::pivot_longer(cols = 3:ncol(mydata), names_to = "names", values_to = "values") %>%
+  tmpWide <- data %>%
+    tidyr::pivot_longer(cols = 3:ncol(data), names_to = "names", values_to = "values") %>%
     dplyr::inner_join(scaledata, by = c("names" = "names")) %>%
     dplyr::group_by(names) %>%
     dplyr::mutate(values = (values - mean) / sd) %>%
@@ -17,17 +17,6 @@ widener <- function(mydata, scaledata, trainset = FALSE){
     dplyr::select(-c(id)) %>%
     dplyr::mutate(group = as.factor(group))
   
-  # Delete columns that were problematic for the train set so they can be removed from test set later
-  
-  if(trainset){
-    
-    removals <- sapply(tmpWide, function(x) sum(is.na(x)))
-    removals <- removals[removals > 0]
-    
-    tmpWide <- tmpWide %>%
-      dplyr::select(!dplyr::all_of(removals))
-    
-  }
   return(tmpWide)
 }
 
@@ -35,11 +24,11 @@ widener <- function(mydata, scaledata, trainset = FALSE){
 # Model matrix
 #-------------
 
-prepare_model_matrices <- function(mydata, seed){
+prepare_model_matrices <- function(data, seed){
   
   # Pivot wider for correct train-test splits
   
-  mydata2 <- mydata %>%
+  mydata2 <- data %>%
     dplyr::mutate(names = paste0(method, "_", names)) %>%
     dplyr::select(-c(method)) %>%
     tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
@@ -86,14 +75,15 @@ prepare_model_matrices <- function(mydata, seed){
   
   # Normalise train and test sets and widen model matrices
   
-  train <- widener(train, train_scales, trainset = TRUE)
-  test <- widener(test, train_scales, trainset = FALSE)
+  train <- widener(train, train_scales)
+  test <- widener(test, train_scales)
   
-  traincols <- names(train)
+  # Delete columns that were problematic for the train set so they can be removed from test set
   
-  test <- test %>%
-    dplyr::select(dplyr::all_of(traincols))
-  
+  removals <- sapply(train, function(x) sum(is.na(x)))
+  removals <- removals[removals > 0]
+  train <- train %>% dplyr::select(!dplyr::all_of(removals))
+  test <- test %>% dplyr::select(!dplyr::all_of(removals))
   myMatrix <- list(train, test)
   return(myMatrix)
 }
@@ -102,19 +92,19 @@ prepare_model_matrices <- function(mydata, seed){
 # Model fitting
 #--------------
 
-fit_multivariate_models <- function(mydata1, mydata2, test_method){
+fit_multivariate_models <- function(traindata, testdata, test_method){
   
   # Main procedure
   
   if(test_method == "linear svm"){
-    mod <- e1071::svm(group ~., data = mydata1, kernel = "linear", cross = 10, probability = TRUE)
+    mod <- e1071::svm(group ~., data = traindata, kernel = "linear", cross = 10, probability = TRUE)
   } else{
-    mod <- e1071::svm(group ~., data = mydata1, kernel = "radial", cross = 10, probability = TRUE)
+    mod <- e1071::svm(group ~., data = traindata, kernel = "radial", cross = 10, probability = TRUE)
   }
   
   # Get outputs for main model
   
-  cm <- as.data.frame(table(mydata2$group, predict(mod, newdata = mydata2))) %>%
+  cm <- as.data.frame(table(testdata$group, predict(mod, newdata = testdata))) %>%
     dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
   
   same_total <- cm %>%
@@ -131,25 +121,25 @@ fit_multivariate_models <- function(mydata1, mydata2, test_method){
   
   # Empirical null
     
-  y <- mydata1 %>% dplyr::pull(group)
+  y <- traindata %>% dplyr::pull(group)
   y <- as.character(y)
   shuffles <- sample(y, replace = FALSE)
     
-  inputData2 <- mydata1 %>%
+  shuffledtrain <- traindata %>%
     dplyr::mutate(group = shuffles,
                   group = as.factor(group))
     
   # Fit classifier
     
   if(test_method == "linear svm"){
-    modNULL <- e1071::svm(group ~., data = inputData2, kernel = "linear", cross = 10, probability = TRUE)
+    modNULL <- e1071::svm(group ~., data = shuffledtrain, kernel = "linear", cross = 10, probability = TRUE)
   } else{
-    modNULL <- e1071::svm(group ~., data = inputData2, kernel = "radial", cross = 10, probability = TRUE)
+    modNULL <- e1071::svm(group ~., data = shuffledtrain, kernel = "radial", cross = 10, probability = TRUE)
   }
     
   # Get outputs for model
     
-  cmNULL <- as.data.frame(table(mydata2$group, predict(modNULL, newdata = mydata2))) %>%
+  cmNULL <- as.data.frame(table(testdata$group, predict(modNULL, newdata = testdata))) %>%
     dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
     
   same_totalNULL <- cmNULL %>%
@@ -171,7 +161,7 @@ fit_multivariate_models <- function(mydata1, mydata2, test_method){
 
 #---------------- Main function ----------------
 
-#' Fit a classifier to feature matrix using all features or by set
+#' Fit a classifier to feature matrix using all features or all features by set
 #' @import dplyr
 #' @importFrom magrittr %>%
 #' @import ggplot2
@@ -302,9 +292,9 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       for(n in 1:num_splits){
         
         message(paste0("Performing computations for ", s, ", split ", n, "/", num_splits))
-        inputData <- prepare_model_matrices(mydata = setData, seed = n)
+        inputData <- prepare_model_matrices(data = setData, seed = n)
         
-        modelOutputs <- fit_multivariate_models(mydata1 = as.data.frame(inputData[1]), mydata2 = as.data.frame(inputData[2]),
+        modelOutputs <- fit_multivariate_models(traindata = as.data.frame(inputData[1]), testdata = as.data.frame(inputData[2]),
                                                 test_method = test_method)
         storage2[[n]] <- modelOutputs
       }
@@ -322,10 +312,14 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     for(n in 1:num_splits){
       
       message(paste0("Performing computations for split ", n, "/", num_splits))
-      inputData <- prepare_model_matrices(mydata = data_id, seed = n)
-      
-      modelOutputs <- fit_multivariate_models(mydata1 = as.data.frame(inputData[1]), mydata2 = as.data.frame(inputData[2]),
-                                              test_method = test_method)
+      inputData <- prepare_model_matrices(data = data_id, seed = n)
+      trainset <- as.data.frame(inputData[1])
+      testset <- as.data.frame(inputData[2])
+      removals <- sapply(trainset, function(x) sum(is.na(x)))
+      removals <- removals[removals > 0]
+      trainset <- trainset %>% dplyr::select(!dplyr::all_of(removals))
+      testset <- testset %>% dplyr::select(!dplyr::all_of(removals))
+      modelOutputs <- fit_multivariate_models(traindata = trainset, testdata = testset, test_method = test_method)
       storage[[n]] <- modelOutputs
     }
     results <- data.table::rbindlist(storage, use.names = TRUE)
