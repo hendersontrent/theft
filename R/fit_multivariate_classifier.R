@@ -109,12 +109,12 @@ fit_multivariate_models <- function(traindata, testdata, test_method){
   
   same_total <- cm %>%
     dplyr::filter(flag == "Same") %>%
-    summarise(Freq = sum(Freq)) %>%
-    pull()
+    dplyr::summarise(Freq = sum(Freq)) %>%
+    dplyr::pull()
   
   all_total <- cm %>%
-    summarise(Freq = sum(Freq)) %>%
-    pull()
+    dplyr::summarise(Freq = sum(Freq)) %>%
+    dplyr::pull()
   
   statistic <- same_total / all_total
   statistic_name <- "Classification accuracy"
@@ -144,12 +144,12 @@ fit_multivariate_models <- function(traindata, testdata, test_method){
     
   same_totalNULL <- cmNULL %>%
     dplyr::filter(flag == "Same") %>%
-    summarise(Freq = sum(Freq)) %>%
-    pull()
+    dplyr::summarise(Freq = sum(Freq)) %>%
+    dplyr::pull()
     
   all_totalNULL <- cmNULL %>%
-    summarise(Freq = sum(Freq)) %>%
-    pull()
+    dplyr::summarise(Freq = sum(Freq)) %>%
+    dplyr::pull()
     
   statisticNULL <- same_totalNULL / all_totalNULL
     
