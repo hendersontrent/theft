@@ -175,7 +175,7 @@ fit_multivariate_models <- function(traindata, testdata, test_method){
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
 #' @param by_set Boolean specifying whether to compute classifiers for each feature set. Defaults to FALSE
-#' @param num_splits an integer specifying the number of 75/25 train-test splits to perform for error bars. Defaults to 10
+#' @param num_splits an integer specifying the number of 75/25 train-test splits to perform. Defaults to 10
 #' @param test_method the algorithm to use for quantifying class separation
 #' @return an object of class list containing summaries of the classification models
 #' @author Trent Henderson
@@ -250,7 +250,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   
   # Set defaults for classification method
   
-  if((missing(test_method) || is.null(test_method)) && num_classes > 1){
+  if(((missing(test_method) || is.null(test_method))) && num_classes > 1){
     test_method <- "linear svm"
     message("test_method is NULL or missing, fitting 'linear svm' by default.")
   }
@@ -268,11 +268,11 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   # Splits
   
   if(!is.numeric(num_splits)){
-    stop("num_splits should be an integer >=1 specifying the number of train-test splits to perform.")
+    stop("num_splits should be an integer >=2 specifying the number of train-test splits to perform.")
   }
   
-  if(num_splits < 1){
-    stop("num_splits should be an integer >=1 specifying the number of train-test splits to perform.")
+  if(num_splits < 2){
+    stop("num_splits should be an integer >=2 specifying the number of train-test splits to perform.")
   }
   
   #------------- Fit models -------------------

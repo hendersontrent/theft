@@ -83,9 +83,7 @@ classifier_outputs_2 <- compute_top_features(outs_22, id_var = "id", group_var =
 
 # Two-class
 
-twoclass <- outs_22 %>%
-  filter(group %in% c("Gaussian Noise", "AR(1)"))
-
+twoclass <- outs_22 %>% filter(group %in% c("Gaussian Noise", "AR(1)"))
 classifier_outputs_two <- compute_top_features(twoclass, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "t-test")
 classifier_outputs_two_2 <- compute_top_features(twoclass, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "binomial logistic")
 

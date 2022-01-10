@@ -16,6 +16,7 @@
 #' @param method a rescaling/normalising method to apply if normalise = TRUE. Defaults to 'RobustSigmoid'
 #' @param cor_method the correlation method to use. Defaults to 'pearson'
 #' @param test_method the algorithm to use for quantifying class separation
+#' @param num_splits an integer specifying the number of 75/25 train-test splits to perform if linear svm or rbf svm is selected. Defaults to 10
 #' @return an object of class list containing a dataframe of results, a feature x feature matrix plot, and a violin plot
 #' @author Trent Henderson
 #' @export
@@ -35,7 +36,8 @@
 #'   is_normalised = FALSE,
 #'   normalise_violin_plots = FALSE,
 #'   cor_method = "pearson",
-#'   test_method = "linear svm") 
+#'   test_method = "linear svm",
+#'   num_splits = 10) 
 #' }
 #' 
 
@@ -44,7 +46,8 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                  normalise_violin_plots = FALSE,
                                  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                  cor_method = c("pearson", "spearman"),
-                                 test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm")){
+                                 test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
+                                 num_splits = 10){
   
   # Make RobustSigmoid the default
   
@@ -142,18 +145,28 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     stop("Your data only has one class label. At least two are required to performed analysis.")
   }
   
-  if(missing(test_method) && num_classes == 2){
+  if(((missing(test_method) || is.null(test_method))) && num_classes == 2){
     test_method <- "t-test"
-    message("test_method is NULL. Running t-test for 2-class problem.")
+    message("test_method is NULL or missing. Running t-test for 2-class problem.")
   }
   
-  if(missing(test_method) && num_classes > 2){
+  if(((missing(test_method) || is.null(test_method))) && num_classes > 2){
     test_method <- "linear svm"
-    message("test_method is NULL. Running linear svm for multiclass problem.")
+    message("test_method is NULL or missing. Running linear svm for multiclass problem.")
   }
   
-  if(test_method %in% c("t-test", "wilcox", "logistic") && num_classes > 2){
-    stop("t-test can only be run for 2-class problems.")
+  if(test_method %in% c("t-test", "wilcox", "binomial logistic") && num_classes > 2){
+    stop("t-test, Mann-Whitney-Wilcoxon Test and binomial logistic regression can only be run for 2-class problems.")
+  }
+  
+  # Splits
+  
+  if(test_method %in% c("linear svm", "rbf svm") && !is.numeric(num_splits)){
+    stop("num_splits should be an integer >=2 specifying the number of train-test splits to perform.")
+  }
+  
+  if(test_method %in% c("linear svm", "rbf svm") && num_splits < 2){
+    stop("num_splits should be an integer >=2 specifying the number of train-test splits to perform.")
   }
   
   if(num_features > length(unique(data_id$names))){
@@ -170,18 +183,13 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   # Fit algorithm
   
   classifierOutputs <- fit_feature_classifier(data_id, id_var = "id", group_var = "group",
-                                              is_normalised = is_normalised, test_method = test_method)
+                                              is_normalised = is_normalised, test_method = test_method,
+                                              num_splits = num_splits)
   
   # Filter results to get list of top features
-  # NOTE: In the future, all should be filtered on p-values once computations are correct in fit_feature_classifier()
   
-  if(test_method %in% c("t-test", "wilcox", "binomial logistic")){
-    ResultsTable <- classifierOutputs %>%
+  ResultsTable <- classifierOutputs %>%
       dplyr::slice_min(p_value, n = num_features)
-  } else{
-    ResultsTable <- classifierOutputs %>%
-      dplyr::slice_max(test_statistic_value, n = num_features)
-  }
   
   # Filter original data to just the top performers
   
