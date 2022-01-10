@@ -79,7 +79,7 @@ correctly yet.
 
     To cite package 'theft' in publications use:
 
-      Trent Henderson (2021). theft: Tools for Handling Extraction of
+      Trent Henderson (2022). theft: Tools for Handling Extraction of
       Features from Time series. R package version 0.3.6.
 
     A BibTeX entry for LaTeX users is
@@ -87,6 +87,6 @@ correctly yet.
       @Manual{,
         title = {theft: Tools for Handling Extraction of Features from Time series},
         author = {Trent Henderson},
-        year = {2021},
+        year = {2022},
         note = {R package version 0.3.6},
       }

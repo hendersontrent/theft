@@ -9,10 +9,12 @@ compute_top_features(
   id_var = "id",
   group_var = "group",
   num_features = 40,
-  normalise = FALSE,
+  is_normalised = FALSE,
+  normalise_violin_plots = FALSE,
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
   cor_method = c("pearson", "spearman"),
-  test_method = c("t-test", "binomial logistic", "linear svm", "rbf svm")
+  test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
+  num_splits = 10
 )
 }
 \arguments{
@@ -22,13 +24,19 @@ compute_top_features(
 
 \item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to "group"}
 
-\item{normalise}{a Boolean of whether to normalise features before plotting. Defaults to FALSE}
+\item{num_features}{the number of top features to retain and explore. Defaults to 40}
+
+\item{is_normalised}{a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE}
+
+\item{normalise_violin_plots}{a Boolean of whether to normalise features before plotting. Defaults to FALSE}
 
 \item{method}{a rescaling/normalising method to apply if normalise = TRUE. Defaults to 'RobustSigmoid'}
 
 \item{cor_method}{the correlation method to use. Defaults to 'pearson'}
 
 \item{test_method}{the algorithm to use for quantifying class separation}
+
+\item{num_splits}{an integer specifying the number of 75/25 train-test splits to perform if linear svm or rbf svm is selected. Defaults to 10}
 }
 \value{
 an object of class list containing a dataframe of results, a feature x feature matrix plot, and a violin plot
@@ -49,9 +57,11 @@ compute_top_features(featMat,
   id_var = "id",
   group_var = "group",
   num_features = 10,
-  normalise = FALSE,
+  is_normalised = FALSE,
+  normalise_violin_plots = FALSE,
   cor_method = "pearson",
-  test_method = "linear svm") 
+  test_method = "linear svm",
+  num_splits = 10) 
 }
 
 }

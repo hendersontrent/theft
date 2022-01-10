@@ -4,17 +4,10 @@
 # Data widener
 #-------------
 
-widener <- function(data, scaledata){
+scale_univariate_feature <- function(data){
   
   tmpWide <- data %>%
-    tidyr::pivot_longer(cols = 3:ncol(data), names_to = "names", values_to = "values") %>%
-    dplyr::inner_join(scaledata, by = c("names" = "names")) %>%
-    dplyr::group_by(names) %>%
-    dplyr::mutate(values = (values - mean) / sd) %>%
-    dplyr::ungroup() %>%
-    dplyr::select(-c(mean, sd)) %>%
-    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
-    dplyr::select(-c(id)) %>%
+    dplyr::mutate(values = (values - mean(values, na.rm = TRUE)) / stats::sd(values, na.rm = TRUE)) %>%
     dplyr::mutate(group = as.factor(group))
   
   return(tmpWide)
@@ -26,64 +19,14 @@ widener <- function(data, scaledata){
 
 prepare_model_matrices <- function(data, seed){
   
-  # Pivot wider for correct train-test splits
-  
-  mydata2 <- data %>%
-    dplyr::mutate(names = paste0(method, "_", names)) %>%
-    dplyr::select(-c(method)) %>%
-    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
-  
-  ncols <- ncol(mydata2)
-  
-  # Delete features that are all NaNs and features with constant values
-  
-  mydata2 <- mydata2 %>%
-    dplyr::select_if(~sum(!is.na(.)) > 0) %>%
-    dplyr::select(where(~dplyr::n_distinct(.) > 1))
-  
-  if(ncol(mydata2) < ncols){
-    message(paste0("Dropped ", ncols - ncol(mydata2), " features due to containing NAs or only a constant."))
-  }
-  
-  # Check NAs
-  
-  nrows <- nrow(mydata2)
-  
-  mydata2 <- mydata2 %>%
-    dplyr::filter(!is.na(group))
-  
-  if(nrow(mydata2) < nrows){
-    message(paste0("Dropped ", nrows - nrow(mydata2), " time series due to NaN values in the 'group' variable."))
-  }
-  
-  # Train-test split
-  
+  mydata2 <- data
   set.seed(seed)
   bound <- floor((nrow(mydata2)/4)*3)
   mydata2 <- mydata2[sample(nrow(mydata2)), ]
   train <- mydata2[1:bound, ]
   test <- mydata2[(bound + 1):nrow(mydata2), ]
-  
-  # Get train mean and SD for normalisation
-  
-  train_scales <- train %>%
-    tidyr::pivot_longer(cols = 3:ncol(train), names_to = "names", values_to = "values") %>%
-    dplyr::group_by(names) %>%
-    dplyr::summarise(mean = mean(values, na.rm = TRUE),
-                     sd = stats::sd(values, na.rm = TRUE)) %>%
-    dplyr::ungroup()
-  
-  # Normalise train and test sets and widen model matrices
-  
-  train <- widener(train, train_scales)
-  test <- widener(test, train_scales)
-  
-  # Delete columns that were problematic for the train set so they can be removed from test set
-  
-  removals <- sapply(train, function(x) sum(is.na(x)))
-  removals <- removals[removals > 0]
-  train <- train %>% dplyr::select(!dplyr::all_of(removals))
-  test <- test %>% dplyr::select(!dplyr::all_of(removals))
+  train <- scale_univariate_feature(train)
+  test <- scale_univariate_feature(test)
   myMatrix <- list(train, test)
   return(myMatrix)
 }
@@ -170,8 +113,7 @@ fit_univariate_models <- function(traindata, testdata, test_method){
 #' @importFrom tibble rownames_to_column
 #' @importFrom e1071 svm
 #' @importFrom data.table rbindlist
-#' @importFrom stats glm binomial
-#' @importFrom stats sd wilcox.test
+#' @importFrom stats glm binomial sd wilcox.test
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
@@ -343,8 +285,9 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       
       # Extract statistics
       
-      statistic_name <- "Welch Two Sample t-test"
-      statistic <- mod$statistic
+      classifier_name <- "Welch Two Sample t-test"
+      statistic_name <- "t-test statistic"
+      statistic_value <- mod$statistic
       p_value <- mod$p.value
       
     } else if(test_method == "wilcox"){
@@ -361,8 +304,9 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       
       # Extract statistics
       
-      statistic_name <- "Mann-Whitney-Wilcoxon Test"
-      statistic <- mod$statistic
+      classifier_name <- "Mann-Whitney-Wilcoxon Test"
+      statistic_name <- "Mann-Whitney-Wilcoxon Test statistic"
+      statistic_value <- mod$statistic
       p_value <- mod$p.value
     
     } else if (test_method == "linear svm" || test_method == "rbf svm"){
@@ -374,7 +318,8 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       message(paste0("Fitting classifier: ", match(f, features), "/", length(features), "."))
       
       tmp <- data_id %>% 
-        dplyr::select(c(group, dplyr::all_of(f)))
+        dplyr::select(c(group, dplyr::all_of(f))) %>%
+        dplyr::rename(values = 2)
       
       storage <- list()
       
@@ -389,9 +334,17 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       }
       
       prelimResults <- data.table::rbindlist(storage, use.names = TRUE)
-      p_value <- stats::wilcox.test(statistic ~ category, data = prelimResults)$p.value
+      mod <- stats::wilcox.test(statistic ~ category, data = prelimResults)
       
-      results[[f]] <- prelimResults
+      if(test_method == "linear svm"){
+        classifier_name <- "Linear SVM"
+      } else{
+        classifier_name <- "RBF SVM"
+      }
+      
+      statistic_name <- "Mann-Whitney-Wilcoxon Test statistic"
+      statistic_value <- as.numeric(mod$statistic)
+      p_value <- mod$p.value
       
     } else{
       
@@ -408,22 +361,23 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       
       # Extract statistics
       
+      classifier_name <- "Binomial logistic regression"
       statistic_name <- "Binomial logistic coefficient z-test"
-      statistic <- as.numeric(summary(mod)$coefficients[,3][2])
+      statistic_value <- as.numeric(summary(mod)$coefficients[,3][2])
       p_value <- as.numeric(summary(mod)$coefficients[,4][2])
     }
     
     # Put results into dataframe
     
-    if(test_method %in% c("t-test", "wilcox", "binomial logistic")){
-      featResults <- data.frame(feature = feature_names[f-1],
-                                test_statistic_name = statistic_name,
-                                test_statistic_value = statistic,
-                                p_value = p_value)
-    } else{
-      featResults <- data.frame(feature = feature_names[f-1],
-                                test_statistic_name = statistic_name,
-                                test_statistic_value = statistic)
-    }
+    featResults <- data.frame(feature = feature_names[f],
+                              classifier_name = classifier_name,
+                              sig_statistic_name = statistic_name,
+                              sig_statistic_value = statistic_value,
+                              p_value = p_value)
+    
+    results[[f]] <- featResults
   }
+  
+  allOutputs <- data.table::rbindlist(results, use.names = TRUE)
+  return(allOutputs)
 }
