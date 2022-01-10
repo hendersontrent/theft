@@ -230,7 +230,30 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     stop("id_var should be a string specifying a variable in the input data that uniquely identifies each observation.")
   }
   
+  #------------- Renaming columns -------------
+  
+  if (is.null(id_var)){
+    stop("Data is not uniquely identifiable. Please add a unique identifier variable.")
+  }
+  
+  if(!is.null(id_var)){
+    data_id <- data %>%
+      dplyr::rename(id = dplyr::all_of(id_var),
+                    group = dplyr::all_of(group_var))
+  }
+  
+  num_classes <- length(unique(data_id$group)) # Get number of classes in the data
+  
+  if(num_classes == 1){
+    stop("Your data only has one class label. At least two are required to performed analysis.")
+  }
+  
   # Set defaults for classification method
+  
+  if((missing(test_method) || is.null(test_method)) && num_classes > 1){
+    test_method <- "linear svm"
+    message("test_method is NULL or missing, fitting 'linear svm' by default.")
+  }
   
   methods <- c("linear svm", "rbf svm")
   
@@ -252,29 +275,6 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     stop("num_splits should be an integer >=1 specifying the number of train-test splits to perform.")
   }
   
-  #------------- Renaming columns -------------
-  
-  if (is.null(id_var)){
-    stop("Data is not uniquely identifiable. Please add a unique identifier variable.")
-  }
-  
-  if(!is.null(id_var)){
-    data_id <- data %>%
-      dplyr::rename(id = dplyr::all_of(id_var),
-                    group = dplyr::all_of(group_var))
-  }
-  
-  num_classes <- length(unique(data_id$group)) # Get number of classes in the data
-  
-  if(num_classes == 1){
-    stop("Your data only has one class label. At least two are required to performed analysis.")
-  }
-  
-  if((missing(test_method) || is.null(test_method)) && num_classes > 1){
-    test_method <- "linear svm"
-    message("test_method is missing. Running linear svm as a default.")
-  }
-  
   #------------- Fit models -------------------
   
   if(by_set){
@@ -293,9 +293,14 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
         
         message(paste0("Performing computations for ", s, ", split ", n, "/", num_splits))
         inputData <- prepare_model_matrices(data = setData, seed = n)
+        trainset <- as.data.frame(inputData[1])
+        testset <- as.data.frame(inputData[2])
+        removals <- sapply(trainset, function(x) sum(is.na(x)))
+        removals <- removals[removals > 0]
+        mytrainset <- trainset %>% dplyr::select(!dplyr::all_of(removals))
+        mytestset <- testset %>% dplyr::select(!dplyr::all_of(removals))
+        modelOutputs <- fit_multivariate_models(traindata = mytrainset, testdata = mytestset, test_method = test_method)
         
-        modelOutputs <- fit_multivariate_models(traindata = as.data.frame(inputData[1]), testdata = as.data.frame(inputData[2]),
-                                                test_method = test_method)
         storage2[[n]] <- modelOutputs
       }
       results2 <- data.table::rbindlist(storage2, use.names = TRUE) %>%
@@ -317,9 +322,9 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       testset <- as.data.frame(inputData[2])
       removals <- sapply(trainset, function(x) sum(is.na(x)))
       removals <- removals[removals > 0]
-      trainset <- trainset %>% dplyr::select(!dplyr::all_of(removals))
-      testset <- testset %>% dplyr::select(!dplyr::all_of(removals))
-      modelOutputs <- fit_multivariate_models(traindata = trainset, testdata = testset, test_method = test_method)
+      mytrainset <- trainset %>% dplyr::select(!dplyr::all_of(removals))
+      mytestset <- testset %>% dplyr::select(!dplyr::all_of(removals))
+      modelOutputs <- fit_multivariate_models(traindata = mytrainset, testdata = mytestset, test_method = test_method)
       storage[[n]] <- modelOutputs
     }
     results <- data.table::rbindlist(storage, use.names = TRUE)

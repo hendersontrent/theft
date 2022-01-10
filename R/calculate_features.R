@@ -26,6 +26,7 @@ calc_catch22 <- function(data, catch24){
       dplyr::mutate(method = "catch22")
   }
   
+  message("Calculations completed for catch22.")
   return(outData)
 }
 
@@ -51,6 +52,7 @@ calc_feasts <- function(data){
       dplyr::mutate(method = "feasts")
   }
   
+  message("Calculations completed for feasts.")
   return(outData)
 }
 
@@ -95,6 +97,7 @@ calc_tsfeatures <- function(data){
       dplyr::mutate(method = "tsfeatures")
   }
   
+  message("Calculations completed for tsfeatures.")
   return(outData)
 }
 
@@ -168,6 +171,7 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
   } else{
   }
   
+  message("Calculations completed for tsfresh.")
   return(outData)
 }
 
@@ -201,6 +205,7 @@ calc_tsfel <- function(data){
       dplyr::mutate(method = "TSFEL")
   }
   
+  message("Calculations completed for TSFEL.")
   return(outData)
 }
 
@@ -247,6 +252,7 @@ calc_kats <- function(data){
       dplyr::mutate(method = "Kats")
   }
   
+  message("Calculations completed for Kats.")
   return(outData)
 }
 
