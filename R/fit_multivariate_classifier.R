@@ -295,12 +295,11 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
         inputData <- prepare_model_matrices(data = setData, seed = n)
         trainset <- as.data.frame(inputData[1])
         testset <- as.data.frame(inputData[2])
-        removals <- sapply(trainset, function(x) sum(is.na(x)))
-        removals <- removals[removals > 0]
-        mytrainset <- trainset %>% dplyr::select(!dplyr::all_of(removals))
-        mytestset <- testset %>% dplyr::select(!dplyr::all_of(removals))
+        removals <- sapply(mytrainset, function(y) sum(length(which(is.na(y)))))
+        removals <- data.frame(removals) %>% tibble::rownames_to_column(var = "names") %>% dplyr::filter(removals >= 1) %>% dplyr::pull(names)
+        mytrainset <- trainset %>% dplyr::select(-dplyr::all_of(removals))
+        mytestset <- testset %>% dplyr::select(-dplyr::all_of(removals))
         modelOutputs <- fit_multivariate_models(traindata = mytrainset, testdata = mytestset, test_method = test_method)
-        
         storage2[[n]] <- modelOutputs
       }
       results2 <- data.table::rbindlist(storage2, use.names = TRUE) %>%
@@ -320,10 +319,10 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       inputData <- prepare_model_matrices(data = data_id, seed = n)
       trainset <- as.data.frame(inputData[1])
       testset <- as.data.frame(inputData[2])
-      removals <- sapply(trainset, function(x) sum(is.na(x)))
-      removals <- removals[removals > 0]
-      mytrainset <- trainset %>% dplyr::select(!dplyr::all_of(removals))
-      mytestset <- testset %>% dplyr::select(!dplyr::all_of(removals))
+      removals <- sapply(trainset, function(y) sum(length(which(is.na(y)))))
+      removals <- data.frame(removals) %>% tibble::rownames_to_column(var = "names") %>% dplyr::filter(removals >= 1) %>% dplyr::pull(names)
+      mytrainset <- trainset %>% dplyr::select(-dplyr::all_of(removals))
+      mytestset <- testset %>% dplyr::select(-dplyr::all_of(removals))
       modelOutputs <- fit_multivariate_models(traindata = mytrainset, testdata = mytestset, test_method = test_method)
       storage[[n]] <- modelOutputs
     }
