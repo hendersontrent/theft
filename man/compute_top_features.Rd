@@ -9,9 +9,7 @@ compute_top_features(
   id_var = "id",
   group_var = "group",
   num_features = 40,
-  is_normalised = FALSE,
   normalise_violin_plots = FALSE,
-  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
   cor_method = c("pearson", "spearman"),
   test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
   num_splits = 10
@@ -26,11 +24,7 @@ compute_top_features(
 
 \item{num_features}{the number of top features to retain and explore. Defaults to 40}
 
-\item{is_normalised}{a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE}
-
 \item{normalise_violin_plots}{a Boolean of whether to normalise features before plotting. Defaults to FALSE}
-
-\item{method}{a rescaling/normalising method to apply if normalise = TRUE. Defaults to 'RobustSigmoid'}
 
 \item{cor_method}{the correlation method to use. Defaults to 'pearson'}
 
@@ -57,7 +51,6 @@ compute_top_features(featMat,
   id_var = "id",
   group_var = "group",
   num_features = 10,
-  is_normalised = FALSE,
   normalise_violin_plots = FALSE,
   cor_method = "pearson",
   test_method = "linear svm",

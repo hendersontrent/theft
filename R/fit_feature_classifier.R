@@ -4,10 +4,10 @@
 # Data widener
 #-------------
 
-scale_univariate_feature <- function(data){
+scale_univariate_feature <- function(data, train_mean, train_sd){
   
   tmpWide <- data %>%
-    dplyr::mutate(values = (values - mean(values, na.rm = TRUE)) / stats::sd(values, na.rm = TRUE)) %>%
+    dplyr::mutate(values = (values - train_mean) / train_sd) %>%
     dplyr::mutate(group = as.factor(group))
   
   return(tmpWide)
@@ -25,8 +25,10 @@ prepare_model_matrices <- function(data, seed){
   mydata2 <- mydata2[sample(nrow(mydata2)), ]
   train <- mydata2[1:bound, ]
   test <- mydata2[(bound + 1):nrow(mydata2), ]
-  train <- scale_univariate_feature(train)
-  test <- scale_univariate_feature(test)
+  train_mean <- mean(train$values, na.rm = TRUE)
+  train_sd <- stats::sd(train$values, na.rm = TRUE)
+  train <- scale_univariate_feature(train, train_mean, train_sd)
+  test <- scale_univariate_feature(test, train_mean, train_sd)
   myMatrix <- list(train, test)
   return(myMatrix)
 }
@@ -262,9 +264,9 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   # Loop over features and fit appropriate model
   
   features <- seq(from = 3, to = ncol(data_id))
-  results <- list()
   feature_names <- colnames(data_id)
   feature_names <- feature_names[!feature_names %in% c("id", "group")] # Remove ID and group columns
+  results <- list()
   message("Performing calculations... This may take a while depending on the number of features and classes in your dataset.")
   
   for(f in features){
@@ -369,7 +371,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
     # Put results into dataframe
     
-    featResults <- data.frame(feature = feature_names[f],
+    featResults <- data.frame(feature = feature_names[f - 2],
                               classifier_name = classifier_name,
                               sig_statistic_name = statistic_name,
                               sig_statistic_value = statistic_value,

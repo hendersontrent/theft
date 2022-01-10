@@ -11,9 +11,7 @@
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
 #' @param num_features the number of top features to retain and explore. Defaults to 40
-#' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
 #' @param normalise_violin_plots a Boolean of whether to normalise features before plotting. Defaults to FALSE
-#' @param method a rescaling/normalising method to apply if normalise = TRUE. Defaults to 'RobustSigmoid'
 #' @param cor_method the correlation method to use. Defaults to 'pearson'
 #' @param test_method the algorithm to use for quantifying class separation
 #' @param num_splits an integer specifying the number of 75/25 train-test splits to perform if linear svm or rbf svm is selected. Defaults to 10
@@ -33,7 +31,6 @@
 #'   id_var = "id",
 #'   group_var = "group",
 #'   num_features = 10,
-#'   is_normalised = FALSE,
 #'   normalise_violin_plots = FALSE,
 #'   cor_method = "pearson",
 #'   test_method = "linear svm",
@@ -42,9 +39,8 @@
 #' 
 
 compute_top_features <- function(data, id_var = "id", group_var = "group",
-                                 num_features = 40, is_normalised = FALSE,
+                                 num_features = 40,
                                  normalise_violin_plots = FALSE,
-                                 method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                  cor_method = c("pearson", "spearman"),
                                  test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
                                  num_splits = 10){
@@ -93,18 +89,6 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   if(!is.null(group_var) && !is.character(group_var)){
     stop("group_var should be a string specifying a variable in the input data that identifies an aggregate group each observation relates to.")
-  }
-  
-  # Normalisation
-  
-  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
-  
-  if(normalise == TRUE && method %ni% the_methods){
-    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
-  }
-  
-  if(normalise == TRUE && length(method) > 1){
-    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
   
   # Correlation method selection
@@ -182,8 +166,10 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Fit algorithm
   
-  classifierOutputs <- fit_feature_classifier(data_id, id_var = "id", group_var = "group",
-                                              is_normalised = is_normalised, test_method = test_method,
+  classifierOutputs <- fit_feature_classifier(data_id, 
+                                              id_var = "id", 
+                                              group_var = "group",
+                                              test_method = test_method,
                                               num_splits = num_splits)
   
   # Filter results to get list of top features

@@ -226,11 +226,12 @@ The code below produces analysis for a multiclass problem using a linear support
 ```{r, message = FALSE, warning = FALSE}
 classifier_outputs <- compute_top_features(feature_matrix, 
                                            id_var = "id", 
-                                           group_var = "group", 
-                                           normalise = TRUE, 
-                                           method = "z-score", 
-                                           cor_method = "pearson", 
-                                           test_method = "linear svm")
+                                           group_var = "group",
+                                           num_features = 40, 
+                                           normalise_violin_plots = FALSE,
+                                           cor_method = "pearson",
+                                           test_method = "linear svm",
+                                           num_splits = 10)
 ```
 
 Each component is named and can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
