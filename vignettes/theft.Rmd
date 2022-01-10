@@ -233,7 +233,7 @@ classifier_outputs <- compute_top_features(feature_matrix,
                                            test_method = "linear svm")
 ```
 
-Each component can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
+Each component is named and can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
 
 ```{r, message = FALSE, warning = FALSE}
 head(classifier_outputs$ResultsTable)
