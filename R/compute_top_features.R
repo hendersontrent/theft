@@ -44,7 +44,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                  normalise_violin_plots = FALSE,
                                  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                  cor_method = c("pearson", "spearman"),
-                                 test_method = c("t-test", "binomial logistic", "linear svm", "rbf svm")){
+                                 test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm")){
   
   # Make RobustSigmoid the default
   
@@ -152,7 +152,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     message("test_method is NULL. Running linear svm for multiclass problem.")
   }
   
-  if(test_method %in% c("t-test", "logistic") && num_classes > 2){
+  if(test_method %in% c("t-test", "wilcox", "logistic") && num_classes > 2){
     stop("t-test can only be run for 2-class problems.")
   }
   
@@ -175,7 +175,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   # Filter results to get list of top features
   # NOTE: In the future, all should be filtered on p-values once computations are correct in fit_feature_classifier()
   
-  if(test_method %in% c("t-test", "binomial logistic")){
+  if(test_method %in% c("t-test", "wilcox", "binomial logistic")){
     ResultsTable <- classifierOutputs %>%
       dplyr::slice_min(p_value, n = num_features)
   } else{
@@ -189,10 +189,9 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     dplyr::mutate(names = paste0(method, "_", names)) %>%
     dplyr::filter(names %in% ResultsTable$feature)
   
-  #---------------
-  # Feature x 
-  # feature plot
-  #---------------
+  #-----------------------
+  # Feature x feature plot
+  #-----------------------
   
   # Wrangle dataframe
   

@@ -8,7 +8,7 @@
 #' @importFrom e1071 svm
 #' @importFrom data.table rbindlist
 #' @importFrom stats glm binomial
-#' @importFrom stats sd
+#' @importFrom stats sd wilcox.test
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
@@ -33,7 +33,7 @@
 #' 
 
 fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
-                                   test_method = c("t-test", "binomial logistic", "linear svm", "rbf svm")){
+                                   test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm")){
   
   #---------- Check arguments ------------
   
@@ -65,14 +65,14 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   
   # Set defaults for classification method
   
-  methods <- c("t-test", "binomial logistic", "linear svm", "rbf svm")
+  methods <- c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm")
   
   if(test_method %ni% methods){
-    stop("test_method should be a single string specification of 't-test', 'binomial logistic', 'linear svm', or 'rbf svm'.")
+    stop("test_method should be a single string specification of 't-test', 'wilcox', 'binomial logistic', 'linear svm', or 'rbf svm'.")
   }
   
   if(length(test_method) != 1){
-    stop("test_method should be a single string specification of 't-test', 'binomial logistic', 'linear svm', or 'rbf svm'.")
+    stop("test_method should be a single string specification of 't-test', 'wilcox', 'binomial logistic', 'linear svm', or 'rbf svm'.")
   }
   
   #------------- Renaming columns -------------
@@ -103,8 +103,8 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     message("test_method is NULL. Running linear svm for multiclass problem.")
   }
   
-  if(test_method %in% c("t-test", "binomial logistic") && num_classes > 2){
-    stop("t-test and binomial logistic regression can only be run for 2-class problems.")
+  if(test_method %in% c("t-test", "Wilcox", "binomial logistic") && num_classes > 2){
+    stop("t-test, Mann-Whitney-Wilcoxon Test and binomial logistic regression can only be run for 2-class problems.")
   }
   
   #------------- Preprocess data --------------
@@ -173,13 +173,31 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       statistic <- mod$statistic
       p_value <- mod$p.value
       
+    } else if(test_method == "wilcox"){
+      
+      # Filter dataset
+      
+      tmp <- data_id %>%
+        dplyr::select(c(group, dplyr::all_of(f))) %>%
+        dplyr::rename(values = 2)
+      
+      # Perform calculations between the two groups
+      
+      mod <- stats::wilcox.test(values ~ group, data = tmp)
+      
+      # Extract statistics
+      
+      statistic_name <- "Mann-Whitney-Wilcoxon Test"
+      statistic <- mod$statistic
+      p_value <- mod$p.value
+    
     } else if (test_method == "linear svm"){
       
       #---------------
       # Main procedure
       #---------------
       
-      message(paste0("Fitting classifier: ", match(f, features),"/",length(features), " with 10-fold CV and generating 10 empirical null samples."))
+      message(paste0("Fitting classifier: ", match(f, features), "/", length(features), " with 10-fold CV and generating 10 empirical null samples."))
       
       tmp <- data_id %>%
         dplyr::select(c(group, dplyr::all_of(f)))
@@ -259,7 +277,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       # Main procedure
       #---------------
       
-      message(paste0("Fitting classifier: ", match(f, features),"/",length(features), " with 10-fold CV and generating 10 empirical null samples."))
+      message(paste0("Fitting classifier: ", match(f, features), "/", length(features), " with 10-fold CV and generating 10 empirical null samples."))
       
       tmp <- data_id %>%
         dplyr::select(c(group, dplyr::all_of(f)))
