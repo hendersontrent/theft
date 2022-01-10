@@ -287,7 +287,13 @@ multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix,
                                                         test_method = "linear svm")
 ```
 
-We can now access the various named objects returned by this function. Here's the feature set comparison plot:
+We can now access the various named objects returned by this function, which include:
+
+1. `FeatureSetResultsPlot` (only if `by_set` is set to `TRUE`) -- a `ggplot` displaying mean classification accuracy and pointwise standard deviation by feature set
+2. `FeatureSetTestStatistics` (only if `by_set` is set to `TRUE`) -- a dataframe containing a summary of test statistics for each feature set
+3. `RawClassificationResults` -- a dataframe containing results from each seeded train-test split of main and empirical null models
+
+Here's the feature set comparison plot:
 
 ```{r, message = FALSE, warning = FALSE}
 print(multi_classifier_outputs$FeatureSetResultsPlot)
