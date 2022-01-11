@@ -281,10 +281,10 @@ feature_matrix2 <- calculate_features(data = simData,
 Now we can use our multivariate functionality:
 
 ```{r, message = FALSE, warning = FALSE}
-multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix, 
+multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix2, 
                                                         id_var = "id", 
                                                         group_var = "group", 
-                                                        by_set = FALSE, 
+                                                        by_set = TRUE, 
                                                         num_splits = 10, 
                                                         test_method = "linear svm")
 ```
