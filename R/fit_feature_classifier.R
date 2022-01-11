@@ -17,7 +17,7 @@ scale_univariate_feature <- function(data, train_mean, train_sd){
 # Model matrix
 #-------------
 
-prepare_model_matrices <- function(data, seed){
+prepare_univariate_model_matrices <- function(data, seed){
   
   mydata2 <- data
   set.seed(seed)
@@ -328,7 +328,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       for(n in 1:num_splits){
         
         message(paste0("Performing computations for split ", n, "/", num_splits))
-        inputData <- prepare_model_matrices(data = tmp, seed = n)
+        inputData <- prepare_univariate_model_matrices(data = tmp, seed = n)
         trainset <- as.data.frame(inputData[1])
         testset <- as.data.frame(inputData[2])
         modelOutputs <- fit_univariate_models(traindata = trainset, testdata = testset, test_method = test_method)

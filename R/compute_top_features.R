@@ -12,6 +12,7 @@
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
 #' @param num_features the number of top features to retain and explore. Defaults to 40
 #' @param normalise_violin_plots a Boolean of whether to normalise features before plotting. Defaults to FALSE
+#' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
 #' @param cor_method the correlation method to use. Defaults to 'pearson'
 #' @param test_method the algorithm to use for quantifying class separation
 #' @param num_splits an integer specifying the number of 75/25 train-test splits to perform if linear svm or rbf svm is selected. Defaults to 10
@@ -32,6 +33,7 @@
 #'   group_var = "group",
 #'   num_features = 10,
 #'   normalise_violin_plots = FALSE,
+#'   method = "RobustSigmoid",
 #'   cor_method = "pearson",
 #'   test_method = "linear svm",
 #'   num_splits = 10) 
@@ -41,6 +43,7 @@
 compute_top_features <- function(data, id_var = "id", group_var = "group",
                                  num_features = 40,
                                  normalise_violin_plots = FALSE,
+                                 method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                  cor_method = c("pearson", "spearman"),
                                  test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
                                  num_splits = 10){
@@ -52,6 +55,8 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   } else{
     method <- match.arg(method)
   }
+  
+  # Make pearson the default
   
   if(missing(cor_method)){
     cor_method <- "pearson"
@@ -89,6 +94,18 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   if(!is.null(group_var) && !is.character(group_var)){
     stop("group_var should be a string specifying a variable in the input data that identifies an aggregate group each observation relates to.")
+  }
+  
+  # Method selection
+  
+  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
+  
+  if(method %ni% the_methods){
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
+  }
+  
+  if(length(method) > 1){
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
   
   # Correlation method selection

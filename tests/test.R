@@ -78,14 +78,15 @@ multi_classifier_outputs_2 <- fit_multivariate_classifier(outs_22, id_var = "id"
 
 # Multiclass
 
-classifier_outputs <- compute_top_features(outs_22, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, cor_method = "pearson", test_method = "linear svm", num_splits = 10)
-classifier_outputs_2 <- compute_top_features(outs_22, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, cor_method = "pearson", test_method = "rbf svm", num_splits = 10)
+classifier_outputs <- compute_top_features(outs_22, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "linear svm", num_splits = 10)
+classifier_outputs_2 <- compute_top_features(outs_22, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "rbf svm", num_splits = 10)
 
 # Two-class
 
 twoclass <- outs_22 %>% filter(group %in% c("Gaussian Noise", "AR(1)"))
-classifier_outputs_two <- compute_top_features(twoclass, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, cor_method = "pearson", test_method = "t-test")
-classifier_outputs_two_2 <- compute_top_features(twoclass, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, cor_method = "pearson", test_method = "binomial logistic")
+classifier_outputs_two <- compute_top_features(twoclass, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "t-test")
+classifier_outputs_two_2 <- compute_top_features(twoclass, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "wilcox")
+classifier_outputs_two_3 <- compute_top_features(twoclass, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "binomial logistic")
 
 # Test 9: Processing hctsa formatted file
 
