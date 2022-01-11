@@ -10,10 +10,12 @@
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
-#' @param normalise a Boolean of whether to normalise features before plotting. Defaults to FALSE
-#' @param method a rescaling/normalising method to apply if normalise = TRUE. Defaults to 'RobustSigmoid'
+#' @param num_features the number of top features to retain and explore. Defaults to 40
+#' @param normalise_violin_plots a Boolean of whether to normalise features before plotting. Defaults to FALSE
+#' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
 #' @param cor_method the correlation method to use. Defaults to 'pearson'
 #' @param test_method the algorithm to use for quantifying class separation
+#' @param num_splits an integer specifying the number of 75/25 train-test splits to perform if linear svm or rbf svm is selected. Defaults to 10
 #' @return an object of class list containing a dataframe of results, a feature x feature matrix plot, and a violin plot
 #' @author Trent Henderson
 #' @export
@@ -30,17 +32,21 @@
 #'   id_var = "id",
 #'   group_var = "group",
 #'   num_features = 10,
-#'   normalise = FALSE,
+#'   normalise_violin_plots = FALSE,
+#'   method = "RobustSigmoid",
 #'   cor_method = "pearson",
-#'   test_method = "linear svm") 
+#'   test_method = "linear svm",
+#'   num_splits = 10) 
 #' }
 #' 
 
 compute_top_features <- function(data, id_var = "id", group_var = "group",
-                                 num_features = 40, normalise = FALSE,
+                                 num_features = 40,
+                                 normalise_violin_plots = FALSE,
                                  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                  cor_method = c("pearson", "spearman"),
-                                 test_method = c("t-test", "binomial logistic", "linear svm", "rbf svm")){
+                                 test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
+                                 num_splits = 10){
   
   # Make RobustSigmoid the default
   
@@ -49,6 +55,8 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   } else{
     method <- match.arg(method)
   }
+  
+  # Make pearson the default
   
   if(missing(cor_method)){
     cor_method <- "pearson"
@@ -88,15 +96,15 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     stop("group_var should be a string specifying a variable in the input data that identifies an aggregate group each observation relates to.")
   }
   
-  # Normalisation
+  # Method selection
   
   the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
   
-  if(normalise == TRUE && method %ni% the_methods){
+  if(method %ni% the_methods){
     stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
   
-  if(normalise == TRUE && length(method) > 1){
+  if(length(method) > 1){
     stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
   
@@ -138,18 +146,28 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     stop("Your data only has one class label. At least two are required to performed analysis.")
   }
   
-  if(missing(test_method) && num_classes == 2){
+  if(((missing(test_method) || is.null(test_method))) && num_classes == 2){
     test_method <- "t-test"
-    message("test_method is NULL. Running t-test for 2-class problem.")
+    message("test_method is NULL or missing. Running t-test for 2-class problem.")
   }
   
-  if(missing(test_method) && num_classes > 2){
+  if(((missing(test_method) || is.null(test_method))) && num_classes > 2){
     test_method <- "linear svm"
-    message("test_method is NULL. Running linear svm for multiclass problem.")
+    message("test_method is NULL or missing. Running linear svm for multiclass problem.")
   }
   
-  if(test_method %in% c("t-test", "logistic") && num_classes > 2){
-    stop("t-test can only be run for 2-class problems.")
+  if(test_method %in% c("t-test", "wilcox", "binomial logistic") && num_classes > 2){
+    stop("t-test, Mann-Whitney-Wilcoxon Test and binomial logistic regression can only be run for 2-class problems.")
+  }
+  
+  # Splits
+  
+  if(test_method %in% c("linear svm", "rbf svm") && !is.numeric(num_splits)){
+    stop("num_splits should be an integer >=2 specifying the number of train-test splits to perform.")
+  }
+  
+  if(test_method %in% c("linear svm", "rbf svm") && num_splits < 2){
+    stop("num_splits should be an integer >=2 specifying the number of train-test splits to perform.")
   }
   
   if(num_features > length(unique(data_id$names))){
@@ -165,18 +183,16 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Fit algorithm
   
-  classifierOutputs <- fit_feature_classifier(data_id, id_var = "id", group_var = "group", test_method = test_method)
+  classifierOutputs <- fit_feature_classifier(data_id, 
+                                              id_var = "id", 
+                                              group_var = "group",
+                                              test_method = test_method,
+                                              num_splits = num_splits)
   
   # Filter results to get list of top features
-  # NOTE: In the future, all should be filtered on p-values once computations are correct in fit_feature_classifier()
   
-  if(test_method %in% c("t-test", "binomial logistic")){
-    ResultsTable <- classifierOutputs %>%
+  ResultsTable <- classifierOutputs %>%
       dplyr::slice_min(p_value, n = num_features)
-  } else{
-    ResultsTable <- classifierOutputs %>%
-      dplyr::slice_max(test_statistic_value, n = num_features)
-  }
   
   # Filter original data to just the top performers
   
@@ -184,10 +200,9 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     dplyr::mutate(names = paste0(method, "_", names)) %>%
     dplyr::filter(names %in% ResultsTable$feature)
   
-  #---------------
-  # Feature x 
-  # feature plot
-  #---------------
+  #-----------------------
+  # Feature x feature plot
+  #-----------------------
   
   # Wrangle dataframe
   
@@ -227,15 +242,8 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1, 1)) +
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
-                   legend.position = "bottom")
-  
-  if(length(unique(ResultsTable$feature)) <= 22){
-    FeatureFeatureCorrelationPlot <- FeatureFeatureCorrelationPlot +
-      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
-  } else {
-    FeatureFeatureCorrelationPlot <- FeatureFeatureCorrelationPlot +
-      ggplot2::theme(axis.text = ggplot2::element_blank())
-  }
+                   legend.position = "bottom",
+                   axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
   
   #---------------
   # Violin plot
@@ -244,7 +252,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   ViolinPlots <- plot_feature_discrimination(dataFiltered, 
                                              id_var = "id", 
                                              group_var = "group",
-                                             normalise = normalise,
+                                             normalise = normalise_violin_plots,
                                              method = method)
   
   #---------------  Returns ---------------------

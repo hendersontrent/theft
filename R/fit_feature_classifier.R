@@ -1,3 +1,111 @@
+#--------------- Helper functions ----------------
+
+#-------------
+# Data widener
+#-------------
+
+scale_univariate_feature <- function(data, train_mean, train_sd){
+  
+  tmpWide <- data %>%
+    dplyr::mutate(values = (values - train_mean) / train_sd) %>%
+    dplyr::mutate(group = as.factor(group))
+  
+  return(tmpWide)
+}
+
+#-------------
+# Model matrix
+#-------------
+
+prepare_univariate_model_matrices <- function(data, seed){
+  
+  mydata2 <- data
+  set.seed(seed)
+  bound <- floor((nrow(mydata2)/4)*3)
+  mydata2 <- mydata2[sample(nrow(mydata2)), ]
+  train <- mydata2[1:bound, ]
+  test <- mydata2[(bound + 1):nrow(mydata2), ]
+  train_mean <- mean(train$values, na.rm = TRUE)
+  train_sd <- stats::sd(train$values, na.rm = TRUE)
+  train <- scale_univariate_feature(train, train_mean, train_sd)
+  test <- scale_univariate_feature(test, train_mean, train_sd)
+  myMatrix <- list(train, test)
+  return(myMatrix)
+}
+
+#--------------
+# Model fitting
+#--------------
+
+fit_univariate_models <- function(traindata, testdata, test_method){
+  
+  # Main procedure
+  
+  if(test_method == "linear svm"){
+    mod <- e1071::svm(group ~., data = traindata, kernel = "linear", cross = 10, probability = TRUE)
+  } else{
+    mod <- e1071::svm(group ~., data = traindata, kernel = "radial", cross = 10, probability = TRUE)
+  }
+  
+  # Get outputs for main model
+  
+  cm <- as.data.frame(table(testdata$group, predict(mod, newdata = testdata))) %>%
+    dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
+  
+  same_total <- cm %>%
+    dplyr::filter(flag == "Same") %>%
+    dplyr::summarise(Freq = sum(Freq)) %>%
+    dplyr::pull()
+  
+  all_total <- cm %>%
+    dplyr::summarise(Freq = sum(Freq)) %>%
+    dplyr::pull()
+  
+  statistic <- same_total / all_total
+  statistic_name <- "Classification accuracy"
+  
+  # Empirical null
+  
+  y <- traindata %>% dplyr::pull(group)
+  y <- as.character(y)
+  shuffles <- sample(y, replace = FALSE)
+  
+  shuffledtrain <- traindata %>%
+    dplyr::mutate(group = shuffles,
+                  group = as.factor(group))
+  
+  # Fit classifier
+  
+  if(test_method == "linear svm"){
+    modNULL <- e1071::svm(group ~., data = shuffledtrain, kernel = "linear", cross = 10, probability = TRUE)
+  } else{
+    modNULL <- e1071::svm(group ~., data = shuffledtrain, kernel = "radial", cross = 10, probability = TRUE)
+  }
+  
+  # Get outputs for model
+  
+  cmNULL <- as.data.frame(table(testdata$group, predict(modNULL, newdata = testdata))) %>%
+    dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
+  
+  same_totalNULL <- cmNULL %>%
+    dplyr::filter(flag == "Same") %>%
+    dplyr::summarise(Freq = sum(Freq)) %>%
+    dplyr::pull()
+  
+  all_totalNULL <- cmNULL %>%
+    dplyr::summarise(Freq = sum(Freq)) %>%
+    dplyr::pull()
+  
+  statisticNULL <- same_totalNULL / all_totalNULL
+  
+  outputs <- data.frame(category = c("Main", "Null"),
+                        statistic = c(statistic, statisticNULL))
+  
+  return(outputs)
+}
+
+#-------------- Main exported function ---------------
+
 #' Fit a classifier to feature matrix to extract top performers
 #' @import dplyr
 #' @importFrom magrittr %>%
@@ -7,11 +115,12 @@
 #' @importFrom tibble rownames_to_column
 #' @importFrom e1071 svm
 #' @importFrom data.table rbindlist
-#' @importFrom stats glm binomial
+#' @importFrom stats glm binomial sd wilcox.test
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
 #' @param test_method the algorithm to use for quantifying class separation
+#' @param num_splits an integer specifying the number of 75/25 train-test splits to perform if linear svm or rbf svm is selected. Defaults to 10
 #' @return an object of class dataframe containing results
 #' @author Trent Henderson
 #' @export
@@ -26,12 +135,15 @@
 #'   
 #' fit_feature_classifier(featMat,
 #'   id_var = "id",
-#'   group_var = "group") 
+#'   group_var = "group",
+#'   test_method = "linear svm",
+#'   num_splits = 10) 
 #' }
 #' 
 
 fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
-                                   test_method = c("t-test", "binomial logistic", "linear svm", "rbf svm")){
+                                   test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
+                                   num_splits = 10){
   
   #---------- Check arguments ------------
   
@@ -63,34 +175,14 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   
   # Set defaults for classification method
   
-  methods <- c("t-test", "binomial logistic", "linear svm", "rbf svm")
+  methods <- c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm")
   
   if(test_method %ni% methods){
-    stop("test_method should be a single string specification of 't-test', 'binomial logistic', 'linear svm', or 'rbf svm'.")
+    stop("test_method should be a single string specification of 't-test', 'wilcox', 'binomial logistic', 'linear svm', or 'rbf svm'.")
   }
   
   if(length(test_method) != 1){
-    stop("test_method should be a single string specification of 't-test', 'binomial logistic', 'linear svm', or 'rbf svm'.")
-  }
-  
-  num_classes <- length(unique(data$group)) # Get number of classes in the data
-  
-  if(num_classes == 1){
-    stop("Your data only has one class label. At least two are required to performed analysis.")
-  }
-  
-  if(missing(test_method) && num_classes == 2){
-    test_method <- "t-test"
-    message("test_method is NULL. Running t-test for 2-class problem.")
-  }
-  
-  if(missing(test_method) && num_classes > 2){
-    test_method <- "linear svm"
-    message("test_method is NULL. Running linear svm for multiclass problem.")
-  }
-  
-  if(test_method %in% c("t-test", "binomial logistic") && num_classes > 2){
-    stop("t-test and binomial logistic regression can only be run for 2-class problems.")
+    stop("test_method should be a single string specification of 't-test', 'wilcox', 'binomial logistic', 'linear svm', or 'rbf svm'.")
   }
   
   #------------- Renaming columns -------------
@@ -105,18 +197,58 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                     group = dplyr::all_of(group_var))
   }
   
+  num_classes <- length(unique(data_id$group)) # Get number of classes in the data
+  
+  if(num_classes == 1){
+    stop("Your data only has one class label. At least two are required to performed analysis.")
+  }
+  
+  if(((missing(test_method) || is.null(test_method))) && num_classes == 2){
+    test_method <- "t-test"
+    message("test_method is NULL or missing. Running t-test for 2-class problem.")
+  }
+  
+  if(((missing(test_method) || is.null(test_method))) && num_classes > 2){
+    test_method <- "linear svm"
+    message("test_method is NULL or missing. Running linear svm for multiclass problem.")
+  }
+  
+  if(test_method %in% c("t-test", "wilcox", "binomial logistic") && num_classes > 2){
+    stop("t-test, Mann-Whitney-Wilcoxon Test and binomial logistic regression can only be run for 2-class problems.")
+  }
+  
+  # Splits
+  
+  if(test_method %in% c("linear svm", "rbf svm") && !is.numeric(num_splits)){
+    stop("num_splits should be an integer >=2 specifying the number of train-test splits to perform.")
+  }
+  
+  if(test_method %in% c("linear svm", "rbf svm") && num_splits < 2){
+    stop("num_splits should be an integer >=2 specifying the number of train-test splits to perform.")
+  }
+  
   #------------- Preprocess data --------------
   
   # Widening for model matrix
   
   data_id <- data_id %>%
-    dplyr::mutate(names_long = paste0(method, "_", names)) %>%
-    dplyr::select(-c(names, method)) %>%
-    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names_long", values_from = "values") %>%
-    dplyr::select(-c(id)) %>%
-    dplyr::mutate(group = as.factor(group))
+    dplyr::mutate(names = paste0(method, "_", names)) %>%
+    dplyr::select(-c(method)) %>%
+    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
   
-  # Check group variable NAs
+  ncols <- ncol(data_id)
+  
+  # Delete features that are all NaNs and features with constant values
+  
+  data_id <- data_id %>%
+    dplyr::select_if(~sum(!is.na(.)) > 0) %>%
+    dplyr::select(where(~dplyr::n_distinct(.) > 1))
+  
+  if(ncol(data_id) < ncols){
+    message(paste0("Dropped ", ncols - ncol(data_id), " features due to containing NAs or only a constant."))
+  }
+  
+  # Check NAs
   
   nrows <- nrow(data_id)
   
@@ -124,29 +256,17 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     dplyr::filter(!is.na(group))
   
   if(nrow(data_id) < nrows){
-    message(paste0("Dropped ", nrows - nrow(data_id), " rows due to NaN values in the 'group' variable column."))
-  }
-  
-  # Delete columns (features) with NaNs and track the number that are deleted
-  
-  ncols <- ncol(data_id)
-  
-  data_id <- data_id %>%
-    dplyr::select_if(~ !any(is.na(.)))
-  
-  if(ncol(data_id) < ncols){
-    message(paste0("Dropped ", ncols - ncol(data_id), " features due to NaN values."))
+    message(paste0("Dropped ", nrows - nrow(data_id), " time series due to NaN values in the 'group' variable."))
   }
   
   #------------- Fit classifiers -------------
   
   # Loop over features and fit appropriate model
   
-  features <- seq(from = 2, to = ncol(data_id))
-  results <- list()
-  resultsNULL <- list()
+  features <- seq(from = 3, to = ncol(data_id))
   feature_names <- colnames(data_id)
-  feature_names <- feature_names[!feature_names %in% c("group")] # Remove group column name
+  feature_names <- feature_names[!feature_names %in% c("id", "group")] # Remove ID and group columns
+  results <- list()
   message("Performing calculations... This may take a while depending on the number of features and classes in your dataset.")
   
   for(f in features){
@@ -167,169 +287,66 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       
       # Extract statistics
       
-      statistic_name <- "Welch Two Sample t-test"
-      statistic <- mod$statistic
+      classifier_name <- "Welch Two Sample t-test"
+      statistic_name <- "t-test statistic"
+      statistic_value <- mod$statistic
       p_value <- mod$p.value
       
-    } else if (test_method == "linear svm"){
+    } else if(test_method == "wilcox"){
+      
+      # Filter dataset
+      
+      tmp <- data_id %>%
+        dplyr::select(c(group, dplyr::all_of(f))) %>%
+        dplyr::rename(values = 2)
+      
+      # Perform calculations between the two groups
+      
+      mod <- stats::wilcox.test(values ~ group, data = tmp)
+      
+      # Extract statistics
+      
+      classifier_name <- "Mann-Whitney-Wilcoxon Test"
+      statistic_name <- "Mann-Whitney-Wilcoxon Test statistic"
+      statistic_value <- mod$statistic
+      p_value <- mod$p.value
+    
+    } else if (test_method == "linear svm" || test_method == "rbf svm"){
       
       #---------------
       # Main procedure
       #---------------
       
-      message(paste0("Fitting classifier: ", match(f, features),"/",length(features), " with 10-fold CV and generating 10 empirical null samples."))
+      message(paste0("Fitting classifier: ", match(f, features), "/", length(features), "."))
       
-      tmp <- data_id %>%
-        dplyr::select(c(group, dplyr::all_of(f)))
+      tmp <- data_id %>% 
+        dplyr::select(c(group, dplyr::all_of(f))) %>%
+        dplyr::rename(values = 2)
       
-      # Fit classifier
+      storage <- list()
       
-      mod <- e1071::svm(group ~., data = tmp, kernel = "linear", cross = 10, probability = TRUE)
-      
-      # Get outputs for main model
-      
-      cm <- as.data.frame(table(tmp$group, predict(mod))) %>%
-        dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
-      
-      same_total <- cm %>%
-        dplyr::filter(flag == "Same") %>%
-        summarise(Freq = sum(Freq)) %>%
-        pull()
-      
-      all_total <- cm %>%
-        summarise(Freq = sum(Freq)) %>%
-        pull()
-      
-      statistic <- same_total / all_total
-      statistic_name <- "Classification accuracy"
-      
-      #---------------
-      # Empirical null
-      #---------------
-      
-      # Generate shuffled class labels
-      
-      nullList <- list()
-      repeats <- seq(from = 100, to = 1000, by = 100)
-      
-      for(r in repeats){
+      for(n in 1:num_splits){
         
-        set.seed(r)
-        y <- tmp %>% dplyr::pull(1)
-        y <- as.character(y)
-        shuffles <- sample(y, replace = FALSE)
-        
-        tmp2 <- tmp %>%
-          dplyr::mutate(group = shuffles,
-                        group = as.factor(group))
-        
-        # Fit classifier
-        
-        modNULL <- e1071::svm(group ~., data = tmp2, kernel = "linear", probability = TRUE)
-        
-        # Get outputs
-        
-        cmNULL <- as.data.frame(table(tmp2$group, predict(modNULL))) %>%
-          dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
-        
-        same_totalNULL <- cmNULL %>%
-          dplyr::filter(flag == "Same") %>%
-          summarise(Freq = sum(Freq)) %>%
-          pull()
-        
-        all_totalNULL <- cmNULL %>%
-          summarise(Freq = sum(Freq)) %>%
-          pull()
-        
-        statisticNULL <- same_totalNULL / all_totalNULL
-        nullStorage <- data.frame(test_statistic_value = statisticNULL)
-        nullList[[r]] <- nullStorage
+        message(paste0("Performing computations for split ", n, "/", num_splits))
+        inputData <- prepare_univariate_model_matrices(data = tmp, seed = n)
+        trainset <- as.data.frame(inputData[1])
+        testset <- as.data.frame(inputData[2])
+        modelOutputs <- fit_univariate_models(traindata = trainset, testdata = testset, test_method = test_method)
+        storage[[n]] <- modelOutputs
       }
       
-      # Bind empirical nulls together
+      prelimResults <- data.table::rbindlist(storage, use.names = TRUE)
+      mod <- stats::wilcox.test(statistic ~ category, data = prelimResults)
       
-      tmpNULLs <- data.table::rbindlist(nullList, use.names = TRUE) %>%
-        dplyr::pull(1)
-      
-    } else if (test_method == "rbf svm"){
-      
-      #---------------
-      # Main procedure
-      #---------------
-      
-      message(paste0("Fitting classifier: ", match(f, features),"/",length(features), " with 10-fold CV and generating 10 empirical null samples."))
-      
-      tmp <- data_id %>%
-        dplyr::select(c(group, dplyr::all_of(f)))
-      
-      # Fit classifier
-      
-      mod <- e1071::svm(group ~., data = tmp, kernel = "radial", cross = 10, probability = TRUE)
-      
-      # Get outputs for main model
-      
-      cm <- as.data.frame(table(tmp$group, predict(mod))) %>%
-        dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
-      
-      same_total <- cm %>%
-        dplyr::filter(flag == "Same") %>%
-        summarise(Freq = sum(Freq)) %>%
-        pull()
-      
-      all_total <- cm %>%
-        summarise(Freq = sum(Freq)) %>%
-        pull()
-      
-      statistic <- same_total / all_total
-      statistic_name <- "Classification accuracy"
-      
-      #---------------
-      # Empirical null
-      #---------------
-      
-      # Generate shuffled class labels
-      
-      nullList <- list()
-      repeats <- seq(from = 100, to = 1000, by = 100)
-      
-      for(r in repeats){
-        
-        set.seed(r)
-        y <- tmp %>% dplyr::pull(1)
-        y <- as.character(y)
-        shuffles <- sample(y, replace = FALSE)
-        
-        tmp2 <- tmp %>%
-          dplyr::mutate(group = shuffles,
-                        group = as.factor(group))
-        
-        # Fit classifier
-        
-        modNULL <- e1071::svm(group ~., data = tmp2, kernel = "radial", probability = TRUE)
-        
-        # Get outputs
-        
-        cmNULL <- as.data.frame(table(tmp2$group, predict(modNULL))) %>%
-          dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
-        
-        same_totalNULL <- cmNULL %>%
-          dplyr::filter(flag == "Same") %>%
-          summarise(Freq = sum(Freq)) %>%
-          pull()
-        
-        all_totalNULL <- cmNULL %>%
-          summarise(Freq = sum(Freq)) %>%
-          pull()
-        
-        statisticNULL <- same_totalNULL / all_totalNULL
-        nullStorage <- data.frame(test_statistic_value = statisticNULL)
-        nullList[[r]] <- nullStorage
+      if(test_method == "linear svm"){
+        classifier_name <- "Linear SVM"
+      } else{
+        classifier_name <- "RBF SVM"
       }
       
-      # Bind empirical nulls together
-      
-      tmpNULLs <- data.table::rbindlist(nullList, use.names = TRUE) %>%
-        dplyr::pull(1)
+      statistic_name <- "Mann-Whitney-Wilcoxon Test statistic"
+      statistic_value <- as.numeric(mod$statistic)
+      p_value <- mod$p.value
       
     } else{
       
@@ -346,70 +363,23 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       
       # Extract statistics
       
+      classifier_name <- "Binomial logistic regression"
       statistic_name <- "Binomial logistic coefficient z-test"
-      statistic <- as.numeric(summary(mod)$coefficients[,3][2])
+      statistic_value <- as.numeric(summary(mod)$coefficients[,3][2])
       p_value <- as.numeric(summary(mod)$coefficients[,4][2])
     }
     
     # Put results into dataframe
     
-    if(test_method %in% c("t-test", "binomial logistic")){
-      featResults <- data.frame(feature = feature_names[f-1],
-                                test_statistic_name = statistic_name,
-                                test_statistic_value = statistic,
-                                p_value = p_value)
-    } else{
-      
-      featResults <- data.frame(feature = feature_names[f-1],
-                                test_statistic_name = statistic_name,
-                                test_statistic_value = statistic)
-      
-      featResultsNULL <- data.frame(test_statistic_value = tmpNULLs) %>%
-        dplyr::mutate(feature = feature_names[f-1])
-      
-      resultsNULL[[f]] <- featResultsNULL
-    }
+    featResults <- data.frame(feature = feature_names[f - 2],
+                              classifier_name = classifier_name,
+                              sig_statistic_name = statistic_name,
+                              sig_statistic_value = statistic_value,
+                              p_value = p_value)
     
     results[[f]] <- featResults
   }
   
-  # Bind feature results together and return
-  
-  classificationResults <- data.table::rbindlist(results, use.names = TRUE)
-  
-  if(test_method %in% c("t-test", "binomial logistic")){
-    return(classificationResults)
-    
-  } else{
-    
-    classificationResultsNULL <- data.table::rbindlist(resultsNULL, use.names = TRUE) %>%
-      dplyr::filter(!is.nan(test_statistic_value))
-    
-    # Compute p-values
-    
-    extraStorage <- list()
-    
-    for(f in feature_names){
-      
-      tmp <- classificationResults %>%
-        filter(feature == f)
-      
-      count_above <- classificationResultsNULL %>%
-        dplyr::filter(test_statistic_value >= tmp$test_statistic_value)
-      
-      p_value <- nrow(count_above) / nrow(classificationResultsNULL)
-      
-      classificationResults_p_values <- data.frame(feature = f,
-                                                   p_value = p_value)
-      
-      extraStorage[[f]] <- classificationResults_p_values
-    }
-    
-    extraNULL <- data.table::rbindlist(extraStorage, use.names = TRUE)
-    
-    classificationResults <- classificationResults %>%
-      dplyr::left_join(extraNULL, by = c("feature" = "feature"))
-    
-    return(classificationResults)
-  }
+  allOutputs <- data.table::rbindlist(results, use.names = TRUE)
+  return(allOutputs)
 }

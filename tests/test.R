@@ -8,7 +8,7 @@
 #---------------------------------------
 
 #---------------------------------------
-# Author: Trent Henderson, 07 April 2021
+# Author: Trent Henderson, 7 April 2021
 #---------------------------------------
 
 library(dplyr)
@@ -69,22 +69,26 @@ plot_feature_correlations(outs_22, is_normalised = FALSE, id_var = "id", names_v
 plot_feature_correlations(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", cor_method = "spearman", interactive = FALSE)
 plot_feature_correlations(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", interactive = TRUE)
 
-# Test 7: Classification functionality
+# Test 9: Multivariate classification
+
+multi_classifier_outputs <- fit_multivariate_classifier(outs_22, id_var = "id", group_var = "group", by_set = FALSE, num_splits = 10, "linear svm")
+multi_classifier_outputs_2 <- fit_multivariate_classifier(outs_22, id_var = "id", group_var = "group", by_set = TRUE, num_splits = 10, "rbf svm")
+
+# Test 8: Feature-level classification
 
 # Multiclass
 
-classifier_outputs <- compute_top_features(outs_22, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "linear svm")
-classifier_outputs_2 <- compute_top_features(outs_22, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "rbf svm")
+classifier_outputs <- compute_top_features(outs_22, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "linear svm", num_splits = 10)
+classifier_outputs_2 <- compute_top_features(outs_22, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "rbf svm", num_splits = 10)
 
 # Two-class
 
-twoclass <- outs_22 %>%
-  filter(group %in% c("Gaussian Noise", "AR(1)"))
+twoclass <- outs_22 %>% filter(group %in% c("Gaussian Noise", "AR(1)"))
+classifier_outputs_two <- compute_top_features(twoclass, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "t-test")
+classifier_outputs_two_2 <- compute_top_features(twoclass, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "wilcox")
+classifier_outputs_two_3 <- compute_top_features(twoclass, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "binomial logistic")
 
-classifier_outputs_two <- compute_top_features(twoclass, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "t-test")
-classifier_outputs_two_2 <- compute_top_features(twoclass, id_var = "id", group_var = "group", normalise = TRUE, method = "z-score", cor_method = "pearson", test_method = "binomial logistic")
-
-# Test 8: Processing hctsa formatted file
+# Test 9: Processing hctsa formatted file
 
 d2 <- process_hctsa_file("https://cloudstor.aarnet.edu.au/plus/s/6sRD6IPMJyZLNlN/download")
 

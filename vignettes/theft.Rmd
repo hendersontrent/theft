@@ -55,7 +55,7 @@ feature_matrix <- calculate_features(data = simData,
 
 Note that for the `catch22` set you can set the additional `catch24` argument to calculate the mean and standard deviation in addition to the standard 22 features:
 
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 feature_matrix <- calculate_features(data = simData, 
                                      id_var = "id", 
                                      time_var = "timepoint", 
@@ -203,6 +203,8 @@ plot_feature_correlations(feature_matrix,
 
 ## Time-series classification
 
+## Feature-by-feature
+
 Since feature-based time-series analysis has shown particular promise for classification problems, `theft` includes functionality for exploring group separation in addition to the low dimensional representation. The `compute_top_features` function takes the computed time series x feature matrix and performs the following:
 
 1. Computes a classification algorithm on the entire input dataframe
@@ -223,15 +225,17 @@ The code below produces analysis for a multiclass problem using a linear support
 
 ```{r, message = FALSE, warning = FALSE}
 classifier_outputs <- compute_top_features(feature_matrix, 
-                                          id_var = "id", 
-                                          group_var = "group", 
-                                          normalise = TRUE, 
-                                          method = "z-score", 
-                                          cor_method = "pearson", 
-                                          test_method = "linear svm")
+                                           id_var = "id", 
+                                           group_var = "group",
+                                           num_features = 40, 
+                                           normalise_violin_plots = FALSE,
+                                           method = "RobustSigmoid",
+                                           cor_method = "pearson",
+                                           test_method = "linear svm",
+                                           num_splits = 10)
 ```
 
-Each component can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
+Each component is named and can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
 
 ```{r, message = FALSE, warning = FALSE}
 head(classifier_outputs$ResultsTable)
@@ -255,9 +259,59 @@ The violin plots are accessed as the third object:
 print(classifier_outputs$ViolinPlots)
 ```
 
-For two-class problems, users can fit any of the available models (which includes `"t-test"` `"binomial logistic"`, `"linear svm"`, and `"rbf svm"`) as string arguments to `test_method`. For multiclass problems the options are currently either `"linear svm"` or `"rbf svm"`.
+For two-class problems, users can fit any of the available models (which includes `"t-test"`, `"wilcox"`, `"binomial logistic"`, `"linear svm"`, and `"rbf svm"`) as string arguments to `test_method`. For multiclass problems the options are currently either `"linear svm"` or `"rbf svm"`.
 
 The core functions that comprise `compute_top_features` are available individually for use as `fit_feature_classifier` and `plot_feature_discrimination`. The feature-feature correlation plot is a modified version of `plot_feature_correlations`.
+
+## Multivariate
+
+A multivariate option is also available. The `fit_multivariate_classifier` function fits all features at once instead of by feature to estimate classification accuracy. This can be split by feature set (if the `by_set` argument is set to `TRUE`) to enable systematic comparisons between those made available in `theft`.
+
+First, let's calculate a feature matrix with more than one set:
+
+```{r, message = FALSE, warning = FALSE}
+feature_matrix2 <- calculate_features(data = simData, 
+                                      id_var = "id", 
+                                      time_var = "timepoint", 
+                                      values_var = "values", 
+                                      group_var = "process", 
+                                      feature_set = c("catch22", "feasts", "tsfeatures"))
+```
+
+Now we can use our multivariate functionality:
+
+```{r, message = FALSE, warning = FALSE}
+multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix2, 
+                                                        id_var = "id", 
+                                                        group_var = "group", 
+                                                        by_set = TRUE, 
+                                                        num_splits = 10, 
+                                                        test_method = "linear svm")
+```
+
+We can now access the various named objects returned by this function, which include:
+
+1. `FeatureSetResultsPlot` (only if `by_set` is set to `TRUE`) -- a `ggplot` displaying mean classification accuracy and pointwise standard deviation by feature set
+2. `FeatureSetTestStatistics` (only if `by_set` is set to `TRUE`) -- a dataframe containing a summary of test statistics for each feature set
+3. `RawClassificationResults` -- a dataframe containing results from each seeded train-test split of main and empirical null models
+
+Here's the feature set comparison plot:
+
+```{r, message = FALSE, warning = FALSE}
+print(multi_classifier_outputs$FeatureSetResultsPlot)
+```
+
+Here's the test statistics summary:
+
+```{r, message = FALSE, warning = FALSE}
+head(multi_classifier_outputs$FeatureSetTestStatistics)
+```
+
+And here's the raw classifier results:
+
+```{r, message = FALSE, warning = FALSE}
+head(multi_classifier_outputs$RawClassificationResults)
+```
 
 ## Reading and processing hctsa-formatted files
 
