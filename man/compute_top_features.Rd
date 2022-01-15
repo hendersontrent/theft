@@ -13,7 +13,8 @@ compute_top_features(
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
   cor_method = c("pearson", "spearman"),
   test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
-  num_splits = 10
+  num_splits = 10,
+  pool_empirical_null = FALSE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ compute_top_features(
 \item{test_method}{the algorithm to use for quantifying class separation}
 
 \item{num_splits}{an integer specifying the number of 75/25 train-test splits to perform if linear svm or rbf svm is selected. Defaults to 10}
+
+\item{pool_empirical_null}{a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected. Defaults to FALSE}
 }
 \value{
 an object of class list containing a dataframe of results, a feature x feature matrix plot, and a violin plot
@@ -58,7 +61,8 @@ compute_top_features(featMat,
   method = "RobustSigmoid",
   cor_method = "pearson",
   test_method = "linear svm",
-  num_splits = 10) 
+  num_splits = 10,
+  pool_empirical_null = FALSE) 
 }
 
 }

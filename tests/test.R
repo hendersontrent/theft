@@ -78,8 +78,8 @@ multi_classifier_outputs_2 <- fit_multivariate_classifier(outs_22, id_var = "id"
 
 # Multiclass
 
-classifier_outputs <- compute_top_features(outs_22, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "linear svm", num_splits = 10)
-classifier_outputs_2 <- compute_top_features(outs_22, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "rbf svm", num_splits = 10)
+classifier_outputs <- compute_top_features(outs_22, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "linear svm", num_splits = 10, pool_empirical_null = FALSE)
+classifier_outputs_2 <- compute_top_features(outs_22, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "rbf svm", num_splits = 10, pool_empirical_null = TRUE)
 
 # Two-class
 

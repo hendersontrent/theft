@@ -232,8 +232,11 @@ classifier_outputs <- compute_top_features(feature_matrix,
                                            method = "RobustSigmoid",
                                            cor_method = "pearson",
                                            test_method = "linear svm",
-                                           num_splits = 10)
+                                           num_splits = 10,
+                                           pool_empirical_null = FALSE)
 ```
+
+Note that if you set `pool_empirical_null = TRUE` this will compute statistical analysis for each feature against the entire pooled empirical null classification results of all features. Setting it to `FALSE` will compute each feature against only its empirical null distribution.
 
 Each component is named and can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
 

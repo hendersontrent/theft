@@ -121,6 +121,7 @@ fit_univariate_models <- function(traindata, testdata, test_method){
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
 #' @param test_method the algorithm to use for quantifying class separation
 #' @param num_splits an integer specifying the number of 75/25 train-test splits to perform if linear svm or rbf svm is selected. Defaults to 10
+#' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected. Defaults to FALSE
 #' @return an object of class dataframe containing results
 #' @author Trent Henderson
 #' @export
@@ -137,13 +138,14 @@ fit_univariate_models <- function(traindata, testdata, test_method){
 #'   id_var = "id",
 #'   group_var = "group",
 #'   test_method = "linear svm",
-#'   num_splits = 10) 
+#'   num_splits = 10,
+#'   pool_empirical_null = FALSE) 
 #' }
 #' 
 
 fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                    test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
-                                   num_splits = 10){
+                                   num_splits = 10, pool_empirical_null = FALSE){
   
   #---------- Check arguments ------------
   
@@ -336,7 +338,6 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       }
       
       prelimResults <- data.table::rbindlist(storage, use.names = TRUE)
-      mod <- stats::wilcox.test(statistic ~ category, data = prelimResults)
       
       if(test_method == "linear svm"){
         classifier_name <- "Linear SVM"
@@ -345,9 +346,19 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       }
       
       statistic_name <- "Mann-Whitney-Wilcoxon Test statistic"
-      statistic_value <- as.numeric(mod$statistic)
-      p_value <- mod$p.value
       
+      if(pool_empirical_null){
+        
+        featResults <- prelimResults %>%
+          dplyr::mutate(classifier_name = classifier_name,
+                        feature = feature_names[f - 2])
+        
+      } else{
+        
+        mod <- stats::wilcox.test(statistic ~ category, data = prelimResults)
+        statistic_value <- as.numeric(mod$statistic)
+        p_value <- mod$p.value
+      }
     } else{
       
       # Filter dataset
@@ -371,15 +382,57 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
     # Put results into dataframe
     
-    featResults <- data.frame(feature = feature_names[f - 2],
-                              classifier_name = classifier_name,
-                              sig_statistic_name = statistic_name,
-                              sig_statistic_value = statistic_value,
-                              p_value = p_value)
+    if(pool_empirical_null){
+      
+    } else{
+      featResults <- data.frame(feature = feature_names[f - 2],
+                                classifier_name = classifier_name,
+                                sig_statistic_name = statistic_name,
+                                sig_statistic_value = statistic_value,
+                                p_value = p_value)
+    }
     
     results[[f]] <- featResults
   }
   
   allOutputs <- data.table::rbindlist(results, use.names = TRUE)
-  return(allOutputs)
+  
+  if(pool_empirical_null){
+    
+    # Compute statistics for each feature
+    
+    pooled_storage <- list()
+    
+    nulls <- allOutputs %>%
+      dplyr::filter(category == "Null")
+    
+    for(f in features){
+      
+      tmp_pool <- allOutputs %>%
+        dplyr::filter(feature == feature_names[f - 2]) %>%
+        dplyr::filter(category == "Main")
+      
+      tmp_pool <- dplyr::bind_rows(tmp_pool, nulls) %>%
+        dplyr::mutate(category = factor(category, levels = c("Null", "Main")))
+      
+      mod <- stats::wilcox.test(statistic ~ category, data = tmp_pool)
+      statistic_value <- as.numeric(mod$statistic)
+      p_value <- mod$p.value
+      
+      pooled_outputs <- data.frame(feature = feature_names[f - 2],
+                                   classifier_name = classifier_name,
+                                   sig_statistic_name = statistic_name,
+                                   sig_statistic_value = statistic_value,
+                                   p_value = p_value)
+      
+      pooled_storage[[f]] <- pooled_outputs
+    }
+    
+    pooled_outputs <- data.table::rbindlist(pooled_storage)
+    
+    return(pooled_outputs)
+    
+  } else{
+    return(allOutputs)
+  }
 }
