@@ -37,7 +37,7 @@ prepare_univariate_model_matrices <- function(data, seed){
 # Model fitting
 #--------------
 
-fit_univariate_models <- function(traindata, testdata, test_method){
+fit_univariate_models <- function(traindata, testdata, test_method, num_shuffles){
   
   # Main procedure
   
@@ -68,38 +68,53 @@ fit_univariate_models <- function(traindata, testdata, test_method){
   
   y <- traindata %>% dplyr::pull(group)
   y <- as.character(y)
-  shuffles <- sample(y, replace = FALSE)
+  shuffleStorage <- list()
   
-  shuffledtrain <- traindata %>%
-    dplyr::mutate(group = shuffles,
-                  group = as.factor(group))
-  
-  # Fit classifier
-  
-  if(test_method == "linear svm"){
-    modNULL <- e1071::svm(group ~., data = shuffledtrain, kernel = "linear", cross = 10, probability = TRUE)
-  } else{
-    modNULL <- e1071::svm(group ~., data = shuffledtrain, kernel = "radial", cross = 10, probability = TRUE)
+  for(s in 1:num_shuffles){
+    
+    set.seed(s)
+    
+    shuffles <- sample(y, replace = FALSE)
+    
+    shuffledtrain <- traindata %>%
+      dplyr::mutate(group = shuffles,
+                    group = as.factor(group))
+    
+    # Fit classifier
+    
+    if(test_method == "linear svm"){
+      modNULL <- e1071::svm(group ~., data = shuffledtrain, kernel = "linear", cross = 10, probability = TRUE)
+    } else{
+      modNULL <- e1071::svm(group ~., data = shuffledtrain, kernel = "radial", cross = 10, probability = TRUE)
+    }
+    
+    # Get outputs for model
+    
+    cmNULL <- as.data.frame(table(testdata$group, predict(modNULL, newdata = testdata))) %>%
+      dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
+    
+    same_totalNULL <- cmNULL %>%
+      dplyr::filter(flag == "Same") %>%
+      dplyr::summarise(Freq = sum(Freq)) %>%
+      dplyr::pull()
+    
+    all_totalNULL <- cmNULL %>%
+      dplyr::summarise(Freq = sum(Freq)) %>%
+      dplyr::pull()
+    
+    statisticNULL <- same_totalNULL / all_totalNULL
+    
+    outputs_shuffle <- data.frame(category = c("Null"),
+                                  statistic = c(statisticNULL))
+    
+    shuffleStorage[[s]] <- outputs_shuffle
   }
   
-  # Get outputs for model
+  outputs_shuffle_bind <- data.table::rbindlist(shuffleStorage, use.names = TRUE)
+  outputs <- data.frame(category = c("Main"), statistic = c(statistic))
   
-  cmNULL <- as.data.frame(table(testdata$group, predict(modNULL, newdata = testdata))) %>%
-    dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
-  
-  same_totalNULL <- cmNULL %>%
-    dplyr::filter(flag == "Same") %>%
-    dplyr::summarise(Freq = sum(Freq)) %>%
-    dplyr::pull()
-  
-  all_totalNULL <- cmNULL %>%
-    dplyr::summarise(Freq = sum(Freq)) %>%
-    dplyr::pull()
-  
-  statisticNULL <- same_totalNULL / all_totalNULL
-  
-  outputs <- data.frame(category = c("Main", "Null"),
-                        statistic = c(statistic, statisticNULL))
+  outputs <- outputs %>%
+    dplyr::bind_rows(outputs, outputs_shuffle_bind)
   
   return(outputs)
 }
@@ -121,6 +136,7 @@ fit_univariate_models <- function(traindata, testdata, test_method){
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
 #' @param test_method the algorithm to use for quantifying class separation
 #' @param num_splits an integer specifying the number of 75/25 train-test splits to perform if linear svm or rbf svm is selected. Defaults to 10
+#' @param num_shuffles an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 5
 #' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected. Defaults to FALSE
 #' @return an object of class dataframe containing results
 #' @author Trent Henderson
@@ -139,13 +155,15 @@ fit_univariate_models <- function(traindata, testdata, test_method){
 #'   group_var = "group",
 #'   test_method = "linear svm",
 #'   num_splits = 10,
+#'   num_shuffles = 5,
 #'   pool_empirical_null = FALSE) 
 #' }
 #' 
 
 fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                    test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
-                                   num_splits = 10, pool_empirical_null = FALSE){
+                                   num_splits = 10, num_shuffles = 5,
+                                   pool_empirical_null = FALSE){
   
   #---------- Check arguments ------------
   
@@ -219,14 +237,22 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     stop("t-test, Mann-Whitney-Wilcoxon Test and binomial logistic regression can only be run for 2-class problems.")
   }
   
-  # Splits
+  # Splits and shuffles
   
-  if(test_method %in% c("linear svm", "rbf svm") && !is.numeric(num_splits)){
-    stop("num_splits should be an integer >=2 specifying the number of train-test splits to perform.")
+  if(test_method %in% c("linear svm", "rbf svm") && (!is.numeric(num_splits) || !is.numeric(num_shuffles))){
+    stop("num_splits and num_shuffles should both be integers >= 1.")
   }
   
-  if(test_method %in% c("linear svm", "rbf svm") && num_splits < 2){
-    stop("num_splits should be an integer >=2 specifying the number of train-test splits to perform.")
+  if(test_method %in% c("linear svm", "rbf svm") && (num_splits < 1 || num_shuffles < 1)){
+    stop("num_splits and num_shuffles should both be integers >= 1.")
+  }
+  
+  if(test_method %in% c("linear svm", "rbf svm") && (num_splits == 1 && pool_empirical_null == FALSE && num_shuffles < 3)){
+    stop("If pool_empirical_null = FALSE and num_splits == 1, num_shuffles should be an integer >= 3 so each feature has a distribution to compute statistics on.")
+  }
+  
+  if(test_method %in% c("linear svm", "rbf svm") && (num_shuffles == 1 && pool_empirical_null == FALSE && num_splits < 3)){
+    stop("If pool_empirical_null = FALSE and num_shuffles == 1, num_splits should be an integer >= 3 so each feature has a distribution to compute statistics on.")
   }
   
   #------------- Preprocess data --------------
@@ -333,7 +359,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
         inputData <- prepare_univariate_model_matrices(data = tmp, seed = n)
         trainset <- as.data.frame(inputData[1])
         testset <- as.data.frame(inputData[2])
-        modelOutputs <- fit_univariate_models(traindata = trainset, testdata = testset, test_method = test_method)
+        modelOutputs <- fit_univariate_models(traindata = trainset, testdata = testset, test_method = test_method, num_shuffles = num_shuffles)
         storage[[n]] <- modelOutputs
       }
       

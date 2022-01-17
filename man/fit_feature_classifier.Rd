@@ -10,6 +10,7 @@ fit_feature_classifier(
   group_var = "group",
   test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
   num_splits = 10,
+  num_shuffles = 5,
   pool_empirical_null = FALSE
 )
 }
@@ -23,6 +24,8 @@ fit_feature_classifier(
 \item{test_method}{the algorithm to use for quantifying class separation}
 
 \item{num_splits}{an integer specifying the number of 75/25 train-test splits to perform if linear svm or rbf svm is selected. Defaults to 10}
+
+\item{num_shuffles}{an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 5}
 
 \item{pool_empirical_null}{a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected. Defaults to FALSE}
 }
@@ -46,6 +49,7 @@ fit_feature_classifier(featMat,
   group_var = "group",
   test_method = "linear svm",
   num_splits = 10,
+  num_shuffles = 5,
   pool_empirical_null = FALSE) 
 }
 

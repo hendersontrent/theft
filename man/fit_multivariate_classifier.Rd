@@ -10,6 +10,7 @@ fit_multivariate_classifier(
   group_var = "group",
   by_set = FALSE,
   num_splits = 10,
+  num_shuffles = 5,
   test_method = c("linear svm", "rbf svm")
 )
 }
@@ -23,6 +24,8 @@ fit_multivariate_classifier(
 \item{by_set}{Boolean specifying whether to compute classifiers for each feature set. Defaults to FALSE}
 
 \item{num_splits}{an integer specifying the number of 75/25 train-test splits to perform. Defaults to 10}
+
+\item{num_shuffles}{an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 5}
 
 \item{test_method}{the algorithm to use for quantifying class separation}
 }
@@ -46,6 +49,7 @@ fit_multivariate_classifier(featMat,
   group_var = "group",
   by_set = FALSE,
   num_splits = 10,
+  num_shuffles = 5,
   test_method = "linear svm") 
 }
 

@@ -92,7 +92,7 @@ prepare_model_matrices <- function(data, seed){
 # Model fitting
 #--------------
 
-fit_multivariate_models <- function(traindata, testdata, test_method){
+fit_multivariate_models <- function(traindata, testdata, test_method, num_shuffles){
   
   # Main procedure
   
@@ -120,42 +120,57 @@ fit_multivariate_models <- function(traindata, testdata, test_method){
   statistic_name <- "Classification accuracy"
   
   # Empirical null
-    
+  
   y <- traindata %>% dplyr::pull(group)
   y <- as.character(y)
-  shuffles <- sample(y, replace = FALSE)
+  shuffleStorage <- list()
+  
+  for(s in 1:num_shuffles){
     
-  shuffledtrain <- traindata %>%
-    dplyr::mutate(group = shuffles,
-                  group = as.factor(group))
+    set.seed(s)
     
-  # Fit classifier
+    shuffles <- sample(y, replace = FALSE)
     
-  if(test_method == "linear svm"){
-    modNULL <- e1071::svm(group ~., data = shuffledtrain, kernel = "linear", cross = 10, probability = TRUE)
-  } else{
-    modNULL <- e1071::svm(group ~., data = shuffledtrain, kernel = "radial", cross = 10, probability = TRUE)
+    shuffledtrain <- traindata %>%
+      dplyr::mutate(group = shuffles,
+                    group = as.factor(group))
+    
+    # Fit classifier
+    
+    if(test_method == "linear svm"){
+      modNULL <- e1071::svm(group ~., data = shuffledtrain, kernel = "linear", cross = 10, probability = TRUE)
+    } else{
+      modNULL <- e1071::svm(group ~., data = shuffledtrain, kernel = "radial", cross = 10, probability = TRUE)
+    }
+    
+    # Get outputs for model
+    
+    cmNULL <- as.data.frame(table(testdata$group, predict(modNULL, newdata = testdata))) %>%
+      dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
+    
+    same_totalNULL <- cmNULL %>%
+      dplyr::filter(flag == "Same") %>%
+      dplyr::summarise(Freq = sum(Freq)) %>%
+      dplyr::pull()
+    
+    all_totalNULL <- cmNULL %>%
+      dplyr::summarise(Freq = sum(Freq)) %>%
+      dplyr::pull()
+    
+    statisticNULL <- same_totalNULL / all_totalNULL
+    
+    outputs_shuffle <- data.frame(category = c("Null"),
+                                  statistic = c(statisticNULL))
+    
+    shuffleStorage[[s]] <- outputs_shuffle
   }
-    
-  # Get outputs for model
-    
-  cmNULL <- as.data.frame(table(testdata$group, predict(modNULL, newdata = testdata))) %>%
-    dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
-    
-  same_totalNULL <- cmNULL %>%
-    dplyr::filter(flag == "Same") %>%
-    dplyr::summarise(Freq = sum(Freq)) %>%
-    dplyr::pull()
-    
-  all_totalNULL <- cmNULL %>%
-    dplyr::summarise(Freq = sum(Freq)) %>%
-    dplyr::pull()
-    
-  statisticNULL <- same_totalNULL / all_totalNULL
-    
-  outputs <- data.frame(category = c("Main", "Null"),
-                        statistic = c(statistic, statisticNULL))
-    
+  
+  outputs_shuffle_bind <- data.table::rbindlist(shuffleStorage, use.names = TRUE)
+  outputs <- data.frame(category = c("Main"), statistic = c(statistic))
+  
+  outputs <- outputs %>%
+    dplyr::bind_rows(outputs, outputs_shuffle_bind)
+  
   return(outputs)
 }
 
@@ -176,6 +191,7 @@ fit_multivariate_models <- function(traindata, testdata, test_method){
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
 #' @param by_set Boolean specifying whether to compute classifiers for each feature set. Defaults to FALSE
 #' @param num_splits an integer specifying the number of 75/25 train-test splits to perform. Defaults to 10
+#' @param num_shuffles an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 5
 #' @param test_method the algorithm to use for quantifying class separation
 #' @return an object of class list containing summaries of the classification models
 #' @author Trent Henderson
@@ -194,12 +210,13 @@ fit_multivariate_models <- function(traindata, testdata, test_method){
 #'   group_var = "group",
 #'   by_set = FALSE,
 #'   num_splits = 10,
+#'   num_shuffles = 5,
 #'   test_method = "linear svm") 
 #' }
 #' 
 
 fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group",
-                                        by_set = FALSE, num_splits = 10,
+                                        by_set = FALSE, num_splits = 10, num_shuffles = 5,
                                         test_method = c("linear svm", "rbf svm")){
   
   #---------- Check arguments ------------
@@ -267,12 +284,20 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   
   # Splits
   
-  if(!is.numeric(num_splits)){
-    stop("num_splits should be an integer >=2 specifying the number of train-test splits to perform.")
+  if(!is.numeric(num_splits) || !is.numeric(num_shuffles)){
+    stop("num_splits and num_shuffles should both be integers >= 1.")
   }
   
-  if(num_splits < 2){
-    stop("num_splits should be an integer >=2 specifying the number of train-test splits to perform.")
+  if(num_splits < 1 || num_shuffles < 1){
+    stop("num_splits and num_shuffles should both be integers >= 1.")
+  }
+  
+  if(num_splits == 1 && num_shuffles < 3){
+    stop("If num_splits == 1, num_shuffles should be an integer >= 3 so there is a distribution to compute statistics on.")
+  }
+  
+  if(num_shuffles == 1 && num_splits < 3){
+    stop("If num_shuffles == 1, num_splits should be an integer >= 3 so there is a distribution to compute statistics on.")
   }
   
   #------------- Fit models -------------------
@@ -301,7 +326,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
         removals <- data.frame(removals) %>% tibble::rownames_to_column(var = "names") %>% dplyr::filter(removals >= 1) %>% dplyr::pull(names)
         mytrainset <- trainset %>% dplyr::select(-dplyr::all_of(removals))
         mytestset <- testset %>% dplyr::select(-dplyr::all_of(removals))
-        modelOutputs <- fit_multivariate_models(traindata = mytrainset, testdata = mytestset, test_method = test_method)
+        modelOutputs <- fit_multivariate_models(traindata = mytrainset, testdata = mytestset, test_method = test_method, num_shuffles = num_shuffles)
         storage2[[n]] <- modelOutputs
         setStorage2[[n]] <- data.frame(num_feats = (ncol(mytrainset) - 1))
       }
@@ -331,7 +356,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       removals <- data.frame(removals) %>% tibble::rownames_to_column(var = "names") %>% dplyr::filter(removals >= 1) %>% dplyr::pull(names)
       mytrainset <- trainset %>% dplyr::select(-dplyr::all_of(removals))
       mytestset <- testset %>% dplyr::select(-dplyr::all_of(removals))
-      modelOutputs <- fit_multivariate_models(traindata = mytrainset, testdata = mytestset, test_method = test_method)
+      modelOutputs <- fit_multivariate_models(traindata = mytrainset, testdata = mytestset, test_method = test_method, num_shuffles = num_shuffles)
       storage[[n]] <- modelOutputs
     }
     results <- data.table::rbindlist(storage, use.names = TRUE)
@@ -362,10 +387,10 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       dplyr::ungroup() %>%
       dplyr::inner_join(feat_nums, by = c("method" = "method")) %>%
       dplyr::mutate(method = paste0(method, " (", num_feats, ")")) %>%
-      ggplot2::ggplot(aes(x = stats::reorder(method, -average))) +
-      ggplot2::geom_bar(aes(y = average, fill = method), stat = "identity") +
-      ggplot2::geom_point(aes(y = average), colour = "black") +
-      ggplot2::geom_errorbar(aes(ymin = lower, ymax = upper), colour = "black") +
+      ggplot2::ggplot(ggplot2::aes(x = stats::reorder(method, -average))) +
+      ggplot2::geom_bar(ggplot2::aes(y = average, fill = method), stat = "identity") +
+      ggplot2::geom_point(ggplot2::aes(y = average), colour = "black") +
+      ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper), colour = "black") +
       ggplot2::labs(title = "Classification accuracy by feature set",
                     subtitle = "Error bars represent mean +- two times the standard deviation.\nNumber of features in each set used for analysis is indicated in parentheses.",
                     x = "Feature set",
@@ -402,7 +427,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   } else{
       
     p_value <- stats::wilcox.test(statistic ~ category, data = results)$p.value
-    print(paste0("p-value for comparison of main models to empirical null: ", round(p_value, digits = 7)))
+    print(paste0("p-value for comparison of main models to empirical null: ", p_value, digits = 7))
     myList <- list(results)
     names(myList) <- c("RawClassificationResults")
   }
