@@ -71,15 +71,15 @@ plot_feature_correlations(outs_22, is_normalised = FALSE, id_var = "id", names_v
 
 # Test 9: Multivariate classification
 
-multi_classifier_outputs <- fit_multivariate_classifier(outs_22, id_var = "id", group_var = "group", by_set = FALSE, num_splits = 10, "linear svm")
-multi_classifier_outputs_2 <- fit_multivariate_classifier(outs_22, id_var = "id", group_var = "group", by_set = TRUE, num_splits = 10, "rbf svm")
+multi_classifier_outputs <- fit_multivariate_classifier(outs_22, id_var = "id", group_var = "group", by_set = FALSE, num_splits = 10, num_shuffles = 5, "linear svm")
+multi_classifier_outputs_2 <- fit_multivariate_classifier(outs_22, id_var = "id", group_var = "group", by_set = TRUE, num_splits = 10, num_shuffles = 5, "rbf svm")
 
 # Test 8: Feature-level classification
 
 # Multiclass
 
-classifier_outputs <- compute_top_features(outs_22, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "linear svm", num_splits = 10)
-classifier_outputs_2 <- compute_top_features(outs_22, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "rbf svm", num_splits = 10)
+classifier_outputs <- compute_top_features(outs_22, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "linear svm", num_splits = 10, num_shuffles = 5, pool_empirical_null = FALSE)
+classifier_outputs_2 <- compute_top_features(outs_22, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "rbf svm", num_splits = 10, num_shuffles = 5, pool_empirical_null = TRUE)
 
 # Two-class
 
