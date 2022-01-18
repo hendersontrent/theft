@@ -112,10 +112,7 @@ fit_univariate_models <- function(traindata, testdata, test_method, num_shuffles
   
   outputs_shuffle_bind <- data.table::rbindlist(shuffleStorage, use.names = TRUE)
   outputs <- data.frame(category = c("Main"), statistic = c(statistic))
-  
-  outputs <- outputs %>%
-    dplyr::bind_rows(outputs, outputs_shuffle_bind)
-  
+  outputs <- dplyr::bind_rows(outputs, outputs_shuffle_bind)
   return(outputs)
 }
 

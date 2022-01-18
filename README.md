@@ -68,19 +68,13 @@ interactive visualisations, and enables downloads of feature
 calculations. Note that since `theft` is an active development project,
 not all functionality has been copied across to the webtool yet.
 
-## Ongoing work
-
-This package is an ongoing project with development occurring at a rapid
-rate. As such, there is no guarantee that all functions operate
-correctly yet.
-
 ## Citation
 
 
     To cite package 'theft' in publications use:
 
       Trent Henderson (2022). theft: Tools for Handling Extraction of
-      Features from Time series. R package version 0.3.7.
+      Features from Time series. R package version 0.3.7.1.
 
     A BibTeX entry for LaTeX users is
 
@@ -88,5 +82,5 @@ correctly yet.
         title = {theft: Tools for Handling Extraction of Features from Time series},
         author = {Trent Henderson},
         year = {2022},
-        note = {R package version 0.3.7},
+        note = {R package version 0.3.7.1},
       }
