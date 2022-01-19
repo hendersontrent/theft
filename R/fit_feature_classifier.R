@@ -212,7 +212,7 @@ calculate_pooled_null <- function(null_vector, main_matrix, x){
 #' }
 #' 
 
-fit_feature_classifier2 <- function(data, id_var = "id", group_var = "group",
+fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                     test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
                                     num_splits = 10, num_shuffles = 5,
                                     pool_empirical_null = FALSE){
