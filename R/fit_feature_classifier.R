@@ -146,6 +146,30 @@ fit_univariate_models <- function(data, test_method, num_shuffles, seed){
   return(finalOuts)
 }
 
+#--------------------------
+# Calculation of statistics
+# for empirical nulls
+#--------------------------
+
+calculate_pooled_null <- function(null_vector, main_matrix, x){
+  
+  tmp_main <- main_matrix %>%
+    dplyr::select(category, dplyr::all_of(x)) %>%
+    dplyr::rename(statistic = 2)
+  
+  tmp_pool <- dplyr::bind_rows(tmp_main, null_vector)
+  
+  mod <- stats::wilcox.test(statistic ~ category, data = tmp_pool)
+  statistic_value <- as.numeric(mod$statistic)
+  p_value <- mod$p.value
+  
+  tmp_outputs <- data.frame(feature = names(main_matrix[x]),
+                            statistic_value = statistic_value,
+                            p_value = p_value)
+  
+  return(tmp_outputs)
+}
+
 #-------------- Main exported function ---------------
 
 #' Fit a classifier to feature matrix to extract top performers
@@ -408,9 +432,13 @@ fit_feature_classifier2 <- function(data, id_var = "id", group_var = "group",
       dplyr::rename(statistic_value = 2,
                     p_value = 3)
     
+    return(output)
+    
   } else if (test_method == "linear svm" || test_method == "rbf svm"){
     
     message("Fitting SVM with 10-fold cross-validation (CV) for every split and shuffle permutation specified. This may take a while.")
+    
+    # Compute accuracies for each permutation and feature
     
     output <- 1:num_splits %>%
       purrr::map(~ fit_univariate_models(data = data_id, 
@@ -418,7 +446,43 @@ fit_feature_classifier2 <- function(data, id_var = "id", group_var = "group",
                                          num_shuffles = num_shuffles, 
                                          seed = .x))
     
-    output <- data.table::rbindlist(output, use.names = TRUE)
+    output <- data.table::rbindlist(output, use.names = TRUE) %>%
+      dplyr::mutate(category = as.factor(category))
+    
+    # Compute statistics for each feature against empirical null distribution
+    
+    if(pool_empirical_null){
+      
+      # Set up vector of null accuracies across all features
+      
+      null_vector <- output %>%
+        dplyr::filter(category == "Null") %>%
+        dplyr::select(-c(feature))
+      
+      # Widen main results matrix
+      
+      main_matrix <- output %>%
+        dplyr::filter(category == "Main") %>%
+        dplyr::group_by(feature) %>%
+        dplyr::mutate(id = row_number()) %>%
+        dplyr::ungroup() %>%
+        tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
+        dplyr::select(-c(id))
+      
+      # Calculate p-values for each feature
+      
+      feature_statistics <- 2:ncol(main_matrix) %>%
+        purrr::map(~ calculate_pooled_null(null_vector = null_vector, main_matrix = main_matrix, x = .x))
+      
+      feature_statistics <- data.table::rbindlist(feature_statistics, use.names = TRUE) %>%
+        dplyr::mutate(classifier_name = classifier_name,
+                      statistic_name = statistic_name)
+      
+      return(feature_statistics)
+      
+    } else{
+      
+      xx
+    }
   }
-  return(output)
 }
