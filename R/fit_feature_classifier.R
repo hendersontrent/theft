@@ -151,6 +151,8 @@ fit_univariate_models <- function(data, test_method, num_shuffles, seed){
 # for empirical nulls
 #--------------------------
 
+# Pooled
+
 calculate_pooled_null <- function(null_vector, main_matrix, x){
   
   tmp_main <- main_matrix %>%
@@ -164,6 +166,26 @@ calculate_pooled_null <- function(null_vector, main_matrix, x){
   p_value <- mod$p.value
   
   tmp_outputs <- data.frame(feature = names(main_matrix[x]),
+                            statistic_value = statistic_value,
+                            p_value = p_value)
+  
+  return(tmp_outputs)
+}
+
+# Unpooled
+
+calculate_unpooled_null <- function(.data, x){
+  
+  # Widen main results matrix
+  
+  tmp_main <- .data %>%
+    dplyr::filter(feature == x)
+  
+  mod <- stats::wilcox.test(statistic ~ category, data = tmp_main)
+  statistic_value <- as.numeric(mod$statistic)
+  p_value <- mod$p.value
+  
+  tmp_outputs <- data.frame(feature = x,
                             statistic_value = statistic_value,
                             p_value = p_value)
   
@@ -402,28 +424,26 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       
       # Run selected method for each formula
       
-      if(test_method == "t-test"){
+      if(test_method == "t-test") {
+        
         mod <- stats::t.test(as.formula(f), data = data_id)
-      } else if(test_method == "wilcox") {
-        mod <- stats::wilcox.test(as.formula(f), data = data_id)
-      } else{
-        mod <- stats::glm(as.formula(f), data = data_id, family = stats::binomial())
-      }
-      
-      # Extract statistics
-      
-      if(test_method %in% c("t-test", "wilcox")){
         c(mod$statistic, p.value = mod$p.value)
         
-      } else{
+      } else if(test_method == "wilcox") {
         
+        mod <- stats::wilcox.test(as.formula(f), data = data_id)
+        c(mod$statistic, p.value = mod$p.value)
+        
+      } else {
+        
+        mod <- stats::glm(as.formula(f), data = data_id, family = stats::binomial())
         statistic_value <- as.numeric(summary(mod)$coefficients[,3][2])
         p_value <- as.numeric(summary(mod)$coefficients[,4][2])
         c(statistic_value, p.value = p_value)
-      }
-    }
-    )
-    )
+        }
+       }
+      )
+     )
     ) %>%
       tibble::rownames_to_column(var = "feature") %>%
       dplyr::mutate(feature = gsub(" .*", "\\1", feature),
@@ -474,15 +494,19 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       feature_statistics <- 2:ncol(main_matrix) %>%
         purrr::map(~ calculate_pooled_null(null_vector = null_vector, main_matrix = main_matrix, x = .x))
       
-      feature_statistics <- data.table::rbindlist(feature_statistics, use.names = TRUE) %>%
-        dplyr::mutate(classifier_name = classifier_name,
-                      statistic_name = statistic_name)
-      
-      return(feature_statistics)
-      
     } else{
       
-      xx
+      # Calculate p-values for each feature
+      
+      feature_statistics <- unique(output$feature) %>%
+        purrr::map(~ calculate_unpooled_null(.data = output, x = .x))
+      
     }
+    
+    feature_statistics <- data.table::rbindlist(feature_statistics, use.names = TRUE) %>%
+      dplyr::mutate(classifier_name = classifier_name,
+                    statistic_name = statistic_name)
+    
+    return(feature_statistics)
   }
 }
