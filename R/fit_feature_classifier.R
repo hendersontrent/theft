@@ -38,6 +38,38 @@ prepare_univariate_model_matrices <- function(.data, seed){
   return(myMatrix)
 }
 
+#-------------------------------
+# General purpose fit-by-feature 
+# procedure to iterate over
+#-------------------------------
+
+fit_single_feature_model <- function(traindata, testdata, kernel, x){
+  
+  myformula <- formula(paste0("group ~ ", names(traindata[x])))
+  mod <- e1071::svm(myformula, data = traindata, kernel = kernel, cross = 10, probability = TRUE)
+  
+  # Get outputs for main model
+  
+  cm <- as.data.frame(table(testdata$group, predict(mod, newdata = testdata))) %>%
+    dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
+  
+  same_total <- cm %>%
+    dplyr::filter(flag == "Same") %>%
+    dplyr::summarise(Freq = sum(Freq)) %>%
+    dplyr::pull()
+  
+  all_total <- cm %>%
+    dplyr::summarise(Freq = sum(Freq)) %>%
+    dplyr::pull()
+  
+  statistic <- same_total / all_total
+  
+  tmp_feature <- data.frame(feature = as.character(names(traindata[x])),
+                            statistic = statistic)
+  
+  return(tmp_feature)
+}
+
 #-------------------
 # Null model fitting
 #-------------------
@@ -54,37 +86,26 @@ fit_empirical_null_models <- function(traindata, testdata, test_method, s){
     dplyr::mutate(group = shuffles,
                   group = as.factor(group))
   
-  # Fit classifier
+  # Main procedure
   
   if(test_method == "linear svm"){
-    modNULL <- e1071::svm(group ~., data = shuffledtrain, kernel = "linear", cross = 10, probability = TRUE)
+    kernel <- "linear"
   } else{
-    modNULL <- e1071::svm(group ~., data = shuffledtrain, kernel = "radial", cross = 10, probability = TRUE)
+    kernel <- "radial"
   }
   
-  # Get outputs for model
+  null_models <- 2:ncol(shuffledtrain) %>%
+    purrr::map(~ fit_single_feature_model(traindata = shuffledtrain, testdata = testdata, kernel = kernel, x = .x))
   
-  cmNULL <- as.data.frame(table(testdata$group, predict(modNULL, newdata = testdata))) %>%
-    dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
-  
-  same_totalNULL <- cmNULL %>%
-    dplyr::filter(flag == "Same") %>%
-    dplyr::summarise(Freq = sum(Freq)) %>%
-    dplyr::pull()
-  
-  all_totalNULL <- cmNULL %>%
-    dplyr::summarise(Freq = sum(Freq)) %>%
-    dplyr::pull()
-  
-  statisticNULL <- same_totalNULL / all_totalNULL
-  return(statisticNULL)
+  null_models <- data.table::rbindlist(null_models, use.names = TRUE)
+  return(null_models)
 }
 
 #----------------------
 # Overall model fitting
 #----------------------
 
-fit_univariate_models2 <- function(data, test_method, num_shuffles, seed){
+fit_univariate_models <- function(data, test_method, num_shuffles, seed){
   
   inputData <- prepare_univariate_model_matrices(data, seed = seed)
   trainset <- as.data.frame(inputData[1])
@@ -97,43 +118,29 @@ fit_univariate_models2 <- function(data, test_method, num_shuffles, seed){
   # Main procedure
   
   if(test_method == "linear svm"){
-    mod <- e1071::svm(group ~., data = mytrainset, kernel = "linear", cross = 10, probability = TRUE)
+    kernel <- "linear"
   } else{
-    mod <- e1071::svm(group ~., data = mytrainset, kernel = "radial", cross = 10, probability = TRUE)
+    kernel <- "radial"
   }
   
-  # Get outputs for main model
+  mainOuts <- 2:ncol(mytrainset) %>%
+    purrr::map(~ fit_single_feature_model(traindata = mytrainset, testdata = mytestset, kernel = kernel, x = .x))
   
-  cm <- as.data.frame(table(mytestset$group, predict(mod, newdata = mytestset))) %>%
-    dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
-  
-  same_total <- cm %>%
-    dplyr::filter(flag == "Same") %>%
-    dplyr::summarise(Freq = sum(Freq)) %>%
-    dplyr::pull()
-  
-  all_total <- cm %>%
-    dplyr::summarise(Freq = sum(Freq)) %>%
-    dplyr::pull()
-  
-  statistic <- same_total / all_total
+  mainOuts <- data.table::rbindlist(mainOuts, use.names = TRUE) %>%
+    dplyr::mutate(category = "Main")
   
   # Get outputs for empirical null
   
-  statisticNULL <- output <- 1:num_shuffles %>%
+  nullOuts <- 1:num_shuffles %>%
     purrr::map(~ fit_empirical_null_models(traindata = mytrainset, 
                                            testdata = mytestset, 
                                            test_method = test_method, 
-                                           s = .x)) %>%
-    unlist()
+                                           s = .x))
+  
+  nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
+    dplyr::mutate(category = "Null")
   
   # Bind together and return
-  
-  mainOuts <- data.frame(category = c("Main"),
-                         statistic = statistic)
-  
-  nullOuts <- data.frame(statistic = statisticNULL) %>%
-    dplyr::mutate(category = "Null")
   
   finalOuts <- dplyr::bind_rows(mainOuts, nullOuts)
   return(finalOuts)
@@ -181,7 +188,7 @@ fit_univariate_models2 <- function(data, test_method, num_shuffles, seed){
 #' }
 #' 
 
-fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
+fit_feature_classifier2 <- function(data, id_var = "id", group_var = "group",
                                     test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
                                     num_splits = 10, num_shuffles = 5,
                                     pool_empirical_null = FALSE){
@@ -403,13 +410,13 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
   } else if (test_method == "linear svm" || test_method == "rbf svm"){
     
-    message("Fitting SVM with 10-fold cross-validation (CV) for every split and shuffle permutation specified.")
+    message("Fitting SVM with 10-fold cross-validation (CV) for every split and shuffle permutation specified. This may take a while.")
     
     output <- 1:num_splits %>%
       purrr::map(~ fit_univariate_models(data = data_id, 
-                                          test_method = test_method, 
-                                          num_shuffles = num_shuffles, 
-                                          seed = .x))
+                                         test_method = test_method, 
+                                         num_shuffles = num_shuffles, 
+                                         seed = .x))
     
     output <- data.table::rbindlist(output, use.names = TRUE)
   }
