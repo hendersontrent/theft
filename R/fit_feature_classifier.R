@@ -4,38 +4,65 @@
 # Model matrix
 #-------------
 
-prepare_univariate_model_matrices <- function(.data, seed){
+prepare_univariate_model_matrices <- function(.data, use_k_fold, num_folds){
   
-  # Train-test split
-  
-  set.seed(seed)
-  bound <- floor((nrow(.data)/4)*3)
-  .data <- .data[sample(nrow(.data)), ]
-  train <- .data[1:bound, ]
-  test <- .data[(bound + 1):nrow(.data), ]
-  
-  # Get train mean and SD for normalisation
-  
-  train_scales <- train %>%
-    tidyr::pivot_longer(cols = 3:ncol(train), names_to = "names", values_to = "values") %>%
-    dplyr::group_by(names) %>%
-    dplyr::summarise(mean = mean(values, na.rm = TRUE),
-                     sd = stats::sd(values, na.rm = TRUE)) %>%
-    dplyr::ungroup()
-  
-  # Normalise train and test sets and widen model matrices
-  
-  train <- widener(train, train_scales)
-  test <- widener(test, train_scales)
-  
-  # Delete columns that were problematic for the train set so they can be removed from test set
-  
-  removals <- sapply(train, function(x) sum(is.na(x)))
-  removals <- removals[removals > 0]
-  train <- train %>% dplyr::select(!dplyr::all_of(removals))
-  test <- test %>% dplyr::select(!dplyr::all_of(removals))
-  myMatrix <- list(train, test)
-  return(myMatrix)
+  if(use_k_fold){
+    
+    # Fix seed for reproducibility and set up fold indexes
+    
+    set.seed(123)
+    yourdata <- .data[sample(nrow(.data)), ]
+    folds <- cut(seq(1, nrow(yourdata)), breaks = num_folds, labels = FALSE)
+    
+    # Create datasets for 10 fold cross validation
+    
+    storage <- list()
+    
+    for(i in 1:num_folds){
+      
+      # Segement data by fold
+      
+      testIndexes <- which(folds == i, arr.ind = TRUE)
+      testData <- yourdata[testIndexes, ]
+      trainData <- yourdata[-testIndexes, ]
+      
+      # Scale data
+      
+      train_scales <- trainData %>%
+        tidyr::pivot_longer(cols = 3:ncol(trainData), names_to = "names", values_to = "values") %>%
+        dplyr::group_by(names) %>%
+        dplyr::summarise(mean = mean(values, na.rm = TRUE),
+                         sd = stats::sd(values, na.rm = TRUE)) %>%
+        dplyr::ungroup()
+      
+      # Normalise train and test sets and widen model matrices
+      
+      trainData <- widener(trainData, train_scales)
+      testData <- widener(testData, train_scales)
+      
+      # Delete columns that were problematic for the train set so they can be removed from test set
+      
+      removals <- sapply(trainData, function(x) sum(is.na(x)))
+      removals <- removals[removals > 0]
+      trainData <- trainData %>% dplyr::select(!dplyr::all_of(removals))
+      testData <- testData %>% dplyr::select(!dplyr::all_of(removals))
+      mylist <- list(trainData, testData)
+      names(mylist) <- c("trainData", "testData")
+      storage[[i]] <- mylist
+    }
+    
+  } else{
+    
+    storage <- .data %>%
+      tidyr::pivot_longer(cols = 3:ncol(.data), names_to = "names", values_to = "values") %>%
+      dplyr::group_by(names) %>%
+      dplyr::mutate(values = (values - mean(values, na.rm = TRUE)) / sd(values, na.rm = TRUE)) %>%
+      dplyr::ungroup() %>%
+      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
+      dplyr::select(-c(id)) %>%
+      dplyr::mutate(group = as.factor(group))
+    }
+  return(storage)
 }
 
 #-------------------------------
@@ -46,7 +73,7 @@ prepare_univariate_model_matrices <- function(.data, seed){
 fit_single_feature_model <- function(traindata, testdata, kernel, x){
   
   myformula <- formula(paste0("group ~ ", names(traindata[x])))
-  mod <- e1071::svm(myformula, data = traindata, kernel = kernel, cross = 10, probability = TRUE)
+  mod <- e1071::svm(myformula, data = traindata, kernel = kernel, scale = FALSE, probability = TRUE)
   
   # Get outputs for main model
   
@@ -74,19 +101,9 @@ fit_single_feature_model <- function(traindata, testdata, kernel, x){
 # Null model fitting
 #-------------------
 
-fit_empirical_null_models <- function(traindata, testdata, test_method, s){
+fit_empirical_null_models <- function(maindata, testdata, test_method, s){
   
-  y <- traindata %>% dplyr::pull(group)
-  y <- as.character(y)
-  
-  set.seed(s)
-  shuffles <- sample(y, replace = FALSE)
-  
-  shuffledtrain <- traindata %>%
-    dplyr::mutate(group = shuffles,
-                  group = as.factor(group))
-  
-  # Main procedure
+  # Set up kernels
   
   if(test_method == "linear svm"){
     kernel <- "linear"
@@ -94,10 +111,21 @@ fit_empirical_null_models <- function(traindata, testdata, test_method, s){
     kernel <- "radial"
   }
   
+  y <- maindata %>% dplyr::pull(group)
+  y <- as.character(y)
+  
+  set.seed(s)
+  shuffles <- sample(y, replace = FALSE)
+  
+  shuffledtrain <- maindata %>%
+    dplyr::mutate(group = shuffles,
+                  group = as.factor(group))
+  
   null_models <- 2:ncol(shuffledtrain) %>%
     purrr::map(~ fit_single_feature_model(traindata = shuffledtrain, testdata = testdata, kernel = kernel, x = .x))
   
   null_models <- data.table::rbindlist(null_models, use.names = TRUE)
+  
   return(null_models)
 }
 
@@ -105,15 +133,9 @@ fit_empirical_null_models <- function(traindata, testdata, test_method, s){
 # Overall model fitting
 #----------------------
 
-fit_univariate_models <- function(data, test_method, num_shuffles, seed){
+fit_univariate_models <- function(data, test_method, use_k_fold, use_empirical_null, num_shuffles, seed){
   
-  inputData <- prepare_univariate_model_matrices(data, seed = seed)
-  trainset <- as.data.frame(inputData[1])
-  testset <- as.data.frame(inputData[2])
-  removals <- sapply(trainset, function(y) sum(length(which(is.na(y)))))
-  removals <- data.frame(removals) %>% tibble::rownames_to_column(var = "names") %>% dplyr::filter(removals >= 1) %>% dplyr::pull(names)
-  mytrainset <- trainset %>% dplyr::select(-dplyr::all_of(removals))
-  mytestset <- testset %>% dplyr::select(-dplyr::all_of(removals))
+  inputData <- prepare_univariate_model_matrices(.data = data, use_k_fold = use_k_fold, num_folds, seed = seed)
   
   # Main procedure
   
@@ -131,18 +153,24 @@ fit_univariate_models <- function(data, test_method, num_shuffles, seed){
   
   # Get outputs for empirical null
   
-  nullOuts <- 1:num_shuffles %>%
-    purrr::map(~ fit_empirical_null_models(traindata = mytrainset, 
-                                           testdata = mytestset, 
-                                           test_method = test_method, 
-                                           s = .x))
-  
-  nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
-    dplyr::mutate(category = "Null")
-  
-  # Bind together and return
-  
-  finalOuts <- dplyr::bind_rows(mainOuts, nullOuts)
+  if(use_empirical_null){
+    nullOuts <- 1:num_shuffles %>%
+      purrr::map(~ fit_empirical_null_models(traindata = mytrainset, 
+                                             testdata = mytestset, 
+                                             test_method = test_method, 
+                                             s = .x))
+    
+    nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
+      dplyr::mutate(category = "Null")
+    
+    # Bind together and return
+    
+    finalOuts <- dplyr::bind_rows(mainOuts, nullOuts)
+    
+  } else{
+    
+    finalOuts <- mainOuts
+  }
   return(finalOuts)
 }
 
@@ -155,17 +183,21 @@ fit_univariate_models <- function(data, test_method, num_shuffles, seed){
 
 calculate_pooled_null <- function(null_vector, main_matrix, x){
   
-  tmp_main <- main_matrix %>%
+  # Filter data matrix to feature of interest
+  
+  tmp <- main_matrix %>%
     dplyr::select(category, dplyr::all_of(x)) %>%
-    dplyr::rename(statistic = 2)
+    dplyr::rename(statistic = 2) %>%
+    dplyr::filter(category == "Main") %>%
+    dplyr::summarise(statistic = mean(statistic, na.rm = TRUE)) %>%
+    dplyr::pull(statistic)
   
-  tmp_pool <- dplyr::bind_rows(tmp_main, null_vector)
+  # Compute p-value against empirical null samples
   
-  mod <- stats::wilcox.test(statistic ~ category, data = tmp_pool)
-  statistic_value <- as.numeric(mod$statistic)
-  p_value <- mod$p.value
+  nulls_above_main <- null_vector[null_vector >= tmp]
+  p_value <- length(nulls_above_main) / length(null_vector)
   
-  tmp_outputs <- data.frame(feature = names(main_matrix[x]),
+  tmp_outputs <- data.frame(feature = names(.data)[x],
                             statistic_value = statistic_value,
                             p_value = p_value)
   
@@ -176,16 +208,30 @@ calculate_pooled_null <- function(null_vector, main_matrix, x){
 
 calculate_unpooled_null <- function(.data, x){
   
-  # Widen main results matrix
+  # Filter data matrix to feature of interest
   
-  tmp_main <- .data %>%
-    dplyr::filter(feature == x)
+  tmp <- .data %>%
+    dplyr::select(category, dplyr::all_of(x)) %>%
+    dplyr::rename(statistic = 2)
   
-  mod <- stats::wilcox.test(statistic ~ category, data = tmp_main)
-  statistic_value <- as.numeric(mod$statistic)
-  p_value <- mod$p.value
+  # Compute mean for main model
   
-  tmp_outputs <- data.frame(feature = x,
+  statistic_value <- tmp %>%
+    dplyr::filter(category == "Main") %>%
+    dplyr::summarise(statistic = mean(statistic, na.rm = TRUE)) %>%
+    dplyr::pull(statistic)
+  
+  # Compute p-value against empirical null samples
+  
+  nulls <- tmp %>%
+    dplyr::filter(category == "Null")
+  
+  nulls_above_main <- nulls %>%
+    dplyr::filter(statistic >= statistic_value)
+  
+  p_value <- nrow(nulls_above_main) / nrow(nulls)
+  
+  tmp_outputs <- data.frame(feature = names(.data)[x],
                             statistic_value = statistic_value,
                             p_value = p_value)
   
@@ -197,7 +243,6 @@ calculate_unpooled_null <- function(.data, x){
 #' Fit a classifier to feature matrix to extract top performers
 #' @import dplyr
 #' @importFrom magrittr %>%
-#' @import ggplot2
 #' @importFrom tidyr drop_na
 #' @importFrom tidyr pivot_wider
 #' @importFrom tibble rownames_to_column
@@ -209,9 +254,11 @@ calculate_unpooled_null <- function(.data, x){
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
 #' @param test_method the algorithm to use for quantifying class separation
-#' @param num_splits an integer specifying the number of 75/25 train-test splits to perform if linear svm or rbf svm is selected. Defaults to 10
+#' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if linear svm or rbf svm is selected. Defaults to FALSE
+#' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE
+#' @param num_folds an integer specifying the number of folds (train-test splits) to perform if linear svm or rbf svm is selected and use_k_fold is set to TRUE. Defaults to 10
 #' @param num_shuffles an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 5
-#' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected. Defaults to FALSE
+#' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected and use_empirical_null is TRUE. Defaults to FALSE
 #' @return an object of class dataframe containing results
 #' @author Trent Henderson
 #' @export
@@ -228,16 +275,19 @@ calculate_unpooled_null <- function(.data, x){
 #'   id_var = "id",
 #'   group_var = "group",
 #'   test_method = "linear svm",
-#'   num_splits = 10,
+#'   use_empirical_null = FALSE,
+#'   use_k_fold = FALSE,
+#'   num_folds = 10,
 #'   num_shuffles = 5,
 #'   pool_empirical_null = FALSE) 
 #' }
 #' 
 
 fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
-                                    test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
-                                    num_splits = 10, num_shuffles = 5,
-                                    pool_empirical_null = FALSE){
+                                   test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
+                                   use_empirical_null = FALSE, use_k_fold = FALSE,
+                                   num_folds = 0, num_shuffles = 50,
+                                   pool_empirical_null = FALSE){
   
   #---------- Check arguments ------------
   
@@ -313,20 +363,16 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   
   # Splits and shuffles
   
-  if(test_method %in% c("linear svm", "rbf svm") && (!is.numeric(num_splits) || !is.numeric(num_shuffles))){
-    stop("num_splits and num_shuffles should both be integers >= 1.")
+  if(test_method %in% c("linear svm", "rbf svm") && (!is.numeric(num_folds) || !is.numeric(num_shuffles))){
+    stop("num_folds and num_shuffles should both be integers.")
   }
   
-  if(test_method %in% c("linear svm", "rbf svm") && (num_splits < 1 || num_shuffles < 1)){
-    stop("num_splits and num_shuffles should both be integers >= 1.")
+  if(test_method %in% c("linear svm", "rbf svm") && use_empirical_null == TRUE && num_shuffles < 3){
+    stop("num_shuffles should be an integer >= 3 for empirical null calculations. A minimum of 50 shuffles is recommended.")
   }
   
-  if(test_method %in% c("linear svm", "rbf svm") && (num_splits == 1 && pool_empirical_null == FALSE && num_shuffles < 3)){
-    stop("If pool_empirical_null = FALSE and num_splits == 1, num_shuffles should be an integer >= 3 so each feature has a distribution to compute statistics on.")
-  }
-  
-  if(test_method %in% c("linear svm", "rbf svm") && (num_shuffles == 1 && pool_empirical_null == FALSE && num_splits < 3)){
-    stop("If pool_empirical_null = FALSE and num_shuffles == 1, num_splits should be an integer >= 3 so each feature has a distribution to compute statistics on.")
+  if(test_method %in% c("linear svm", "rbf svm") && use_k_fold == TRUE && num_folds < 2){
+    stop("num_folds should be an integer >= 2. 10 folds is recommended.")
   }
   
   #------------- Preprocess data --------------
@@ -392,12 +438,12 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   } else if(test_method == "linear svm") {
     
     classifier_name <- "Linear SVM"
-    statistic_name <- "Mann-Whitney-Wilcoxon Test statistic of classification accuracies"
+    statistic_name <- "Classification accuracy"
     
   } else if(test_method == "rbf svm") {
     
     classifier_name <- "RBF SVM"
-    statistic_name <- "Mann-Whitney-Wilcoxon Test statistic of classification accuracies"
+    statistic_name <- "Classification accuracy"
     
   } else if(test_method == "binomial logistic") {
     
@@ -456,57 +502,93 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
   } else if (test_method == "linear svm" || test_method == "rbf svm"){
     
-    message("Fitting SVM with 10-fold cross-validation (CV) for every split and shuffle permutation specified. This may take a while.")
-    
     # Compute accuracies for each permutation and feature
     
-    output <- 1:num_splits %>%
-      purrr::map(~ fit_univariate_models(data = data_id, 
-                                         test_method = test_method, 
-                                         num_shuffles = num_shuffles, 
-                                         seed = .x))
-    
-    output <- data.table::rbindlist(output, use.names = TRUE) %>%
-      dplyr::mutate(category = as.factor(category))
+    if(use_k_fold){
+      output <- 1:num_folds %>%
+        purrr::map(~ fit_univariate_models(data = data_id, 
+                                           test_method = test_method, 
+                                           use_empirical_null = use_empirical_null,
+                                           num_shuffles = num_shuffles, 
+                                           seed = .x))
+      
+      output <- data.table::rbindlist(output, use.names = TRUE) %>%
+        dplyr::mutate(category = as.factor(category))
+      
+    } else{
+      output <- fit_univariate_models(data = data_id, 
+                                      test_method = test_method, 
+                                      use_empirical_null = use_empirical_null,
+                                      num_shuffles = num_shuffles, 
+                                      seed = 123)
+      
+      if(use_empirical_null){
+        
+        output <- output %>%
+          dplyr::mutate(category = as.factor(category))
+        
+      } else{
+        
+        output <- output %>%
+          dplyr::select(-c(category))
+      }
+    }
     
     # Compute statistics for each feature against empirical null distribution
     
-    if(pool_empirical_null){
+    if(use_empirical_null){
       
-      # Set up vector of null accuracies across all features
+      if(pool_empirical_null){
+        
+        # Set up vector of null accuracies across all features
+        
+        null_vector <- output %>%
+          dplyr::filter(category == "Null") %>%
+          dplyr::select(-c(feature)) %>%
+          dplyr::pull(statistic)
+        
+        # Widen main results matrix
+        
+        main_matrix <- output %>%
+          dplyr::filter(category == "Main") %>%
+          dplyr::group_by(feature) %>%
+          dplyr::mutate(id = row_number()) %>%
+          dplyr::ungroup() %>%
+          tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
+          dplyr::select(-c(id))
+        
+        # Calculate p-values for each feature
+        
+        feature_statistics <- 2:ncol(main_matrix) %>%
+          purrr::map(~ calculate_pooled_null(null_vector = null_vector, main_matrix = main_matrix, x = .x))
+        
+      } else{
+        
+        # Widen data matrix
+        
+        output <- output %>%
+          dplyr::group_by(feature) %>%
+          dplyr::mutate(id = row_number()) %>%
+          dplyr::ungroup() %>%
+          tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
+          dplyr::select(-c(id))
+        
+        # Calculate p-values for each feature
+        
+        feature_statistics <- 2:ncol(output) %>%
+          purrr::map(~ calculate_unpooled_null(.data = output, x = .x))
+        
+      }
       
-      null_vector <- output %>%
-        dplyr::filter(category == "Null") %>%
-        dplyr::select(-c(feature))
-      
-      # Widen main results matrix
-      
-      main_matrix <- output %>%
-        dplyr::filter(category == "Main") %>%
-        dplyr::group_by(feature) %>%
-        dplyr::mutate(id = row_number()) %>%
-        dplyr::ungroup() %>%
-        tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
-        dplyr::select(-c(id))
-      
-      # Calculate p-values for each feature
-      
-      feature_statistics <- 2:ncol(main_matrix) %>%
-        purrr::map(~ calculate_pooled_null(null_vector = null_vector, main_matrix = main_matrix, x = .x))
-      
+      feature_statistics <- data.table::rbindlist(feature_statistics, use.names = TRUE) %>%
+        dplyr::mutate(classifier_name = classifier_name,
+                      statistic_name = statistic_name)
     } else{
       
-      # Calculate p-values for each feature
-      
-      feature_statistics <- unique(output$feature) %>%
-        purrr::map(~ calculate_unpooled_null(.data = output, x = .x))
-      
+      feature_statistics <- output %>%
+        dplyr::mutate(classifier_name = classifier_name,
+                      statistic_name = statistic_name)
     }
-    
-    feature_statistics <- data.table::rbindlist(feature_statistics, use.names = TRUE) %>%
-      dplyr::mutate(classifier_name = classifier_name,
-                    statistic_name = statistic_name)
-    
     return(feature_statistics)
   }
 }

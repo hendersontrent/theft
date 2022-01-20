@@ -15,9 +15,11 @@
 #' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
 #' @param cor_method the correlation method to use. Defaults to 'pearson'
 #' @param test_method the algorithm to use for quantifying class separation
-#' @param num_splits an integer specifying the number of 75/25 train-test splits to perform if linear svm or rbf svm is selected. Defaults to 10
+#' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if linear svm or rbf svm is selected. Defaults to FALSE
+#' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE
+#' @param num_folds an integer specifying the number of folds (train-test splits) to perform if linear svm or rbf svm is selected and use_k_fold is set to TRUE. Defaults to 10
 #' @param num_shuffles an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 5
-#' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected. Defaults to FALSE
+#' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected and use_empirical_null is TRUE. Defaults to FALSE
 #' @return an object of class list containing a dataframe of results, a feature x feature matrix plot, and a violin plot
 #' @author Trent Henderson
 #' @export
@@ -38,8 +40,10 @@
 #'   method = "RobustSigmoid",
 #'   cor_method = "pearson",
 #'   test_method = "linear svm",
-#'   num_splits = 10,
-#'   num_shuffles = 5,
+#'   use_empirical_null = FALSE,
+#'   use_k_fold = FALSE,
+#'   num_folds = 10,
+#'   num_shuffles = 50,
 #'   pool_empirical_null = FALSE) 
 #' }
 #' 
@@ -50,7 +54,9 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                  cor_method = c("pearson", "spearman"),
                                  test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
-                                 num_splits = 10, num_shuffles = 5, pool_empirical_null = FALSE){
+                                 use_empirical_null = FALSE, use_k_fold = FALSE,
+                                 num_folds = 0, num_shuffles = 50, 
+                                 pool_empirical_null = FALSE){
   
   # Make RobustSigmoid the default
   
@@ -166,20 +172,16 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Splits and shuffles
   
-  if(test_method %in% c("linear svm", "rbf svm") && (!is.numeric(num_splits) || !is.numeric(num_shuffles))){
-    stop("num_splits and num_shuffles should both be integers >= 1.")
+  if(test_method %in% c("linear svm", "rbf svm") && (!is.numeric(num_folds) || !is.numeric(num_shuffles))){
+    stop("num_folds and num_shuffles should both be integers.")
   }
   
-  if(test_method %in% c("linear svm", "rbf svm") && (num_splits < 1 || num_shuffles < 1)){
-    stop("num_splits and num_shuffles should both be integers >= 1.")
+  if(test_method %in% c("linear svm", "rbf svm") && use_empirical_null == TRUE && num_shuffles < 3){
+    stop("num_shuffles should be an integer >= 3 for empirical null calculations. A minimum of 50 shuffles is recommended.")
   }
   
-  if(test_method %in% c("linear svm", "rbf svm") && (num_splits == 1 && pool_empirical_null == FALSE && num_shuffles < 3)){
-    stop("If pool_empirical_null = FALSE and num_splits == 1, num_shuffles should be an integer >= 3 so each feature has a distribution to compute statistics on.")
-  }
-  
-  if(test_method %in% c("linear svm", "rbf svm") && (num_shuffles == 1 && pool_empirical_null == FALSE && num_splits < 3)){
-    stop("If pool_empirical_null = FALSE and num_shuffles == 1, num_splits should be an integer >= 3 so each feature has a distribution to compute statistics on.")
+  if(test_method %in% c("linear svm", "rbf svm") && use_k_fold == TRUE && num_folds < 2){
+    stop("num_folds should be an integer >= 2. 10 folds is recommended.")
   }
   
   # Number of top features
@@ -201,14 +203,27 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                               id_var = "id", 
                                               group_var = "group",
                                               test_method = test_method,
-                                              num_splits = num_splits,
+                                              use_k_fold = use_k_fold,
+                                              use_empirical_null = use_empirical_null,
+                                              num_folds = num_folds,
                                               num_shuffles = num_shuffles,
                                               pool_empirical_null = pool_empirical_null)
   
   # Filter results to get list of top features
   
-  ResultsTable <- classifierOutputs %>%
+  if(test_method %in% c("linear svm", "rbf svm") && use_empirical_null == FALSE){
+    
+    message("Selecting top features based off classification accuracy.")
+    
+    ResultsTable <- classifierOutputs %>%
+      dplyr::slice_max(statistic, n = num_features)
+  } else{
+    
+    message("Selecting top features based off p-value.")
+    
+    ResultsTable <- classifierOutputs %>%
       dplyr::slice_min(p_value, n = num_features)
+  }
   
   # Filter original data to just the top performers
   
