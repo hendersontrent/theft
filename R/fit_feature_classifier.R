@@ -101,7 +101,7 @@ fit_single_feature_model <- function(traindata, testdata, kernel, x){
 # Null model fitting
 #-------------------
 
-fit_empirical_null_models <- function(maindata, testdata, kernel, s){
+fit_empirical_null_models <- function(maindata, testdata, kernel, x = NULL, s){
   
   y <- maindata %>% dplyr::pull(group)
   y <- as.character(y)
@@ -116,7 +116,15 @@ fit_empirical_null_models <- function(maindata, testdata, kernel, s){
   null_models <- 2:ncol(shuffledtrain) %>%
     purrr::map(~ fit_single_feature_model(traindata = shuffledtrain, testdata = testdata, kernel = kernel, x = .x))
   
-  null_models <- data.table::rbindlist(null_models, use.names = TRUE)
+  null_models <- data.table::rbindlist(null_models, use.names = TRUE) %>%
+    dplyr::mutate(shuffle = s)
+  
+  if(!is.null(x)){
+    null_models <- null_models %>%
+      dplyr::mutate(fold = x)
+  } else{
+    
+  }
   
   return(null_models)
 }
@@ -150,14 +158,22 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
     # Get outputs for empirical null
     
     if(use_empirical_null){
-      nullOuts <- 1:num_shuffles %>%
-        purrr::map(~ fit_empirical_null_models(maindata = mytrainset, 
-                                               testdata = mytestset, 
-                                               kernel = kernel,
-                                               s = .x))
+      
+      combinationsNULL <- tidyr::crossing(1:num_folds, 1:num_shuffles)
+      
+      nullOuts <- purrr::pmap(list(combinationsNULL$`1:num_folds`, combinationsNULL$`1:num_shuffles`), ~  
+                                fit_empirical_null_models(maindata = inputData[[.x]]$trainData, 
+                                                          testdata = inputData[[.x]]$testData, 
+                                                          kernel = kernel, x = .x, s = .y))
+      
+      message("Averaging empirical null classification accuracies for each shuffle over folds.")
       
       nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
-        dplyr::mutate(category = "Null")
+        dplyr::group_by(feature, shuffle) %>%
+        dplyr::summarise(statistic = mean(statistic, na.rm = TRUE)) %>%
+        dplyr::ungroup() %>%
+        dplyr::mutate(category = "Null") %>%
+        dplyr::select(-c(shuffle))
       
       # Bind together and return
       
@@ -182,10 +198,12 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
         purrr::map(~ fit_empirical_null_models(maindata = inputData, 
                                                testdata = inputData, 
                                                kernel = kernel,
+                                               x = NULL,
                                                s = .x))
       
       nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
-        dplyr::mutate(category = "Null")
+        dplyr::mutate(category = "Null") %>%
+        dplyr::select(-c(shuffle))
       
       # Bind together and return
       
