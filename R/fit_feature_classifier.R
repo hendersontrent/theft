@@ -101,15 +101,7 @@ fit_single_feature_model <- function(traindata, testdata, kernel, x){
 # Null model fitting
 #-------------------
 
-fit_empirical_null_models <- function(maindata, testdata, test_method, s){
-  
-  # Set up kernels
-  
-  if(test_method == "linear svm"){
-    kernel <- "linear"
-  } else{
-    kernel <- "radial"
-  }
+fit_empirical_null_models <- function(maindata, testdata, kernel, s){
   
   y <- maindata %>% dplyr::pull(group)
   y <- as.character(y)
@@ -133,9 +125,9 @@ fit_empirical_null_models <- function(maindata, testdata, test_method, s){
 # Overall model fitting
 #----------------------
 
-fit_univariate_models <- function(data, test_method, use_k_fold, use_empirical_null, num_shuffles, seed){
+fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, num_shuffles){
   
-  inputData <- prepare_univariate_model_matrices(.data = data, use_k_fold = use_k_fold, num_folds, seed = seed)
+  inputData <- prepare_univariate_model_matrices(.data = data, use_k_fold = use_k_fold, num_folds)
   
   # Main procedure
   
@@ -145,31 +137,60 @@ fit_univariate_models <- function(data, test_method, use_k_fold, use_empirical_n
     kernel <- "radial"
   }
   
-  mainOuts <- 2:ncol(mytrainset) %>%
-    purrr::map(~ fit_single_feature_model(traindata = mytrainset, testdata = mytestset, kernel = kernel, x = .x))
-  
-  mainOuts <- data.table::rbindlist(mainOuts, use.names = TRUE) %>%
-    dplyr::mutate(category = "Main")
-  
-  # Get outputs for empirical null
-  
-  if(use_empirical_null){
-    nullOuts <- 1:num_shuffles %>%
-      purrr::map(~ fit_empirical_null_models(traindata = mytrainset, 
-                                             testdata = mytestset, 
-                                             test_method = test_method, 
-                                             s = .x))
+  if(use_k_fold){
     
-    nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
-      dplyr::mutate(category = "Null")
+    combinations <- tidyr::crossing(1:num_folds, 2:ncol(inputData[[1]]$trainData))
     
-    # Bind together and return
+    mainOuts <- purrr::pmap(list(combinations$`1:num_folds`, combinations$`2:ncol(inputData[[1]]$trainData)`), ~  
+                              fit_single_feature_model(traindata = inputData[[.x]]$trainData, testdata = inputData[[.x]]$testData, kernel = kernel, x = .y))
     
-    finalOuts <- dplyr::bind_rows(mainOuts, nullOuts)
+    mainOuts <- data.table::rbindlist(mainOuts, use.names = TRUE) %>%
+      dplyr::mutate(category = "Main")
+    
+    # Get outputs for empirical null
+    
+    if(use_empirical_null){
+      nullOuts <- 1:num_shuffles %>%
+        purrr::map(~ fit_empirical_null_models(maindata = mytrainset, 
+                                               testdata = mytestset, 
+                                               kernel = kernel,
+                                               s = .x))
+      
+      nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
+        dplyr::mutate(category = "Null")
+      
+      # Bind together and return
+      
+      finalOuts <- dplyr::bind_rows(mainOuts, nullOuts)
+      
+    } else{
+      finalOuts <- mainOuts
+    }
     
   } else{
     
-    finalOuts <- mainOuts
+    mainOuts <- 2:ncol(inputData) %>%
+      purrr::map(~ fit_single_feature_model(traindata = inputData, testdata = inputData, kernel = kernel, x = .x))
+    
+    mainOuts <- data.table::rbindlist(mainOuts, use.names = TRUE) %>%
+      dplyr::mutate(category = "Main")
+    
+    # Get outputs for empirical null
+    
+    if(use_empirical_null){
+      nullOuts <- 1:num_shuffles %>%
+        purrr::map(~ fit_empirical_null_models(maindata = inputData, 
+                                               testdata = inputData, 
+                                               kernel = kernel,
+                                               s = .x))
+      
+      nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
+        dplyr::mutate(category = "Null")
+      
+      # Bind together and return
+      
+      finalOuts <- dplyr::bind_rows(mainOuts, nullOuts)
+    }
   }
   return(finalOuts)
 }
@@ -243,10 +264,9 @@ calculate_unpooled_null <- function(.data, x){
 #' Fit a classifier to feature matrix to extract top performers
 #' @import dplyr
 #' @importFrom magrittr %>%
-#' @importFrom tidyr drop_na
-#' @importFrom tidyr pivot_wider
+#' @importFrom tidyr drop_na pivot_wider crossing
 #' @importFrom tibble rownames_to_column
-#' @importFrom purrr map
+#' @importFrom purrr map pmap
 #' @importFrom e1071 svm
 #' @importFrom data.table rbindlist
 #' @importFrom stats glm binomial sd wilcox.test t.test
@@ -508,9 +528,10 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       output <- 1:num_folds %>%
         purrr::map(~ fit_univariate_models(data = data_id, 
                                            test_method = test_method, 
+                                           use_k_fold = use_k_fold,
+                                           num_folds = num_folds,
                                            use_empirical_null = use_empirical_null,
-                                           num_shuffles = num_shuffles, 
-                                           seed = .x))
+                                           num_shuffles = num_shuffles))
       
       output <- data.table::rbindlist(output, use.names = TRUE) %>%
         dplyr::mutate(category = as.factor(category))
@@ -518,9 +539,10 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     } else{
       output <- fit_univariate_models(data = data_id, 
                                       test_method = test_method, 
+                                      use_k_fold = use_k_fold,
+                                      num_folds = num_folds,
                                       use_empirical_null = use_empirical_null,
-                                      num_shuffles = num_shuffles, 
-                                      seed = 123)
+                                      num_shuffles = num_shuffles)
       
       if(use_empirical_null){
         

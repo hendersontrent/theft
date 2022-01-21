@@ -12,7 +12,7 @@
 #' @import feasts
 #' @import tsibble
 #' @importFrom scales rescale
-#' @importFrom tidyr gather unnest_wider pivot_longer pivot_wider drop_na
+#' @importFrom tidyr gather unnest_wider pivot_longer pivot_wider drop_na crossing
 #' @importFrom data.table rbindlist
 #' @importFrom fabletools features feature_set
 #' @import tibble
@@ -23,5 +23,5 @@
 #' @importFrom plotly ggplotly config
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom e1071 svm
-#' @importFrom purrr map
+#' @importFrom purrr map pmap
 NULL
