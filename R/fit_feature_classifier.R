@@ -208,6 +208,8 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
       # Bind together and return
       
       finalOuts <- dplyr::bind_rows(mainOuts, nullOuts)
+    } else{
+      finalOuts <- mainOuts
     }
   }
   return(finalOuts)
@@ -224,19 +226,18 @@ calculate_pooled_null <- function(null_vector, main_matrix, x){
   
   # Filter data matrix to feature of interest
   
-  tmp <- main_matrix %>%
-    dplyr::select(category, dplyr::all_of(x)) %>%
-    dplyr::rename(statistic = 2) %>%
-    dplyr::filter(category == "Main") %>%
+  statistic_value <- main_matrix %>%
+    dplyr::select(dplyr::all_of(x)) %>%
+    dplyr::rename(statistic = 1) %>%
     dplyr::summarise(statistic = mean(statistic, na.rm = TRUE)) %>%
     dplyr::pull(statistic)
   
   # Compute p-value against empirical null samples
   
-  nulls_above_main <- null_vector[null_vector >= tmp]
+  nulls_above_main <- null_vector[null_vector >= statistic_value]
   p_value <- length(nulls_above_main) / length(null_vector)
   
-  tmp_outputs <- data.frame(feature = names(.data)[x],
+  tmp_outputs <- data.frame(feature = names(main_matrix)[x],
                             statistic_value = statistic_value,
                             p_value = p_value)
   
@@ -295,7 +296,7 @@ calculate_unpooled_null <- function(.data, x){
 #' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if linear svm or rbf svm is selected. Defaults to FALSE
 #' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE
 #' @param num_folds an integer specifying the number of folds (train-test splits) to perform if linear svm or rbf svm is selected and use_k_fold is set to TRUE. Defaults to 10
-#' @param num_shuffles an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 5
+#' @param num_shuffles an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 50
 #' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected and use_empirical_null is TRUE. Defaults to FALSE
 #' @return an object of class dataframe containing results
 #' @author Trent Henderson
@@ -313,8 +314,8 @@ calculate_unpooled_null <- function(.data, x){
 #'   id_var = "id",
 #'   group_var = "group",
 #'   test_method = "linear svm",
-#'   use_empirical_null = FALSE,
-#'   use_k_fold = FALSE,
+#'   use_empirical_null = TRUE,
+#'   use_k_fold = TRUE,
 #'   num_folds = 10,
 #'   num_shuffles = 5,
 #'   pool_empirical_null = FALSE) 
@@ -542,36 +543,18 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
     # Compute accuracies for each permutation and feature
     
-    if(use_k_fold){
-      output <- 1:num_folds %>%
-        purrr::map(~ fit_univariate_models(data = data_id, 
-                                           test_method = test_method, 
-                                           use_k_fold = use_k_fold,
-                                           num_folds = num_folds,
-                                           use_empirical_null = use_empirical_null,
-                                           num_shuffles = num_shuffles))
-      
-      output <- data.table::rbindlist(output, use.names = TRUE) %>%
-        dplyr::mutate(category = as.factor(category))
-      
-    } else{
-      output <- fit_univariate_models(data = data_id, 
+    output <- fit_univariate_models(data = data_id, 
                                       test_method = test_method, 
                                       use_k_fold = use_k_fold,
                                       num_folds = num_folds,
                                       use_empirical_null = use_empirical_null,
                                       num_shuffles = num_shuffles)
+    
+    if(use_empirical_null){
       
-      if(use_empirical_null){
-        
-        output <- output %>%
-          dplyr::mutate(category = as.factor(category))
-        
-      } else{
-        
-        output <- output %>%
-          dplyr::select(-c(category))
-      }
+    } else{
+      output <- output %>%
+        dplyr::mutate(category = as.factor(category))
     }
     
     # Compute statistics for each feature against empirical null distribution

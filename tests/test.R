@@ -78,9 +78,34 @@ multi_classifier_outputs_2 <- fit_multivariate_classifier(outs_22, id_var = "id"
 
 # Multiclass
 
-classifier_outputs <- compute_top_features(outs_22, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "linear svm", num_splits = 10, num_shuffles = 5, pool_empirical_null = FALSE)
-classifier_outputs_2 <- compute_top_features(outs_22, id_var = "id", group_var = "group", num_features = 40, normalise_violin_plots = FALSE, method = "RobustSigmoid", cor_method = "pearson", test_method = "rbf svm", num_splits = 10, num_shuffles = 5, pool_empirical_null = TRUE)
+classifier_outputs <- compute_top_features(outs_22, 
+                                           id_var = "id", 
+                                           group_var = "group",
+                                           num_features = 40, 
+                                           normalise_violin_plots = FALSE,
+                                           method = "RobustSigmoid",
+                                           cor_method = "pearson",
+                                           test_method = "linear svm",
+                                           use_empirical_null =  TRUE,
+                                           use_k_fold = TRUE,
+                                           num_folds = 10,
+                                           num_shuffles = 25,
+                                           pool_empirical_null = FALSE) 
 
+classifier_outputs_2 <- compute_top_features(outs_22, 
+                                             id_var = "id", 
+                                             group_var = "group",
+                                             num_features = 40, 
+                                             normalise_violin_plots = FALSE,
+                                             method = "RobustSigmoid",
+                                             cor_method = "pearson",
+                                             test_method = "linear svm",
+                                             use_empirical_null =  TRUE,
+                                             use_k_fold = TRUE,
+                                             num_folds = 10,
+                                             num_shuffles = 25,
+                                             pool_empirical_null = TRUE)
+  
 # Two-class
 
 twoclass <- outs_22 %>% filter(group %in% c("Gaussian Noise", "AR(1)"))
