@@ -151,13 +151,15 @@ fit_multivariate_models <- function(.data, test_method, use_k_fold, num_folds, u
     .data <- .data %>%
       dplyr::filter(method == set) %>%
       dplyr::select(-c(method)) %>%
-      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
+      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
+      dplyr::select(-c(id))
     
   } else{
     
     .data <- data %>%
       dplyr::select(-c(method)) %>%
-      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
+      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
+      dplyr::select(-c(id))
   }
   
   inputData <- prepare_multivariate_model_matrices(.data = .data, use_k_fold = use_k_fold, num_folds)
@@ -239,7 +241,7 @@ fit_multivariate_models <- function(.data, test_method, use_k_fold, num_folds, u
     }
   }
   return(outputs)
-  }
+}
 
 #---------------- Main function ----------------
 
@@ -428,7 +430,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   
   if(by_set){
     
-    sets <- unique(data_id$group)
+    sets <- unique(data_id$method)
     
     # Compute accuracies for each feature set
     
