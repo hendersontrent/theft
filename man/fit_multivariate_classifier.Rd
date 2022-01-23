@@ -9,9 +9,11 @@ fit_multivariate_classifier(
   id_var = "id",
   group_var = "group",
   by_set = FALSE,
-  num_splits = 10,
-  num_shuffles = 5,
-  test_method = c("linear svm", "rbf svm")
+  test_method = c("linear svm", "rbf svm"),
+  use_empirical_null = FALSE,
+  use_k_fold = FALSE,
+  num_folds = 0,
+  num_shuffles = 50
 )
 }
 \arguments{
@@ -23,11 +25,15 @@ fit_multivariate_classifier(
 
 \item{by_set}{Boolean specifying whether to compute classifiers for each feature set. Defaults to FALSE}
 
-\item{num_splits}{an integer specifying the number of 75/25 train-test splits to perform. Defaults to 10}
-
-\item{num_shuffles}{an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 5}
-
 \item{test_method}{the algorithm to use for quantifying class separation}
+
+\item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values if linear svm or rbf svm is selected. Defaults to FALSE}
+
+\item{use_k_fold}{a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE}
+
+\item{num_folds}{an integer specifying the number of folds (train-test splits) to perform if use_k_fold is set to TRUE. Defaults to 10}
+
+\item{num_shuffles}{an integer specifying the number of class label shuffles to perform. Defaults to 50}
 }
 \value{
 an object of class list containing summaries of the classification models
@@ -48,9 +54,11 @@ fit_multivariate_classifier(featMat,
   id_var = "id",
   group_var = "group",
   by_set = FALSE,
-  num_splits = 10,
-  num_shuffles = 5,
-  test_method = "linear svm") 
+  test_method = "linear svm",
+  use_empirical_null = TRUE,
+  use_k_fold = TRUE,
+  num_folds = 10,
+  num_shuffles = 50) 
 }
 
 }
