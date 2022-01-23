@@ -151,15 +151,13 @@ fit_multivariate_models <- function(.data, test_method, use_k_fold, num_folds, u
     .data <- .data %>%
       dplyr::filter(method == set) %>%
       dplyr::select(-c(method)) %>%
-      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
-      dplyr::select(-c(id))
+      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
     
   } else{
     
     .data <- data %>%
       dplyr::select(-c(method)) %>%
-      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
-      dplyr::select(-c(id))
+      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
   }
   
   inputData <- prepare_multivariate_model_matrices(.data = .data, use_k_fold = use_k_fold, num_folds)
@@ -240,7 +238,58 @@ fit_multivariate_models <- function(.data, test_method, use_k_fold, num_folds, u
       finalOuts <- mainOuts
     }
   }
-  return(outputs)
+  
+  if(!is.null(set)){
+    finalOuts <- finalOuts %>%
+      dplyr::mutate(method = set)
+  } else{
+  }
+  
+  return(finalOuts)
+}
+
+#--------------------
+# p-value calculation
+#--------------------
+
+calculate_multivariate_statistics <- function(.data, set = NULL){
+  
+  if(!is.null(set)){
+    tmp <- .data %>%
+      dplyr::filter(method == set)
+  } else{
+    tmp <- data
+  }
+  
+  # Compute mean for main model
+  
+  statistic_value <- tmp %>%
+    dplyr::filter(category == "Main") %>%
+    dplyr::summarise(statistic = mean(statistic, na.rm = TRUE)) %>%
+    dplyr::pull(statistic)
+  
+  # Compute p-value against empirical null samples
+  
+  nulls <- tmp %>%
+    dplyr::filter(category == "Null")
+  
+  nulls_above_main <- nulls %>%
+    dplyr::filter(statistic >= statistic_value)
+  
+  p_value <- nrow(nulls_above_main) / nrow(nulls)
+  
+  tmp_outputs <- data.frame(statistic_value = statistic_value,
+                            p_value = p_value)
+  
+  if(!is.null(set)){
+    tmp_outputs <- tmp_outputs %>%
+      dplyr::mutate(method = set) %>%
+      dplyr::select(c(method, statistic_value, p_value))
+  } else{
+    
+  }
+  
+  return(tmp_outputs)
 }
 
 #---------------- Main function ----------------
@@ -435,22 +484,24 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     # Compute accuracies for each feature set
     
     output <- sets %>%
-      purrr::map(~ fit_multivariate_models(data = data_id, 
+      purrr::map(~ fit_multivariate_models(.data = data_id, 
                                            test_method = test_method, 
-                                           use_k_fold = use_k_fold,
-                                           num_folds = num_folds,
-                                           use_empirical_null = use_empirical_null,
+                                           use_k_fold = use_k_fold, 
+                                           num_folds = num_folds, 
+                                           use_empirical_null = use_empirical_null, 
                                            num_shuffles = num_shuffles, 
                                            set = .x))
     
+    output <- data.table::rbindlist(output, use.names = TRUE)
+    
   } else{
     
-    output <- fit_multivariate_models(data = data_id, 
+    output <- fit_multivariate_models(.data = data_id, 
                                       test_method = test_method, 
-                                      use_k_fold = use_k_fold,
-                                      num_folds = num_folds,
-                                      use_empirical_null = use_empirical_null,
-                                      num_shuffles = num_shuffles, 
+                                      use_k_fold = use_k_fold, 
+                                      num_folds = num_folds, 
+                                      use_empirical_null = use_empirical_null, 
+                                      num_shuffles = num_shuffles,
                                       set = NULL)
   }
   
@@ -462,14 +513,16 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       
     # Get final number of features used by set
       
-    feat_nums <- setResults %>% 
+    feat_nums <- data %>% 
+      dplyr::select(c(method, names)) %>%
+      dplyr::distinct() %>%
       dplyr::group_by(method) %>%
-      dplyr::summarise(num_feats = mean(num_feats, na.rm = TRUE)) %>%
+      dplyr::summarise(num_feats = dplyr::n()) %>%
       dplyr::ungroup()
       
     # Draw plot
       
-    FeatureSetResultsPlot <- results %>%
+    FeatureSetResultsPlot <- output %>%
       dplyr::filter(category == "Main") %>%
       dplyr::mutate(statistic = statistic * 100) %>%
       dplyr::group_by(method) %>%
@@ -499,27 +552,53 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       
     #---------- Compute p values ------
       
-    sets <- unique(results$method)
-    p_val_storage <- list()
+    if(use_empirical_null){
+        
+      TestStatistics <- sets %>%
+        purrr::map(~ calculate_multivariate_statistics(.data = output, set = .x))
       
-    for(s in sets){
-      tmp_p_val <- results %>% dplyr::filter(method == s)
-      p_value <- stats::wilcox.test(statistic ~ category, data = tmp_p_val)$p.value
-      p_val_storage[[s]] <- data.frame(method = s, p_value = p_value)
+      TestStatistics <- data.table::rbindlist(TestStatistics, use.names = TRUE) %>%
+        dplyr::mutate(classifier_name = classifier_name,
+                      statistic_name = statistic_name)
+      
+      output <- output %>%
+        dplyr::mutate(classifier_name = classifier_name,
+                      statistic_name = statistic_name)
+      
+      myList <- list(FeatureSetResultsPlot, TestStatistics, output)
+      names(myList) <- c("FeatureSetResultsPlot", "TestStatistics", "RawClassificationResults")
+        
+      } else{
+        
+        output <- output %>%
+          dplyr::mutate(classifier_name = classifier_name,
+                        statistic_name = statistic_name)
+        
+        myList <- list(FeatureSetResultsPlot, output)
+        names(myList) <- c("FeatureSetResultsPlot", "RawClassificationResults")
     }
-      
-    FeatureSetTestStatistics <- data.table::rbindlist(p_val_storage, use.names = TRUE)
-    
-    # Return results
-    
-    myList <- list(FeatureSetResultsPlot, FeatureSetTestStatistics, results)
-    names(myList) <- c("FeatureSetResultsPlot", "FeatureSetTestStatistics", "RawClassificationResults")
-      
   } else{
       
-    p_value <- stats::wilcox.test(statistic ~ category, data = results)$p.value
-    myList <- list(results)
-    names(myList) <- c("RawClassificationResults")
+    if(use_empirical_null){
+      
+      FeatureSetTestStatistics <- calculate_multivariate_statistics(.data = output, set = NULL) %>%
+        dplyr::mutate(classifier_name = classifier_name,
+                      statistic_name = statistic_name)
+      
+      output <- output %>%
+        dplyr::mutate(classifier_name = classifier_name,
+                      statistic_name = statistic_name)
+      
+      myList <- list(FeatureSetResultsPlot, TestStatistics, output)
+      names(myList) <- c("FeatureSetResultsPlot", "TestStatistics", "RawClassificationResults")
+      
+    } else{
+      
+      
+      
+    }
+    
+    names(myList) <- c("OverallTestStatistics", "RawClassificationResults")
   }
   return(myList)
 }

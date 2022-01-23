@@ -550,13 +550,6 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                       use_empirical_null = use_empirical_null,
                                       num_shuffles = num_shuffles)
     
-    if(use_empirical_null){
-      
-    } else{
-      output <- output %>%
-        dplyr::mutate(category = as.factor(category))
-    }
-    
     # Compute statistics for each feature against empirical null distribution
     
     if(use_empirical_null){
