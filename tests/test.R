@@ -71,8 +71,22 @@ plot_feature_correlations(outs_22, is_normalised = FALSE, id_var = "id", names_v
 
 # Test 9: Multivariate classification
 
-multi_classifier_outputs <- fit_multivariate_classifier(outs_22, id_var = "id", group_var = "group", by_set = FALSE, num_splits = 10, num_shuffles = 5, "linear svm")
-multi_classifier_outputs_2 <- fit_multivariate_classifier(outs_22, id_var = "id", group_var = "group", by_set = TRUE, num_splits = 10, num_shuffles = 5, "rbf svm")
+feature_matrix2 <- calculate_features(data = simData, 
+                                      id_var = "id", 
+                                      time_var = "timepoint", 
+                                      values_var = "values", 
+                                      group_var = "process", 
+                                      feature_set = c("catch22", "feasts"))
+
+multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix2, id_var = "id", group_var = "group",
+                                                        by_set = TRUE, test_method = "linear svm",
+                                                        use_empirical_null = TRUE, use_k_fold = TRUE,
+                                                        num_folds = 10, num_shuffles = 50)
+
+multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix2, id_var = "id", group_var = "group",
+                                                        by_set = FALSE, test_method = "linear svm",
+                                                        use_empirical_null = FALSE, use_k_fold = FALSE,
+                                                        num_folds = 10, num_shuffles = 50)
 
 # Test 8: Feature-level classification
 

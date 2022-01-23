@@ -145,22 +145,22 @@ fit_empirical_null_multivariate_models <- function(maindata, testdata, kernel, x
 # Model fitting
 #--------------
 
-fit_multivariate_models <- function(.data, test_method, use_k_fold, num_folds, use_empirical_null, num_shuffles, set = NULL){
+fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, num_shuffles, set = NULL){
   
   if(!is.null(set)){
-    .data <- .data %>%
+    tmp <- data %>%
       dplyr::filter(method == set) %>%
       dplyr::select(-c(method)) %>%
       tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
     
   } else{
     
-    .data <- data %>%
+    tmp <- data %>%
       dplyr::select(-c(method)) %>%
       tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
   }
   
-  inputData <- prepare_multivariate_model_matrices(.data = .data, use_k_fold = use_k_fold, num_folds)
+  inputData <- prepare_multivariate_model_matrices(.data = tmp, use_k_fold = use_k_fold, num_folds = num_folds)
   
   # Main procedure
   
@@ -252,10 +252,10 @@ fit_multivariate_models <- function(.data, test_method, use_k_fold, num_folds, u
 # p-value calculation
 #--------------------
 
-calculate_multivariate_statistics <- function(.data, set = NULL){
+calculate_multivariate_statistics <- function(data, set = NULL){
   
   if(!is.null(set)){
-    tmp <- .data %>%
+    tmp <- data %>%
       dplyr::filter(method == set)
   } else{
     tmp <- data
@@ -407,16 +407,20 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   
   # Splits and shuffles
   
-  if(!is.numeric(num_folds) || !is.numeric(num_shuffles)){
-    stop("num_folds and num_shuffles should both be integers.")
+  if(use_k_fold == TRUE && !is.numeric(num_folds)){
+    stop("num_folds should be a positive integer. 10 folds is recommended.")
+  }
+  
+  if(use_empirical_null == TRUE && !is.numeric(num_shuffles)){
+    stop("num_shuffles should be a postive integer. A minimum of 50 shuffles is recommended.")
   }
   
   if(use_empirical_null == TRUE && num_shuffles < 3){
-    stop("num_shuffles should be an integer >= 3 for empirical null calculations. A minimum of 50 shuffles is recommended.")
+    stop("num_shuffles should be a positive integer >= 3 for empirical null calculations. A minimum of 50 shuffles is recommended.")
   }
   
   if(use_k_fold == TRUE && num_folds < 2){
-    stop("num_folds should be an integer >= 2. 10 folds is recommended.")
+    stop("num_folds should be a positive integer. 10 folds is recommended.")
   }
   
   #------------- Preprocess data --------------
@@ -484,7 +488,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     # Compute accuracies for each feature set
     
     output <- sets %>%
-      purrr::map(~ fit_multivariate_models(.data = data_id, 
+      purrr::map(~ fit_multivariate_models(data = data_id, 
                                            test_method = test_method, 
                                            use_k_fold = use_k_fold, 
                                            num_folds = num_folds, 
@@ -496,7 +500,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     
   } else{
     
-    output <- fit_multivariate_models(.data = data_id, 
+    output <- fit_multivariate_models(data = data_id, 
                                       test_method = test_method, 
                                       use_k_fold = use_k_fold, 
                                       num_folds = num_folds, 
@@ -537,7 +541,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       ggplot2::geom_point(ggplot2::aes(y = average), colour = "black") +
       ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper), colour = "black") +
       ggplot2::labs(title = "Classification accuracy by feature set",
-                    subtitle = "Error bars represent mean +- two times the standard deviation.\nNumber of features in each set used for analysis is indicated in parentheses.",
+                    subtitle = "Error bars represent mean +- two times the standard deviation.\nNumber of features in each set retained for analysis is indicated in parentheses.",
                     x = "Feature set",
                     y = "Classification accuracy (%)",
                     fill = NULL) +
@@ -555,7 +559,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     if(use_empirical_null){
         
       TestStatistics <- sets %>%
-        purrr::map(~ calculate_multivariate_statistics(.data = output, set = .x))
+        purrr::map(~ calculate_multivariate_statistics(data = output, set = .x))
       
       TestStatistics <- data.table::rbindlist(TestStatistics, use.names = TRUE) %>%
         dplyr::mutate(classifier_name = classifier_name,
@@ -572,7 +576,8 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
         
         output <- output %>%
           dplyr::mutate(classifier_name = classifier_name,
-                        statistic_name = statistic_name)
+                        statistic_name = statistic_name) %>%
+          dplyr::select(-c(category))
         
         myList <- list(FeatureSetResultsPlot, output)
         names(myList) <- c("FeatureSetResultsPlot", "RawClassificationResults")
@@ -581,7 +586,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       
     if(use_empirical_null){
       
-      FeatureSetTestStatistics <- calculate_multivariate_statistics(.data = output, set = NULL) %>%
+      TestStatistics <- calculate_multivariate_statistics(data = output, set = NULL) %>%
         dplyr::mutate(classifier_name = classifier_name,
                       statistic_name = statistic_name)
       
@@ -589,16 +594,19 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
         dplyr::mutate(classifier_name = classifier_name,
                       statistic_name = statistic_name)
       
-      myList <- list(FeatureSetResultsPlot, TestStatistics, output)
-      names(myList) <- c("FeatureSetResultsPlot", "TestStatistics", "RawClassificationResults")
+      myList <- list(TestStatistics, output)
+      names(myList) <- c("TestStatistics", "RawClassificationResults")
       
     } else{
       
+      output <- output %>%
+        dplyr::mutate(classifier_name = classifier_name,
+                      statistic_name = statistic_name) %>%
+        dplyr::select(-c(category))
       
-      
+      myList <- list(output)
+      names(myList) <- c("RawClassificationResults") 
     }
-    
-    names(myList) <- c("OverallTestStatistics", "RawClassificationResults")
   }
   return(myList)
 }

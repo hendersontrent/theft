@@ -9,8 +9,10 @@ fit_feature_classifier(
   id_var = "id",
   group_var = "group",
   test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
-  num_splits = 10,
-  num_shuffles = 5,
+  use_empirical_null = FALSE,
+  use_k_fold = FALSE,
+  num_folds = 0,
+  num_shuffles = 50,
   pool_empirical_null = FALSE
 )
 }
@@ -23,11 +25,15 @@ fit_feature_classifier(
 
 \item{test_method}{the algorithm to use for quantifying class separation}
 
-\item{num_splits}{an integer specifying the number of 75/25 train-test splits to perform if linear svm or rbf svm is selected. Defaults to 10}
+\item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values if linear svm or rbf svm is selected. Defaults to FALSE}
 
-\item{num_shuffles}{an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 5}
+\item{use_k_fold}{a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE}
 
-\item{pool_empirical_null}{a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected. Defaults to FALSE}
+\item{num_folds}{an integer specifying the number of folds (train-test splits) to perform if linear svm or rbf svm is selected and use_k_fold is set to TRUE. Defaults to 10}
+
+\item{num_shuffles}{an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 50}
+
+\item{pool_empirical_null}{a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected and use_empirical_null is TRUE. Defaults to FALSE}
 }
 \value{
 an object of class dataframe containing results
@@ -48,7 +54,9 @@ fit_feature_classifier(featMat,
   id_var = "id",
   group_var = "group",
   test_method = "linear svm",
-  num_splits = 10,
+  use_empirical_null = TRUE,
+  use_k_fold = TRUE,
+  num_folds = 10,
   num_shuffles = 5,
   pool_empirical_null = FALSE) 
 }
