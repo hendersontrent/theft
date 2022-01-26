@@ -88,7 +88,7 @@ prepare_multivariate_model_matrices <- function(.data, use_k_fold, num_folds){
       dplyr::mutate(group = as.factor(group))
     
     ncols <- ncol(storage)
-    storage <- trainData[ , colSums(is.na(storage)) < nrow(storage)]
+    storage <- storage[ , colSums(is.na(storage)) < nrow(storage)]
     
     if(ncols < ncol(storage)){
       print(paste0("Removed ", (ncol(storage) - ncols), " features due to containing NA values after normalising."))

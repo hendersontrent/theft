@@ -2,13 +2,13 @@ Package: theft
 Type: Package
 Title: Tools for Handling Extraction of Features from Time series
 Version: 0.3.7.3
-Date: 2022-01-26
+Date: 2022-01-27
 Authors@R: c(
   person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut"))
   )
 Maintainer: Trent Henderson <then6675@uni.sydney.edu.au>
 Description: Consolidates and calculates different sets of time-series features from multiple  
-    R and Python packages and provides a standardised  workflow from feature calculation 
+    R and Python packages and provides a standardised workflow from feature calculation 
     to feature matrix processing, machine learning procedures, and the production of statistical graphics.
 BugReports: https://github.com/hendersontrent/theft/issues
 License: GPL-3

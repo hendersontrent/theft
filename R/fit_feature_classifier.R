@@ -40,12 +40,17 @@ prepare_univariate_model_matrices <- function(.data, use_k_fold, num_folds){
       trainData <- widener(trainData, train_scales)
       testData <- widener(testData, train_scales)
       
+      ncols <- ncol(trainData)
+      
       # Delete columns that were problematic for the train set so they can be removed from test set
       
-      removals <- sapply(trainData, function(x) sum(is.na(x)))
-      removals <- removals[removals > 0]
-      trainData <- trainData %>% dplyr::select(!dplyr::all_of(removals))
-      testData <- testData %>% dplyr::select(!dplyr::all_of(removals))
+      trainData <- trainData[ , colSums(is.na(trainData)) < nrow(trainData)]
+      
+      if(ncols < ncol(trainData)){
+        print(paste0("Removed ", (ncol(trainData) - ncols), " features due to containing NA values after splitting and normalising."))
+      }
+      
+      testData <- testData %>% dplyr::select(dplyr::all_of(colnames(trainData)))
       mylist <- list(trainData, testData)
       names(mylist) <- c("trainData", "testData")
       storage[[i]] <- mylist
@@ -61,7 +66,14 @@ prepare_univariate_model_matrices <- function(.data, use_k_fold, num_folds){
       tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
       dplyr::select(-c(id)) %>%
       dplyr::mutate(group = as.factor(group))
+    
+    ncols <- ncol(storage)
+    storage <- storage[ , colSums(is.na(storage)) < nrow(storage)]
+    
+    if(ncols < ncol(storage)){
+      print(paste0("Removed ", (ncol(storage) - ncols), " features due to containing NA values after normalising."))
     }
+  }
   return(storage)
 }
 
@@ -121,8 +133,14 @@ fit_empirical_null_models <- function(maindata, testdata, kernel, x = NULL, s){
     dplyr::mutate(group = shuffles,
                   group = as.factor(group))
   
+  fit_single_feature_model_safe <- purrr::possibly(fit_single_feature_model, otherwise = NA_character_)
+  
   null_models <- 2:ncol(shuffledtrain) %>%
-    purrr::map(~ fit_single_feature_model(traindata = shuffledtrain, testdata = testdata, kernel = kernel, x = .x))
+    purrr::map(~ fit_single_feature_model_safe(traindata = shuffledtrain, testdata = testdata, kernel = kernel, x = .x))
+
+  # Remove any pure NA entries that mark errors
+  
+  null_models <- base::Filter(Negate(anyNA), null_models)
   
   null_models <- data.table::rbindlist(null_models, use.names = TRUE) %>%
     dplyr::mutate(shuffle = s)
@@ -153,12 +171,23 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
     kernel <- "radial"
   }
   
+  fit_single_feature_model_safe <- purrr::possibly(fit_single_feature_model, otherwise = NA_character_)
+  fit_empirical_null_models_safe <- purrr::possibly(fit_empirical_null_models, otherwise = NA_character_)
+  
   if(use_k_fold){
     
     combinations <- tidyr::crossing(1:num_folds, 2:ncol(inputData[[1]]$trainData))
+    future::plan(future::multisession, workers = (future::availableCores() - 1))
     
-    mainOuts <- purrr::pmap(list(combinations$`1:num_folds`, combinations$`2:ncol(inputData[[1]]$trainData)`), ~  
-                              fit_single_feature_model(traindata = inputData[[.x]]$trainData, testdata = inputData[[.x]]$testData, kernel = kernel, x = .y))
+    mainOuts <- furrr::future_pmap(list(combinations$`1:num_folds`, combinations$`2:ncol(inputData[[1]]$trainData)`), ~  
+                              fit_single_feature_model_safe(traindata = inputData[[.x]]$trainData, testdata = inputData[[.x]]$testData, kernel = kernel, x = .y),
+                            .options = furrr::furrr_options(seed = TRUE))
+    
+    future::plan(future::sequential)
+    
+    # Remove any pure NA entries that mark errors
+    
+    mainOuts <- base::Filter(Negate(anyNA), mainOuts)
     
     mainOuts <- data.table::rbindlist(mainOuts, use.names = TRUE) %>%
       dplyr::mutate(category = "Main")
@@ -170,9 +199,13 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
       combinationsNULL <- tidyr::crossing(1:num_folds, 1:num_shuffles)
       
       nullOuts <- purrr::pmap(list(combinationsNULL$`1:num_folds`, combinationsNULL$`1:num_shuffles`), ~  
-                                fit_empirical_null_models(maindata = inputData[[.x]]$trainData, 
-                                                          testdata = inputData[[.x]]$testData, 
-                                                          kernel = kernel, x = .x, s = .y))
+                                fit_empirical_null_models_safe(maindata = inputData[[.x]]$trainData, 
+                                                               testdata = inputData[[.x]]$testData, 
+                                                               kernel = kernel, x = .x, s = .y))
+      
+      # Remove any pure NA entries that mark errors
+      
+      nullOuts <- base::Filter(Negate(anyNA), nullOuts)
       
       message("Averaging empirical null classification accuracies for each shuffle over folds.")
       
@@ -193,8 +226,17 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
     
   } else{
     
+    future::plan(future::multisession, workers = (future::availableCores() - 1))
+    
     mainOuts <- 2:ncol(inputData) %>%
-      purrr::map(~ fit_single_feature_model(traindata = inputData, testdata = inputData, kernel = kernel, x = .x))
+      furrr::future_map(~ fit_single_feature_model_safe(traindata = inputData, testdata = inputData, kernel = kernel, x = .x),
+                        .options = furrr::furrr_options(seed = TRUE))
+    
+    future::plan(future::sequential)
+    
+    # Remove any pure NA entries that mark errors
+    
+    mainOuts <- base::Filter(Negate(anyNA), mainOuts)
     
     mainOuts <- data.table::rbindlist(mainOuts, use.names = TRUE) %>%
       dplyr::mutate(category = "Main")
@@ -203,11 +245,15 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
     
     if(use_empirical_null){
       nullOuts <- 1:num_shuffles %>%
-        purrr::map(~ fit_empirical_null_models(maindata = inputData, 
-                                               testdata = inputData, 
-                                               kernel = kernel,
-                                               x = NULL,
-                                               s = .x))
+        purrr::map(~ fit_empirical_null_models_safe(maindata = inputData, 
+                                                    testdata = inputData, 
+                                                    kernel = kernel,
+                                                    x = NULL,
+                                                    s = .x))
+      
+      # Remove any pure NA entries that mark errors
+      
+      nullOuts <- base::Filter(Negate(anyNA), nullOuts)
       
       nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
         dplyr::mutate(category = "Null") %>%
@@ -293,10 +339,12 @@ calculate_unpooled_null <- function(.data, x){
 #' @importFrom magrittr %>%
 #' @importFrom tidyr drop_na pivot_wider crossing
 #' @importFrom tibble rownames_to_column
-#' @importFrom purrr map pmap
 #' @importFrom e1071 svm
 #' @importFrom data.table rbindlist
 #' @importFrom stats glm binomial sd wilcox.test t.test
+#' @importFrom purrr possibly map pmap
+#' @importFrom future plan availableCores sequential multisession
+#' @importFrom furrr future_map future_pmap
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
@@ -553,17 +601,19 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     # Compute accuracies for each permutation and feature
     
     output <- fit_univariate_models(data = data_id, 
-                                      test_method = test_method, 
-                                      use_k_fold = use_k_fold,
-                                      num_folds = num_folds,
-                                      use_empirical_null = use_empirical_null,
-                                      num_shuffles = num_shuffles)
+                                    test_method = test_method, 
+                                    use_k_fold = use_k_fold,
+                                    num_folds = num_folds,
+                                    use_empirical_null = use_empirical_null,
+                                    num_shuffles = num_shuffles)
     
     # Compute statistics for each feature against empirical null distribution
     
     if(use_empirical_null){
       
       if(pool_empirical_null){
+        
+        calculate_pooled_null_safe <- purrr::possibly(calculate_pooled_null, otherwise = NA_character_)
         
         # Set up vector of null accuracies across all features
         
@@ -584,10 +634,17 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
         
         # Calculate p-values for each feature
         
+        future::plan(future::multisession, workers = (future::availableCores() - 1))
+        
         feature_statistics <- 2:ncol(main_matrix) %>%
-          purrr::map(~ calculate_pooled_null(null_vector = null_vector, main_matrix = main_matrix, x = .x))
+          furrr::future_map(~ calculate_pooled_null_safe(null_vector = null_vector, main_matrix = main_matrix, x = .x),
+                            .options = furrr::furrr_options(seed = TRUE))
+        
+        future::plan(future::sequential)
         
       } else{
+        
+        calculate_unpooled_null_safe <- purrr::possibly(calculate_unpooled_null, otherwise = NA_character_)
         
         # Widen data matrix
         
@@ -600,10 +657,21 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
         
         # Calculate p-values for each feature
         
+        future::plan(future::multisession, workers = (future::availableCores() - 1))
+        
         feature_statistics <- 2:ncol(output) %>%
-          purrr::map(~ calculate_unpooled_null(.data = output, x = .x))
+          furrr::future_map(~ calculate_unpooled_null_safe(.data = output, x = .x),
+                            .options = furrr::furrr_options(seed = TRUE))
+        
+        future::plan(future::sequential)
         
       }
+      
+      # Remove any pure NA entries that mark errors
+      
+      feature_statistics <- base::Filter(Negate(anyNA), feature_statistics)
+      
+      # Bind together
       
       feature_statistics <- data.table::rbindlist(feature_statistics, use.names = TRUE) %>%
         dplyr::mutate(classifier_name = classifier_name,
