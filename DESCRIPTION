@@ -1,8 +1,8 @@
 Package: theft
 Type: Package
 Title: Tools for Handling Extraction of Features from Time series
-Version: 0.3.7.2
-Date: 2022-01-23
+Version: 0.3.7.3
+Date: 2022-01-26
 Authors@R: c(
   person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut"))
   )
@@ -26,7 +26,9 @@ Imports:
     reshape2,
     scales,
     tibble,
+    future,
     purrr,
+    furrr,
     broom,
     tsibble,
     fabletools,

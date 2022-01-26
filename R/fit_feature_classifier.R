@@ -103,6 +103,14 @@ fit_single_feature_model <- function(traindata, testdata, kernel, x){
 
 fit_empirical_null_models <- function(maindata, testdata, kernel, x = NULL, s){
   
+  # Print out updates for every 10 shuffles so the user gets a time guesstimate that isn't burdensome
+  
+  if (s %% 10 == 0) {
+    print(paste0("Calculating models for ", s))
+  }
+  
+  # Null shuffles and computations
+  
   y <- maindata %>% dplyr::pull(group)
   y <- as.character(y)
   
@@ -377,7 +385,8 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   if(!is.null(id_var)){
     data_id <- data %>%
       dplyr::rename(id = dplyr::all_of(id_var),
-                    group = dplyr::all_of(group_var))
+                    group = dplyr::all_of(group_var)) %>%
+      dplyr::select(c(id, group, method, names, values))
   }
   
   num_classes <- length(unique(data_id$group)) # Get number of classes in the data
