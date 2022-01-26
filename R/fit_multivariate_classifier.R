@@ -60,12 +60,17 @@ prepare_multivariate_model_matrices <- function(.data, use_k_fold, num_folds){
       trainData <- widener(trainData, train_scales)
       testData <- widener(testData, train_scales)
       
+      ncols <- ncol(trainData)
+      
       # Delete columns that were problematic for the train set so they can be removed from test set
       
-      removals <- sapply(trainData, function(x) sum(is.na(x)))
-      removals <- removals[removals > 0]
-      trainData <- trainData %>% dplyr::select(!dplyr::all_of(removals))
-      testData <- testData %>% dplyr::select(!dplyr::all_of(removals))
+      trainData <- trainData[ , colSums(is.na(trainData)) < nrow(trainData)]
+      
+      if(ncols < ncol(trainData)){
+        print(paste0("Removed ", (ncol(trainData) - ncols), " features due to containing NA values after splitting and normalising."))
+      }
+      
+      testData <- testData %>% dplyr::select(dplyr::all_of(colnames(trainData)))
       mylist <- list(trainData, testData)
       names(mylist) <- c("trainData", "testData")
       storage[[i]] <- mylist
@@ -81,6 +86,13 @@ prepare_multivariate_model_matrices <- function(.data, use_k_fold, num_folds){
       tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
       dplyr::select(-c(id)) %>%
       dplyr::mutate(group = as.factor(group))
+    
+    ncols <- ncol(storage)
+    storage <- storage[ , colSums(is.na(storage)) < nrow(storage)]
+    
+    if(ncols < ncol(storage)){
+      print(paste0("Removed ", (ncol(storage) - ncols), " features due to containing NA values after normalising."))
+    }
   }
   return(storage)
 }
@@ -116,6 +128,14 @@ fit_multivariate_feature_model <- function(traindata, testdata, kernel){
 
 fit_empirical_null_multivariate_models <- function(maindata, testdata, kernel, x = NULL, s){
   
+  # Print out updates for every 10 shuffles so the user gets a time guesstimate that isn't burdensome
+  
+  if (s %% 10 == 0) {
+    print(paste0("Calculating shuffle ", s))
+  }
+  
+  # Null shuffles and computations
+  
   y <- maindata %>% dplyr::pull(group)
   y <- as.character(y)
   
@@ -126,10 +146,7 @@ fit_empirical_null_multivariate_models <- function(maindata, testdata, kernel, x
     dplyr::mutate(group = shuffles,
                   group = as.factor(group))
   
-  null_models <- 2:ncol(shuffledtrain) %>%
-    purrr::map(~ fit_multivariate_feature_model(traindata = shuffledtrain, testdata = testdata, kernel = kernel))
-  
-  null_models <- data.table::rbindlist(null_models, use.names = TRUE) %>%
+  null_models <- fit_multivariate_feature_model(traindata = shuffledtrain, testdata = testdata, kernel = kernel) %>%
     dplyr::mutate(shuffle = s)
   
   if(!is.null(x)){
@@ -148,6 +165,9 @@ fit_empirical_null_multivariate_models <- function(maindata, testdata, kernel, x
 fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, num_shuffles, set = NULL){
   
   if(!is.null(set)){
+    
+    message(paste0("Calculating models for ", set))
+    
     tmp <- data %>%
       dplyr::filter(method == set) %>%
       dplyr::select(-c(method)) %>%
@@ -170,12 +190,19 @@ fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, us
     kernel <- "radial"
   }
   
+  fit_multivariate_feature_model_safe <- purrr::possibly(fit_multivariate_feature_model, otherwise = NA_character_)
+  fit_empirical_null_multivariate_models_safe <- purrr::possibly(fit_empirical_null_multivariate_models, otherwise = NA_character_)
+  
   if(use_k_fold){
     
     mainOuts <- 1:num_folds %>%
-      purrr::map(~ fit_multivariate_feature_model(traindata = inputData[[.x]]$trainData, 
-                                                  testdata = inputData[[.x]]$testData, 
-                                                  kernel = kernel))
+      purrr::map(~ fit_multivariate_feature_model_safe(traindata = inputData[[.x]]$trainData, 
+                                                       testdata = inputData[[.x]]$testData, 
+                                                       kernel = kernel))
+    
+    # Remove any pure NA entries that mark errors
+    
+    mainOuts <- base::Filter(Negate(anyNA), mainOuts)
     
     mainOuts <- data.table::rbindlist(mainOuts, use.names = TRUE) %>%
       dplyr::mutate(category = "Main")
@@ -185,13 +212,21 @@ fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, us
     if(use_empirical_null){
       
       combinationsNULL <- tidyr::crossing(1:num_folds, 1:num_shuffles)
+      future::plan(future::multisession, workers = (future::availableCores() - 1))
       
-      nullOuts <- purrr::pmap(list(combinationsNULL$`1:num_folds`, combinationsNULL$`1:num_shuffles`), ~  
-                                fit_empirical_null_multivariate_models(maindata = inputData[[.x]]$trainData, 
-                                                                       testdata = inputData[[.x]]$testData, 
-                                                                       kernel = kernel, 
-                                                                       x = .x,
-                                                                       s = .y))
+      nullOuts <- furrr::future_pmap(list(combinationsNULL$`1:num_folds`, combinationsNULL$`1:num_shuffles`), ~  
+                                fit_empirical_null_multivariate_models_safe(maindata = inputData[[.x]]$trainData, 
+                                                                            testdata = inputData[[.x]]$testData, 
+                                                                            kernel = kernel, 
+                                                                            x = .x,
+                                                                            s = .y), 
+                                .options = furrr::furrr_options(seed = TRUE))
+      
+      future::plan(future::sequential)
+      
+      # Remove any pure NA entries that mark errors
+      
+      nullOuts <- base::Filter(Negate(anyNA), nullOuts)
       
       message("Averaging empirical null classification accuracies for each shuffle over folds.")
       
@@ -220,12 +255,17 @@ fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, us
     # Get outputs for empirical null
     
     if(use_empirical_null){
+      
       nullOuts <- 1:num_shuffles %>%
-        purrr::map(~ fit_empirical_null_multivariate_models(maindata = inputData, 
-                                                            testdata = inputData, 
-                                                            kernel = kernel,
-                                                            x = NULL,
-                                                            s = .x))
+        purrr::map(~ fit_empirical_null_multivariate_models_safe(maindata = inputData, 
+                                                                 testdata = inputData, 
+                                                                 kernel = kernel,
+                                                                 x = NULL,
+                                                                 s = .x))
+      
+      # Remove any pure NA entries that mark errors
+      
+      nullOuts <- base::Filter(Negate(anyNA), nullOuts)
       
       nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
         dplyr::mutate(category = "Null") %>%
@@ -303,7 +343,9 @@ calculate_multivariate_statistics <- function(data, set = NULL){
 #' @importFrom e1071 svm
 #' @importFrom data.table rbindlist
 #' @importFrom stats sd reorder
-#' @importFrom purrr map pmap
+#' @importFrom purrr possibly map
+#' @importFrom future plan availableCores sequential multisession
+#' @importFrom furrr future_map future_pmap
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
@@ -379,7 +421,8 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   if(!is.null(id_var)){
     data_id <- data %>%
       dplyr::rename(id = dplyr::all_of(id_var),
-                    group = dplyr::all_of(group_var))
+                    group = dplyr::all_of(group_var)) %>%
+      dplyr::select(c(id, group, method, names, values))
   }
   
   num_classes <- length(unique(data_id$group)) # Get number of classes in the data
@@ -460,8 +503,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   
   data_id <- data_id %>%
     tidyr::pivot_longer(cols = 3:ncol(data_id), names_to = "names", values_to = "values") %>%
-    dplyr::mutate(method = gsub("_.*", "\\1", names),
-                  names = gsub("^[^_]*_", "\\1", names))
+    dplyr::mutate(method = gsub("_.*", "\\1", names))
   
   #------------- Fit models -------------------
   
@@ -533,7 +575,14 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       dplyr::summarise(average = mean(statistic, na.rm = TRUE),
                        lower = average - 2 * stats::sd(statistic, na.rm = TRUE),
                        upper = average + 2 * stats::sd(statistic, na.rm = TRUE)) %>%
-      dplyr::ungroup() %>%
+      dplyr::ungroup()
+    
+    if(max(FeatureSetResultsPlot$upper) > 100){
+      message("Truncating two times standard deviation upper bound to 100% accuracy for plot.")
+    }
+    
+    FeatureSetResultsPlot <- FeatureSetResultsPlot %>%
+      dplyr::mutate(upper = ifelse(upper > 100, 100, upper)) %>% # Truncate for plot to get bar to appear in limits
       dplyr::inner_join(feat_nums, by = c("method" = "method")) %>%
       dplyr::mutate(method = paste0(method, " (", num_feats, ")")) %>%
       ggplot2::ggplot(ggplot2::aes(x = stats::reorder(method, -average))) +
@@ -557,9 +606,15 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     #---------- Compute p values ------
       
     if(use_empirical_null){
+      
+      calculate_multivariate_statistics_safe <- purrr::possibly(calculate_multivariate_statistics, otherwise = NA_character_)
         
       TestStatistics <- sets %>%
-        purrr::map(~ calculate_multivariate_statistics(data = output, set = .x))
+        purrr::map(~ calculate_multivariate_statistics_safe(data = output, set = .x))
+      
+      # Remove any pure NA entries that mark errors
+      
+      TestStatistics <- base::Filter(Negate(anyNA), TestStatistics)
       
       TestStatistics <- data.table::rbindlist(TestStatistics, use.names = TRUE) %>%
         dplyr::mutate(classifier_name = classifier_name,

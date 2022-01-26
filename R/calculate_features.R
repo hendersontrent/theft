@@ -11,8 +11,7 @@ calc_catch22 <- function(data, catch24){
       tibble::as_tibble() %>%
       dplyr::group_by(id, group) %>%
       dplyr::arrange(timepoint) %>%
-      dplyr::summarise(names = Rcatch22::catch22_all(values, catch24 = catch24)$names,
-                       values = Rcatch22::catch22_all(values, catch24 = catch24)$values) %>%
+      dplyr::summarise(Rcatch22::catch22_all(values, catch24 = catch24)) %>%
       dplyr::ungroup() %>%
       dplyr::mutate(method = "catch22")
   } else{
@@ -20,8 +19,7 @@ calc_catch22 <- function(data, catch24){
       tibble::as_tibble() %>%
       dplyr::group_by(id) %>%
       dplyr::arrange(timepoint) %>%
-      dplyr::summarise(names = Rcatch22::catch22_all(values, catch24 = catch24)$names,
-                       values = Rcatch22::catch22_all(values, catch24 = catch24)$values) %>%
+      dplyr::summarise(Rcatch22::catch22_all(values, catch24 = catch24)) %>%
       dplyr::ungroup() %>%
       dplyr::mutate(method = "catch22")
   }
