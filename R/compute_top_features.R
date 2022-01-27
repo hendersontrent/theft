@@ -229,9 +229,9 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
       
     } else{
       
-      # Catch cases where all p-values are zero
+      # Catch cases where most of the p-values are the same (likely 0 given empirical null performance from experiments)
       
-      if(length(unique(classifierOutputs$p_value)) == 1){
+      if(length(unique(classifierOutputs$p_value)) < floor(num_features / 2)){
         
         message("Not enough unique p-values to select on. Selecting top features using mean classification accuracy instead.")
         
@@ -240,7 +240,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
         
       } else{
         
-        message("Selecting top features based off p-value.")
+        message("Selecting top features based using p-value.")
         
         ResultsTable <- classifierOutputs %>%
           dplyr::slice_min(p_value, n = num_features)
@@ -276,10 +276,6 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   # Calculate correlations
   
   result <- stats::cor(cor_dat, method = "pearson")
-  
-  # Wrangle into tidy format
-  
-  melted <- reshape2::melt(result)
   
   # Perform clustering
   
