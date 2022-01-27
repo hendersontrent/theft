@@ -26,4 +26,5 @@
 #' @importFrom purrr possibly map pmap
 #' @importFrom future plan availableCores sequential multisession
 #' @importFrom furrr future_map future_pmap furrr_options
+#' @importFrom janitor clean_names
 NULL
