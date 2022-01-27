@@ -31,7 +31,7 @@ fit_multivariate_classifier(
 
 \item{use_k_fold}{a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE}
 
-\item{num_folds}{an integer specifying the number of folds (train-test splits) to perform if use_k_fold is set to TRUE. Defaults to 10}
+\item{num_folds}{an integer specifying the number of folds (train-test splits) to perform if use_k_fold is set to TRUE.  Defaults to 0 but if TRUE, 10 is recommended}
 
 \item{num_shuffles}{an integer specifying the number of class label shuffles to perform. Defaults to 50}
 }

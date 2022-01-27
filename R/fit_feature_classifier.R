@@ -332,6 +332,20 @@ calculate_unpooled_null <- function(.data, x){
   return(tmp_outputs)
 }
 
+#------------------------
+# Binomial GLM extraction 
+# helper
+#------------------------
+
+gather_binomial_info <- function(data, x){
+  
+  tmp <- data.frame(feature = as.character(data[[x]]$terms[[3]]),
+                    statistic_value = as.numeric(summary(data[[x]])$coefficients[,3][2]),
+                    p_value = as.numeric(summary(data[[x]])$coefficients[,4][2]))
+  
+  return(tmp)
+}
+
 #-------------- Main exported function ---------------
 
 #' Fit a classifier to feature matrix to extract top performers
@@ -552,42 +566,18 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   # and fit appropriate model
   #-----------------------------
   
-  if(test_method %in% c("t-test", "wilcox", "binomial logistic")){
+  if(test_method == "t-test"){
     
-    # Define a vector of formulas to iterate over
+    t.test_safe <- purrr::possibly(stats::t.test, otherwise = NA_character_)
     
-    if(test_method %in% c("t-test", "wilcox")){
-      formulas <- paste(names(data_id)[3:(ncol(data_id))], "~ group")
-    } else{
-      formulas <- paste("group ~ ", names(data_id)[3:(ncol(data_id))])
-    }
+    output <- 3:ncol(data_id) %>%
+      purrr::map(~ t.test_safe(formula = formula(paste0(colnames(data_id[.x]), " ~ group")), data = data_id))
     
-    output <- as.data.frame(t(sapply(formulas, function(f) {
-      
-      # Run selected method for each formula
-      
-      if(test_method == "t-test") {
-        
-        mod <- stats::t.test(as.formula(f), data = data_id)
-        c(mod$statistic, p.value = mod$p.value)
-        
-      } else if(test_method == "wilcox") {
-        
-        mod <- stats::wilcox.test(as.formula(f), data = data_id)
-        c(mod$statistic, p.value = mod$p.value)
-        
-      } else {
-        
-        mod <- stats::glm(as.formula(f), data = data_id, family = stats::binomial())
-        statistic_value <- as.numeric(summary(mod)$coefficients[,3][2])
-        p_value <- as.numeric(summary(mod)$coefficients[,4][2])
-        c(statistic_value, p.value = p_value)
-        }
-       }
-      )
-     )
-    ) %>%
-      tibble::rownames_to_column(var = "feature") %>%
+    output <- base::Filter(Negate(anyNA), output)
+    
+    output <- data.table::rbindlist(output, use.names = TRUE) %>%
+      dplyr::select(c(data.name, statistic, p.value)) %>%
+      dplyr::rename(feature = data.name) %>%
       dplyr::mutate(feature = gsub(" .*", "\\1", feature),
                     classifier_name = classifier_name,
                     statistic_name = statistic_name) %>%
@@ -596,7 +586,45 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
     return(output)
     
-  } else if (test_method == "linear svm" || test_method == "rbf svm"){
+  } else if (test_method == "wilcox"){
+    
+    wilcox.test_safe <- purrr::possibly(stats::wilcox.test, otherwise = NA_character_)
+    
+    output <- 3:ncol(data_id) %>%
+      purrr::map(~ wilcox.test_safe(formula = formula(paste0(colnames(data_id[.x]), " ~ group")), data = data_id))
+    
+    output <- base::Filter(Negate(anyNA), output)
+    
+    output <- data.table::rbindlist(output, use.names = TRUE) %>%
+      dplyr::select(c(data.name, statistic, p.value)) %>%
+      dplyr::rename(feature = data.name) %>%
+      dplyr::mutate(feature = gsub(" .*", "\\1", feature),
+                    classifier_name = classifier_name,
+                    statistic_name = statistic_name) %>%
+      dplyr::rename(statistic_value = 2,
+                    p_value = 3)
+    
+    return(output)
+    
+  } else if (test_method == "binomial logistic"){
+    
+    glm_safe <- purrr::possibly(stats::glm, otherwise = NA_character_)
+    
+    output <- 3:ncol(data_id) %>%
+      purrr::map(~ glm_safe(formula = formula(paste0("group ~ ", colnames(data_id[.x]))), data = data_id, family = stats::binomial()))
+    
+    output <- base::Filter(Negate(anyNA), output)
+    
+    output <- 1:length(output) %>%
+      purrr::map(~ gather_binomial_info(output, .x))
+    
+    output <- data.table::rbindlist(output, use.names = TRUE) %>%
+      dplyr::mutate(classifier_name = classifier_name,
+                    statistic_name = statistic_name)
+    
+    return(output)
+    
+  } else {
     
     # Compute accuracies for each permutation and feature
     
