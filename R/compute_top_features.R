@@ -17,7 +17,7 @@
 #' @param test_method the algorithm to use for quantifying class separation
 #' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if linear svm or rbf svm is selected. Defaults to FALSE
 #' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE
-#' @param num_folds an integer specifying the number of folds (train-test splits) to perform if linear svm or rbf svm is selected and use_k_fold is set to TRUE. Defaults to 10
+#' @param num_folds an integer specifying the number of folds (train-test splits) to perform if linear svm or rbf svm is selected and use_k_fold is set to TRUE.Defaults to 0 but if TRUE, 10 is recommended
 #' @param num_shuffles an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 5
 #' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected and use_empirical_null is TRUE. Defaults to FALSE
 #' @return an object of class list containing a dataframe of results, a feature x feature matrix plot, and a violin plot
@@ -211,18 +211,41 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Filter results to get list of top features
   
-  if(test_method %in% c("linear svm", "rbf svm") && use_empirical_null == FALSE){
+  if(test_method %in% c("t-test", "wilcox", "binomial logistic")){
     
-    message("Selecting top features based off classification accuracy.")
-    
-    ResultsTable <- classifierOutputs %>%
-      dplyr::slice_max(statistic, n = num_features)
-  } else{
-    
-    message("Selecting top features based off p-value.")
+    message("Selecting top features using p-values.")
     
     ResultsTable <- classifierOutputs %>%
       dplyr::slice_min(p_value, n = num_features)
+    
+  } else{
+    
+    if(use_empirical_null == FALSE){
+      
+      message("Selecting top features using mean classification accuracy.")
+      
+      ResultsTable <- classifierOutputs %>%
+        dplyr::slice_max(statistic_value, n = num_features)
+      
+    } else{
+      
+      # Catch cases where all p-values are zero
+      
+      if(length(unique(classifierOutputs$p_value)) == 1){
+        
+        message("Not enough unique p-values to select on. Selecting top features using mean classification accuracy instead.")
+        
+        ResultsTable <- classifierOutputs %>%
+          dplyr::slice_max(statistic_value, n = num_features)
+        
+      } else{
+        
+        message("Selecting top features based off p-value.")
+        
+        ResultsTable <- classifierOutputs %>%
+          dplyr::slice_min(p_value, n = num_features)
+      }
+    }
   }
   
   # Filter original data to just the top performers

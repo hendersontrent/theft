@@ -353,7 +353,7 @@ calculate_multivariate_statistics <- function(data, set = NULL){
 #' @param test_method the algorithm to use for quantifying class separation
 #' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if linear svm or rbf svm is selected. Defaults to FALSE
 #' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE
-#' @param num_folds an integer specifying the number of folds (train-test splits) to perform if use_k_fold is set to TRUE. Defaults to 10
+#' @param num_folds an integer specifying the number of folds (train-test splits) to perform if use_k_fold is set to TRUE.  Defaults to 0 but if TRUE, 10 is recommended
 #' @param num_shuffles an integer specifying the number of class label shuffles to perform. Defaults to 50
 #' @return an object of class list containing summaries of the classification models
 #' @author Trent Henderson

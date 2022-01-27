@@ -360,7 +360,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   if(length(bad_list) > 0){
     for(b in bad_list){
-      print(paste0("Removed ID: ", b, "due to non-real values."))
+      print(paste0("Removed ID: ", b, " due to non-real values."))
     }
     message(paste0("Total IDs removed due to non-real values: ", bad_ids$id, " (", round(nrow(bad_ids) / (nrow(good_ids) + nrow(bad_ids)), digits = 2)*100, "%)"))
   } else{
