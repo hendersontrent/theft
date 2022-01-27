@@ -211,18 +211,41 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Filter results to get list of top features
   
-  if(test_method %in% c("linear svm", "rbf svm") && use_empirical_null == FALSE){
+  if(test_method %in% c("t-test", "wilcox", "binomial logistic")){
     
-    message("Selecting top features based off classification accuracy.")
-    
-    ResultsTable <- classifierOutputs %>%
-      dplyr::slice_max(statistic, n = num_features)
-  } else{
-    
-    message("Selecting top features based off p-value.")
+    message("Selecting top features using p-values.")
     
     ResultsTable <- classifierOutputs %>%
       dplyr::slice_min(p_value, n = num_features)
+    
+  } else{
+    
+    if(use_empirical_null == FALSE){
+      
+      message("Selecting top features using mean classification accuracy.")
+      
+      ResultsTable <- classifierOutputs %>%
+        dplyr::slice_max(statistic_value, n = num_features)
+      
+    } else{
+      
+      # Catch cases where all p-values are zero
+      
+      if(length(unique(classifierOutputs$p_value)) == 1){
+        
+        message("Not enough unique p-values to select on. Selecting top features using mean classification accuracy instead.")
+        
+        ResultsTable <- classifierOutputs %>%
+          dplyr::slice_max(statistic_value, n = num_features)
+        
+      } else{
+        
+        message("Selecting top features based off p-value.")
+        
+        ResultsTable <- classifierOutputs %>%
+          dplyr::slice_min(p_value, n = num_features)
+      }
+    }
   }
   
   # Filter original data to just the top performers
