@@ -346,6 +346,7 @@ calculate_multivariate_statistics <- function(data, set = NULL){
 #' @importFrom purrr possibly map
 #' @importFrom future plan availableCores sequential multisession
 #' @importFrom furrr future_map future_pmap
+#' @importFrom janitor clean_names
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
@@ -499,9 +500,10 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     message(paste0("Dropped ", nrows - nrow(data_id), " time series due to NaN values in the 'group' variable."))
   }
   
-  # Re-join method (set) labels
+  # Clean up column (feature) names so models fit properly (mainly an issue with SVM formula) and re-join set labels
   
   data_id <- data_id %>%
+    janitor::clean_names() %>%
     tidyr::pivot_longer(cols = 3:ncol(data_id), names_to = "names", values_to = "values") %>%
     dplyr::mutate(method = gsub("_.*", "\\1", names))
   

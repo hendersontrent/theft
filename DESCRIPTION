@@ -1,7 +1,7 @@
 Package: theft
 Type: Package
 Title: Tools for Handling Extraction of Features from Time series
-Version: 0.3.7.4
+Version: 0.3.7.5
 Date: 2022-01-27
 Authors@R: c(
   person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut"))
@@ -40,7 +40,8 @@ Imports:
     R.matlab,
     plotly,
     RColorBrewer,
-    e1071
+    e1071,
+    janitor
 Suggests: 
     knitr,
     markdown,

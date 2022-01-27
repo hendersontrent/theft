@@ -359,6 +359,7 @@ gather_binomial_info <- function(data, x){
 #' @importFrom purrr possibly map pmap
 #' @importFrom future plan availableCores sequential multisession
 #' @importFrom furrr future_map future_pmap
+#' @importFrom janitor clean_names
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
@@ -517,6 +518,11 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   if(nrow(data_id) < nrows){
     message(paste0("Dropped ", nrows - nrow(data_id), " time series due to NaN values in the 'group' variable."))
   }
+  
+  # Clean up column (feature) names so models fit properly (mainly an issue with SVM formula)
+  
+  data_id <- data_id %>%
+    janitor::clean_names()
   
   #------------- Fit classifiers -------------
   

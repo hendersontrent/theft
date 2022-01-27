@@ -3,10 +3,9 @@
 #' @importFrom magrittr %>%
 #' @import ggplot2
 #' @importFrom tidyr drop_na pivot_wider
-#' @importFrom stats hclust
-#' @importFrom stats dist
-#' @importFrom stats cor
+#' @importFrom stats hclust dist cor
 #' @importFrom reshape2 melt
+#' @importFrom janitor clean_names
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
@@ -147,7 +146,8 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   if(!is.null(id_var)){
     data_id <- data %>%
       dplyr::rename(id = dplyr::all_of(id_var),
-                    group = dplyr::all_of(group_var))
+                    group = dplyr::all_of(group_var)) %>%
+      dplyr::select(c(id, group, method, names, values))
   }
   
   num_classes <- length(unique(data_id$group)) # Get number of classes in the data
@@ -229,9 +229,9 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
       
     } else{
       
-      # Catch cases where all p-values are zero
+      # Catch cases where most of the p-values are the same (likely 0 given empirical null performance from experiments)
       
-      if(length(unique(classifierOutputs$p_value)) == 1){
+      if(length(unique(classifierOutputs$p_value)) < floor(num_features / 2)){
         
         message("Not enough unique p-values to select on. Selecting top features using mean classification accuracy instead.")
         
@@ -240,7 +240,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
         
       } else{
         
-        message("Selecting top features based off p-value.")
+        message("Selecting top features based using p-value.")
         
         ResultsTable <- classifierOutputs %>%
           dplyr::slice_min(p_value, n = num_features)
@@ -252,6 +252,10 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   dataFiltered <- data_id %>%
     dplyr::mutate(names = paste0(method, "_", names)) %>%
+    dplyr::select(-c(method)) %>%
+    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
+    janitor::clean_names() %>%
+    tidyr::pivot_longer(cols = !c("id", "group"), names_to = "names", values_to = "values") %>%
     dplyr::filter(names %in% ResultsTable$feature)
   
   #-----------------------
@@ -272,10 +276,6 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   # Calculate correlations
   
   result <- stats::cor(cor_dat, method = "pearson")
-  
-  # Wrangle into tidy format
-  
-  melted <- reshape2::melt(result)
   
   # Perform clustering
   
