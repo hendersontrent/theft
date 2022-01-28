@@ -275,7 +275,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Calculate correlations
   
-  result <- stats::cor(cor_dat, method = "pearson")
+  result <- stats::cor(cor_dat, method = cor_method)
   
   # Perform clustering
   
@@ -292,7 +292,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     ggplot2::labs(title = paste0("Pairwise correlation matrix of top ", num_features, " features"),
                   x = NULL,
                   y = NULL,
-                  fill = "Pearson correlation coefficient") +
+                  fill = "Correlation coefficient") +
     ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1, 1)) +
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),

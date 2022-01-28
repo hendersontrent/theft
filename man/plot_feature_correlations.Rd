@@ -28,6 +28,8 @@ plot_feature_correlations(
 
 \item{method}{a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'}
 
+\item{cor_method}{the correlation method to use. Defaults to 'pearson'}
+
 \item{interactive}{a Boolean as to whether to plot an interactive plotly graphic. Defaults to FALSE}
 }
 \value{
