@@ -221,7 +221,7 @@ This function returns an object with three components to summarise the above ste
 2. `FeatureFeatureCorrelationPlot` -- a `ggplot` containing the pairwise correlations between top performing features represented as a heatmap
 3. `ViolinPlots` -- a `ggplot` containing a matrix of violin plots showing class discrimination by feature
 
-The code below produces analysis for a multiclass problem using a linear support vector machine. It implements a custom "empirical null" procedure for estimating a p-value based on classification accuracy of the real data compared to a distribution of null samples built from classification accuracies of the same data but with random class label shuffles. We'll enable a [k-fold cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) procedure too for good measure. Note that using these procedures increases the computation time.  Electing to not use an empirical null will be faster, but top features will be determined based off classification accuracy of features and not p-values.
+The code below produces analysis for a multiclass problem using a Gaussian process classifier with a radial basis function kernel. It implements a custom "empirical null" procedure for estimating a p-value based on classification accuracy of the real data compared to a distribution of null samples built from classification accuracies of the same data but with random class label shuffles. We'll enable a [k-fold cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) procedure too for good measure. Note that using these procedures increases the computation time. Electing to not use an empirical null will be faster, but top features will be determined based off classification accuracy of features and not p-values.
 
 ```{r, message = FALSE, warning = FALSE}
 classifier_outputs <- compute_top_features(feature_matrix, 
@@ -231,10 +231,11 @@ classifier_outputs <- compute_top_features(feature_matrix,
                                            normalise_violin_plots = FALSE,
                                            method = "RobustSigmoid",
                                            cor_method = "pearson",
-                                           test_method = "linear svm",
+                                           test_method = "gaussprRadial",
                                            use_empirical_null =  TRUE,
                                            use_k_fold = TRUE,
                                            num_folds = 10,
+                                           split_prop = 0.8,
                                            num_shuffles = 25,
                                            pool_empirical_null = FALSE)
 ```
@@ -291,10 +292,11 @@ multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix2,
                                                         id_var = "id", 
                                                         group_var = "group", 
                                                         by_set = TRUE, 
-                                                        test_method = "linear svm",
+                                                        test_method = "gaussprRadial",
                                                         use_empirical_null =  TRUE,
                                                         use_k_fold = TRUE,
                                                         num_folds = 10,
+                                                        split_prop = 0.8,
                                                         num_shuffles = 25)
 ```
 

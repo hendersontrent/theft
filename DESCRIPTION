@@ -2,14 +2,14 @@ Package: theft
 Type: Package
 Title: Tools for Handling Extraction of Features from Time series
 Version: 0.3.7.6
-Date: 2022-01-27
+Date: 2022-01-30
 Authors@R: c(
   person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut"))
   )
 Maintainer: Trent Henderson <then6675@uni.sydney.edu.au>
 Description: Consolidates and calculates different sets of time-series features from multiple  
     R and Python packages and provides a standardised workflow from feature calculation 
-    to feature matrix processing, machine learning procedures, and the production of statistical graphics.
+    to feature matrix processing, machine learning classification procedures, and the production of statistical graphics.
 BugReports: https://github.com/hendersontrent/theft/issues
 License: GPL-3
 Encoding: UTF-8
@@ -26,9 +26,7 @@ Imports:
     reshape2,
     scales,
     tibble,
-    future,
     purrr,
-    furrr,
     broom,
     tsibble,
     fabletools,
@@ -40,7 +38,7 @@ Imports:
     R.matlab,
     plotly,
     RColorBrewer,
-    e1071,
+    caret,
     janitor
 Suggests: 
     knitr,

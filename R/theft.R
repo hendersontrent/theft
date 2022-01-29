@@ -22,9 +22,7 @@
 #' @import dplyr
 #' @importFrom plotly ggplotly config
 #' @importFrom RColorBrewer brewer.pal
-#' @importFrom e1071 svm
+#' @importFrom caret createDataPartition preProcess train
 #' @importFrom purrr possibly map pmap
-#' @importFrom future plan availableCores sequential multisession
-#' @importFrom furrr future_map future_pmap furrr_options
 #' @importFrom janitor clean_names
 NULL
