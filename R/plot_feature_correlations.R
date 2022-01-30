@@ -16,6 +16,7 @@
 #' @param names_var a string denoting the name of the variable/column that holds the feature names. Defaults to "names"
 #' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"
 #' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
+#' @param cor_method the correlation method to use. Defaults to 'pearson'
 #' @param interactive a Boolean as to whether to plot an interactive plotly graphic. Defaults to FALSE
 #' @return an object of class ggplot that contains the correlation matrix graphic
 #' @author Trent Henderson
@@ -168,7 +169,7 @@ plot_feature_correlations <- function(data, is_normalised = FALSE, id_var = "id"
     ggplot2::labs(title = "Pairwise correlation matrix",
                   x = NULL,
                   y = NULL,
-                  fill = "Correlation Coefficient") +
+                  fill = "Correlation coefficient") +
     ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1,1)) +
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),

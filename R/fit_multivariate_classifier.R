@@ -1,113 +1,12 @@
 #--------------- Helper functions ----------------
 
-#-------------
-# Data widener
-#-------------
-
-widener <- function(data, scaledata){
-  
-  tmpWide <- data %>%
-    tidyr::pivot_longer(cols = 3:ncol(data), names_to = "names", values_to = "values") %>%
-    dplyr::inner_join(scaledata, by = c("names" = "names")) %>%
-    dplyr::group_by(names) %>%
-    dplyr::mutate(values = (values - mean) / sd) %>%
-    dplyr::ungroup() %>%
-    dplyr::select(-c(mean, sd)) %>%
-    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
-    dplyr::select(-c(id)) %>%
-    dplyr::mutate(group = as.factor(group))
-  
-  return(tmpWide)
-}
-
-#-------------
-# Model matrix
-#-------------
-
-prepare_multivariate_model_matrices <- function(.data, use_k_fold, num_folds){
-  
-  if(use_k_fold){
-    
-    # Fix seed for reproducibility and set up fold indexes
-    
-    set.seed(123)
-    yourdata <- .data[sample(nrow(.data)), ]
-    folds <- cut(seq(1, nrow(yourdata)), breaks = num_folds, labels = FALSE)
-    
-    # Create datasets for 10 fold cross validation
-    
-    storage <- list()
-    
-    for(i in 1:num_folds){
-      
-      # Segement data by fold
-      
-      testIndexes <- which(folds == i, arr.ind = TRUE)
-      testData <- yourdata[testIndexes, ]
-      trainData <- yourdata[-testIndexes, ]
-      
-      # Scale data
-      
-      train_scales <- trainData %>%
-        tidyr::pivot_longer(cols = 3:ncol(trainData), names_to = "names", values_to = "values") %>%
-        dplyr::group_by(names) %>%
-        dplyr::summarise(mean = mean(values, na.rm = TRUE),
-                         sd = stats::sd(values, na.rm = TRUE)) %>%
-        dplyr::ungroup()
-      
-      # Normalise train and test sets and widen model matrices
-      
-      trainData <- widener(trainData, train_scales)
-      testData <- widener(testData, train_scales)
-      
-      ncols <- ncol(trainData)
-      
-      # Delete columns that were problematic for the train set so they can be removed from test set
-      
-      trainData <- trainData[ , colSums(is.na(trainData)) < nrow(trainData)]
-      
-      if(ncols < ncol(trainData)){
-        print(paste0("Removed ", (ncol(trainData) - ncols), " features due to containing NA values after splitting and normalising."))
-      }
-      
-      testData <- testData %>% dplyr::select(dplyr::all_of(colnames(trainData)))
-      mylist <- list(trainData, testData)
-      names(mylist) <- c("trainData", "testData")
-      storage[[i]] <- mylist
-    }
-    
-  } else{
-    
-    storage <- .data %>%
-      tidyr::pivot_longer(cols = 3:ncol(.data), names_to = "names", values_to = "values") %>%
-      dplyr::group_by(names) %>%
-      dplyr::mutate(values = (values - mean(values, na.rm = TRUE)) / sd(values, na.rm = TRUE)) %>%
-      dplyr::ungroup() %>%
-      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
-      dplyr::select(-c(id)) %>%
-      dplyr::mutate(group = as.factor(group))
-    
-    ncols <- ncol(storage)
-    storage <- storage[ , colSums(is.na(storage)) < nrow(storage)]
-    
-    if(ncols < ncol(storage)){
-      print(paste0("Removed ", (ncol(storage) - ncols), " features due to containing NA values after normalising."))
-    }
-  }
-  return(storage)
-}
-
 #---------------------
 # Main model procedure
 #---------------------
 
-fit_multivariate_feature_model <- function(traindata, testdata, kernel){
+extract_prediction_accuracy <- function(mod, testData){
   
-  mod <- e1071::svm(group ~ ., data = traindata, kernel = kernel, scale = FALSE, probability = TRUE)
-  
-  # Get outputs for main model
-  
-  cm <- as.data.frame(table(testdata$group, predict(mod, newdata = testdata))) %>%
+  cm <- as.data.frame(table(testData$group, predict(mod, newdata = testData))) %>%
     dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
   
   same_total <- cm %>%
@@ -126,7 +25,7 @@ fit_multivariate_feature_model <- function(traindata, testdata, kernel){
   return(tmp_feature)
 }
 
-fit_empirical_null_multivariate_models <- function(maindata, testdata, kernel, x = NULL, s){
+fit_empirical_null_multivariate_models <- function(mod, testdata, s){
   
   # Print out updates for every 10 shuffles so the user gets a time guesstimate that isn't burdensome
   
@@ -136,25 +35,16 @@ fit_empirical_null_multivariate_models <- function(maindata, testdata, kernel, x
   
   # Null shuffles and computations
   
-  y <- maindata %>% dplyr::pull(group)
+  y <- testdata %>% dplyr::pull(group)
   y <- as.character(y)
   
   set.seed(s)
   shuffles <- sample(y, replace = FALSE)
   
-  shuffledtrain <- maindata %>%
-    dplyr::mutate(group = shuffles,
-                  group = as.factor(group))
+  shuffledtest <- testdata %>%
+    dplyr::mutate(group = shuffles)
   
-  null_models <- fit_multivariate_feature_model(traindata = shuffledtrain, testdata = testdata, kernel = kernel) %>%
-    dplyr::mutate(shuffle = s)
-  
-  if(!is.null(x)){
-    null_models <- null_models %>%
-      dplyr::mutate(fold = x)
-  } else{
-    
-  }
+  null_models <- extract_prediction_accuracy(mod = mod, testData = shuffledtest)
   return(null_models)
 }
 
@@ -162,7 +52,7 @@ fit_empirical_null_multivariate_models <- function(maindata, testdata, kernel, x
 # Model fitting
 #--------------
 
-fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, num_shuffles, set = NULL){
+fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, num_shuffles, split_prop, set = NULL){
   
   if(!is.null(set)){
     
@@ -171,117 +61,76 @@ fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, us
     tmp <- data %>%
       dplyr::filter(method == set) %>%
       dplyr::select(-c(method)) %>%
-      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
+      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
+      dplyr::select(-c(id))
     
   } else{
     
     tmp <- data %>%
       dplyr::select(-c(method)) %>%
-      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
+      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
+      dplyr::select(-c(id))
   }
   
-  inputData <- prepare_multivariate_model_matrices(.data = tmp, use_k_fold = use_k_fold, num_folds = num_folds)
+  # Make a train-test split
   
-  # Main procedure
+  set.seed(123)
   
-  if(test_method == "linear svm"){
-    kernel <- "linear"
-  } else{
-    kernel <- "radial"
-  }
+  trainIndex <- caret::createDataPartition(tmp$group, 
+                                           p = split_prop, 
+                                           list = FALSE, 
+                                           times = 1)
   
-  fit_multivariate_feature_model_safe <- purrr::possibly(fit_multivariate_feature_model, otherwise = NA_character_)
-  fit_empirical_null_multivariate_models_safe <- purrr::possibly(fit_empirical_null_multivariate_models, otherwise = NA_character_)
+  dataTrain <- tmp[ trainIndex,]
+  dataTest  <- tmp[-trainIndex,]
   
   if(use_k_fold){
     
-    mainOuts <- 1:num_folds %>%
-      purrr::map(~ fit_multivariate_feature_model_safe(traindata = inputData[[.x]]$trainData, 
-                                                       testdata = inputData[[.x]]$testData, 
-                                                       kernel = kernel))
+    # Train model
     
-    # Remove any pure NA entries that mark errors
+    fitControl <- caret::trainControl(method = "cv",
+                                      number = num_folds,
+                                      classProbs = TRUE)
     
-    mainOuts <- base::Filter(Negate(anyNA), mainOuts)
-    
-    mainOuts <- data.table::rbindlist(mainOuts, use.names = TRUE) %>%
-      dplyr::mutate(category = "Main")
-    
-    # Get outputs for empirical null
-    
-    if(use_empirical_null){
-      
-      combinationsNULL <- tidyr::crossing(1:num_folds, 1:num_shuffles)
-      future::plan(future::multisession, workers = (future::availableCores() - 1))
-      
-      nullOuts <- furrr::future_pmap(list(combinationsNULL$`1:num_folds`, combinationsNULL$`1:num_shuffles`), ~  
-                                fit_empirical_null_multivariate_models_safe(maindata = inputData[[.x]]$trainData, 
-                                                                            testdata = inputData[[.x]]$testData, 
-                                                                            kernel = kernel, 
-                                                                            x = .x,
-                                                                            s = .y), 
-                                .options = furrr::furrr_options(seed = TRUE))
-      
-      future::plan(future::sequential)
-      
-      # Remove any pure NA entries that mark errors
-      
-      nullOuts <- base::Filter(Negate(anyNA), nullOuts)
-      
-      message("Averaging empirical null classification accuracies for each shuffle over folds.")
-      
-      nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
-        dplyr::group_by(shuffle) %>%
-        dplyr::summarise(statistic = mean(statistic, na.rm = TRUE)) %>%
-        dplyr::ungroup() %>%
-        dplyr::mutate(category = "Null") %>%
-        dplyr::select(-c(shuffle))
-      
-      # Bind together and return
-      
-      finalOuts <- dplyr::bind_rows(mainOuts, nullOuts)
-      
-      } else{
-        finalOuts <- mainOuts
-    }
+    mod <- caret::train(group ~ ., 
+                        data = dataTrain, 
+                        method = test_method, 
+                        trControl = fitControl,
+                        preProcess = c("center", "scale", "nzv"))
     
   } else{
     
-    mainOuts <- fit_multivariate_feature_model(traindata = inputData, 
-                                               testdata = inputData, 
-                                               kernel = kernel) %>%
-      dplyr::mutate(category = "Main")
+    mod <- caret::train(group ~ ., 
+                        data = dataTrain, 
+                        method = test_method, 
+                        preProcess = c("center", "scale", "nzv"))
+  }
+  
+  # Get main predictions
+  
+  mainOuts <- extract_prediction_accuracy(mod = mod, testData = dataTest) %>%
+    dplyr::mutate(category = "Main")
     
-    # Get outputs for empirical null
-    
-    if(use_empirical_null){
+  if(use_empirical_null){
       
-      nullOuts <- 1:num_shuffles %>%
-        purrr::map(~ fit_empirical_null_multivariate_models_safe(maindata = inputData, 
-                                                                 testdata = inputData, 
-                                                                 kernel = kernel,
-                                                                 x = NULL,
-                                                                 s = .x))
+    nullOuts <- 1:num_shuffles %>%
+      purrr::map( ~ fit_empirical_null_multivariate_models(mod = mod, 
+                                                           testdata = dataTest, 
+                                                           s = .x))
       
-      # Remove any pure NA entries that mark errors
+    nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
+      dplyr::mutate(category = "Null")
       
-      nullOuts <- base::Filter(Negate(anyNA), nullOuts)
+    finalOuts <- dplyr::bind_rows(mainOuts, nullOuts)
       
-      nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
-        dplyr::mutate(category = "Null") %>%
-        dplyr::select(-c(shuffle))
-      
-      # Bind together and return
-      
-      finalOuts <- dplyr::bind_rows(mainOuts, nullOuts)
     } else{
       finalOuts <- mainOuts
     }
-  }
   
   if(!is.null(set)){
     finalOuts <- finalOuts %>%
-      dplyr::mutate(method = set)
+      dplyr::mutate(method = set,
+                    num_features_used = (ncol(dataTrain) - 1))
   } else{
   }
   
@@ -305,7 +154,6 @@ calculate_multivariate_statistics <- function(data, set = NULL){
   
   statistic_value <- tmp %>%
     dplyr::filter(category == "Main") %>%
-    dplyr::summarise(statistic = mean(statistic, na.rm = TRUE)) %>%
     dplyr::pull(statistic)
   
   # Compute p-value against empirical null samples
@@ -340,21 +188,20 @@ calculate_multivariate_statistics <- function(data, set = NULL){
 #' @import ggplot2
 #' @importFrom tidyr drop_na pivot_wider crossing
 #' @importFrom tibble rownames_to_column
-#' @importFrom e1071 svm
 #' @importFrom data.table rbindlist
 #' @importFrom stats sd reorder
-#' @importFrom purrr possibly map
-#' @importFrom future plan availableCores sequential multisession
-#' @importFrom furrr future_map future_pmap
+#' @importFrom purrr map
 #' @importFrom janitor clean_names
+#' @importFrom caret createDataPartition preProcess train
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
 #' @param by_set Boolean specifying whether to compute classifiers for each feature set. Defaults to FALSE
 #' @param test_method the algorithm to use for quantifying class separation
-#' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if linear svm or rbf svm is selected. Defaults to FALSE
+#' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values. Defaults to FALSE
 #' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE
-#' @param num_folds an integer specifying the number of folds (train-test splits) to perform if use_k_fold is set to TRUE.  Defaults to 0 but if TRUE, 10 is recommended
+#' @param num_folds an integer specifying the number of folds (train-test splits) to perform if use_k_fold is set to TRUE.  Defaults to 10
+#' @param split_prop a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to 0.8
 #' @param num_shuffles an integer specifying the number of class label shuffles to perform. Defaults to 50
 #' @return an object of class list containing summaries of the classification models
 #' @author Trent Henderson
@@ -372,18 +219,19 @@ calculate_multivariate_statistics <- function(data, set = NULL){
 #'   id_var = "id",
 #'   group_var = "group",
 #'   by_set = FALSE,
-#'   test_method = "linear svm",
+#'   test_method = "gaussprRadial",
 #'   use_empirical_null = TRUE,
 #'   use_k_fold = TRUE,
 #'   num_folds = 10,
+#'   split_prop = 0.8,
 #'   num_shuffles = 50) 
 #' }
 #' 
 
 fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group",
-                                        by_set = FALSE, test_method = c("linear svm", "rbf svm"),
+                                        by_set = FALSE, test_method = "gaussprRadial",
                                         use_empirical_null = FALSE, use_k_fold = FALSE,
-                                        num_folds = 0, num_shuffles = 50){
+                                        num_folds = 10, split_prop = 0.8, num_shuffles = 50){
   
   #---------- Check arguments ------------
   
@@ -428,25 +276,19 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   
   num_classes <- length(unique(data_id$group)) # Get number of classes in the data
   
-  if(num_classes == 1){
-    stop("Your data only has one class label. At least two are required to performed analysis.")
+  if(num_classes < 2){
+    stop("Your data has less than two unique classes. At least two are required to performed classification analysis.")
   }
   
   # Set defaults for classification method
   
-  if(((missing(test_method) || is.null(test_method))) && num_classes > 1){
-    test_method <- "linear svm"
-    message("test_method is NULL or missing, fitting 'linear svm' by default.")
-  }
-  
-  methods <- c("linear svm", "rbf svm")
-  
-  if(test_method %ni% methods){
-    stop("test_method should be a single string specification of 'linear svm' or 'rbf svm'.")
+  if(((missing(test_method) || is.null(test_method)))){
+    test_method <- "gaussprRadial"
+    message("test_method is NULL or missing, fitting 'gaussprRadial' by default.")
   }
   
   if(length(test_method) != 1){
-    stop("test_method should be a single string specification of 'linear svm' or 'rbf svm'.")
+    stop("test_method should be a single string specification of a classification model available in the `caret` package. 'svmLinear' or 'gaussprRadial' are recommended as starting points.")
   }
   
   # Splits and shuffles
@@ -463,8 +305,16 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     stop("num_shuffles should be a positive integer >= 3 for empirical null calculations. A minimum of 50 shuffles is recommended.")
   }
   
-  if(use_k_fold == TRUE && num_folds < 2){
+  if(use_k_fold == TRUE && num_folds < 1){
     stop("num_folds should be a positive integer. 10 folds is recommended.")
+  }
+  
+  if(!is.numeric(split_prop)){
+    stop("split_prop should be a scalar between 0 and 1 specifying the proportion of input data that should go into the training set.")
+  }
+  
+  if(split_prop < 0 || split_prop > 1){
+    stop("split_prop should be a scalar between 0 and 1 specifying the proportion of input data that should go into the training set.")
   }
   
   #------------- Preprocess data --------------
@@ -493,19 +343,21 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   nrows <- nrow(data_id)
   
   data_id <- data_id %>%
-    dplyr::filter(!is.na(group)) %>%
-    dplyr::mutate(group = as.factor(group))
+    dplyr::filter(!is.na(group))
   
   if(nrow(data_id) < nrows){
     message(paste0("Dropped ", nrows - nrow(data_id), " time series due to NaN values in the 'group' variable."))
   }
   
   # Clean up column (feature) names so models fit properly (mainly an issue with SVM formula) and re-join set labels
+  # and prep factor levels as names for {caret} if the 3 base two-class options aren't being used
   
   data_id <- data_id %>%
     janitor::clean_names() %>%
     tidyr::pivot_longer(cols = 3:ncol(data_id), names_to = "names", values_to = "values") %>%
-    dplyr::mutate(method = gsub("_.*", "\\1", names))
+    dplyr::mutate(method = gsub("_.*", "\\1", names)) %>%
+    dplyr::mutate(group = make.names(group),
+                  group = as.factor(group))
   
   #------------- Fit models -------------------
   
@@ -514,16 +366,8 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   # information
   #---------------------
   
-  if(test_method == "linear svm") {
-    
-    classifier_name <- "Linear SVM"
-    statistic_name <- "Classification accuracy"
-    
-  } else {
-    
-    classifier_name <- "RBF SVM"
-    statistic_name <- "Classification accuracy"
-  }
+  classifier_name <- test_method
+  statistic_name <- "Classification accuracy"
   
   if(by_set){
     
@@ -538,6 +382,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
                                            num_folds = num_folds, 
                                            use_empirical_null = use_empirical_null, 
                                            num_shuffles = num_shuffles, 
+                                           split_prop = split_prop,
                                            set = .x))
     
     output <- data.table::rbindlist(output, use.names = TRUE)
@@ -550,6 +395,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
                                       num_folds = num_folds, 
                                       use_empirical_null = use_empirical_null, 
                                       num_shuffles = num_shuffles,
+                                      split_prop = split_prop,
                                       set = NULL)
   }
   
@@ -558,10 +404,10 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   if(by_set){
       
     #---------- Draw bar plot ---------
-      
+    
     # Get final number of features used by set
-      
-    feat_nums <- data %>% 
+    
+    feat_nums <- data_id %>% 
       dplyr::select(c(method, names)) %>%
       dplyr::distinct() %>%
       dplyr::group_by(method) %>%
@@ -572,27 +418,13 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       
     FeatureSetResultsPlot <- output %>%
       dplyr::filter(category == "Main") %>%
-      dplyr::mutate(statistic = statistic * 100) %>%
-      dplyr::group_by(method) %>%
-      dplyr::summarise(average = mean(statistic, na.rm = TRUE),
-                       lower = average - 2 * stats::sd(statistic, na.rm = TRUE),
-                       upper = average + 2 * stats::sd(statistic, na.rm = TRUE)) %>%
-      dplyr::ungroup()
-    
-    if(max(FeatureSetResultsPlot$upper) > 100){
-      message("Truncating two times standard deviation upper bound to 100% accuracy for plot.")
-    }
-    
-    FeatureSetResultsPlot <- FeatureSetResultsPlot %>%
-      dplyr::mutate(upper = ifelse(upper > 100, 100, upper)) %>% # Truncate for plot to get bar to appear in limits
       dplyr::inner_join(feat_nums, by = c("method" = "method")) %>%
       dplyr::mutate(method = paste0(method, " (", num_feats, ")")) %>%
-      ggplot2::ggplot(ggplot2::aes(x = stats::reorder(method, -average))) +
-      ggplot2::geom_bar(ggplot2::aes(y = average, fill = method), stat = "identity") +
-      ggplot2::geom_point(ggplot2::aes(y = average), colour = "black") +
-      ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper), colour = "black") +
+      dplyr::mutate(statistic = statistic * 100) %>%
+      ggplot2::ggplot(ggplot2::aes(x = stats::reorder(method, -statistic))) +
+      ggplot2::geom_bar(ggplot2::aes(y = statistic, fill = method), stat = "identity") +
       ggplot2::labs(title = "Classification accuracy by feature set",
-                    subtitle = "Error bars represent mean +- two times the standard deviation.\nNumber of features in each set retained for analysis is indicated in parentheses.",
+                    subtitle = "Number of features in each set used for analysis is indicated in parentheses",
                     x = "Feature set",
                     y = "Classification accuracy (%)",
                     fill = NULL) +
@@ -608,15 +440,9 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     #---------- Compute p values ------
       
     if(use_empirical_null){
-      
-      calculate_multivariate_statistics_safe <- purrr::possibly(calculate_multivariate_statistics, otherwise = NA_character_)
         
       TestStatistics <- sets %>%
-        purrr::map(~ calculate_multivariate_statistics_safe(data = output, set = .x))
-      
-      # Remove any pure NA entries that mark errors
-      
-      TestStatistics <- base::Filter(Negate(anyNA), TestStatistics)
+        purrr::map(~ calculate_multivariate_statistics(data = output, set = .x))
       
       TestStatistics <- data.table::rbindlist(TestStatistics, use.names = TRUE) %>%
         dplyr::mutate(classifier_name = classifier_name,

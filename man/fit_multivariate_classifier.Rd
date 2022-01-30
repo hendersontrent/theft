@@ -9,10 +9,11 @@ fit_multivariate_classifier(
   id_var = "id",
   group_var = "group",
   by_set = FALSE,
-  test_method = c("linear svm", "rbf svm"),
+  test_method = "gaussprRadial",
   use_empirical_null = FALSE,
   use_k_fold = FALSE,
-  num_folds = 0,
+  num_folds = 10,
+  split_prop = 0.8,
   num_shuffles = 50
 )
 }
@@ -27,11 +28,13 @@ fit_multivariate_classifier(
 
 \item{test_method}{the algorithm to use for quantifying class separation}
 
-\item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values if linear svm or rbf svm is selected. Defaults to FALSE}
+\item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values. Defaults to FALSE}
 
 \item{use_k_fold}{a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE}
 
-\item{num_folds}{an integer specifying the number of folds (train-test splits) to perform if use_k_fold is set to TRUE.  Defaults to 0 but if TRUE, 10 is recommended}
+\item{num_folds}{an integer specifying the number of folds (train-test splits) to perform if use_k_fold is set to TRUE.  Defaults to 10}
+
+\item{split_prop}{a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to 0.8}
 
 \item{num_shuffles}{an integer specifying the number of class label shuffles to perform. Defaults to 50}
 }
@@ -54,10 +57,11 @@ fit_multivariate_classifier(featMat,
   id_var = "id",
   group_var = "group",
   by_set = FALSE,
-  test_method = "linear svm",
+  test_method = "gaussprRadial",
   use_empirical_null = TRUE,
   use_k_fold = TRUE,
   num_folds = 10,
+  split_prop = 0.8,
   num_shuffles = 50) 
 }
 

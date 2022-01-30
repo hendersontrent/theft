@@ -79,14 +79,14 @@ feature_matrix2 <- calculate_features(data = simData,
                                       feature_set = c("catch22", "feasts"))
 
 multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix2, id_var = "id", group_var = "group",
-                                                        by_set = TRUE, test_method = "linear svm",
+                                                        by_set = TRUE, test_method = "gaussprRadial",
                                                         use_empirical_null = TRUE, use_k_fold = TRUE,
-                                                        num_folds = 10, num_shuffles = 10)
+                                                        num_folds = 10, split_prop = 0.8, num_shuffles = 10)
 
-multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix2, id_var = "id", group_var = "group",
-                                                        by_set = FALSE, test_method = "linear svm",
+multi_classifier_outputs2 <- fit_multivariate_classifier(feature_matrix2, id_var = "id", group_var = "group",
+                                                        by_set = FALSE, test_method = "svmLinear",
                                                         use_empirical_null = FALSE, use_k_fold = FALSE,
-                                                        num_folds = 10, num_shuffles = 10)
+                                                        num_folds = 10, split_prop = 0.8, num_shuffles = 10)
 
 # Test 8: Feature-level classification
 
@@ -99,10 +99,11 @@ classifier_outputs <- compute_top_features(outs_22,
                                            normalise_violin_plots = FALSE,
                                            method = "RobustSigmoid",
                                            cor_method = "pearson",
-                                           test_method = "linear svm",
+                                           test_method = "gaussprRadial",
                                            use_empirical_null =  TRUE,
                                            use_k_fold = TRUE,
                                            num_folds = 10,
+                                           split_prop = 0.8,
                                            num_shuffles = 10,
                                            pool_empirical_null = FALSE) 
 
@@ -111,12 +112,13 @@ classifier_outputs_2 <- compute_top_features(outs_22,
                                              group_var = "group",
                                              num_features = 40, 
                                              normalise_violin_plots = FALSE,
-                                             method = "RobustSigmoid",
+                                             method = "z-score",
                                              cor_method = "pearson",
-                                             test_method = "rbf svm",
+                                             test_method = "svmLinear",
                                              use_empirical_null =  TRUE,
                                              use_k_fold = TRUE,
                                              num_folds = 10,
+                                             split_prop = 0.8,
                                              num_shuffles = 10,
                                              pool_empirical_null = TRUE)
   

@@ -16,8 +16,9 @@
 #' @param test_method the algorithm to use for quantifying class separation
 #' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if linear svm or rbf svm is selected. Defaults to FALSE
 #' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE
-#' @param num_folds an integer specifying the number of folds (train-test splits) to perform if linear svm or rbf svm is selected and use_k_fold is set to TRUE.Defaults to 0 but if TRUE, 10 is recommended
+#' @param num_folds an integer specifying the number of k-folds to perform if data has more than two classes.Defaults to 10
 #' @param num_shuffles an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 5
+#' @param split_prop a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to 0.8
 #' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected and use_empirical_null is TRUE. Defaults to FALSE
 #' @return an object of class list containing a dataframe of results, a feature x feature matrix plot, and a violin plot
 #' @author Trent Henderson
@@ -42,6 +43,7 @@
 #'   use_empirical_null = FALSE,
 #'   use_k_fold = FALSE,
 #'   num_folds = 10,
+#'   split_prop = 0.8,
 #'   num_shuffles = 50,
 #'   pool_empirical_null = FALSE) 
 #' }
@@ -52,9 +54,9 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                  normalise_violin_plots = FALSE,
                                  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                  cor_method = c("pearson", "spearman"),
-                                 test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
+                                 test_method = "gaussprRadial",
                                  use_empirical_null = FALSE, use_k_fold = FALSE,
-                                 num_folds = 0, num_shuffles = 50, 
+                                 num_folds = 0, split_prop = 0.8, num_shuffles = 50, 
                                  pool_empirical_null = FALSE){
   
   # Make RobustSigmoid the default
@@ -156,14 +158,18 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     stop("Your data only has one class label. At least two are required to performed analysis.")
   }
   
+  if(num_classes == 2){
+    message("Your data has two classes. Setting test_method to one of 't-test', 'wilcox', or 'binomial logistic' is recommended.")
+  }
+  
   if(((missing(test_method) || is.null(test_method))) && num_classes == 2){
     test_method <- "t-test"
     message("test_method is NULL or missing. Running t-test for 2-class problem.")
   }
   
   if(((missing(test_method) || is.null(test_method))) && num_classes > 2){
-    test_method <- "linear svm"
-    message("test_method is NULL or missing. Running linear svm for multiclass problem.")
+    test_method <- "gaussprRadial"
+    message("test_method is NULL or missing, fitting 'gaussprRadial' by default.")
   }
   
   if(test_method %in% c("t-test", "wilcox", "binomial logistic") && num_classes > 2){
@@ -172,16 +178,28 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Splits and shuffles
   
-  if(test_method %in% c("linear svm", "rbf svm") && (!is.numeric(num_folds) || !is.numeric(num_shuffles))){
-    stop("num_folds and num_shuffles should both be integers.")
+  if(use_k_fold == TRUE && !is.numeric(num_folds)){
+    stop("num_folds should be a positive integer. 10 folds is recommended.")
   }
   
-  if(test_method %in% c("linear svm", "rbf svm") && use_empirical_null == TRUE && num_shuffles < 3){
-    stop("num_shuffles should be an integer >= 3 for empirical null calculations. A minimum of 50 shuffles is recommended.")
+  if(use_empirical_null == TRUE && !is.numeric(num_shuffles)){
+    stop("num_shuffles should be a postive integer. A minimum of 50 shuffles is recommended.")
   }
   
-  if(test_method %in% c("linear svm", "rbf svm") && use_k_fold == TRUE && num_folds < 2){
-    stop("num_folds should be an integer >= 2. 10 folds is recommended.")
+  if(use_empirical_null == TRUE && num_shuffles < 3){
+    stop("num_shuffles should be a positive integer >= 3 for empirical null calculations. A minimum of 50 shuffles is recommended.")
+  }
+  
+  if(use_k_fold == TRUE && num_folds < 1){
+    stop("num_folds should be a positive integer. 10 folds is recommended.")
+  }
+  
+  if(!is.numeric(split_prop)){
+    stop("split_prop should be a scalar between 0 and 1 specifying the proportion of input data that should go into the training set.")
+  }
+  
+  if(split_prop < 0 || split_prop > 1){
+    stop("split_prop should be a scalar between 0 and 1 specifying the proportion of input data that should go into the training set.")
   }
   
   # Number of top features
@@ -189,6 +207,17 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   if(num_features > length(unique(data_id$names))){
     num_features <- length(unique(data_id$names))
     message(paste0("Number of specified features exceeds number of features in your data. Automatically adjusting to ", num_features))
+  }
+  
+  # Prep factor levels as names for {caret} if the 3 base two-class options aren't being used
+  
+  if(test_method %ni% c("t-test", "wilcox", "binomial logistic")){
+    data_id <- data_id %>%
+      dplyr::mutate(group = make.names(group),
+                    group = as.factor(group))
+  } else{
+    data_id <- data_id %>%
+      dplyr::mutate(group = as.factor(group))
   }
   
   #---------------  Computations ----------------
@@ -206,6 +235,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                               use_k_fold = use_k_fold,
                                               use_empirical_null = use_empirical_null,
                                               num_folds = num_folds,
+                                              split_prop = split_prop,
                                               num_shuffles = num_shuffles,
                                               pool_empirical_null = pool_empirical_null)
   
@@ -231,16 +261,16 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
       
       # Catch cases where most of the p-values are the same (likely 0 given empirical null performance from experiments)
       
-      if(length(unique(classifierOutputs$p_value)) < floor(num_features / 2)){
+      if(length(unique(classifierOutputs$p_value)) < floor(num_features * 0.8)){
         
-        message("Not enough unique p-values to select on. Selecting top features using mean classification accuracy instead.")
+        message("Not enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
         
         ResultsTable <- classifierOutputs %>%
           dplyr::slice_max(statistic_value, n = num_features)
         
       } else{
         
-        message("Selecting top features based using p-value.")
+        message("Selecting top features using p-value.")
         
         ResultsTable <- classifierOutputs %>%
           dplyr::slice_min(p_value, n = num_features)
@@ -262,27 +292,59 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   # Feature x feature plot
   #-----------------------
   
-  # Wrangle dataframe
+  # Wrap in a tryCatch because sometimes normalisation methods create issues that error out the whole function
   
-  cor_dat <- dataFiltered %>%
-    dplyr::select(c(id, names, values)) %>%
-    tidyr::drop_na() %>%
-    dplyr::group_by(names) %>%
-    dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
-    tidyr::drop_na() %>%
-    tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
-    dplyr::select(-c(id))
+  tryCatch({
+    
+    # Wrangle dataframe
+    
+    cor_dat <- dataFiltered %>%
+      dplyr::select(c(id, names, values)) %>%
+      tidyr::drop_na() %>%
+      dplyr::group_by(names) %>%
+      dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
+      tidyr::drop_na() %>%
+      tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
+      dplyr::select(-c(id))
+    
+    # Calculate correlations
+    
+    result <- stats::cor(cor_dat, method = cor_method)
+    
+    # Perform clustering
+    
+    row.order <- stats::hclust(stats::dist(result))$order # Hierarchical cluster on rows
+    col.order <- stats::hclust(stats::dist(t(result)))$order # Hierarchical cluster on columns
+    dat_new <- result[row.order, col.order] # Re-order matrix by cluster outputs
+    cluster_out <- reshape2::melt(as.matrix(dat_new)) # Turn into dataframe
   
-  # Calculate correlations
-  
-  result <- stats::cor(cor_dat, method = "pearson")
-  
-  # Perform clustering
-  
-  row.order <- stats::hclust(stats::dist(result))$order # Hierarchical cluster on rows
-  col.order <- stats::hclust(stats::dist(t(result)))$order # Hierarchical cluster on columns
-  dat_new <- result[row.order, col.order] # Re-order matrix by cluster outputs
-  cluster_out <- reshape2::melt(as.matrix(dat_new)) # Turn into dataframe
+  }, error = function(e){
+    
+    print(e)
+    message("Re-running with z-score normalisation to see if error is corrected.")
+    
+    # Wrangle dataframe
+    
+    cor_dat <- dataFiltered %>%
+      dplyr::select(c(id, names, values)) %>%
+      tidyr::drop_na() %>%
+      dplyr::group_by(names) %>%
+      dplyr::mutate(values = normalise_feature_vector(values, method = "z-score")) %>%
+      tidyr::drop_na() %>%
+      tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
+      dplyr::select(-c(id))
+    
+    # Calculate correlations
+    
+    result <- stats::cor(cor_dat, method = cor_method)
+    
+    # Perform clustering
+    
+    row.order <- stats::hclust(stats::dist(result))$order # Hierarchical cluster on rows
+    col.order <- stats::hclust(stats::dist(t(result)))$order # Hierarchical cluster on columns
+    dat_new <- result[row.order, col.order] # Re-order matrix by cluster outputs
+    cluster_out <- reshape2::melt(as.matrix(dat_new)) # Turn into dataframe
+  })
   
   # Draw plot
   
@@ -292,7 +354,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     ggplot2::labs(title = paste0("Pairwise correlation matrix of top ", num_features, " features"),
                   x = NULL,
                   y = NULL,
-                  fill = "Pearson correlation coefficient") +
+                  fill = "Correlation coefficient") +
     ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1, 1)) +
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),

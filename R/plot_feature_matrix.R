@@ -174,9 +174,9 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   }
 
   p <- p +
-    ggplot2::labs(title = "Hierarchically-clustered data matrix",
+    ggplot2::labs(title = "Data matrix",
                   x = "Feature",
-                  y = "Time Series") +
+                  y = "Time series") +
     ggplot2::theme_bw() + 
     ggplot2::theme(axis.text.y = ggplot2::element_blank(),
                    axis.text.x = ggplot2::element_text(angle = 90, hjust = 1),

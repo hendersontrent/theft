@@ -12,10 +12,11 @@ compute_top_features(
   normalise_violin_plots = FALSE,
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
   cor_method = c("pearson", "spearman"),
-  test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
+  test_method = "gaussprRadial",
   use_empirical_null = FALSE,
   use_k_fold = FALSE,
   num_folds = 0,
+  split_prop = 0.8,
   num_shuffles = 50,
   pool_empirical_null = FALSE
 )
@@ -41,7 +42,9 @@ compute_top_features(
 
 \item{use_k_fold}{a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE}
 
-\item{num_folds}{an integer specifying the number of folds (train-test splits) to perform if linear svm or rbf svm is selected and use_k_fold is set to TRUE.Defaults to 0 but if TRUE, 10 is recommended}
+\item{num_folds}{an integer specifying the number of k-folds to perform if data has more than two classes.Defaults to 10}
+
+\item{split_prop}{a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to 0.8}
 
 \item{num_shuffles}{an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 5}
 
@@ -73,6 +76,7 @@ compute_top_features(featMat,
   use_empirical_null = FALSE,
   use_k_fold = FALSE,
   num_folds = 10,
+  split_prop = 0.8,
   num_shuffles = 50,
   pool_empirical_null = FALSE) 
 }
