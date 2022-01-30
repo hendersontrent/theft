@@ -17,8 +17,7 @@ fit_empirical_null_univariate_models <- function(mod, testdata, s){
   shuffles <- sample(y, replace = FALSE)
   
   shuffledtest <- testdata %>%
-    dplyr::mutate(group = shuffles,
-                  group = as.factor(group))
+    dplyr::mutate(group = shuffles)
   
   null_models <- extract_prediction_accuracy(mod = mod, testData = shuffledtest)
   return(null_models)
@@ -251,18 +250,6 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     stop("id_var should be a string specifying a variable in the input data that uniquely identifies each observation.")
   }
   
-  # Set defaults for classification method
-  
-  methods <- c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm")
-  
-  if(test_method %ni% methods){
-    stop("test_method should be a single string specification of 't-test', 'wilcox', 'binomial logistic', 'linear svm', or 'rbf svm'.")
-  }
-  
-  if(length(test_method) != 1){
-    stop("test_method should be a single string specification of 't-test', 'wilcox', 'binomial logistic', 'linear svm', or 'rbf svm'.")
-  }
-  
   #------------- Renaming columns -------------
   
   if (is.null(id_var)){
@@ -352,8 +339,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   nrows <- nrow(data_id)
   
   data_id <- data_id %>%
-    dplyr::filter(!is.na(group)) %>%
-    dplyr::mutate(group = as.factor(group))
+    dplyr::filter(!is.na(group))
   
   if(nrow(data_id) < nrows){
     message(paste0("Dropped ", nrows - nrow(data_id), " time series due to NaN values in the 'group' variable."))
@@ -452,7 +438,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
   } else {
     
-    # Compute accuracies for each permutation and feature
+    # Compute accuracies for each feature
     
     output <- 3:ncol(data_id) %>%
       purrr::map(~ fit_univariate_models(data = data_id, 

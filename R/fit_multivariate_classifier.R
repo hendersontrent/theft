@@ -42,8 +42,7 @@ fit_empirical_null_multivariate_models <- function(mod, testdata, s){
   shuffles <- sample(y, replace = FALSE)
   
   shuffledtest <- testdata %>%
-    dplyr::mutate(group = shuffles,
-                  group = as.factor(group))
+    dplyr::mutate(group = shuffles)
   
   null_models <- extract_prediction_accuracy(mod = mod, testData = shuffledtest)
   return(null_models)
@@ -191,7 +190,7 @@ calculate_multivariate_statistics <- function(data, set = NULL){
 #' @importFrom tibble rownames_to_column
 #' @importFrom data.table rbindlist
 #' @importFrom stats sd reorder
-#' @importFrom purrr possibly map
+#' @importFrom purrr map
 #' @importFrom janitor clean_names
 #' @importFrom caret createDataPartition preProcess train
 #' @param data the dataframe containing the raw feature matrix
@@ -344,19 +343,21 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   nrows <- nrow(data_id)
   
   data_id <- data_id %>%
-    dplyr::filter(!is.na(group)) %>%
-    dplyr::mutate(group = as.factor(group))
+    dplyr::filter(!is.na(group))
   
   if(nrow(data_id) < nrows){
     message(paste0("Dropped ", nrows - nrow(data_id), " time series due to NaN values in the 'group' variable."))
   }
   
   # Clean up column (feature) names so models fit properly (mainly an issue with SVM formula) and re-join set labels
+  # and prep factor levels as names for {caret} if the 3 base two-class options aren't being used
   
   data_id <- data_id %>%
     janitor::clean_names() %>%
     tidyr::pivot_longer(cols = 3:ncol(data_id), names_to = "names", values_to = "values") %>%
-    dplyr::mutate(method = gsub("_.*", "\\1", names))
+    dplyr::mutate(method = gsub("_.*", "\\1", names)) %>%
+    dplyr::mutate(group = make.names(group),
+                  group = as.factor(group))
   
   #------------- Fit models -------------------
   

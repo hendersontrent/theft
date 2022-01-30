@@ -43,7 +43,7 @@
 #'   use_empirical_null = FALSE,
 #'   use_k_fold = FALSE,
 #'   num_folds = 10,
-#'   split_propr = 0.8,
+#'   split_prop = 0.8,
 #'   num_shuffles = 50,
 #'   pool_empirical_null = FALSE) 
 #' }
@@ -56,7 +56,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                  cor_method = c("pearson", "spearman"),
                                  test_method = "gaussprRadial",
                                  use_empirical_null = FALSE, use_k_fold = FALSE,
-                                 num_folds = 0, num_shuffles = 50, 
+                                 num_folds = 0, split_prop = 0.8, num_shuffles = 50, 
                                  pool_empirical_null = FALSE){
   
   # Make RobustSigmoid the default
@@ -209,6 +209,17 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     message(paste0("Number of specified features exceeds number of features in your data. Automatically adjusting to ", num_features))
   }
   
+  # Prep factor levels as names for {caret} if the 3 base two-class options aren't being used
+  
+  if(test_method %ni% c("t-test", "wilcox", "binomial logistic")){
+    data_id <- data_id %>%
+      dplyr::mutate(group = make.names(group),
+                    group = as.factor(group))
+  } else{
+    data_id <- data_id %>%
+      dplyr::mutate(group = as.factor(group))
+  }
+  
   #---------------  Computations ----------------
   
   #---------------
@@ -224,7 +235,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                               use_k_fold = use_k_fold,
                                               use_empirical_null = use_empirical_null,
                                               num_folds = num_folds,
-                                              split_prob = split_prob,
+                                              split_prop = split_prop,
                                               num_shuffles = num_shuffles,
                                               pool_empirical_null = pool_empirical_null)
   
@@ -252,14 +263,14 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
       
       if(length(unique(classifierOutputs$p_value)) < floor(num_features * 0.8)){
         
-        message("Not enough unique p-values to select on. Selecting top features using mean classification accuracy instead.")
+        message("Not enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
         
         ResultsTable <- classifierOutputs %>%
           dplyr::slice_max(statistic_value, n = num_features)
         
       } else{
         
-        message("Selecting top features based using p-value.")
+        message("Selecting top features using p-value.")
         
         ResultsTable <- classifierOutputs %>%
           dplyr::slice_min(p_value, n = num_features)
