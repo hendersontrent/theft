@@ -23,6 +23,6 @@
 #' @importFrom plotly ggplotly config
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom caret createDataPartition preProcess train
-#' @importFrom purrr map
+#' @importFrom purrr map possibly
 #' @importFrom janitor clean_names
 NULL

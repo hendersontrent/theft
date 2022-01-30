@@ -178,7 +178,7 @@ gather_binomial_info <- function(data, x){
 #' @importFrom e1071 svm
 #' @importFrom data.table rbindlist
 #' @importFrom stats glm binomial sd wilcox.test t.test
-#' @importFrom purrr map
+#' @importFrom purrr map possibly
 #' @importFrom janitor clean_names
 #' @importFrom caret createDataPartition preProcess train
 #' @param data the dataframe containing the raw feature matrix
@@ -440,8 +440,10 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
     # Compute accuracies for each feature
     
+    fit_univariate_models_safe <- purrr::possibly(fit_univariate_models, otherwise = NULL)
+    
     output <- 3:ncol(data_id) %>%
-      purrr::map(~ fit_univariate_models(data = data_id, 
+      purrr::map(~ fit_univariate_models_safe(data = data_id, 
                                          test_method = test_method, 
                                          use_k_fold = use_k_fold,
                                          num_folds = num_folds,
@@ -450,6 +452,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                          num_shuffles = num_shuffles,
                                          feature = .x))
     
+    output <- output[!sapply(output, is.null)]
     output <- data.table::rbindlist(output, use.names = TRUE)
     
     # Compute statistics for each feature against empirical null distribution
