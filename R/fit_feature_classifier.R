@@ -108,7 +108,6 @@ calculate_pooled_null <- function(null_vector, main_matrix, x){
   statistic_value <- main_matrix %>%
     dplyr::select(dplyr::all_of(x)) %>%
     dplyr::rename(statistic = 1) %>%
-    dplyr::summarise(statistic = mean(statistic, na.rm = TRUE)) %>%
     dplyr::pull(statistic)
   
   # Compute p-value against empirical null samples
@@ -461,6 +460,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                          use_k_fold = use_k_fold,
                                          num_folds = num_folds,
                                          use_empirical_null = use_empirical_null,
+                                         split_prop = split_prop,
                                          num_shuffles = num_shuffles,
                                          feature = .x))
     
@@ -472,13 +472,10 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       
       if(pool_empirical_null){
         
-        calculate_pooled_null_safe <- purrr::possibly(calculate_pooled_null, otherwise = NA_character_)
-        
         # Set up vector of null accuracies across all features
         
         null_vector <- output %>%
           dplyr::filter(category == "Null") %>%
-          dplyr::select(-c(feature)) %>%
           dplyr::pull(statistic)
         
         # Widen main results matrix
@@ -493,21 +490,14 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
         
         # Calculate p-values for each feature
         
-        future::plan(future::multisession, workers = (future::availableCores() - 1))
-        
         feature_statistics <- 2:ncol(main_matrix) %>%
-          furrr::future_map(~ calculate_pooled_null_safe(null_vector = null_vector, main_matrix = main_matrix, x = .x),
-                            .options = furrr::furrr_options(seed = TRUE))
-        
-        future::plan(future::sequential)
+          purrr::map(~ calculate_pooled_null(null_vector = null_vector, main_matrix = main_matrix, x = .x))
         
       } else{
         
-        calculate_unpooled_null_safe <- purrr::possibly(calculate_unpooled_null, otherwise = NA_character_)
-        
         # Widen data matrix
         
-        output <- output %>%
+        main_matrix <- output %>%
           dplyr::group_by(feature) %>%
           dplyr::mutate(id = row_number()) %>%
           dplyr::ungroup() %>%
@@ -516,19 +506,10 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
         
         # Calculate p-values for each feature
         
-        future::plan(future::multisession, workers = (future::availableCores() - 1))
-        
-        feature_statistics <- 2:ncol(output) %>%
-          furrr::future_map(~ calculate_unpooled_null_safe(.data = output, x = .x),
-                            .options = furrr::furrr_options(seed = TRUE))
-        
-        future::plan(future::sequential)
+        feature_statistics <- 2:ncol(main_matrix) %>%
+          purrr::map(~ calculate_unpooled_null(.data = main_matrix, x = .x))
         
       }
-      
-      # Remove any pure NA entries that mark errors
-      
-      feature_statistics <- base::Filter(Negate(anyNA), feature_statistics)
       
       # Bind together
       
