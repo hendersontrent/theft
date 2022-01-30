@@ -73,7 +73,7 @@ fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, us
       dplyr::select(-c(id))
   }
   
-  # Make a train-test split and centre and scale the data
+  # Make a train-test split
   
   set.seed(123)
   
@@ -104,7 +104,7 @@ fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, us
     mod <- caret::train(group ~ ., 
                         data = dataTrain, 
                         method = test_method, 
-                        preProcess = NULL)
+                        preProcess = c("center", "scale", "nzv"))
   }
   
   # Get main predictions

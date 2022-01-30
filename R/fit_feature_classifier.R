@@ -1,31 +1,6 @@
 #--------------- Helper functions ----------------
 
-#---------------------
-# Main model procedure
-#---------------------
-
-extract_prediction_accuracy <- function(mod, testData){
-  
-  cm <- as.data.frame(table(testData$group, predict(mod, newdata = testData))) %>%
-    dplyr::mutate(flag = ifelse(Var1 == Var2, "Same", "Different"))
-  
-  same_total <- cm %>%
-    dplyr::filter(flag == "Same") %>%
-    dplyr::summarise(Freq = sum(Freq)) %>%
-    dplyr::pull()
-  
-  all_total <- cm %>%
-    dplyr::summarise(Freq = sum(Freq)) %>%
-    dplyr::pull()
-  
-  statistic <- same_total / all_total
-  
-  tmp_feature <- data.frame(statistic = statistic)
-  
-  return(tmp_feature)
-}
-
-fit_empirical_null_multivariate_models <- function(mod, testdata, s){
+fit_empirical_null_univariate_models <- function(mod, testdata, s){
   
   # Print out updates for every 10 shuffles so the user gets a time guesstimate that isn't burdensome
   
@@ -56,11 +31,9 @@ fit_empirical_null_multivariate_models <- function(mod, testdata, s){
 fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, num_shuffles, split_prop, feature){
   
   tmp <- data %>%
-      dplyr::select(-c(method)) %>%
-      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
-      dplyr::select(c(group, feature))
+      dplyr::select(c(group, dplyr::all_of(feature)))
   
-  # Make a train-test split and centre and scale the data
+  # Make a train-test split
   
   set.seed(123)
   
@@ -74,8 +47,6 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
   
   if(use_k_fold){
     
-    # REMOVED FUTURE AND FURR !!!!!!!!!!!!!!!!!
-    
     # Train model
     
     fitControl <- caret::trainControl(method = "cv",
@@ -86,14 +57,14 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
                         data = dataTrain, 
                         method = test_method, 
                         trControl = fitControl,
-                        preProcess = c("center", "scale", "nzv"))
+                        preProcess = c("center", "scale"))
     
   } else{
     
     mod <- caret::train(group ~ ., 
                         data = dataTrain, 
                         method = test_method, 
-                        preProcess = NULL)
+                        preProcess = c("center", "scale"))
   }
   
   # Get main predictions
@@ -104,9 +75,9 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
   if(use_empirical_null){
     
     nullOuts <- 1:num_shuffles %>%
-      purrr::map( ~ fit_empirical_null_multivariate_models(mod = mod, 
-                                                           testdata = dataTest, 
-                                                           s = .x))
+      purrr::map( ~ fit_empirical_null_univariate_models(mod = mod, 
+                                                         testdata = dataTest, 
+                                                         s = .x))
     
     nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
       dplyr::mutate(category = "Null")
@@ -117,12 +88,8 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
     finalOuts <- mainOuts
   }
   
-  if(!is.null(set)){
-    finalOuts <- finalOuts %>%
-      dplyr::mutate(method = set,
-                    num_features_used = (ncol(dataTrain) - 1))
-  } else{
-  }
+  finalOuts <- finalOuts %>%
+    dplyr::mutate(feature = names(tmp[2]))
   
   return(finalOuts)
 }
@@ -213,9 +180,7 @@ gather_binomial_info <- function(data, x){
 #' @importFrom e1071 svm
 #' @importFrom data.table rbindlist
 #' @importFrom stats glm binomial sd wilcox.test t.test
-#' @importFrom purrr possibly map pmap
-#' @importFrom future plan availableCores sequential multisession
-#' @importFrom furrr future_map future_pmap
+#' @importFrom purrr map
 #' @importFrom janitor clean_names
 #' @importFrom caret createDataPartition preProcess train
 #' @param data the dataframe containing the raw feature matrix
@@ -407,9 +372,6 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   # for iteration
   #--------------------------
   
-  features <- seq(from = 3, to = ncol(data_id))
-  feature_names <- colnames(data_id)
-  feature_names <- feature_names[!feature_names %in% c("id", "group")] # Remove ID and group columns
   message("Performing calculations... This may take a while depending on the number of features and classes in your dataset.")
   
   #---------------------
@@ -445,12 +407,8 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   
   if(test_method == "t-test"){
     
-    t.test_safe <- purrr::possibly(stats::t.test, otherwise = NA_character_)
-    
     output <- 3:ncol(data_id) %>%
-      purrr::map(~ t.test_safe(formula = formula(paste0(colnames(data_id[.x]), " ~ group")), data = data_id))
-    
-    output <- base::Filter(Negate(anyNA), output)
+      purrr::map(~ stats::t.test(formula = formula(paste0(colnames(data_id[.x]), " ~ group")), data = data_id))
     
     output <- data.table::rbindlist(output, use.names = TRUE) %>%
       dplyr::select(c(data.name, statistic, p.value)) %>%
@@ -465,12 +423,8 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
   } else if (test_method == "wilcox"){
     
-    wilcox.test_safe <- purrr::possibly(stats::wilcox.test, otherwise = NA_character_)
-    
     output <- 3:ncol(data_id) %>%
-      purrr::map(~ wilcox.test_safe(formula = formula(paste0(colnames(data_id[.x]), " ~ group")), data = data_id))
-    
-    output <- base::Filter(Negate(anyNA), output)
+      purrr::map(~ stats::wilcox.test(formula = formula(paste0(colnames(data_id[.x]), " ~ group")), data = data_id))
     
     output <- data.table::rbindlist(output, use.names = TRUE) %>%
       dplyr::select(c(data.name, statistic, p.value)) %>%
@@ -485,12 +439,8 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
   } else if (test_method == "binomial logistic"){
     
-    glm_safe <- purrr::possibly(stats::glm, otherwise = NA_character_)
-    
     output <- 3:ncol(data_id) %>%
-      purrr::map(~ glm_safe(formula = formula(paste0("group ~ ", colnames(data_id[.x]))), data = data_id, family = stats::binomial()))
-    
-    output <- base::Filter(Negate(anyNA), output)
+      purrr::map(~ stats::glm(formula = formula(paste0("group ~ ", colnames(data_id[.x]))), data = data_id, family = stats::binomial()))
     
     output <- 1:length(output) %>%
       purrr::map(~ gather_binomial_info(output, .x))
@@ -505,9 +455,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
     # Compute accuracies for each permutation and feature
     
-    features <- unique(data_id$names)
-    
-    output <- features %>%
+    output <- 3:ncol(data_id) %>%
       purrr::map(~ fit_univariate_models(data = data_id, 
                                          test_method = test_method, 
                                          use_k_fold = use_k_fold,
