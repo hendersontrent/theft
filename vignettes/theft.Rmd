@@ -86,7 +86,7 @@ Putting calculated feature vectors on an equal scale is crucial for any statisti
 * z-score - `"z-score"`
 * Sigmoid - `"Sigmoid"`
 * Outlier-robust Sigmoid (credit to Ben Fulcher for creating the original [MATLAB version](https://github.com/benfulcher/hctsa)) - `"RobustSigmoid"`
-* Min-max - `"RobustSigmoid"`
+* Min-max - `"MinMax"`
 
 Dataframe-based normalisation can be performed using the following:
 
