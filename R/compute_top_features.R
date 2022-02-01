@@ -1,3 +1,49 @@
+#--------------- Helper functions ----------------
+
+draw_top_feature_plot <- function(data, method, cor_method, num_features){
+  
+  # Wrangle dataframe
+  
+  cor_dat <- data %>%
+    dplyr::select(c(id, names, values)) %>%
+    tidyr::drop_na() %>%
+    dplyr::group_by(names) %>%
+    dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
+    tidyr::drop_na() %>%
+    tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
+    dplyr::select(-c(id))
+  
+  # Calculate correlations
+  
+  result <- stats::cor(cor_dat, method = cor_method)
+  
+  # Perform clustering
+  
+  row.order <- stats::hclust(stats::dist(result))$order # Hierarchical cluster on rows
+  col.order <- stats::hclust(stats::dist(t(result)))$order # Hierarchical cluster on columns
+  dat_new <- result[row.order, col.order] # Re-order matrix by cluster outputs
+  cluster_out <- reshape2::melt(as.matrix(dat_new)) # Turn into dataframe
+  
+  # Draw plot
+  
+  FeatureFeatureCorrelationPlot <- cluster_out %>%
+    ggplot2::ggplot(ggplot2::aes(x = Var1, y = Var2)) +
+    ggplot2::geom_tile(ggplot2::aes(fill = value)) +
+    ggplot2::labs(title = paste0("Pairwise correlation matrix of top ", num_features, " features"),
+                  x = NULL,
+                  y = NULL,
+                  fill = "Correlation coefficient") +
+    ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1, 1)) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(panel.grid = ggplot2::element_blank(),
+                   legend.position = "bottom",
+                   axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
+  
+  return(FeatureFeatureCorrelationPlot)
+}
+
+#-------------- Main exported function ---------------
+
 #' Return an object containing results from top-performing features on a classification task
 #' @import dplyr
 #' @importFrom magrittr %>%
@@ -261,7 +307,10 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
       
       # Catch cases where most of the p-values are the same (likely 0 given empirical null performance from experiments)
       
-      if(length(unique(classifierOutputs$p_value)) < floor(num_features * 0.8)){
+      unique_p_values <- classifierOutputs %>%
+        dplyr::slice_min(p_value, n = num_features)
+      
+      if(length(unique(unique_p_values$feature)) > num_features || length(unique(unique_p_values$p_value)) == 1){
         
         message("Not enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
         
@@ -292,74 +341,22 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   # Feature x feature plot
   #-----------------------
   
-  # Wrap in a tryCatch because sometimes normalisation methods create issues that error out the whole function
+  # Wrap in a try because sometimes normalisation methods create issues that error out the whole function
   
-  tryCatch({
-    
-    # Wrangle dataframe
-    
-    cor_dat <- dataFiltered %>%
-      dplyr::select(c(id, names, values)) %>%
-      tidyr::drop_na() %>%
-      dplyr::group_by(names) %>%
-      dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
-      tidyr::drop_na() %>%
-      tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
-      dplyr::select(-c(id))
-    
-    # Calculate correlations
-    
-    result <- stats::cor(cor_dat, method = cor_method)
-    
-    # Perform clustering
-    
-    row.order <- stats::hclust(stats::dist(result))$order # Hierarchical cluster on rows
-    col.order <- stats::hclust(stats::dist(t(result)))$order # Hierarchical cluster on columns
-    dat_new <- result[row.order, col.order] # Re-order matrix by cluster outputs
-    cluster_out <- reshape2::melt(as.matrix(dat_new)) # Turn into dataframe
+  FeatureFeatureCorrelationPlot <- try(draw_top_feature_plot(data = dataFiltered,
+                                                             method = method,
+                                                             cor_method = cor_method,
+                                                             num_features = num_features))
   
-  }, error = function(e){
+  if("try-error" %in% class(FeatureFeatureCorrelationPlot)){
     
-    print(e)
-    message("Re-running with z-score normalisation to see if error is corrected.")
+    message("An error occured producing the summary plot. Re-running with z-score normalisation to see if error is corrected.")
     
-    # Wrangle dataframe
-    
-    cor_dat <- dataFiltered %>%
-      dplyr::select(c(id, names, values)) %>%
-      tidyr::drop_na() %>%
-      dplyr::group_by(names) %>%
-      dplyr::mutate(values = normalise_feature_vector(values, method = "z-score")) %>%
-      tidyr::drop_na() %>%
-      tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
-      dplyr::select(-c(id))
-    
-    # Calculate correlations
-    
-    result <- stats::cor(cor_dat, method = cor_method)
-    
-    # Perform clustering
-    
-    row.order <- stats::hclust(stats::dist(result))$order # Hierarchical cluster on rows
-    col.order <- stats::hclust(stats::dist(t(result)))$order # Hierarchical cluster on columns
-    dat_new <- result[row.order, col.order] # Re-order matrix by cluster outputs
-    cluster_out <- reshape2::melt(as.matrix(dat_new)) # Turn into dataframe
-  })
-  
-  # Draw plot
-  
-  FeatureFeatureCorrelationPlot <- cluster_out %>%
-    ggplot2::ggplot(ggplot2::aes(x = Var1, y = Var2)) +
-    ggplot2::geom_tile(ggplot2::aes(fill = value)) +
-    ggplot2::labs(title = paste0("Pairwise correlation matrix of top ", num_features, " features"),
-                  x = NULL,
-                  y = NULL,
-                  fill = "Correlation coefficient") +
-    ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1, 1)) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(panel.grid = ggplot2::element_blank(),
-                   legend.position = "bottom",
-                   axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
+    FeatureFeatureCorrelationPlot <- try(draw_top_feature_plot(data = dataFiltered,
+                                                               method = "z-score",
+                                                               cor_method = cor_method,
+                                                               num_features = num_features))
+  }
   
   #---------------
   # Violin plot
@@ -375,7 +372,17 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Compile into one object and return
   
-  myList <- list(ResultsTable, FeatureFeatureCorrelationPlot, ViolinPlots)
-  names(myList) <- c("ResultsTable", "FeatureFeatureCorrelationPlot", "ViolinPlots")
+  if("try-error" %in% class(FeatureFeatureCorrelationPlot)){
+    
+    message("An error occured in producing the second attempted graphic with different normalisation. Only returning numerical results and violin plots instead.")
+    myList <- list(ResultsTable, ViolinPlots)
+    names(myList) <- c("ResultsTable", "ViolinPlots")
+    
+  } else{
+    
+    myList <- list(ResultsTable, FeatureFeatureCorrelationPlot, ViolinPlots)
+    names(myList) <- c("ResultsTable", "FeatureFeatureCorrelationPlot", "ViolinPlots")
+  }
+  
   return(myList)
 }
