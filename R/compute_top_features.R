@@ -66,6 +66,7 @@ draw_top_feature_plot <- function(data, method, cor_method, num_features){
 #' @param num_shuffles an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 5
 #' @param split_prop a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to 0.8
 #' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected and use_empirical_null is TRUE. Defaults to FALSE
+#' @param use_balanced_accuracy a Boolean specifying whether to use balanced accuracy as the performance metric instead of overall accuracy
 #' @return an object of class list containing a dataframe of results, a feature x feature matrix plot, and a violin plot
 #' @author Trent Henderson
 #' @export
@@ -91,7 +92,8 @@ draw_top_feature_plot <- function(data, method, cor_method, num_features){
 #'   num_folds = 10,
 #'   split_prop = 0.8,
 #'   num_shuffles = 50,
-#'   pool_empirical_null = FALSE) 
+#'   pool_empirical_null = FALSE,
+#'   use_balanced_accuracy = FALSE) 
 #' }
 #' 
 
@@ -103,7 +105,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                  test_method = "gaussprRadial",
                                  use_empirical_null = FALSE, use_k_fold = FALSE,
                                  num_folds = 0, split_prop = 0.8, num_shuffles = 50, 
-                                 pool_empirical_null = FALSE){
+                                 pool_empirical_null = FALSE, use_balanced_accuracy = FALSE){
   
   # Make RobustSigmoid the default
   
@@ -283,7 +285,8 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                               num_folds = num_folds,
                                               split_prop = split_prop,
                                               num_shuffles = num_shuffles,
-                                              pool_empirical_null = pool_empirical_null)
+                                              pool_empirical_null = pool_empirical_null,
+                                              use_balanced_accuracy = use_balanced_accuracy)
   
   # Filter results to get list of top features
   

@@ -1,6 +1,6 @@
 #--------------- Helper functions ----------------
 
-fit_empirical_null_univariate_models <- function(mod, testdata, s){
+fit_empirical_null_univariate_models <- function(mod, testdata, s, use_balanced_accuracy){
   
   # Print out updates for every 10 shuffles so the user gets a time guesstimate that isn't burdensome
   
@@ -19,7 +19,7 @@ fit_empirical_null_univariate_models <- function(mod, testdata, s){
   shuffledtest <- testdata %>%
     dplyr::mutate(group = shuffles)
   
-  null_models <- extract_prediction_accuracy(mod = mod, testData = shuffledtest)
+  null_models <- extract_prediction_accuracy(mod = mod, testData = shuffledtest, use_balanced_accuracy = use_balanced_accuracy)
   return(null_models)
 }
 
@@ -27,7 +27,7 @@ fit_empirical_null_univariate_models <- function(mod, testdata, s){
 # Model fitting
 #--------------
 
-fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, num_shuffles, split_prop, feature){
+fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, num_shuffles, split_prop, feature, use_balanced_accuracy){
   
   tmp <- data %>%
       dplyr::select(c(group, dplyr::all_of(feature)))
@@ -68,7 +68,7 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
   
   # Get main predictions
   
-  mainOuts <- extract_prediction_accuracy(mod = mod, testData = dataTest) %>%
+  mainOuts <- extract_prediction_accuracy(mod = mod, testData = dataTest, use_balanced_accuracy = use_balanced_accuracy) %>%
     dplyr::mutate(category = "Main")
   
   if(use_empirical_null){
@@ -76,7 +76,8 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
     nullOuts <- 1:num_shuffles %>%
       purrr::map( ~ fit_empirical_null_univariate_models(mod = mod, 
                                                          testdata = dataTest, 
-                                                         s = .x))
+                                                         s = .x,
+                                                         use_balanced_accuracy = use_balanced_accuracy))
     
     nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
       dplyr::mutate(category = "Null")
@@ -185,12 +186,13 @@ gather_binomial_info <- function(data, x){
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
 #' @param test_method the algorithm to use for quantifying class separation
-#' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if linear svm or rbf svm is selected. Defaults to FALSE
+#' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values. Defaults to FALSE
 #' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE
 #' @param num_folds an integer specifying the number of k-folds to perform if data has more than two classes. Defaults to 10
 #' @param split_prop a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to 0.8
-#' @param num_shuffles an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 50
+#' @param num_shuffles an integer specifying the number of class label shuffles to perform. Defaults to 50
 #' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected and use_empirical_null is TRUE. Defaults to FALSE
+#' @param use_balanced_accuracy a Boolean specifying whether to use balanced accuracy as the performance metric instead of overall accuracy
 #' @return an object of class dataframe containing results
 #' @author Trent Henderson
 #' @export
@@ -212,7 +214,8 @@ gather_binomial_info <- function(data, x){
 #'   num_folds = 10,
 #'   split_prop = 0.8,
 #'   num_shuffles = 5,
-#'   pool_empirical_null = FALSE) 
+#'   pool_empirical_null = FALSE,
+#'   use_balanced_accuracy = FALSE) 
 #' }
 #' 
 
@@ -220,7 +223,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                    test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
                                    use_empirical_null = FALSE, use_k_fold = FALSE,
                                    num_folds = 10, split_prop = 0.8, num_shuffles = 50,
-                                   pool_empirical_null = FALSE){
+                                   pool_empirical_null = FALSE, use_balanced_accuracy = FALSE){
   
   #---------- Check arguments ------------
   
@@ -382,7 +385,12 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   } else{
     
     classifier_name <- test_method
-    statistic_name <- "Classification accuracy"
+    
+    if(use_balanced_accuracy){
+      statistic_name <- "Balanced classification accuracy"
+    } else{
+      statistic_name <- "Classification accuracy"
+    }
   }
   
   #-----------------------------
@@ -450,7 +458,8 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                          use_empirical_null = use_empirical_null,
                                          split_prop = split_prop,
                                          num_shuffles = num_shuffles,
-                                         feature = .x))
+                                         feature = .x,
+                                         use_balanced_accuracy = use_balanced_accuracy))
     
     output <- output[!sapply(output, is.null)]
     output <- data.table::rbindlist(output, use.names = TRUE)

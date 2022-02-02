@@ -221,7 +221,7 @@ This function returns an object with three components to summarise the above ste
 2. `FeatureFeatureCorrelationPlot` -- a `ggplot` containing the pairwise correlations between top performing features represented as a heatmap
 3. `ViolinPlots` -- a `ggplot` containing a matrix of violin plots showing class discrimination by feature
 
-The code below produces analysis for a multiclass problem using a Gaussian process classifier with a radial basis function kernel. It implements a custom "empirical null" procedure for estimating a p-value based on classification accuracy of the real data compared to a distribution of null samples built from classification accuracies of the same data but with random class label shuffles. We'll enable a [k-fold cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) procedure too for good measure. Note that using these procedures increases the computation time. Electing to not use an empirical null will be faster, but top features will be determined based off classification accuracy of features and not p-values.
+The code below produces analysis for a multiclass problem using a Gaussian process classifier with a radial basis function kernel. It implements a custom "empirical null" procedure for estimating a *p*-value based on classification accuracy of the real data compared to a distribution of null samples built from classification accuracies of the same data but with random class label shuffles. We'll enable a [k-fold cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) procedure too for good measure. Note that using these procedures increases the computation time. Electing to not use an empirical null will be faster, but top features will be determined based off classification accuracy of features and not p-values.
 
 ```{r, message = FALSE, warning = FALSE}
 classifier_outputs <- compute_top_features(feature_matrix, 
@@ -237,10 +237,11 @@ classifier_outputs <- compute_top_features(feature_matrix,
                                            num_folds = 10,
                                            split_prop = 0.8,
                                            num_shuffles = 25,
-                                           pool_empirical_null = FALSE)
+                                           pool_empirical_null = FALSE,
+                                           use_balanced_accuracy = FALSE)
 ```
 
-Note that if you set `pool_empirical_null = TRUE` this will compute statistical analysis for each feature against the entire pooled empirical null classification results of all features. Setting it to `FALSE` will compute each feature against only its empirical null distribution.
+Note that if you set `pool_empirical_null = TRUE` this will compute statistical analysis for each feature against the entire pooled empirical null classification results of all features. Setting it to `FALSE` will compute a *p*-value for each feature against only its empirical null distribution. Further, if `use_balanced_accuracy` is set to `TRUE`, class-balanced classification accuracy will be used instead of overall accuracy.
 
 Each component is named and can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
 
@@ -266,9 +267,7 @@ The violin plots are accessed as the third object:
 print(classifier_outputs$ViolinPlots)
 ```
 
-For two-class problems, users can fit any of the available models (which includes `"t-test"`, `"wilcox"`, `"binomial logistic"`, `"linear svm"`, and `"rbf svm"`) as string arguments to `test_method`. For multiclass problems the options are currently either `"linear svm"` or `"rbf svm"`.
-
-The core functions that comprise `compute_top_features` are available individually for use as `fit_feature_classifier` and `plot_feature_discrimination`. The feature-feature correlation plot is a modified version of `plot_feature_correlations`.
+For two-class problems, users can fit statistical models to directly compute *p*-values by specifying one of the following models as the string argument to `test_method`: `"t-test"`, `"wilcox"` or `"binomial logistic"`. `theft` has special procedures for these three models if a two-class problem is registered For multiclass problems, users can specify any model name string that is a valid `method` name in the popular [`caret`](https://topepo.github.io/caret/train-models-by-tag.html) package and `theft` will pass this through to the relevant sub-procedures.
 
 ## Multivariate
 
@@ -297,7 +296,8 @@ multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix2,
                                                         use_k_fold = TRUE,
                                                         num_folds = 10,
                                                         split_prop = 0.8,
-                                                        num_shuffles = 25)
+                                                        num_shuffles = 25,
+                                                        use_balanced_accuracy = FALSE)
 ```
 
 We can now access the various named objects returned by this function, which include:
@@ -323,6 +323,8 @@ And here's the raw classifier results:
 ```{r, message = FALSE, warning = FALSE}
 head(multi_classifier_outputs$RawClassificationResults)
 ```
+
+Note that for the multivariate version, only valid `caret` method names are able to be used to specify a `test_method`.
 
 ## Reading and processing hctsa-formatted files
 
