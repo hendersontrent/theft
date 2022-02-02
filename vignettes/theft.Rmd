@@ -65,7 +65,7 @@ feature_matrix <- calculate_features(data = simData,
                                      catch24 = TRUE)
 ```
 
-If you do not want to or need to run the entire sets included in `calculate_features` you can also access the individual feature calculations as their unique function names, for example `IN_AutoMutualInfoStats_40_gaussian_fmmi`. A tidy dataframe of most of the included feature calculations and the set they correspond to is available:
+A tidy dataframe of most of the included features and the set they correspond to is available:
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 View(feature_list)
@@ -73,7 +73,7 @@ View(feature_list)
 
 ## Data quality checks
 
-The package comes with a function to visualise the data types of the calculated feature vectors.
+The package comes with a function to visualise the data types of the calculated feature vectors. This is useful for inspecting which features might need to be dropped due to large proportions of undesirable (e.g., `NA`, `NaN` etc.) values.
 
 ```{r, message = FALSE, warning = FALSE}
 plot_quality_matrix(feature_matrix)
@@ -97,17 +97,17 @@ normed <- normalise_feature_frame(feature_matrix,
                                   method = "RobustSigmoid")
 ```
 
-## Data visualisation functions
+## Data visualisation and low-dimensional project functions
 
-The package also comes with a built-in plotting engine for calculating and visualising (at present) three types of statistical graphics:
+The package also comes with a built-in plotting engine for calculating and visualising many types of statistical graphics:
 
-* Feature by time-series matrices as heatmaps
-* Low dimension projections of the feature space for each time series as scatterplots
-* Unique ID feature connectivity matrices as correlation-driven heatmaps
+* Feature by time-series matrix as a heatmap
+* Low dimensional projections of the feature space as a scatterplot (along with numerical results)
+* Pairwise correlation matrix as a heatmap
 
-### Feature matrix
+### Feature matrices
 
-The function `plot_feature_matrix` takes the output of any included feature calculation function and produces a `ggplot` object heatmap showing the feature vectors across the `x` axis and each time series down the `y` axis. Prior to plotting, the function hierarchically clusters the data across both rows and columns to visually highlight the empirical structure.
+The function `plot_feature_matrix` takes the calculated features and produces a `ggplot` object heatmap showing the feature vectors across the `x` axis and each time series down the `y` axis. Prior to plotting, the function hierarchically clusters the data across both rows and columns to visually highlight the empirical structure.
 
 ```{r, message = FALSE, warning = FALSE}
 plot_feature_matrix(feature_matrix, 
@@ -127,9 +127,9 @@ plot_feature_matrix(feature_matrix,
                     interactive = TRUE)
 ```
 
-### Dimension reduction
+### Low dimensional projections
 
-The function `plot_low_dimension` takes the output of any included feature calculation function, calculates a PCA or t-SNE, and produces a `ggplot` object scatterplot showing the first and second principal components on the `x` and `y` axis respectively, their individual explained variance, and each time series as a point on the `x-y` space. If `plot = FALSE` the function returns a dataframe of PCA results. If a variable is specified in the `group_var` argument, the scatterplot points will be automatically coloured by group.
+The function `plot_low_dimension` takes the calculated features, calculates a principal components analysis (PCA) or *t*-distributed stochastic neighbour embedding (*t*-SNE), and produces a `ggplot` object scatterplot showing the first and second principal components on the `x` and `y` axis respectively, their individual explained variance (if PCA is selected), and each time series as a point. If `plot = FALSE` the function returns a dataframe of results. If a variable is specified in the `group_var` argument, the scatterplot points will be automatically coloured by group.
 
 ```{r, message = FALSE, warning = FALSE}
 plot_low_dimension(feature_matrix, 
@@ -142,7 +142,7 @@ plot_low_dimension(feature_matrix,
                    show_covariance = TRUE)
 ```
 
-Alternatively, a t-SNE version can be specified in a similar fashion, with the `perplexity` hyperparameter able to be controlled by the user. Typical values for this range between 5 and 50, depending on the size of the data.
+Alternatively, a *t*-SNE version can be specified in a similar fashion, with the `perplexity` hyperparameter able to be controlled by the user. Typical values for this range between 5 and 50, depending on the size of the data. At lower levels of `perplexity`, local variations tend to dominate, while at very high levels of `perplexity`, results can be uninterpretable as clusters can merge. See [this interactive article](https://distill.pub/2016/misread-tsne/) for a detailed review.
 
 ```{r, message = FALSE, warning = FALSE}
 plot_low_dimension(feature_matrix, 
@@ -156,11 +156,11 @@ plot_low_dimension(feature_matrix,
                    show_covariance = FALSE)
 ```
 
-### Correlation matrix
+### Pairwise correlations
 
 #### Time-series correlations
 
-The function `plot_ts_correlations` automates the calculation of correlations between values of each unique time series, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap-style graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the `cor_method` argument to `spearman`.
+The function `plot_ts_correlations` automates the calculation of correlations between values of each unique time series, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the `cor_method` argument to `spearman`.
 
 ```{r, message = FALSE, warning = FALSE}
 plot_ts_correlations(simData, 
@@ -186,7 +186,7 @@ plot_ts_correlations(simData,
                      interactive = TRUE)
 ```
 
-#### Feature correlations
+#### Feature vector correlations
 
 Similarly, one can also plot correlations between feature vectors using `plot_feature_correlations`. The general argument structure is the same as `plot_ts_correlations`.
 
@@ -205,13 +205,14 @@ plot_feature_correlations(feature_matrix,
 
 ## Feature-by-feature
 
-Since feature-based time-series analysis has shown particular promise for classification problems, `theft` includes functionality for exploring group separation in addition to the low dimensional representation. The `compute_top_features` function takes the computed time series x feature matrix and performs the following:
+Since feature-based time-series analysis has shown particular promise for classification problems, `theft` includes functionality for exploring group separation in addition to the low dimensional representation. The `compute_top_features` function takes the computed features and performs the following:
 
-1. Computes a classification algorithm on the entire input dataframe
-2. Extracts individual feature performance from the classification algorithm
-3. Filters the time series x feature matrix to the top `n` performing features (where `n` is specified by the user)
-4. Plots a feature x feature correlation matrix as a heatmap for the top performing features
-5. Plots a matrix of violin plots coloured by class label for the top performing features
+1. Processes the data ready for analysis
+2. Computes a classification algorithm or statistical model on the entire input dataframe
+3. Extracts individual feature performance from the classification algorithm using a designated performance metric
+4. Filters the feature data to the top `n` performing features (where `n` is specified by the user)
+5. Plots a feature $\times$ feature correlation matrix as a heatmap for the top performing features
+6. Plots a group of violin plots coloured by class label for the top performing features
 
 This analysis is useful because it can help guide researchers toward more efficient and appropriate interpretation of high-performing features (if any exist) and helps protect against over-interpretation of feature values.
 
@@ -221,7 +222,7 @@ This function returns an object with three components to summarise the above ste
 2. `FeatureFeatureCorrelationPlot` -- a `ggplot` containing the pairwise correlations between top performing features represented as a heatmap
 3. `ViolinPlots` -- a `ggplot` containing a matrix of violin plots showing class discrimination by feature
 
-The code below produces analysis for a multiclass problem using a Gaussian process classifier with a radial basis function kernel. It implements a custom "empirical null" procedure for estimating a p-value based on classification accuracy of the real data compared to a distribution of null samples built from classification accuracies of the same data but with random class label shuffles. We'll enable a [k-fold cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) procedure too for good measure. Note that using these procedures increases the computation time. Electing to not use an empirical null will be faster, but top features will be determined based off classification accuracy of features and not p-values.
+The code below produces analysis for a multiclass problem using a Gaussian process classifier with a radial basis function kernel. It implements a custom "empirical null" procedure for estimating a *p*-value based on classification accuracy of the real data compared to a distribution of null samples built from classification accuracies of the same data but with random class label shuffles. We'll enable a [k-fold cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) procedure too for good measure. Note that using these procedures increases the computation time. Electing to not use an empirical null will be faster, but top features will be determined based off classification accuracy of features and not p-values.
 
 ```{r, message = FALSE, warning = FALSE}
 classifier_outputs <- compute_top_features(feature_matrix, 
@@ -237,10 +238,11 @@ classifier_outputs <- compute_top_features(feature_matrix,
                                            num_folds = 10,
                                            split_prop = 0.8,
                                            num_shuffles = 25,
-                                           pool_empirical_null = FALSE)
+                                           pool_empirical_null = FALSE,
+                                           use_balanced_accuracy = FALSE)
 ```
 
-Note that if you set `pool_empirical_null = TRUE` this will compute statistical analysis for each feature against the entire pooled empirical null classification results of all features. Setting it to `FALSE` will compute each feature against only its empirical null distribution.
+Note that if you set `pool_empirical_null = TRUE` this will compute statistical analysis for each feature against the entire pooled empirical null classification results of all features. Setting it to `FALSE` will compute a *p*-value for each feature against only its empirical null distribution. Further, if `use_balanced_accuracy` is set to `TRUE`, class-balanced classification accuracy will be used instead of overall accuracy.
 
 Each component is named and can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
 
@@ -266,15 +268,13 @@ The violin plots are accessed as the third object:
 print(classifier_outputs$ViolinPlots)
 ```
 
-For two-class problems, users can fit any of the available models (which includes `"t-test"`, `"wilcox"`, `"binomial logistic"`, `"linear svm"`, and `"rbf svm"`) as string arguments to `test_method`. For multiclass problems the options are currently either `"linear svm"` or `"rbf svm"`.
-
-The core functions that comprise `compute_top_features` are available individually for use as `fit_feature_classifier` and `plot_feature_discrimination`. The feature-feature correlation plot is a modified version of `plot_feature_correlations`.
+For two-class problems, users can fit statistical models to directly compute *p*-values by specifying one of the following models as the string argument to `test_method`: `"t-test"`, `"wilcox"` or `"binomial logistic"`. `theft` has special procedures for these three options if a two-class problem is registered. For multiclass problems, users can specify any model name string that is a valid `method` name in the popular [`caret`](https://topepo.github.io/caret/train-models-by-tag.html) package and `theft` will pass this through to the relevant sub-procedures.
 
 ## Multivariate
 
-A multivariate option is also available. The `fit_multivariate_classifier` function fits all features at once instead of by feature to estimate classification accuracy. This can be split by feature set (if the `by_set` argument is set to `TRUE`) to enable systematic comparisons between those made available in `theft`.
+A multivariate option is also available. The `fit_multivariate_classifier` function fits all features at once instead of by individual features to estimate classification accuracy. This can be split by feature set (if the `by_set` argument is set to `TRUE`) to enable systematic comparisons between those made available in `theft`.
 
-First, let's calculate a feature matrix with more than one set -- we'll just use `catch22` and `feasts` as they are the fastest R-based feature sets in `theft`:
+First, let's calculate features with more than one set -- we'll just use `catch22` and `feasts` as they are the fastest R-based feature sets in `theft`:
 
 ```{r, message = FALSE, warning = FALSE}
 feature_matrix2 <- calculate_features(data = simData, 
@@ -297,14 +297,15 @@ multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix2,
                                                         use_k_fold = TRUE,
                                                         num_folds = 10,
                                                         split_prop = 0.8,
-                                                        num_shuffles = 25)
+                                                        num_shuffles = 25,
+                                                        use_balanced_accuracy = FALSE)
 ```
 
 We can now access the various named objects returned by this function, which include:
 
-1. `FeatureSetResultsPlot` (only if `by_set` is set to `TRUE`) -- a `ggplot` displaying mean classification accuracy and pointwise standard deviation by feature set
-2. `TestStatistics` -- a dataframe containing a summary of test statistics and p-values
-3. `RawClassificationResults` -- a dataframe containing results from each main and null classification prediction
+1. `FeatureSetResultsPlot` (only if `by_set` is set to `TRUE`) -- a `ggplot` displaying mean classification accuracy (or balanced classification accuracy if `use_balanced_accuracy` is set to `TRUE`) by feature set
+2. `TestStatistics` -- a dataframe containing a summary of test statistics (and *p*-values if `use_empirical_null` is set to `TRUE`)
+3. `RawClassificationResults` -- a dataframe containing classification accuracies results from each main and null prediction
 
 Here's the feature set comparison plot:
 
@@ -323,6 +324,8 @@ And here's the raw classifier results:
 ```{r, message = FALSE, warning = FALSE}
 head(multi_classifier_outputs$RawClassificationResults)
 ```
+
+Note that for the multivariate version, only valid `caret` method names are able to be used to specify a `test_method`.
 
 ## Reading and processing hctsa-formatted files
 

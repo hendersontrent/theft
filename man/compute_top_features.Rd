@@ -18,7 +18,8 @@ compute_top_features(
   num_folds = 0,
   split_prop = 0.8,
   num_shuffles = 50,
-  pool_empirical_null = FALSE
+  pool_empirical_null = FALSE,
+  use_balanced_accuracy = FALSE
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ compute_top_features(
 \item{num_shuffles}{an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 5}
 
 \item{pool_empirical_null}{a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected and use_empirical_null is TRUE. Defaults to FALSE}
+
+\item{use_balanced_accuracy}{a Boolean specifying whether to use balanced accuracy as the performance metric instead of overall accuracy}
 }
 \value{
 an object of class list containing a dataframe of results, a feature x feature matrix plot, and a violin plot
@@ -78,7 +81,8 @@ compute_top_features(featMat,
   num_folds = 10,
   split_prop = 0.8,
   num_shuffles = 50,
-  pool_empirical_null = FALSE) 
+  pool_empirical_null = FALSE,
+  use_balanced_accuracy = FALSE) 
 }
 
 }
