@@ -375,7 +375,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
       message("Selecting top features using mean classification accuracy.")
       
       ResultsTable <- classifierOutputs %>%
-        dplyr::slice_max(statistic, n = num_features)
+        dplyr::slice_max(statistic_value, n = num_features)
       
     } else{
       
@@ -389,7 +389,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
         message("Not enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
         
         ResultsTable <- classifierOutputs %>%
-          dplyr::slice_max(statistic, n = num_features)
+          dplyr::slice_max(statistic_value, n = num_features)
         
       } else{
         

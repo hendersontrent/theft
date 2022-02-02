@@ -272,10 +272,6 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     stop("Your data only has one class label. At least two are required to performed analysis.")
   }
   
-  if(num_classes == 2){
-    message("Your data has two classes. Setting test_method to one of 't-test', 'wilcox', or 'binomial logistic' is recommended.")
-  }
-  
   if(((missing(test_method) || is.null(test_method))) && num_classes == 2){
     test_method <- "t-test"
     message("test_method is NULL or missing. Running t-test for 2-class problem.")
@@ -405,6 +401,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
     output <- data.table::rbindlist(output, use.names = TRUE) %>%
       dplyr::select(c(data.name, statistic, p.value)) %>%
+      dplyr::distinct() %>%
       dplyr::rename(feature = data.name) %>%
       dplyr::mutate(feature = gsub(" .*", "\\1", feature),
                     classifier_name = classifier_name,
