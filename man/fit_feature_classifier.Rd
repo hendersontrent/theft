@@ -14,7 +14,8 @@ fit_feature_classifier(
   num_folds = 10,
   split_prop = 0.8,
   num_shuffles = 50,
-  pool_empirical_null = FALSE
+  pool_empirical_null = FALSE,
+  use_balanced_accuracy = FALSE
 )
 }
 \arguments{
@@ -26,7 +27,7 @@ fit_feature_classifier(
 
 \item{test_method}{the algorithm to use for quantifying class separation}
 
-\item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values if linear svm or rbf svm is selected. Defaults to FALSE}
+\item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values. Defaults to FALSE}
 
 \item{use_k_fold}{a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE}
 
@@ -34,9 +35,11 @@ fit_feature_classifier(
 
 \item{split_prop}{a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to 0.8}
 
-\item{num_shuffles}{an integer specifying the number of class label shuffles to perform if linear svm or rbf svm is selected. Defaults to 50}
+\item{num_shuffles}{an integer specifying the number of class label shuffles to perform. Defaults to 50}
 
 \item{pool_empirical_null}{a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected and use_empirical_null is TRUE. Defaults to FALSE}
+
+\item{use_balanced_accuracy}{a Boolean specifying whether to use balanced accuracy as the performance metric instead of overall accuracy}
 }
 \value{
 an object of class dataframe containing results
@@ -62,7 +65,8 @@ fit_feature_classifier(featMat,
   num_folds = 10,
   split_prop = 0.8,
   num_shuffles = 5,
-  pool_empirical_null = FALSE) 
+  pool_empirical_null = FALSE,
+  use_balanced_accuracy = FALSE) 
 }
 
 }

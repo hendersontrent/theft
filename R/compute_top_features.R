@@ -1,5 +1,9 @@
 #--------------- Helper functions ----------------
 
+#--------------------------
+# Pairwise correlation plot
+#--------------------------
+
 draw_top_feature_plot <- function(data, method, cor_method, num_features){
   
   # Wrangle dataframe
@@ -40,6 +44,73 @@ draw_top_feature_plot <- function(data, method, cor_method, num_features){
                    axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
   
   return(FeatureFeatureCorrelationPlot)
+}
+
+#-------------
+# Violin plots
+#-------------
+
+plot_feature_discrimination <- function(data, id_var = "id", group_var = "group",
+                                        normalise = FALSE,
+                                        method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+                                        rank_data){
+  
+  #------------- Normalise data -------------------
+  
+  if(normalise){
+    
+    normed <- data %>%
+      dplyr::select(c(id, names, values, group)) %>%
+      tidyr::drop_na() %>%
+      dplyr::group_by(names) %>%
+      dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
+      dplyr::ungroup() %>%
+      tidyr::drop_na()
+    
+    if(nrow(normed) != nrow(data)){
+      message("Filtered out rows containing NaNs.")
+    }
+  } else{
+    normed <- data
+  }
+  
+  #------------- Normalise data -------------------
+  
+  facet_order <- rank_data %>%
+      dplyr::pull(feature)
+  
+  normed <- normed %>% 
+    dplyr::mutate(names = factor(names, levels = facet_order))
+  
+  #------------- Produce plots --------------------
+  
+  # Draw plot
+  
+  p <- normed %>%
+    dplyr::mutate(group = as.factor(group)) %>%
+    ggplot2::ggplot(ggplot2::aes(x = group, y = values, colour = group)) +
+    ggplot2::geom_violin() +
+    ggplot2::geom_point(size = 1, alpha = 0.9, position = ggplot2::position_jitter(w = 0.05)) +
+    ggplot2::labs(title = "Class discrimination for top performing features",
+                  subtitle = "Features are ordered by performance from left to right",
+                  x = "Class",
+                  y = "Value") +
+    ggplot2::scale_colour_brewer(palette = "Dark2") +
+    ggplot2::theme_bw() +
+    ggplot2::theme(legend.position = "none",
+                   panel.grid.minor = ggplot2::element_blank(),
+                   strip.background = ggplot2::element_blank(),
+                   axis.text.x = element_text(angle = 90))
+  
+  if(normalise){
+    p <- p +
+      ggplot2::facet_wrap(~names, ncol = 4)
+  } else{
+    p <- p +
+      ggplot2::facet_wrap(~names, ncol = 4, scales = "free_y")
+  }
+  
+  return(p)
 }
 
 #-------------- Main exported function ---------------
@@ -304,7 +375,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
       message("Selecting top features using mean classification accuracy.")
       
       ResultsTable <- classifierOutputs %>%
-        dplyr::slice_max(statistic_value, n = num_features)
+        dplyr::slice_max(statistic, n = num_features)
       
     } else{
       
@@ -318,7 +389,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
         message("Not enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
         
         ResultsTable <- classifierOutputs %>%
-          dplyr::slice_max(statistic_value, n = num_features)
+          dplyr::slice_max(statistic, n = num_features)
         
       } else{
         
@@ -369,7 +440,8 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                              id_var = "id", 
                                              group_var = "group",
                                              normalise = normalise_violin_plots,
-                                             method = method)
+                                             method = method,
+                                             rank_data = ResultsTable)
   
   #---------------  Returns ---------------------
   

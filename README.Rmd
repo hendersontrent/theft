@@ -40,7 +40,7 @@ Note that `Kats`, `tsfresh` and `tsfel` are Python packages. The R package `reti
 
 ## Statistical and graphical tools
 
-The package also contains a suite of tools for automatic normalisation of extracted feature vectors, low dimensional projections, data matrix visualisations, top feature and multivariate feature classification analyses, and class discrimination visualisations.
+The package also contains a suite of tools for automatic processing of extracted feature vectors, low dimensional projections, data matrix visualisations, top feature and multivariate feature classification analyses, and various other statistical and graphical procedures.
 
 ## Web application
 

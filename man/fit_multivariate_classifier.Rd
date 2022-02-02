@@ -14,7 +14,8 @@ fit_multivariate_classifier(
   use_k_fold = FALSE,
   num_folds = 10,
   split_prop = 0.8,
-  num_shuffles = 50
+  num_shuffles = 50,
+  use_balanced_accuracy = FALSE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ fit_multivariate_classifier(
 \item{split_prop}{a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to 0.8}
 
 \item{num_shuffles}{an integer specifying the number of class label shuffles to perform. Defaults to 50}
+
+\item{use_balanced_accuracy}{a Boolean specifying whether to use balanced accuracy as the performance metric instead of overall accuracy}
 }
 \value{
 an object of class list containing summaries of the classification models
@@ -62,7 +65,8 @@ fit_multivariate_classifier(featMat,
   use_k_fold = TRUE,
   num_folds = 10,
   split_prop = 0.8,
-  num_shuffles = 50) 
+  num_shuffles = 50,
+  use_balanced_accuracy = FALSE) 
 }
 
 }

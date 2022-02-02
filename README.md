@@ -51,10 +51,10 @@ installation and download `Kats` using the instructions located
 
 ## Statistical and graphical tools
 
-The package also contains a suite of tools for automatic normalisation
-of extracted feature vectors, low dimensional projections, data matrix
+The package also contains a suite of tools for automatic processing of
+extracted feature vectors, low dimensional projections, data matrix
 visualisations, top feature and multivariate feature classification
-analyses, and class discrimination visualisations.
+analyses, and various other statistical and graphical procedures.
 
 ## Web application
 
@@ -74,7 +74,7 @@ not all functionality has been copied across to the webtool yet.
     To cite package 'theft' in publications use:
 
       Trent Henderson (2022). theft: Tools for Handling Extraction of
-      Features from Time series. R package version 0.3.7.8.
+      Features from Time series. R package version 0.3.8.
 
     A BibTeX entry for LaTeX users is
 
@@ -82,5 +82,5 @@ not all functionality has been copied across to the webtool yet.
         title = {theft: Tools for Handling Extraction of Features from Time series},
         author = {Trent Henderson},
         year = {2022},
-        note = {R package version 0.3.7.8},
+        note = {R package version 0.3.8},
       }
