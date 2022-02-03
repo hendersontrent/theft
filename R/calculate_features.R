@@ -272,14 +272,14 @@ calc_kats <- function(data){
 #' @importFrom fabletools features
 #' @importFrom fabletools feature_set
 #' @param data a dataframe with at least 4 columns: id variable, group variable, time variable, value variable
-#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to NULL
-#' @param time_var a string specifying the time index variable. Defaults to NULL
-#' @param values_var a string specifying the values variable. Defaults to NULL
-#' @param group_var a string specifying the grouping variable that each unique series sits under. Defaults to NULL
-#' @param feature_set the set of time-series features to calculate. Defaults to 'all'
-#' @param catch24 a Boolean specifying whether to compute catch24 in addition to catch22 if catch22 is one of the feature sets selected. Defaults to FALSE
-#' @param tsfresh_cleanup a Boolean specifying whether to use the in-built 'tsfresh' relevant feature filter or not. Defaults to FALSE
-#' @return object of class DataFrame that contains the summary statistics for each feature
+#' @param id_var a string specifying the ID variable to identify each time series. Defaults to \code{NULL}
+#' @param time_var a string specifying the time index variable. Defaults to \code{NULL}
+#' @param values_var a string specifying the values variable. Defaults to \code{NULL}
+#' @param group_var a string specifying the grouping variable that each unique series sits under (if one exists). Defaults to \code{NULL}
+#' @param feature_set the set of time-series features to calculate. Defaults to \code{catch22}
+#' @param catch24 a Boolean specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}
+#' @param tsfresh_cleanup a Boolean specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}
+#' @return object of class dataframe that contains the summary statistics for each feature
 #' @author Trent Henderson
 #' @export
 #' @examples
@@ -295,8 +295,7 @@ calc_kats <- function(data){
 
 calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var = NULL, group_var = NULL,
                                feature_set = c("catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel"), 
-                               catch24 = FALSE,
-                               tsfresh_cleanup = FALSE){
+                               catch24 = FALSE, tsfresh_cleanup = FALSE){
   
   if(is.null(id_var) || is.null(time_var) || is.null(values_var)){
     stop("Input must be a dataframe with at least 3 columns: id, timepoint, value")

@@ -183,16 +183,16 @@ gather_binomial_info <- function(data, x){
 #' @importFrom janitor clean_names
 #' @importFrom caret createDataPartition preProcess train
 #' @param data the dataframe containing the raw feature matrix
-#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
-#' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
-#' @param test_method the algorithm to use for quantifying class separation
-#' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values. Defaults to FALSE
-#' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE
-#' @param num_folds an integer specifying the number of k-folds to perform if data has more than two classes. Defaults to 10
-#' @param split_prop a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to 0.8
-#' @param num_shuffles an integer specifying the number of class label shuffles to perform. Defaults to 50
-#' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if linear svm or rbf svm is selected and use_empirical_null is TRUE. Defaults to FALSE
-#' @param use_balanced_accuracy a Boolean specifying whether to use balanced accuracy as the performance metric instead of overall accuracy
+#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}
+#' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}
+#' @param test_method the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}
+#' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if a \code{caret} model is specified for \code{test_method}. Defaults to \code{FALSE}
+#' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates if a \code{caret} model is specified for \code{test_method}. Defaults to \code{ FALSE}
+#' @param num_folds an integer specifying the number of k-folds to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}
+#' @param num_shuffles an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{5}
+#' @param split_prop a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to \code{0.8}
+#' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if a \code{caret} model is specified for \code{test_method} use_empirical_null is \code{TRUE}. Defaults to \code{FALSE}
+#' @param use_balanced_accuracy a Boolean specifying whether to use balanced accuracy as the performance metric instead of overall accuracy. Defaults to \code{FALSE}
 #' @return an object of class dataframe containing results
 #' @author Trent Henderson
 #' @export

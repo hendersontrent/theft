@@ -21,23 +21,23 @@ fit_multivariate_classifier(
 \arguments{
 \item{data}{the dataframe containing the raw feature matrix}
 
-\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to "id"}
+\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}}
 
-\item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to "group"}
+\item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}}
 
-\item{by_set}{Boolean specifying whether to compute classifiers for each feature set. Defaults to FALSE}
+\item{by_set}{Boolean specifying whether to compute classifiers for each feature set. Defaults to \code{FALSE}}
 
-\item{test_method}{the algorithm to use for quantifying class separation}
+\item{test_method}{the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}}
 
-\item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values. Defaults to FALSE}
+\item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values. Defaults to \code{FALSE}}
 
-\item{use_k_fold}{a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE}
+\item{use_k_fold}{a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to \code{FALSE}}
 
-\item{num_folds}{an integer specifying the number of folds (train-test splits) to perform if use_k_fold is set to TRUE.  Defaults to 10}
+\item{num_folds}{an integer specifying the number of folds (train-test splits) to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}}
 
-\item{split_prop}{a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to 0.8}
+\item{split_prop}{a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to \code{0.8}}
 
-\item{num_shuffles}{an integer specifying the number of class label shuffles to perform. Defaults to 50}
+\item{num_shuffles}{an integer specifying the number of class label shuffles to perform. Defaults to \code{50}}
 
 \item{use_balanced_accuracy}{a Boolean specifying whether to use balanced accuracy as the performance metric instead of overall accuracy}
 }

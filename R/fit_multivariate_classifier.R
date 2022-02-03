@@ -221,15 +221,15 @@ calculate_multivariate_statistics <- function(data, set = NULL){
 #' @importFrom janitor clean_names
 #' @importFrom caret createDataPartition preProcess train
 #' @param data the dataframe containing the raw feature matrix
-#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
-#' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
-#' @param by_set Boolean specifying whether to compute classifiers for each feature set. Defaults to FALSE
-#' @param test_method the algorithm to use for quantifying class separation
-#' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values. Defaults to FALSE
-#' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to FALSE
-#' @param num_folds an integer specifying the number of folds (train-test splits) to perform if use_k_fold is set to TRUE.  Defaults to 10
-#' @param split_prop a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to 0.8
-#' @param num_shuffles an integer specifying the number of class label shuffles to perform. Defaults to 50
+#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}
+#' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}
+#' @param by_set Boolean specifying whether to compute classifiers for each feature set. Defaults to \code{FALSE}
+#' @param test_method the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}
+#' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values. Defaults to \code{FALSE}
+#' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to \code{FALSE}
+#' @param num_folds an integer specifying the number of folds (train-test splits) to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}
+#' @param split_prop a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to \code{0.8}
+#' @param num_shuffles an integer specifying the number of class label shuffles to perform. Defaults to \code{50}
 #' @param use_balanced_accuracy a Boolean specifying whether to use balanced accuracy as the performance metric instead of overall accuracy
 #' @return an object of class list containing summaries of the classification models
 #' @author Trent Henderson

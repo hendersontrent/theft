@@ -7,7 +7,7 @@
 process_hctsa_file(data)
 }
 \arguments{
-\item{data}{a string specifying the filepath to the MATLAB file to parse}
+\item{data}{a string specifying the filepath to the \code{MATLAB} file to parse}
 }
 \value{
 an object of class dataframe in tidy format

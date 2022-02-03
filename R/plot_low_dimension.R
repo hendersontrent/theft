@@ -8,16 +8,16 @@
 #' @importFrom broom tidy
 #' @importFrom stats prcomp
 #' @import Rtsne
-#' @param data a dataframe with at least 2 columns called 'names' and 'values'
-#' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
-#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
-#' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to "group"
-#' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
-#' @param low_dim_method the low dimensional embedding method to use. Defaults to 'PCA'
-#' @param perplexity the perplexity hyperparameter to use if t-SNE algorithm is selected. Defaults to 30
-#' @param plot a Boolean as to whether a plot or model fit information should be returned. Defaults to TRUE
-#' @param show_covariance a Boolean as to whether covariance ellipses should be shown on the plot. Defaults to FALSE
-#' @return if plot = TRUE, returns an object of class ggplot, if plot = FALSE returns an object of class dataframe with PCA results
+#' @param data a dataframe with at least 2 columns called \code{"names"} and \code{"values"}
+#' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}
+#' @param id_var a string specifying the ID variable to uniquely identify each time series. Defaults to \code{"id"}
+#' @param group_var a string specifying the grouping variable that the data aggregates to (if one exists). Defaults to \code{NULL}
+#' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
+#' @param low_dim_method the low dimensional embedding method to use. Defaults to \code{"PCA"}
+#' @param perplexity the perplexity hyperparameter to use if t-SNE algorithm is selected. Defaults to \code{30}
+#' @param plot a Boolean as to whether a plot or model fit information should be returned. Defaults to \code{TRUE}
+#' @param show_covariance a Boolean as to whether covariance ellipses should be shown on the plot. Defaults to \code{FALSE}
+#' @return if \code{plot = TRUE}, returns an object of class \code{ggplot}, if \code{plot = FALSE} returns an object of class dataframe with PCA results
 #' @author Trent Henderson
 #' @export
 #' @examples
@@ -40,7 +40,7 @@
 #' }
 #'
 
-plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group_var = "group", 
+plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group_var = NULL, 
                                method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                low_dim_method = c("PCA", "t-SNE"), perplexity = 30, 
                                plot = TRUE, show_covariance = FALSE){

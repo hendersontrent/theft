@@ -12,12 +12,12 @@
 #' @importFrom plotly ggplotly
 #' @importFrom plotly config
 #' @importFrom RColorBrewer brewer.pal
-#' @param data a dataframe with at least 2 columns called 'names' and 'values'
-#' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
-#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to "id"
-#' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
-#' @param interactive a Boolean as to whether to plot an interactive plotly graphic. Defaults to FALSE
-#' @return an object of class ggplot that contains the heatmap graphic
+#' @param data a dataframe with at least 2 columns called \code{"names"} and \code{"values"}
+#' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}
+#' @param id_var a string specifying the ID variable to identify each time series. Defaults to \code{"id"}
+#' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
+#' @param interactive a Boolean as to whether to plot an interactive \code{plotly} graphic. Defaults to \code{FALSE}
+#' @return an object of class \code{ggplot} that contains the heatmap graphic
 #' @author Trent Henderson
 #' @export
 #' @examples

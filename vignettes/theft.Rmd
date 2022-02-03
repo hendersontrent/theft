@@ -71,6 +71,10 @@ A tidy dataframe of most of the included features and the set they correspond to
 View(feature_list)
 ```
 
+NOTE: If using the `tsfresh` feature set, you might want to consider the `tsfresh_cleanup` argument to `calculate_features`. This argument defaults to `FALSE` and specifies whether to use the in-built `tsfresh` relevant feature filter or not.
+
+For a detailed comparison of the six feature sets, see [this paper](https://ieeexplore.ieee.org/document/9679937) for a detailed review^[T. Henderson and B. D. Fulcher, "An Empirical Evaluation of Time-Series Feature Sets," 2021 International Conference on Data Mining Workshops (ICDMW), 2021, pp. 1032-1038, doi: 10.1109/ICDMW53433.2021.00134.].
+
 ## Data quality checks
 
 The package comes with a function to visualise the data types of the calculated feature vectors. This is useful for inspecting which features might need to be dropped due to large proportions of undesirable (e.g., `NA`, `NaN` etc.) values.

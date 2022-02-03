@@ -45,9 +45,9 @@ mm_function <- function(data){
 #' Scale each feature vector into a user-specified range for visualisation and modelling
 #' @import dplyr
 #' @param data a dataframe with at least 2 columns: names variable (feature names) and value variable
-#' @param names_var a string denoting the name of the variable/column that holds the feature names. Defaults to "names"
-#' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"
-#' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
+#' @param names_var a string denoting the name of the variable/column that holds the feature names. Defaults to \code{"names"}
+#' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to \code{"values"}
+#' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
 #' @return a dataframe with the value column rescaled into the specified range
 #' @author Trent Henderson
 #' @export
@@ -131,9 +131,9 @@ normalise_feature_frame <- function(data, names_var = "names", values_var = "val
 #' Scale each feature vector into a user-specified range for visualisation and modelling
 #' @import dplyr
 #' @param data a dataframe with at least 2 columns: names variable (feature names) and value variable
-#' @param names_var a string denoting the name of the variable/column that holds the feature names. Defaults to "names"
-#' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"
-#' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
+#' @param names_var a string denoting the name of the variable/column that holds the feature names. Defaults to \code{"names"}
+#' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to \code{"values"}
+#' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
 #' @return a dataframe with the value column rescaled into the specified range
 #' @author Trent Henderson
 #' @export

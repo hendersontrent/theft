@@ -7,10 +7,10 @@
 minmax_scaler(x)
 }
 \arguments{
-\item{x}{a numeric vector, preferably of feature values computed by other {theft} package functions}
+\item{x}{a numeric vector, preferably of feature values computed by other \code{theft} package functions}
 }
 \value{
-x a numeric vector, rescaled into the [0,1] unit interval
+x a numeric vector, rescaled into the \code{[0,1]} unit interval
 }
 \description{
 This function rescales a vector of numerical values into the unit interval [0,1]

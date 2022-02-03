@@ -16,24 +16,24 @@ plot_feature_correlations(
 )
 }
 \arguments{
-\item{data}{a dataframe with at least 3 columns for 'id', 'names' and 'values'}
+\item{data}{a dataframe with at least 3 columns for \code{'id'}, \code{'names'} and \code{'values'}}
 
-\item{is_normalised}{a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE}
+\item{is_normalised}{a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}}
 
-\item{id_var}{a string specifying the ID variable to compute pairwise correlations between. Defaults to "id"}
+\item{id_var}{a string specifying the ID variable to compute pairwise correlations between. Defaults to \code{"id"}}
 
-\item{names_var}{a string denoting the name of the variable/column that holds the feature names. Defaults to "names"}
+\item{names_var}{a string denoting the name of the variable/column that holds the feature names. Defaults to \code{"names"}}
 
-\item{values_var}{a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"}
+\item{values_var}{a string denoting the name of the variable/column that holds the numerical feature values. Defaults to \code{"values"}}
 
-\item{method}{a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'}
+\item{method}{a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}}
 
-\item{cor_method}{the correlation method to use. Defaults to 'pearson'}
+\item{cor_method}{the correlation method to use. Defaults to \code{"pearson"}}
 
-\item{interactive}{a Boolean as to whether to plot an interactive plotly graphic. Defaults to FALSE}
+\item{interactive}{a Boolean as to whether to plot an interactive \code{plotly} graphic. Defaults to \code{FALSE}}
 }
 \value{
-an object of class ggplot that contains the correlation matrix graphic
+an object of class \code{ggplot} that contains the correlation matrix graphic
 }
 \description{
 Produce a correlation matrix plot showing pairwise correlations of feature vectors by unique id with automatic hierarchical clustering.

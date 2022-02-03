@@ -7,10 +7,10 @@
 plot_quality_matrix(data)
 }
 \arguments{
-\item{data}{a dataframe with at least 2 columns called 'names' and 'values' such as the output of catch22::catch22_all}
+\item{data}{a dataframe with at least 2 columns called \code{"names"} and \code{"values"}}
 }
 \value{
-an object of class ggplot that contains the graphic
+an object of class \code{ggplot}
 }
 \description{
 Produce a matrix visualisation of data types computed by feature calculation function.

@@ -13,18 +13,18 @@ plot_feature_matrix(
 )
 }
 \arguments{
-\item{data}{a dataframe with at least 2 columns called 'names' and 'values'}
+\item{data}{a dataframe with at least 2 columns called \code{"names"} and \code{"values"}}
 
-\item{is_normalised}{a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE}
+\item{is_normalised}{a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}}
 
-\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to "id"}
+\item{id_var}{a string specifying the ID variable to identify each time series. Defaults to \code{"id"}}
 
-\item{method}{a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'}
+\item{method}{a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}}
 
-\item{interactive}{a Boolean as to whether to plot an interactive plotly graphic. Defaults to FALSE}
+\item{interactive}{a Boolean as to whether to plot an interactive \code{plotly} graphic. Defaults to \code{FALSE}}
 }
 \value{
-an object of class ggplot that contains the heatmap graphic
+an object of class \code{ggplot} that contains the heatmap graphic
 }
 \description{
 Produce a heatmap matrix of the calculated feature value vectors and each unique time series with automatic hierarchical clustering.
