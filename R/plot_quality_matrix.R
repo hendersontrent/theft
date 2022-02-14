@@ -3,8 +3,8 @@
 #' @importFrom magrittr %>%
 #' @import ggplot2
 #' @importFrom stats reorder
-#' @param data a dataframe with at least 2 columns called 'names' and 'values' such as the output of catch22::catch22_all
-#' @return an object of class ggplot that contains the graphic
+#' @param data a dataframe with at least 2 columns called \code{"names"} and \code{"values"}
+#' @return an object of class \code{ggplot}
 #' @author Trent Henderson
 #' @export
 #' @examples

@@ -58,6 +58,29 @@ calc_feasts <- function(data){
 # tsfeatures
 #-----------
 
+tsfeatures_helper <- function(data, grouped = FALSE, feats){
+  
+  if(grouped){
+    vars <- c("id", "group")
+  } else{
+    vars <- c("id")
+  }
+  
+  outData <- data %>%
+    tibble::as_tibble() %>%
+    dplyr::group_by_at(dplyr::all_of(vars)) %>%
+    dplyr::arrange(timepoint) %>%
+    dplyr::select(-c(timepoint)) %>%
+    dplyr::summarise(values = list(values)) %>%
+    dplyr::group_by_at(dplyr::all_of(vars)) %>%
+    dplyr::summarise(tsfeatures::tsfeatures(values, features = feats)) %>%
+    dplyr::ungroup() %>%
+    tidyr::gather("names", "values", -c(vars)) %>%
+    dplyr::mutate(method = "tsfeatures")
+
+  return(outData)
+}
+
 calc_tsfeatures <- function(data){
   
   featureList <- c("frequency", "stl_features", "entropy", "acf_features",
@@ -70,29 +93,24 @@ calc_tsfeatures <- function(data){
                    "spreadrandomlocal_meantaul")
   
   if("group" %in% colnames(data)){
-    outData <- data %>%
-      tibble::as_tibble() %>%
-      dplyr::group_by(id, group) %>%
-      dplyr::arrange(timepoint) %>%
-      dplyr::select(-c(timepoint)) %>%
-      dplyr::summarise(values = list(values)) %>%
-      dplyr::group_by(id, group) %>%
-      dplyr::summarise(tsfeatures::tsfeatures(values, features = featureList)) %>%
-      dplyr::ungroup() %>%
-      tidyr::gather("names", "values", -c(id, group)) %>%
-      dplyr::mutate(method = "tsfeatures")
+    outData <- try(tsfeatures_helper(data = data, grouped = TRUE, feats = featureList))
+    
+    if("try-error" %in% class(outData)){
+      
+      message("Removing 'compengine' features from tsfeatures due to length error. Recomputing with reduced set...")
+      featureList <- featureList[!featureList %in% c("compengine")]
+      outData <- try(tsfeatures_helper(data = data, grouped = TRUE, feats = featureList))
+    }
+    
   } else{
-    outData <- data %>%
-      tibble::as_tibble() %>%
-      dplyr::group_by(id) %>%
-      dplyr::arrange(timepoint) %>%
-      dplyr::select(-c(timepoint)) %>%
-      dplyr::summarise(values = list(values)) %>%
-      dplyr::group_by(id) %>%
-      dplyr::summarise(tsfeatures::tsfeatures(values, features = featureList)) %>%
-      dplyr::ungroup() %>%
-      tidyr::gather("names", "values", -c(id)) %>%
-      dplyr::mutate(method = "tsfeatures")
+    outData <- try(tsfeatures_helper(data = data, grouped = FALSE, feats = featureList))
+    
+    if("try-error" %in% class(outData)){
+      
+      message("Removing 'compengine' features from tsfeatures due to length error. Recomputing with reduced set...")
+      featureList <- featureList[!featureList %in% c("compengine")]
+      outData <- try(tsfeatures_helper(data = data, grouped = FALSE, feats = featureList))
+    }
   }
   
   message("Calculations completed for tsfeatures.")
@@ -272,14 +290,14 @@ calc_kats <- function(data){
 #' @importFrom fabletools features
 #' @importFrom fabletools feature_set
 #' @param data a dataframe with at least 4 columns: id variable, group variable, time variable, value variable
-#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to NULL
-#' @param time_var a string specifying the time index variable. Defaults to NULL
-#' @param values_var a string specifying the values variable. Defaults to NULL
-#' @param group_var a string specifying the grouping variable that each unique series sits under. Defaults to NULL
-#' @param feature_set the set of time-series features to calculate. Defaults to 'all'
-#' @param catch24 a Boolean specifying whether to compute catch24 in addition to catch22 if catch22 is one of the feature sets selected. Defaults to FALSE
-#' @param tsfresh_cleanup a Boolean specifying whether to use the in-built 'tsfresh' relevant feature filter or not. Defaults to FALSE
-#' @return object of class DataFrame that contains the summary statistics for each feature
+#' @param id_var a string specifying the ID variable to identify each time series. Defaults to \code{NULL}
+#' @param time_var a string specifying the time index variable. Defaults to \code{NULL}
+#' @param values_var a string specifying the values variable. Defaults to \code{NULL}
+#' @param group_var a string specifying the grouping variable that each unique series sits under (if one exists). Defaults to \code{NULL}
+#' @param feature_set the set of time-series features to calculate. Defaults to \code{catch22}
+#' @param catch24 a Boolean specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}
+#' @param tsfresh_cleanup a Boolean specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}
+#' @return object of class dataframe that contains the summary statistics for each feature
 #' @author Trent Henderson
 #' @export
 #' @examples
@@ -295,8 +313,7 @@ calc_kats <- function(data){
 
 calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var = NULL, group_var = NULL,
                                feature_set = c("catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel"), 
-                               catch24 = FALSE,
-                               tsfresh_cleanup = FALSE){
+                               catch24 = FALSE, tsfresh_cleanup = FALSE){
   
   if(is.null(id_var) || is.null(time_var) || is.null(values_var)){
     stop("Input must be a dataframe with at least 3 columns: id, timepoint, value")

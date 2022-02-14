@@ -1,6 +1,6 @@
 #' Scale each value into a user-specified range for visualisation and analysis
 #' @param x a vector of scalar values
-#' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
+#' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
 #' @return a vector of scalar values normalised into the selected range
 #' @author Trent Henderson
 #' @export
@@ -76,7 +76,7 @@ normalise_feature_vector <- function(x, method = c("z-score", "Sigmoid", "Robust
 
 #' Scale each value into a user-specified range for visualisation and analysis
 #' @param x a vector of scalar values
-#' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
+#' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
 #' @return a vector of scalar values normalised into the selected range
 #' @author Trent Henderson
 #' @export

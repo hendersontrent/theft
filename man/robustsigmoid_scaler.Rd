@@ -7,9 +7,9 @@
 robustsigmoid_scaler(x, unitInt = TRUE)
 }
 \arguments{
-\item{x}{a numeric vector, preferably of feature values computed by other {theft} package functions}
+\item{x}{a numeric vector, preferably of feature values computed by other \code{theft} package functions}
 
-\item{unitInt}{Booelan whether to rescale Sigmoidal outputs into unit interval [0,1]. Defaults to TRUE}
+\item{unitInt}{Booelan whether to rescale Sigmoidal outputs into unit interval \code{[0,1]}. Defaults to \code{TRUE}}
 }
 \value{
 x a numeric rescaled vector

@@ -10,15 +10,15 @@
 #' @importFrom stats cor
 #' @importFrom plotly ggplotly
 #' @importFrom plotly config
-#' @param data a dataframewith at least 2 columns for 'id' and 'values' variables
-#' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
-#' @param id_var a string specifying the ID variable to compute pairwise correlations between. Defaults to "id"
-#' @param time_var a string specifying the time index variable. Defaults to NULL
-#' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"
-#' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
-#' @param cor_method the correlation method to use. Defaults to 'pearson'
-#' @param interactive a Boolean as to whether to plot an interactive plotly graphic. Defaults to FALSE
-#' @return an object of class ggplot that contains the correlation matrix graphic
+#' @param data a dataframewith at least 2 columns for \code{"id"} and \code{"values"} variables
+#' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}
+#' @param id_var a string specifying the ID variable to compute pairwise correlations between. Defaults to \code{"id"}
+#' @param time_var a string specifying the time index variable. Defaults to \code{NULL}
+#' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to \code{"values"}
+#' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
+#' @param cor_method the correlation method to use. Defaults to \code{"pearson"}
+#' @param interactive a Boolean as to whether to plot an interactive \code{plotly} graphic. Defaults to \code{FALSE}
+#' @return an object of class \code{ggplot}
 #' @author Trent Henderson
 #' @export
 #' @examples

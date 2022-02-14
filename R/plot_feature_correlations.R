@@ -10,15 +10,15 @@
 #' @importFrom stats cor
 #' @importFrom plotly ggplotly
 #' @importFrom plotly config
-#' @param data a dataframe with at least 3 columns for 'id', 'names' and 'values'
-#' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE
-#' @param id_var a string specifying the ID variable to compute pairwise correlations between. Defaults to "id"
-#' @param names_var a string denoting the name of the variable/column that holds the feature names. Defaults to "names"
-#' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"
-#' @param method a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'
-#' @param cor_method the correlation method to use. Defaults to 'pearson'
-#' @param interactive a Boolean as to whether to plot an interactive plotly graphic. Defaults to FALSE
-#' @return an object of class ggplot that contains the correlation matrix graphic
+#' @param data a dataframe with at least 3 columns for \code{'id'}, \code{'names'} and \code{'values'}
+#' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}
+#' @param id_var a string specifying the ID variable to compute pairwise correlations between. Defaults to \code{"id"}
+#' @param names_var a string denoting the name of the variable/column that holds the feature names. Defaults to \code{"names"}
+#' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to \code{"values"}
+#' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
+#' @param cor_method the correlation method to use. Defaults to \code{"pearson"}
+#' @param interactive a Boolean as to whether to plot an interactive \code{plotly} graphic. Defaults to \code{FALSE}
+#' @return an object of class \code{ggplot} that contains the correlation matrix graphic
 #' @author Trent Henderson
 #' @export
 #' @examples

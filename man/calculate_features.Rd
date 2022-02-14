@@ -18,22 +18,22 @@ calculate_features(
 \arguments{
 \item{data}{a dataframe with at least 4 columns: id variable, group variable, time variable, value variable}
 
-\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to NULL}
+\item{id_var}{a string specifying the ID variable to identify each time series. Defaults to \code{NULL}}
 
-\item{time_var}{a string specifying the time index variable. Defaults to NULL}
+\item{time_var}{a string specifying the time index variable. Defaults to \code{NULL}}
 
-\item{values_var}{a string specifying the values variable. Defaults to NULL}
+\item{values_var}{a string specifying the values variable. Defaults to \code{NULL}}
 
-\item{group_var}{a string specifying the grouping variable that each unique series sits under. Defaults to NULL}
+\item{group_var}{a string specifying the grouping variable that each unique series sits under (if one exists). Defaults to \code{NULL}}
 
-\item{feature_set}{the set of time-series features to calculate. Defaults to 'all'}
+\item{feature_set}{the set of time-series features to calculate. Defaults to \code{catch22}}
 
-\item{catch24}{a Boolean specifying whether to compute catch24 in addition to catch22 if catch22 is one of the feature sets selected. Defaults to FALSE}
+\item{catch24}{a Boolean specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}}
 
-\item{tsfresh_cleanup}{a Boolean specifying whether to use the in-built 'tsfresh' relevant feature filter or not. Defaults to FALSE}
+\item{tsfresh_cleanup}{a Boolean specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}}
 }
 \value{
-object of class DataFrame that contains the summary statistics for each feature
+object of class dataframe that contains the summary statistics for each feature
 }
 \description{
 Compute features on an input time series dataset

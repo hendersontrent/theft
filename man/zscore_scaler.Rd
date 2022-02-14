@@ -7,7 +7,7 @@
 zscore_scaler(x)
 }
 \arguments{
-\item{x}{a numeric vector, preferably of feature values computed by other {theft} package functions}
+\item{x}{a numeric vector, preferably of feature values computed by other \code{theft} package functions}
 }
 \value{
 x a numeric vector, rescaled into z-scores

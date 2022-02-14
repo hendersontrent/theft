@@ -8,7 +8,7 @@ plot_low_dimension(
   data,
   is_normalised = FALSE,
   id_var = "id",
-  group_var = "group",
+  group_var = NULL,
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
   low_dim_method = c("PCA", "t-SNE"),
   perplexity = 30,
@@ -17,26 +17,26 @@ plot_low_dimension(
 )
 }
 \arguments{
-\item{data}{a dataframe with at least 2 columns called 'names' and 'values'}
+\item{data}{a dataframe with at least 2 columns called \code{"names"} and \code{"values"}}
 
-\item{is_normalised}{a Boolean as to whether the input feature values have already been scaled. Defaults to FALSE}
+\item{is_normalised}{a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}}
 
-\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to "id"}
+\item{id_var}{a string specifying the ID variable to uniquely identify each time series. Defaults to \code{"id"}}
 
-\item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to "group"}
+\item{group_var}{a string specifying the grouping variable that the data aggregates to (if one exists). Defaults to \code{NULL}}
 
-\item{method}{a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'}
+\item{method}{a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}}
 
-\item{low_dim_method}{the low dimensional embedding method to use. Defaults to 'PCA'}
+\item{low_dim_method}{the low dimensional embedding method to use. Defaults to \code{"PCA"}}
 
-\item{perplexity}{the perplexity hyperparameter to use if t-SNE algorithm is selected. Defaults to 30}
+\item{perplexity}{the perplexity hyperparameter to use if t-SNE algorithm is selected. Defaults to \code{30}}
 
-\item{plot}{a Boolean as to whether a plot or model fit information should be returned. Defaults to TRUE}
+\item{plot}{a Boolean as to whether a plot or model fit information should be returned. Defaults to \code{TRUE}}
 
-\item{show_covariance}{a Boolean as to whether covariance ellipses should be shown on the plot. Defaults to FALSE}
+\item{show_covariance}{a Boolean as to whether covariance ellipses should be shown on the plot. Defaults to \code{FALSE}}
 }
 \value{
-if plot = TRUE, returns an object of class ggplot, if plot = FALSE returns an object of class dataframe with PCA results
+if \code{plot = TRUE}, returns an object of class \code{ggplot}, if \code{plot = FALSE} returns an object of class dataframe with PCA results
 }
 \description{
 Produce a principal components analysis (PCA) on normalised feature values and render a bivariate plot to visualise it

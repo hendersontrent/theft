@@ -12,7 +12,7 @@ normalize_feature_vector(
 \arguments{
 \item{x}{a vector of scalar values}
 
-\item{method}{a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'}
+\item{method}{a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}}
 }
 \value{
 a vector of scalar values normalised into the selected range

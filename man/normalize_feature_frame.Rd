@@ -14,11 +14,11 @@ normalize_feature_frame(
 \arguments{
 \item{data}{a dataframe with at least 2 columns: names variable (feature names) and value variable}
 
-\item{names_var}{a string denoting the name of the variable/column that holds the feature names. Defaults to "names"}
+\item{names_var}{a string denoting the name of the variable/column that holds the feature names. Defaults to \code{"names"}}
 
-\item{values_var}{a string denoting the name of the variable/column that holds the numerical feature values. Defaults to "values"}
+\item{values_var}{a string denoting the name of the variable/column that holds the numerical feature values. Defaults to \code{"values"}}
 
-\item{method}{a rescaling/normalising method to apply. Defaults to 'RobustSigmoid'}
+\item{method}{a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}}
 }
 \value{
 a dataframe with the value column rescaled into the specified range
