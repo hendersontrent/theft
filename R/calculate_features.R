@@ -58,6 +58,29 @@ calc_feasts <- function(data){
 # tsfeatures
 #-----------
 
+tsfeatures_helper <- function(data, grouped = FALSE, feats){
+  
+  if(grouped){
+    vars <- c("id", "group")
+  } else{
+    vars <- c("id")
+  }
+  
+  outData <- data %>%
+    tibble::as_tibble() %>%
+    dplyr::group_by_at(dplyr::all_of(vars)) %>%
+    dplyr::arrange(timepoint) %>%
+    dplyr::select(-c(timepoint)) %>%
+    dplyr::summarise(values = list(values)) %>%
+    dplyr::group_by_at(dplyr::all_of(vars)) %>%
+    dplyr::summarise(tsfeatures::tsfeatures(values, features = feats)) %>%
+    dplyr::ungroup() %>%
+    tidyr::gather("names", "values", -c(vars)) %>%
+    dplyr::mutate(method = "tsfeatures")
+
+  return(outData)
+}
+
 calc_tsfeatures <- function(data){
   
   featureList <- c("frequency", "stl_features", "entropy", "acf_features",
@@ -70,29 +93,24 @@ calc_tsfeatures <- function(data){
                    "spreadrandomlocal_meantaul")
   
   if("group" %in% colnames(data)){
-    outData <- data %>%
-      tibble::as_tibble() %>%
-      dplyr::group_by(id, group) %>%
-      dplyr::arrange(timepoint) %>%
-      dplyr::select(-c(timepoint)) %>%
-      dplyr::summarise(values = list(values)) %>%
-      dplyr::group_by(id, group) %>%
-      dplyr::summarise(tsfeatures::tsfeatures(values, features = featureList)) %>%
-      dplyr::ungroup() %>%
-      tidyr::gather("names", "values", -c(id, group)) %>%
-      dplyr::mutate(method = "tsfeatures")
+    outData <- try(tsfeatures_helper(data = data, grouped = TRUE, feats = featureList))
+    
+    if("try-error" %in% class(outData)){
+      
+      message("Removing 'compengine' features from tsfeatures due to length error. Recomputing with reduced set...")
+      featureList <- featureList[!featureList %in% c("compengine")]
+      outData <- try(tsfeatures_helper(data = data, grouped = TRUE, feats = featureList))
+    }
+    
   } else{
-    outData <- data %>%
-      tibble::as_tibble() %>%
-      dplyr::group_by(id) %>%
-      dplyr::arrange(timepoint) %>%
-      dplyr::select(-c(timepoint)) %>%
-      dplyr::summarise(values = list(values)) %>%
-      dplyr::group_by(id) %>%
-      dplyr::summarise(tsfeatures::tsfeatures(values, features = featureList)) %>%
-      dplyr::ungroup() %>%
-      tidyr::gather("names", "values", -c(id)) %>%
-      dplyr::mutate(method = "tsfeatures")
+    outData <- try(tsfeatures_helper(data = data, grouped = FALSE, feats = featureList))
+    
+    if("try-error" %in% class(outData)){
+      
+      message("Removing 'compengine' features from tsfeatures due to length error. Recomputing with reduced set...")
+      featureList <- featureList[!featureList %in% c("compengine")]
+      outData <- try(tsfeatures_helper(data = data, grouped = FALSE, feats = featureList))
+    }
   }
   
   message("Calculations completed for tsfeatures.")
