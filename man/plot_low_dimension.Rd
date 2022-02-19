@@ -25,7 +25,7 @@ plot_low_dimension(
 
 \item{group_var}{a string specifying the grouping variable that the data aggregates to (if one exists). Defaults to \code{NULL}}
 
-\item{method}{a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}}
+\item{method}{a rescaling/normalising method to apply. Defaults to \code{"z-score"}}
 
 \item{low_dim_method}{the low dimensional embedding method to use. Defaults to \code{"PCA"}}
 

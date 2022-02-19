@@ -12,7 +12,7 @@
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}
 #' @param id_var a string specifying the ID variable to uniquely identify each time series. Defaults to \code{"id"}
 #' @param group_var a string specifying the grouping variable that the data aggregates to (if one exists). Defaults to \code{NULL}
-#' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
+#' @param method a rescaling/normalising method to apply. Defaults to \code{"z-score"}
 #' @param low_dim_method the low dimensional embedding method to use. Defaults to \code{"PCA"}
 #' @param perplexity the perplexity hyperparameter to use if t-SNE algorithm is selected. Defaults to \code{30}
 #' @param plot a Boolean as to whether a plot or model fit information should be returned. Defaults to \code{TRUE}
@@ -45,10 +45,10 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
                                low_dim_method = c("PCA", "t-SNE"), perplexity = 30, 
                                plot = TRUE, show_covariance = FALSE){
 
-  # Make RobustSigmoid the default
+  # Make z-score the default
 
   if(missing(method)){
-    method <- "RobustSigmoid"
+    method <- "z-score"
   } else{
     method <- match.arg(method)
   }
@@ -138,12 +138,9 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
 
   #------------- Perform low dim ----------------------
   
-  # Produce matrix and z-score for PCA stability
+  # Produce matrix
   
   dat_filtered <- normed %>%
-    dplyr::group_by(names) %>%
-    dplyr::mutate(values = normalise_feature_vector(values, method = "z-score")) %>%
-    dplyr::ungroup() %>%
     tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
     tibble::column_to_rownames(var = "id") %>%
     tidyr::drop_na()
