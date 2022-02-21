@@ -19,7 +19,9 @@ fit_empirical_null_univariate_models <- function(mod, testdata, s, use_balanced_
   shuffledtest <- testdata %>%
     dplyr::mutate(group = shuffles)
   
-  null_models <- extract_prediction_accuracy(mod = mod, testData = shuffledtest, use_balanced_accuracy = use_balanced_accuracy)
+  null_models <- extract_prediction_accuracy(mod = mod, testData = shuffledtest, use_balanced_accuracy = use_balanced_accuracy) %>%
+    rename(statistic_value = statistic)
+  
   return(null_models)
 }
 
@@ -69,7 +71,8 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
   # Get main predictions
   
   mainOuts <- extract_prediction_accuracy(mod = mod, testData = dataTest, use_balanced_accuracy = use_balanced_accuracy) %>%
-    dplyr::mutate(category = "Main")
+    dplyr::mutate(category = "Main") %>%
+    rename(statistic_value = statistic)
   
   if(use_empirical_null){
     
@@ -471,7 +474,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
         
         null_vector <- output %>%
           dplyr::filter(category == "Null") %>%
-          dplyr::pull(statistic)
+          dplyr::pull(statistic_value)
         
         # Widen main results matrix
         
@@ -480,7 +483,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
           dplyr::group_by(feature) %>%
           dplyr::mutate(id = row_number()) %>%
           dplyr::ungroup() %>%
-          tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
+          tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic_value") %>%
           dplyr::select(-c(id))
         
         # Calculate p-values for each feature
@@ -496,7 +499,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
           dplyr::group_by(feature) %>%
           dplyr::mutate(id = row_number()) %>%
           dplyr::ungroup() %>%
-          tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
+          tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic_value") %>%
           dplyr::select(-c(id))
         
         # Calculate p-values for each feature
