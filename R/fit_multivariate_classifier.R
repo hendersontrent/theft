@@ -46,13 +46,13 @@ fit_empirical_null_multivariate_models <- function(data, s, test_method, theCont
 # Model fitting
 #--------------
 
-fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, num_shuffles, set = NULL){
+fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, num_permutations, set = NULL){
   
   # Set up input matrices
   
   if(!is.null(set)){
     
-    message(paste0("Calculating models for ", set))
+    message(paste0("\nCalculating models for ", set))
     
     tmp <- data %>%
       dplyr::filter(method == set) %>%
@@ -104,13 +104,13 @@ fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, us
     
   if(use_empirical_null){
     
-    # Set up progress bar
+    # Set up progress bar for {purrr::map} iterations
     
-    pb <- progress_estimated(length(1:num_shuffles))
+    pb <- dplyr::progress_estimated(length(1:num_permutations))
     
     # Run procedure
       
-    nullOuts <- 1:num_shuffles %>%
+    nullOuts <- 1:num_permutations %>%
       purrr::map( ~ fit_empirical_null_multivariate_models(data = tmp, 
                                                            s = .x,
                                                            test_method = test_method,
@@ -125,32 +125,45 @@ fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, us
     # Draw plot
     
     p <- nullOuts %>%
-      ggplot2::ggplot(ggplot2::aes(x = statistic)) +
-      ggplot2::geom_histogram(binwidth = 0.01, fill = "white", colour = "black", alpha = 0.5) +
+      ggplot2::ggplot(ggplot2::aes(x = statistic))
+    
+    if(num_permutations >= 100){
+      p <- p +
+        ggplot2::geom_histogram(binwidth = 0.01, fill = "white", colour = "black", alpha = 0.5)
+    } else{
+      p <- p +
+        ggplot2::geom_histogram(fill = "white", colour = "black", alpha = 0.5)
+    }
+    
+    p <- p +
       ggplot2::geom_vline(xintercept = mainOuts$statistic, lty = "dashed", size = 1, colour = "#1B9E77") +
+      ggplot2::scale_x_continuous(limits = c(0, 1),
+                                  breaks = seq(from = 0, to = 1, by = 0.2)) +
       ggplot2::theme_bw() +
-      ggplot2::labs(x = "Classification accuracy (%)",
+      ggplot2::labs(x = "Classification accuracy",
                     y = "Frequency",
-                    subtitle = paste0("Dashed vertical line = true model; histogram = null accuracies from ", num_shuffles, " permutations"))
+                    subtitle = paste0("Dashed vertical line = true model; histogram = null accuracies for ", num_permutations, " permutations"))
     
     if(!is.null(set)){
       p <- p +
-        ggplot2::labs(title = paste0("True model classification accuracy against distribution of null accuracies for ", set))
+        ggplot2::labs(title = paste0("Classification accuracy for ", set))
       
-      # get set information
-      
-      finalOuts <- finalOuts %>%
-        dplyr::mutate(method = set,
-                      num_features_used = (ncol(tmp) - 1))
     } else{
       p <- p +
-        ggplot2::labs(title = "True model classification accuracy against distribution of null accuracies")
+        ggplot2::labs(title = "Classification accuracy")
     }
     
     print(p)
+    
       
     } else{
       finalOuts <- mainOuts
+    }
+  
+    if(!is.null(set)){
+      finalOuts <- finalOuts %>%
+        dplyr::mutate(method = set,
+                      num_features_used = (ncol(tmp) - 1))
     }
   
   return(finalOuts)
@@ -162,30 +175,31 @@ fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, us
 
 calculate_multivariate_statistics <- function(data, set = NULL){
   
+  # Wrangle vectors
+  
   if(!is.null(set)){
-    tmp <- data %>%
+    vals <- data %>%
       dplyr::filter(method == set)
   } else{
-    tmp <- data
+    vals <- data
   }
   
-  # Compute mean for main model
-  
-  statistic_value <- tmp %>%
+  true_val <- vals %>%
     dplyr::filter(category == "Main") %>%
     dplyr::pull(statistic)
   
-  # Compute p-value against empirical null samples
+  stopifnot(length(true_val) == 1)
   
-  nulls <- tmp %>%
-    dplyr::filter(category == "Null")
+  nulls <- vals %>%
+    dplyr::filter(category == "Null") %>%
+    dplyr::pull(statistic)
   
-  nulls_above_main <- nulls %>%
-    dplyr::filter(statistic >= statistic_value)
+  # Use ECDF to calculate p-value
   
-  p_value <- nrow(nulls_above_main) / nrow(nulls)
+  fn <- stats::ecdf(nulls)
+  p_value <- 1 - fn(!is.na(true_val))
   
-  tmp_outputs <- data.frame(statistic_value = statistic_value,
+  tmp_outputs <- data.frame(statistic_value = true_val,
                             p_value = p_value)
   
   if(!is.null(set)){
@@ -208,7 +222,7 @@ calculate_multivariate_statistics <- function(data, set = NULL){
 #' @importFrom tidyr drop_na pivot_wider crossing
 #' @importFrom tibble rownames_to_column
 #' @importFrom data.table rbindlist
-#' @importFrom stats sd reorder
+#' @importFrom stats sd reorder ecdf
 #' @importFrom purrr map
 #' @importFrom janitor clean_names
 #' @importFrom caret preProcess train confusionMatrix
@@ -220,7 +234,7 @@ calculate_multivariate_statistics <- function(data, set = NULL){
 #' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to \code{TRUE}
 #' @param num_folds an integer specifying the number of folds (train-test splits) to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}
 #' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values. Defaults to \code{FALSE}
-#' @param num_shuffles an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{50}
+#' @param num_permutations an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{100}
 #' @return an object of class list containing dataframe summaries of the classification models and a \code{ggplot} object if \code{by_set} is \code{TRUE}
 #' @author Trent Henderson
 #' @export
@@ -241,14 +255,14 @@ calculate_multivariate_statistics <- function(data, set = NULL){
 #'   use_k_fold = TRUE,
 #'   num_folds = 10,
 #'   use_empirical_null = TRUE,
-#'   num_shuffles = 1000) 
+#'   num_permutations = 100) 
 #' }
 #' 
 
 fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group",
                                         by_set = FALSE, test_method = "gaussprRadial",
                                         use_k_fold = TRUE, num_folds = 10, 
-                                        use_empirical_null = FALSE, num_shuffles = 1000){
+                                        use_empirical_null = FALSE, num_permutations = 100){
   
   #---------- Check arguments ------------
   
@@ -314,12 +328,12 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     stop("num_folds should be a positive integer. 10 folds is recommended.")
   }
   
-  if(use_empirical_null == TRUE && !is.numeric(num_shuffles)){
-    stop("num_shuffles should be a postive integer. A minimum of 50 shuffles is recommended.")
+  if(use_empirical_null == TRUE && !is.numeric(num_permutations)){
+    stop("num_permutations should be a postive integer. A minimum of 50 shuffles is recommended.")
   }
   
-  if(use_empirical_null == TRUE && num_shuffles < 3){
-    stop("num_shuffles should be a positive integer >= 3 for empirical null calculations. A minimum of 50 shuffles is recommended.")
+  if(use_empirical_null == TRUE && num_permutations < 3){
+    stop("num_permutations should be a positive integer >= 3 for empirical null calculations. A minimum of 50 shuffles is recommended.")
   }
   
   if(use_k_fold == TRUE && num_folds < 1){
@@ -378,11 +392,11 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   classifier_name <- test_method
   statistic_name <- "Mean classification accuracy"
   
-  # Print some advice, as per https://faculty.washington.edu/kenrice/sisg/SISG-08-06.pdf
+  # Very important coffee console message
   
-  #if(use_empirical_null){
-  #  print(paste0("Computing empirical null(s) with ", num_shuffles, " permutations. This mean the smallest possible p-value is ", (1/num_shuffles), "."))
-  #}
+  if(use_empirical_null & num_permutations > 100){
+    message("This will take a while. Great reason to go grab a coffee and relax ^_^")
+  }
   
   if(by_set){
     
@@ -396,7 +410,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
                                            use_k_fold = use_k_fold, 
                                            num_folds = num_folds, 
                                            use_empirical_null = use_empirical_null, 
-                                           num_shuffles = num_shuffles, 
+                                           num_permutations = num_permutations, 
                                            set = .x))
     
     output <- data.table::rbindlist(output, use.names = TRUE)
@@ -408,7 +422,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
                                       use_k_fold = use_k_fold, 
                                       num_folds = num_folds, 
                                       use_empirical_null = use_empirical_null, 
-                                      num_shuffles = num_shuffles,
+                                      num_permutations = num_permutations,
                                       set = NULL)
   }
   

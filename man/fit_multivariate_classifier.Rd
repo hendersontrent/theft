@@ -10,16 +10,14 @@ fit_multivariate_classifier(
   group_var = "group",
   by_set = FALSE,
   test_method = "gaussprRadial",
-  use_empirical_null = FALSE,
-  use_k_fold = FALSE,
+  use_k_fold = TRUE,
   num_folds = 10,
-  split_prop = 0.8,
-  num_shuffles = 50,
-  use_balanced_accuracy = FALSE
+  use_empirical_null = FALSE,
+  num_permutations = 100
 )
 }
 \arguments{
-\item{data}{the dataframe containing the raw feature matrix}
+\item{data}{the dataframe containing the raw feature data as calculated by \code{theft::calculate_features}}
 
 \item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}}
 
@@ -29,20 +27,16 @@ fit_multivariate_classifier(
 
 \item{test_method}{the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}}
 
-\item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values. Defaults to \code{FALSE}}
-
-\item{use_k_fold}{a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to \code{FALSE}}
+\item{use_k_fold}{a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to \code{TRUE}}
 
 \item{num_folds}{an integer specifying the number of folds (train-test splits) to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}}
 
-\item{split_prop}{a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to \code{0.8}}
+\item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values. Defaults to \code{FALSE}}
 
-\item{num_shuffles}{an integer specifying the number of class label shuffles to perform. Defaults to \code{50}}
-
-\item{use_balanced_accuracy}{a Boolean specifying whether to use balanced accuracy as the performance metric instead of overall accuracy}
+\item{num_permutations}{an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{100}}
 }
 \value{
-an object of class list containing summaries of the classification models
+an object of class list containing dataframe summaries of the classification models and a \code{ggplot} object if \code{by_set} is \code{TRUE}
 }
 \description{
 Fit a classifier to feature matrix using all features or all features by set
@@ -61,12 +55,10 @@ fit_multivariate_classifier(featMat,
   group_var = "group",
   by_set = FALSE,
   test_method = "gaussprRadial",
-  use_empirical_null = TRUE,
   use_k_fold = TRUE,
   num_folds = 10,
-  split_prop = 0.8,
-  num_shuffles = 50,
-  use_balanced_accuracy = FALSE) 
+  use_empirical_null = TRUE,
+  num_permutations = 100) 
 }
 
 }

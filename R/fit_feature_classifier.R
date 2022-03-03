@@ -189,13 +189,11 @@ gather_binomial_info <- function(data, x){
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}
 #' @param test_method the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}. Should be either \code{"t-test"}, \code{"wilcox"}, or \code{"binomial logistic"} for two-class problems to obtain exact statistics, or a valid \code{caret} classification model for everything else 
-#' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if a \code{caret} model is specified for \code{test_method}. Defaults to \code{FALSE}
 #' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates if a \code{caret} model is specified for \code{test_method}. Defaults to \code{ FALSE}
 #' @param num_folds an integer specifying the number of k-folds to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}
-#' @param num_shuffles an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{5}
-#' @param split_prop a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to \code{0.8}
+#' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if a \code{caret} model is specified for \code{test_method}. Defaults to \code{FALSE}
+#' @param num_permutations an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{50}
 #' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if a \code{caret} model is specified for \code{test_method} use_empirical_null is \code{TRUE}. Defaults to \code{FALSE}
-#' @param use_balanced_accuracy a Boolean specifying whether to use balanced accuracy as the performance metric instead of overall accuracy. Defaults to \code{FALSE}
 #' @return an object of class dataframe containing results
 #' @author Trent Henderson
 #' @export
@@ -212,21 +210,19 @@ gather_binomial_info <- function(data, x){
 #'   id_var = "id",
 #'   group_var = "group",
 #'   test_method = "linear svm",
-#'   use_empirical_null = TRUE,
 #'   use_k_fold = TRUE,
 #'   num_folds = 10,
-#'   split_prop = 0.8,
-#'   num_shuffles = 5,
-#'   pool_empirical_null = FALSE,
-#'   use_balanced_accuracy = FALSE) 
+#'   use_empirical_null = TRUE,
+#'   num_permutations = 50,
+#'   pool_empirical_null = FALSE) 
 #' }
 #' 
 
 fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                    test_method = "gaussprRadial",
-                                   use_empirical_null = FALSE, use_k_fold = FALSE,
-                                   num_folds = 10, split_prop = 0.8, num_shuffles = 50,
-                                   pool_empirical_null = FALSE, use_balanced_accuracy = FALSE){
+                                   use_k_fold = FALSE, num_folds = 10, 
+                                   use_empirical_null = FALSE, num_permutations = 50,
+                                   pool_empirical_null = FALSE){
   
   #---------- Check arguments ------------
   
@@ -295,24 +291,16 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     stop("num_folds should be a positive integer. 10 folds is recommended.")
   }
   
-  if(use_empirical_null == TRUE && !is.numeric(num_shuffles)){
-    stop("num_shuffles should be a postive integer. A minimum of 50 shuffles is recommended.")
+  if(use_empirical_null == TRUE && !is.numeric(num_permutations)){
+    stop("num_permutations should be a postive integer. A minimum of 50 shuffles is recommended.")
   }
   
-  if(use_empirical_null == TRUE && num_shuffles < 3){
-    stop("num_shuffles should be a positive integer >= 3 for empirical null calculations. A minimum of 50 shuffles is recommended.")
+  if(use_empirical_null == TRUE && num_permutations < 3){
+    stop("num_permutations should be a positive integer >= 3 for empirical null calculations. A minimum of 50 shuffles is recommended.")
   }
   
   if(use_k_fold == TRUE && num_folds < 1){
     stop("num_folds should be a positive integer. 10 folds is recommended.")
-  }
-  
-  if(!is.numeric(split_prop)){
-    stop("split_prop should be a scalar between 0 and 1 specifying the proportion of input data that should go into the training set.")
-  }
-  
-  if(split_prop < 0 || split_prop > 1){
-    stop("split_prop should be a scalar between 0 and 1 specifying the proportion of input data that should go into the training set.")
   }
   
   #------------- Preprocess data --------------
@@ -456,10 +444,8 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                          use_k_fold = use_k_fold,
                                          num_folds = num_folds,
                                          use_empirical_null = use_empirical_null,
-                                         split_prop = split_prop,
-                                         num_shuffles = num_shuffles,
-                                         feature = .x,
-                                         use_balanced_accuracy = use_balanced_accuracy))
+                                         num_permutations = num_permutations,
+                                         feature = .x))
     
     output <- output[!sapply(output, is.null)]
     output <- data.table::rbindlist(output, use.names = TRUE)
