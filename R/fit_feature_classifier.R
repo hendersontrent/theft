@@ -1,50 +1,19 @@
 #--------------- Helper functions ----------------
 
-fit_empirical_null_univariate_models <- function(mod, testdata, s, use_balanced_accuracy){
-  
-  # Print out updates for every 10 shuffles so the user gets a time guesstimate that isn't burdensome
-  
-  if (s %% 10 == 0) {
-    print(paste0("Calculating shuffle ", s))
-  }
-  
-  # Null shuffles and computations
-  
-  y <- testdata %>% dplyr::pull(group)
-  y <- as.character(y)
-  
-  set.seed(s)
-  shuffles <- sample(y, replace = FALSE)
-  
-  shuffledtest <- testdata %>%
-    dplyr::mutate(group = shuffles)
-  
-  null_models <- extract_prediction_accuracy(mod = mod, testData = shuffledtest, use_balanced_accuracy = use_balanced_accuracy) %>%
-    rename(statistic_value = statistic)
-  
-  return(null_models)
-}
-
 #--------------
 # Model fitting
 #--------------
 
-fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, num_shuffles, split_prop, feature, use_balanced_accuracy){
+fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, num_permutations, feature, pb){
+  
+  # Print {purrr} iteration progress updates in the console
+  
+  pb$tick()$print()
   
   tmp <- data %>%
       dplyr::select(c(group, dplyr::all_of(feature)))
   
-  # Make a train-test split
-  
   set.seed(123)
-  
-  trainIndex <- caret::createDataPartition(tmp$group, 
-                                           p = split_prop, 
-                                           list = FALSE, 
-                                           times = 1)
-  
-  dataTrain <- tmp[ trainIndex,]
-  dataTest  <- tmp[-trainIndex,]
   
   if(use_k_fold){
     
@@ -55,32 +24,38 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
                                       classProbs = TRUE)
     
     mod <- caret::train(group ~ ., 
-                        data = dataTrain, 
+                        data = tmp, 
                         method = test_method, 
                         trControl = fitControl,
                         preProcess = c("center", "scale"))
     
   } else{
     
+    fitControl <- caret::trainControl(classProbs = TRUE)
+    
     mod <- caret::train(group ~ ., 
-                        data = dataTrain, 
+                        data = tmp, 
                         method = test_method, 
+                        trControl = fitControl,
                         preProcess = c("center", "scale"))
   }
   
   # Get main predictions
   
-  mainOuts <- extract_prediction_accuracy(mod = mod, testData = dataTest, use_balanced_accuracy = use_balanced_accuracy) %>%
-    dplyr::mutate(category = "Main") %>%
-    rename(statistic_value = statistic)
+  mainOuts <- extract_prediction_accuracy(mod = mod) %>%
+    dplyr::mutate(category = "Main")
   
   if(use_empirical_null){
     
-    nullOuts <- 1:num_shuffles %>%
-      purrr::map( ~ fit_empirical_null_univariate_models(mod = mod, 
-                                                         testdata = dataTest, 
-                                                         s = .x,
-                                                         use_balanced_accuracy = use_balanced_accuracy))
+    # Run procedure
+    
+    
+    nullOuts <- 1:num_permutations %>%
+      purrr::map( ~ fit_empirical_null_models(data = tmp, 
+                                              s = .x,
+                                              test_method = test_method,
+                                              theControl = fitControl,
+                                              pb = NULL))
     
     nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
       dplyr::mutate(category = "Null")
@@ -108,18 +83,20 @@ calculate_pooled_null <- function(null_vector, main_matrix, x){
   
   # Filter data matrix to feature of interest
   
-  statistic_value <- main_matrix %>%
+  true_val <- main_matrix %>%
     dplyr::select(dplyr::all_of(x)) %>%
     dplyr::rename(statistic = 1) %>%
     dplyr::pull(statistic)
   
-  # Compute p-value against empirical null samples
+  stopifnot(length(true_val) == 1)
   
-  nulls_above_main <- null_vector[null_vector >= statistic_value]
-  p_value <- length(nulls_above_main) / length(null_vector)
+  # Use ECDF to calculate p-value
+  
+  fn <- stats::ecdf(null_vector)
+  p_value <- 1 - fn(true_val)
   
   tmp_outputs <- data.frame(feature = names(main_matrix)[x],
-                            statistic_value = statistic_value,
+                            statistic_value = true_val,
                             p_value = p_value)
   
   return(tmp_outputs)
@@ -135,24 +112,23 @@ calculate_unpooled_null <- function(.data, x){
     dplyr::select(category, dplyr::all_of(x)) %>%
     dplyr::rename(statistic = 2)
   
-  # Compute mean for main model
-  
-  statistic_value <- tmp %>%
+  true_val <- tmp %>%
     dplyr::filter(category == "Main") %>%
     dplyr::pull(statistic)
   
-  # Compute p-value against empirical null samples
+  stopifnot(length(true_val) == 1)
   
   nulls <- tmp %>%
-    dplyr::filter(category == "Null")
+    dplyr::filter(category == "Null") %>%
+    dplyr::pull(statistic)
   
-  nulls_above_main <- nulls %>%
-    dplyr::filter(statistic >= statistic_value)
+  # Use ECDF to calculate p-value
   
-  p_value <- nrow(nulls_above_main) / nrow(nulls)
+  fn <- stats::ecdf(nulls)
+  p_value <- 1 - fn(true_val)
   
   tmp_outputs <- data.frame(feature = names(.data)[x],
-                            statistic_value = statistic_value,
+                            statistic_value = true_val,
                             p_value = p_value)
   
   return(tmp_outputs)
@@ -181,7 +157,7 @@ gather_binomial_info <- function(data, x){
 #' @importFrom tibble rownames_to_column
 #' @importFrom e1071 svm
 #' @importFrom data.table rbindlist
-#' @importFrom stats glm binomial sd wilcox.test t.test
+#' @importFrom stats glm binomial sd wilcox.test t.test ecdf
 #' @importFrom purrr map possibly
 #' @importFrom janitor clean_names
 #' @importFrom caret createDataPartition preProcess train
@@ -342,13 +318,6 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   
   #------------- Fit classifiers -------------
   
-  #--------------------------
-  # Set up column information 
-  # for iteration
-  #--------------------------
-  
-  message("Performing calculations... This may take a while depending on the number of features and classes in your dataset.")
-  
   #---------------------
   # Set up useful method 
   # information
@@ -372,12 +341,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   } else{
     
     classifier_name <- test_method
-    
-    if(use_balanced_accuracy){
-      statistic_name <- "Balanced classification accuracy"
-    } else{
-      statistic_name <- "Classification accuracy"
-    }
+    statistic_name <- "Average classification accuracy"
   }
   
   #-----------------------------
@@ -434,6 +398,16 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
   } else {
     
+    # Set up progress bar for {purrr::map} iterations
+    
+    pb <- dplyr::progress_estimated(length(1:num_permutations))
+    
+    # Very important coffee console message
+    
+    if(use_empirical_null & (num_permutations > 10 | (ncol(data_id) - 1) > 22)){
+      message("This will take a while. Great reason to go grab a coffee and relax ^_^")
+    }
+    
     # Compute accuracies for each feature
     
     fit_univariate_models_safe <- purrr::possibly(fit_univariate_models, otherwise = NULL)
@@ -445,7 +419,8 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                          num_folds = num_folds,
                                          use_empirical_null = use_empirical_null,
                                          num_permutations = num_permutations,
-                                         feature = .x))
+                                         feature = .x,
+                                         pb = pb))
     
     output <- output[!sapply(output, is.null)]
     output <- data.table::rbindlist(output, use.names = TRUE)
@@ -460,7 +435,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
         
         null_vector <- output %>%
           dplyr::filter(category == "Null") %>%
-          dplyr::pull(statistic_value)
+          dplyr::pull(statistic)
         
         # Widen main results matrix
         
@@ -469,7 +444,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
           dplyr::group_by(feature) %>%
           dplyr::mutate(id = row_number()) %>%
           dplyr::ungroup() %>%
-          tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic_value") %>%
+          tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
           dplyr::select(-c(id))
         
         # Calculate p-values for each feature
@@ -485,7 +460,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
           dplyr::group_by(feature) %>%
           dplyr::mutate(id = row_number()) %>%
           dplyr::ungroup() %>%
-          tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic_value") %>%
+          tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
           dplyr::select(-c(id))
         
         # Calculate p-values for each feature
@@ -503,6 +478,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     } else{
       
       feature_statistics <- output %>%
+        dplyr::rename(statistic_value = statistic) %>%
         dplyr::mutate(classifier_name = classifier_name,
                       statistic_name = statistic_name)
     }

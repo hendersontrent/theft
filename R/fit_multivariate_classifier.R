@@ -14,11 +14,15 @@ extract_prediction_accuracy <- function(mod){
 
 # Function for iterating over random shuffle permutations of class labels
 
-fit_empirical_null_multivariate_models <- function(data, s, test_method, theControl, pb){
+fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NULL){
   
   # Print {purrr} iteration progress updates in the console
   
-  pb$tick()$print()
+  if(!is.null(pb)){
+    pb$tick()$print()
+  } else{
+    
+  }
   
   # Null shuffles and computations
   
@@ -111,11 +115,11 @@ fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, us
     # Run procedure
       
     nullOuts <- 1:num_permutations %>%
-      purrr::map( ~ fit_empirical_null_multivariate_models(data = tmp, 
-                                                           s = .x,
-                                                           test_method = test_method,
-                                                           theControl = fitControl,
-                                                           pb = pb))
+      purrr::map( ~ fit_empirical_null_models(data = tmp, 
+                                              s = .x,
+                                              test_method = test_method,
+                                              theControl = fitControl,
+                                              pb = pb))
       
     nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
       dplyr::mutate(category = "Null")
@@ -197,7 +201,7 @@ calculate_multivariate_statistics <- function(data, set = NULL){
   # Use ECDF to calculate p-value
   
   fn <- stats::ecdf(nulls)
-  p_value <- 1 - fn(!is.na(true_val))
+  p_value <- 1 - fn(true_val)
   
   tmp_outputs <- data.frame(statistic_value = true_val,
                             p_value = p_value)
@@ -329,11 +333,11 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   }
   
   if(use_empirical_null == TRUE && !is.numeric(num_permutations)){
-    stop("num_permutations should be a postive integer. A minimum of 50 shuffles is recommended.")
+    stop("num_permutations should be a postive integer. A minimum of 50 permutations is recommended.")
   }
   
   if(use_empirical_null == TRUE && num_permutations < 3){
-    stop("num_permutations should be a positive integer >= 3 for empirical null calculations. A minimum of 50 shuffles is recommended.")
+    stop("num_permutations should be a positive integer >= 3 for empirical null calculations. A minimum of 50 permutations is recommended.")
   }
   
   if(use_k_fold == TRUE && num_folds < 1){

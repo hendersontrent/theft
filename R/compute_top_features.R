@@ -299,11 +299,11 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   }
   
   if(use_empirical_null == TRUE && !is.numeric(num_permutations)){
-    stop("num_permutations should be a postive integer. A minimum of 50 shuffles is recommended.")
+    stop("num_permutations should be a postive integer. A minimum of 50 permutations is recommended.")
   }
   
   if(use_empirical_null == TRUE && num_permutations < 3){
-    stop("num_permutations should be a positive integer >= 3 for empirical null calculations. A minimum of 50 shuffles is recommended.")
+    stop("num_permutations should be a positive integer >= 3 for empirical null calculations. A minimum of 50 permutations is recommended.")
   }
   
   if(use_k_fold == TRUE && num_folds < 1){
@@ -350,7 +350,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   if(test_method %in% c("t-test", "wilcox", "binomial logistic")){
     
-    message("Selecting top features using p-values.")
+    message("\nSelecting top features using p-values.")
     
     ResultsTable <- classifierOutputs %>%
       dplyr::slice_min(p_value, n = num_features)
@@ -359,7 +359,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     
     if(use_empirical_null == FALSE){
       
-      message("Selecting top features using mean classification accuracy.")
+      message("\nSelecting top features using mean classification accuracy.")
       
       ResultsTable <- classifierOutputs %>%
         dplyr::slice_max(statistic_value, n = num_features)
@@ -373,14 +373,14 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
       
       if(length(unique(unique_p_values$feature)) > num_features || length(unique(unique_p_values$p_value)) == 1){
         
-        message("Not enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
+        message("\nNot enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
         
         ResultsTable <- classifierOutputs %>%
           dplyr::slice_max(statistic_value, n = num_features)
         
       } else{
         
-        message("Selecting top features using p-value.")
+        message("\nSelecting top features using p-value.")
         
         ResultsTable <- classifierOutputs %>%
           dplyr::slice_min(p_value, n = num_features)
