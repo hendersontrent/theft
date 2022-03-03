@@ -22,7 +22,7 @@
 #' @import dplyr
 #' @importFrom plotly ggplotly config
 #' @importFrom RColorBrewer brewer.pal
-#' @importFrom caret createDataPartition preProcess train
+#' @importFrom caret preProcess train confusionMatrix
 #' @importFrom purrr map possibly
 #' @importFrom janitor clean_names
 NULL
