@@ -80,15 +80,13 @@ feature_matrix2 <- calculate_features(data = simData,
 
 multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix2, id_var = "id", group_var = "group",
                                                         by_set = TRUE, test_method = "gaussprRadial",
-                                                        use_empirical_null = TRUE, use_k_fold = TRUE,
-                                                        num_folds = 10, split_prop = 0.8, num_shuffles = 10,
-                                                        use_balanced_accuracy = TRUE)
+                                                        use_k_fold = TRUE, num_folds = 10, 
+                                                        use_empirical_null = TRUE, num_permutations = 10)
 
 multi_classifier_outputs2 <- fit_multivariate_classifier(feature_matrix2, id_var = "id", group_var = "group",
                                                         by_set = FALSE, test_method = "svmLinear",
-                                                        use_empirical_null = FALSE, use_k_fold = FALSE,
-                                                        num_folds = 10, split_prop = 0.8, num_shuffles = 10,
-                                                        use_balanced_accuracy = FALSE)
+                                                        use_k_fold = FALSE, num_folds = 10, 
+                                                        use_empirical_null = FALSE, num_permutations = 10)
 
 # Test 8: Feature-level classification
 
@@ -102,13 +100,11 @@ classifier_outputs <- compute_top_features(outs_22,
                                            method = "RobustSigmoid",
                                            cor_method = "pearson",
                                            test_method = "gaussprRadial",
-                                           use_empirical_null =  TRUE,
                                            use_k_fold = TRUE,
                                            num_folds = 10,
-                                           split_prop = 0.8,
-                                           num_shuffles = 10,
-                                           pool_empirical_null = FALSE,
-                                           use_balanced_accuracy = TRUE) 
+                                           use_empirical_null =  TRUE,
+                                           num_permutations = 10,
+                                           pool_empirical_null = FALSE) 
 
 classifier_outputs_2 <- compute_top_features(outs_22, 
                                              id_var = "id", 
@@ -117,14 +113,26 @@ classifier_outputs_2 <- compute_top_features(outs_22,
                                              normalise_violin_plots = FALSE,
                                              method = "z-score",
                                              cor_method = "pearson",
-                                             test_method = "svmLinear",
-                                             use_empirical_null =  TRUE,
+                                             test_method = "gaussprRadial",
                                              use_k_fold = TRUE,
                                              num_folds = 10,
-                                             split_prop = 0.8,
-                                             num_shuffles = 10,
-                                             pool_empirical_null = TRUE,
-                                             use_balanced_accuracy = FALSE)
+                                             use_empirical_null =  TRUE,
+                                             num_permutations = 10,
+                                             pool_empirical_null = TRUE)
+
+classifier_outputs_3 <- compute_top_features(outs_22, 
+                                             id_var = "id", 
+                                             group_var = "group",
+                                             num_features = 40, 
+                                             normalise_violin_plots = FALSE,
+                                             method = "z-score",
+                                             cor_method = "pearson",
+                                             test_method = "gaussprRadial",
+                                             use_k_fold = FALSE,
+                                             num_folds = 10,
+                                             use_empirical_null =  FALSE,
+                                             num_permutations = 10,
+                                             pool_empirical_null = TRUE)
   
 # Two-class
 

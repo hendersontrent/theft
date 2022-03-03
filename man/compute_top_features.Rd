@@ -13,13 +13,11 @@ compute_top_features(
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
   cor_method = c("pearson", "spearman"),
   test_method = "gaussprRadial",
-  use_empirical_null = FALSE,
   use_k_fold = FALSE,
-  num_folds = 0,
-  split_prop = 0.8,
-  num_shuffles = 50,
-  pool_empirical_null = FALSE,
-  use_balanced_accuracy = FALSE
+  num_folds = 10,
+  use_empirical_null = FALSE,
+  num_permutations = 50,
+  pool_empirical_null = FALSE
 )
 }
 \arguments{
@@ -39,17 +37,15 @@ compute_top_features(
 
 \item{test_method}{the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}}
 
-\item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values if a \code{caret} model is specified for \code{test_method}. Defaults to \code{FALSE}}
-
 \item{use_k_fold}{a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates if a \code{caret} model is specified for \code{test_method}. Defaults to \code{ FALSE}}
 
 \item{num_folds}{an integer specifying the number of k-folds to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}}
 
-\item{split_prop}{a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to \code{0.8}}
-
-\item{num_shuffles}{an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{5}}
+\item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values if a \code{caret} model is specified for \code{test_method}. Defaults to \code{FALSE}}
 
 \item{pool_empirical_null}{a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if a \code{caret} model is specified for \code{test_method} use_empirical_null is \code{TRUE}. Defaults to \code{FALSE}}
+
+\item{num_shuffles}{an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{50}}
 
 \item{use_balanced_accuracy}{a Boolean specifying whether to use balanced accuracy as the performance metric instead of overall accuracy. Defaults to \code{FALSE}}
 }
@@ -76,13 +72,11 @@ compute_top_features(featMat,
   method = "RobustSigmoid",
   cor_method = "pearson",
   test_method = "gaussprRadial",
-  use_empirical_null = FALSE,
   use_k_fold = FALSE,
   num_folds = 10,
-  split_prop = 0.8,
-  num_shuffles = 50,
-  pool_empirical_null = FALSE,
-  use_balanced_accuracy = FALSE) 
+  use_empirical_null = TRUE,
+  num_permutations = 50,
+  pool_empirical_null = FALSE) 
 }
 
 }

@@ -8,14 +8,12 @@ fit_feature_classifier(
   data,
   id_var = "id",
   group_var = "group",
-  test_method = c("t-test", "wilcox", "binomial logistic", "linear svm", "rbf svm"),
-  use_empirical_null = FALSE,
+  test_method = "gaussprRadial",
   use_k_fold = FALSE,
   num_folds = 10,
-  split_prop = 0.8,
-  num_shuffles = 50,
-  pool_empirical_null = FALSE,
-  use_balanced_accuracy = FALSE
+  use_empirical_null = FALSE,
+  num_permutations = 50,
+  pool_empirical_null = FALSE
 )
 }
 \arguments{
@@ -25,21 +23,17 @@ fit_feature_classifier(
 
 \item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}}
 
-\item{test_method}{the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}}
-
-\item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values if a \code{caret} model is specified for \code{test_method}. Defaults to \code{FALSE}}
+\item{test_method}{the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}. Should be either \code{"t-test"}, \code{"wilcox"}, or \code{"binomial logistic"} for two-class problems to obtain exact statistics, or a valid \code{caret} classification model for everything else}
 
 \item{use_k_fold}{a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates if a \code{caret} model is specified for \code{test_method}. Defaults to \code{ FALSE}}
 
 \item{num_folds}{an integer specifying the number of k-folds to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}}
 
-\item{split_prop}{a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to \code{0.8}}
+\item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values if a \code{caret} model is specified for \code{test_method}. Defaults to \code{FALSE}}
 
-\item{num_shuffles}{an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{5}}
+\item{num_permutations}{an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{50}}
 
 \item{pool_empirical_null}{a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if a \code{caret} model is specified for \code{test_method} use_empirical_null is \code{TRUE}. Defaults to \code{FALSE}}
-
-\item{use_balanced_accuracy}{a Boolean specifying whether to use balanced accuracy as the performance metric instead of overall accuracy. Defaults to \code{FALSE}}
 }
 \value{
 an object of class dataframe containing results
@@ -60,13 +54,11 @@ fit_feature_classifier(featMat,
   id_var = "id",
   group_var = "group",
   test_method = "linear svm",
-  use_empirical_null = TRUE,
   use_k_fold = TRUE,
   num_folds = 10,
-  split_prop = 0.8,
-  num_shuffles = 5,
-  pool_empirical_null = FALSE,
-  use_balanced_accuracy = FALSE) 
+  use_empirical_null = TRUE,
+  num_permutations = 50,
+  pool_empirical_null = FALSE) 
 }
 
 }

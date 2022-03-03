@@ -226,7 +226,7 @@ This function returns an object with three components to summarise the above ste
 2. `FeatureFeatureCorrelationPlot` -- a `ggplot` containing the pairwise correlations between top performing features represented as a heatmap
 3. `ViolinPlots` -- a `ggplot` containing a matrix of violin plots showing class discrimination by feature
 
-The code below produces analysis for a multiclass problem using a Gaussian process classifier with a radial basis function kernel. It implements a custom "empirical null" procedure for estimating a *p*-value based on classification accuracy of the real data compared to a distribution of null samples built from classification accuracies of the same data but with random class label shuffles. We'll enable a [k-fold cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) procedure too for good measure. Note that using these procedures increases the computation time. Electing to not use an empirical null will be faster, but top features will be determined based off classification accuracy of features and not p-values.
+The code below produces analysis for a multiclass problem using a Gaussian process classifier with a radial basis function kernel. It implements a custom "empirical null" procedure for estimating a *p*-value based on classification accuracy of the real data compared to a distribution of null samples built from classification accuracies of the same data but with random class label shuffles. This is also known as permutation testing (see [this document](https://faculty.washington.edu/kenrice/sisg/SISG-08-06.pdf)^[Rice, Ken & Lumley, Thomas. (2008) "Permutation tests"] for a good overview). We'll enable a [k-fold cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) procedure too for good measure. Note that using these procedures increases the computation time. Electing to not use an empirical null will be faster, but top features will be determined based off classification accuracy of features and not *p*-values.
 
 ```{r, message = FALSE, warning = FALSE}
 classifier_outputs <- compute_top_features(feature_matrix, 
@@ -237,13 +237,11 @@ classifier_outputs <- compute_top_features(feature_matrix,
                                            method = "RobustSigmoid",
                                            cor_method = "pearson",
                                            test_method = "gaussprRadial",
-                                           use_empirical_null =  TRUE,
                                            use_k_fold = TRUE,
                                            num_folds = 10,
-                                           split_prop = 0.8,
-                                           num_shuffles = 25,
-                                           pool_empirical_null = FALSE,
-                                           use_balanced_accuracy = FALSE)
+                                           use_empirical_null =  TRUE,
+                                           num_permutations = 25,
+                                           pool_empirical_null = FALSE)
 ```
 
 Note that if you set `pool_empirical_null = TRUE` this will compute statistical analysis for each feature against the entire pooled empirical null classification results of all features. Setting it to `FALSE` will compute a *p*-value for each feature against only its empirical null distribution. Further, if `use_balanced_accuracy` is set to `TRUE`, class-balanced classification accuracy will be used instead of overall accuracy.
@@ -297,12 +295,10 @@ multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix2,
                                                         group_var = "group", 
                                                         by_set = TRUE, 
                                                         test_method = "gaussprRadial",
-                                                        use_empirical_null =  TRUE,
                                                         use_k_fold = TRUE,
                                                         num_folds = 10,
-                                                        split_prop = 0.8,
-                                                        num_shuffles = 25,
-                                                        use_balanced_accuracy = FALSE)
+                                                        use_empirical_null =  TRUE,
+                                                        num_permutations = 50)
 ```
 
 We can now access the various named objects returned by this function, which include:

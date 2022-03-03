@@ -131,11 +131,10 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
 #' @param cor_method the correlation method to use. Defaults to \code{"pearson"}
 #' @param test_method the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}
-#' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if a \code{caret} model is specified for \code{test_method}. Defaults to \code{FALSE}
 #' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates if a \code{caret} model is specified for \code{test_method}. Defaults to \code{ FALSE}
 #' @param num_folds an integer specifying the number of k-folds to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}
-#' @param num_shuffles an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{5}
-#' @param split_prop a double between 0 and 1 specifying the proportion of input data that should go into the training set (therefore 1 - p goes into the test set). Defaults to \code{0.8}
+#' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if a \code{caret} model is specified for \code{test_method}. Defaults to \code{FALSE}
+#' @param num_shuffles an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{50}
 #' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if a \code{caret} model is specified for \code{test_method} use_empirical_null is \code{TRUE}. Defaults to \code{FALSE}
 #' @param use_balanced_accuracy a Boolean specifying whether to use balanced accuracy as the performance metric instead of overall accuracy. Defaults to \code{FALSE}
 #' @return an object of class list containing a dataframe of results, a feature x feature matrix plot, and a violin plot
@@ -158,13 +157,11 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #'   method = "RobustSigmoid",
 #'   cor_method = "pearson",
 #'   test_method = "gaussprRadial",
-#'   use_empirical_null = FALSE,
 #'   use_k_fold = FALSE,
 #'   num_folds = 10,
-#'   split_prop = 0.8,
-#'   num_shuffles = 50,
-#'   pool_empirical_null = FALSE,
-#'   use_balanced_accuracy = FALSE) 
+#'   use_empirical_null = TRUE,
+#'   num_permutations = 50,
+#'   pool_empirical_null = FALSE) 
 #' }
 #' 
 
@@ -174,9 +171,9 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                  cor_method = c("pearson", "spearman"),
                                  test_method = "gaussprRadial",
-                                 use_empirical_null = FALSE, use_k_fold = FALSE,
-                                 num_folds = 0, split_prop = 0.8, num_shuffles = 50, 
-                                 pool_empirical_null = FALSE, use_balanced_accuracy = FALSE){
+                                 use_k_fold = FALSE, num_folds = 10, 
+                                 use_empirical_null = FALSE, num_permutations = 50, 
+                                 pool_empirical_null = FALSE){
   
   # Make RobustSigmoid the default
   
@@ -301,24 +298,16 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     stop("num_folds should be a positive integer. 10 folds is recommended.")
   }
   
-  if(use_empirical_null == TRUE && !is.numeric(num_shuffles)){
-    stop("num_shuffles should be a postive integer. A minimum of 50 shuffles is recommended.")
+  if(use_empirical_null == TRUE && !is.numeric(num_permutations)){
+    stop("num_permutations should be a postive integer. A minimum of 50 permutations is recommended.")
   }
   
-  if(use_empirical_null == TRUE && num_shuffles < 3){
-    stop("num_shuffles should be a positive integer >= 3 for empirical null calculations. A minimum of 50 shuffles is recommended.")
+  if(use_empirical_null == TRUE && num_permutations < 3){
+    stop("num_permutations should be a positive integer >= 3 for empirical null calculations. A minimum of 50 permutations is recommended.")
   }
   
   if(use_k_fold == TRUE && num_folds < 1){
     stop("num_folds should be a positive integer. 10 folds is recommended.")
-  }
-  
-  if(!is.numeric(split_prop)){
-    stop("split_prop should be a scalar between 0 and 1 specifying the proportion of input data that should go into the training set.")
-  }
-  
-  if(split_prop < 0 || split_prop > 1){
-    stop("split_prop should be a scalar between 0 and 1 specifying the proportion of input data that should go into the training set.")
   }
   
   # Number of top features
@@ -354,16 +343,14 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                               use_k_fold = use_k_fold,
                                               use_empirical_null = use_empirical_null,
                                               num_folds = num_folds,
-                                              split_prop = split_prop,
-                                              num_shuffles = num_shuffles,
-                                              pool_empirical_null = pool_empirical_null,
-                                              use_balanced_accuracy = use_balanced_accuracy)
+                                              num_permutations = num_permutations,
+                                              pool_empirical_null = pool_empirical_null)
   
   # Filter results to get list of top features
   
   if(test_method %in% c("t-test", "wilcox", "binomial logistic")){
     
-    message("Selecting top features using p-values.")
+    message("\nSelecting top features using p-values.")
     
     ResultsTable <- classifierOutputs %>%
       dplyr::slice_min(p_value, n = num_features)
@@ -372,7 +359,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     
     if(use_empirical_null == FALSE){
       
-      message("Selecting top features using mean classification accuracy.")
+      message("\nSelecting top features using mean classification accuracy.")
       
       ResultsTable <- classifierOutputs %>%
         dplyr::slice_max(statistic_value, n = num_features)
@@ -386,14 +373,14 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
       
       if(length(unique(unique_p_values$feature)) > num_features || length(unique(unique_p_values$p_value)) == 1){
         
-        message("Not enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
+        message("\nNot enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
         
         ResultsTable <- classifierOutputs %>%
           dplyr::slice_max(statistic_value, n = num_features)
         
       } else{
         
-        message("Selecting top features using p-value.")
+        message("\nSelecting top features using p-value.")
         
         ResultsTable <- classifierOutputs %>%
           dplyr::slice_min(p_value, n = num_features)
