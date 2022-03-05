@@ -49,7 +49,6 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
     
     # Run procedure
     
-    
     nullOuts <- 1:num_permutations %>%
       purrr::map( ~ fit_empirical_null_models(data = tmp, 
                                               s = .x,
@@ -400,11 +399,11 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
     # Set up progress bar for {purrr::map} iterations
     
-    pb <- dplyr::progress_estimated(length(1:num_permutations))
+    pb <- dplyr::progress_estimated(length(3:ncol(data_id)))
     
     # Very important coffee console message
     
-    if(use_empirical_null & (num_permutations > 10 | (ncol(data_id) - 1) > 22)){
+    if(use_empirical_null & (num_permutations > 10 | length(3:ncol(data_id)) > 22)){
       message("This will take a while. Great reason to go grab a coffee and relax ^_^")
     }
     
@@ -414,13 +413,13 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
     output <- 3:ncol(data_id) %>%
       purrr::map(~ fit_univariate_models_safe(data = data_id, 
-                                         test_method = test_method, 
-                                         use_k_fold = use_k_fold,
-                                         num_folds = num_folds,
-                                         use_empirical_null = use_empirical_null,
-                                         num_permutations = num_permutations,
-                                         feature = .x,
-                                         pb = pb))
+                                              test_method = test_method, 
+                                              use_k_fold = use_k_fold,
+                                              num_folds = num_folds,
+                                              use_empirical_null = use_empirical_null,
+                                              num_permutations = num_permutations,
+                                              feature = .x,
+                                              pb = pb))
     
     output <- output[!sapply(output, is.null)]
     output <- data.table::rbindlist(output, use.names = TRUE)
