@@ -16,6 +16,8 @@ compute_top_features(
   use_k_fold = FALSE,
   num_folds = 10,
   use_empirical_null = FALSE,
+  null_testing_method = c("model free shuffles", "null model fits"),
+  p_value_method = c("empirical", "gaussian"),
   num_permutations = 50,
   pool_empirical_null = FALSE
 )
@@ -43,11 +45,13 @@ compute_top_features(
 
 \item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values if a \code{caret} model is specified for \code{test_method}. Defaults to \code{FALSE}}
 
+\item{null_testing_method}{a string specifying the type of statistical method to use to calculate p-values. Defaults to \code{model free shuffles}}
+
+\item{p_value_method}{a string specifying the method of calculating p-values. Defaults to \code{"empirical"}}
+
+\item{num_permutations}{an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{50}}
+
 \item{pool_empirical_null}{a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if a \code{caret} model is specified for \code{test_method} use_empirical_null is \code{TRUE}. Defaults to \code{FALSE}}
-
-\item{num_shuffles}{an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{50}}
-
-\item{use_balanced_accuracy}{a Boolean specifying whether to use balanced accuracy as the performance metric instead of overall accuracy. Defaults to \code{FALSE}}
 }
 \value{
 an object of class list containing a dataframe of results, a feature x feature matrix plot, and a violin plot
@@ -75,7 +79,9 @@ compute_top_features(featMat,
   use_k_fold = FALSE,
   num_folds = 10,
   use_empirical_null = TRUE,
-  num_permutations = 50,
+  null_testing_method = "model free shuffles",
+  p_value_method = "empirical",
+  num_permutations = 100,
   pool_empirical_null = FALSE) 
 }
 
