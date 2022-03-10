@@ -246,7 +246,7 @@ Note that `model free shuffles` is incompatible with `pool_empirical_null = TRUE
 classifier_outputs <- compute_top_features(feature_matrix, 
                                            id_var = "id", 
                                            group_var = "group",
-                                           num_features = 40, 
+                                           num_features = 10, 
                                            normalise_violin_plots = FALSE,
                                            method = "RobustSigmoid",
                                            cor_method = "pearson",
@@ -312,9 +312,9 @@ multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix2,
                                                         use_k_fold = TRUE,
                                                         num_folds = 10,
                                                         use_empirical_null =  TRUE,
-                                                        null_testing_method = "model free shuffles",
-                                                        p_value_method = "empirical",
-                                                        num_permutations = 1000)
+                                                        null_testing_method = "null model fits",
+                                                        p_value_method = "gaussian",
+                                                        num_permutations = 10)
 ```
 
 We can now access the various named objects returned by this function, which include:
