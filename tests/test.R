@@ -81,12 +81,14 @@ feature_matrix2 <- calculate_features(data = simData,
 multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix2, id_var = "id", group_var = "group",
                                                         by_set = TRUE, test_method = "gaussprRadial",
                                                         use_k_fold = TRUE, num_folds = 10, 
-                                                        use_empirical_null = TRUE, num_permutations = 10)
+                                                        use_empirical_null = TRUE, null_testing_method = "model free shuffles",
+                                                        p_value_method = "empirical", num_permutations = 100)
 
 multi_classifier_outputs2 <- fit_multivariate_classifier(feature_matrix2, id_var = "id", group_var = "group",
                                                         by_set = FALSE, test_method = "svmLinear",
                                                         use_k_fold = FALSE, num_folds = 10, 
-                                                        use_empirical_null = FALSE, num_permutations = 10)
+                                                        use_empirical_null = TRUE, null_testing_method = "null model fits",
+                                                        p_value_method = "empirical", num_permutations = 50)
 
 # Test 8: Feature-level classification
 
@@ -103,7 +105,9 @@ classifier_outputs <- compute_top_features(outs_22,
                                            use_k_fold = TRUE,
                                            num_folds = 10,
                                            use_empirical_null =  TRUE,
-                                           num_permutations = 10,
+                                           null_testing_method = "model free shuffles",
+                                           num_permutations = 100,
+                                           p_value_method = "empirical",
                                            pool_empirical_null = FALSE) 
 
 classifier_outputs_2 <- compute_top_features(outs_22, 
@@ -117,7 +121,9 @@ classifier_outputs_2 <- compute_top_features(outs_22,
                                              use_k_fold = TRUE,
                                              num_folds = 10,
                                              use_empirical_null =  TRUE,
+                                             null_testing_method = "null model fits",
                                              num_permutations = 10,
+                                             p_value_method = "gaussian",
                                              pool_empirical_null = TRUE)
 
 classifier_outputs_3 <- compute_top_features(outs_22, 

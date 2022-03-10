@@ -12,8 +12,11 @@ fit_feature_classifier(
   use_k_fold = FALSE,
   num_folds = 10,
   use_empirical_null = FALSE,
+  null_testing_method = c("model free shuffles", "null model fits"),
+  p_value_method = c("empirical", "gaussian"),
   num_permutations = 50,
-  pool_empirical_null = FALSE
+  pool_empirical_null = FALSE,
+  return_raw_estimates = FALSE
 )
 }
 \arguments{
@@ -31,9 +34,15 @@ fit_feature_classifier(
 
 \item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values if a \code{caret} model is specified for \code{test_method}. Defaults to \code{FALSE}}
 
+\item{null_testing_method}{a string specifying the type of statistical method to use to calculate p-values. Defaults to \code{model free shuffles}}
+
+\item{p_value_method}{a string specifying the method of calculating p-values. Defaults to \code{"empirical"}}
+
 \item{num_permutations}{an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{50}}
 
 \item{pool_empirical_null}{a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if a \code{caret} model is specified for \code{test_method} use_empirical_null is \code{TRUE}. Defaults to \code{FALSE}}
+
+\item{return_raw_estimates}{a Boolean (for testing purposes only -- will break \code{compute_top_features}!!) specifying whether to return the raw main and null model results}
 }
 \value{
 an object of class dataframe containing results
@@ -57,8 +66,11 @@ fit_feature_classifier(featMat,
   use_k_fold = TRUE,
   num_folds = 10,
   use_empirical_null = TRUE,
+  null_testing_method = "model free shuffles",
+  p_value_method = "empirical",
   num_permutations = 50,
-  pool_empirical_null = FALSE) 
+  pool_empirical_null = FALSE,
+  return_raw_estimates = FALSE) 
 }
 
 }

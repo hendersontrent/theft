@@ -4,7 +4,7 @@
 # Model fitting
 #--------------
 
-fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, num_permutations, feature, pb){
+fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, null_testing_method, num_permutations, feature, pb){
   
   # Print {purrr} iteration progress updates in the console
   
@@ -29,37 +29,52 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
                         trControl = fitControl,
                         preProcess = c("center", "scale"))
     
+    # Get main predictions
+    
+    mainOuts <- extract_prediction_accuracy(mod = mod) %>%
+      dplyr::mutate(category = "Main")
+    
   } else{
     
-    fitControl <- caret::trainControl(classProbs = TRUE)
+    fitControl <- caret::trainControl(method = "none",
+                                      classProbs = TRUE)
     
     mod <- caret::train(group ~ ., 
                         data = tmp, 
                         method = test_method, 
                         trControl = fitControl,
                         preProcess = c("center", "scale"))
+    
+    # Get main predictions
+    
+    mainOuts <- as.data.frame(caret::confusionMatrix(tmp$group, predict(mod, newdata = tmp))$overall) %>%
+      dplyr::mutate(category = "Main") %>%
+      dplyr::filter(row_number() == 1) %>%
+      dplyr::rename(statistic = 1)
   }
-  
-  # Get main predictions
-  
-  mainOuts <- extract_prediction_accuracy(mod = mod) %>%
-    dplyr::mutate(category = "Main")
   
   if(use_empirical_null){
     
-    # Run procedure
-    
-    nullOuts <- 1:num_permutations %>%
-      purrr::map( ~ fit_empirical_null_models(data = tmp, 
-                                              s = .x,
-                                              test_method = test_method,
-                                              theControl = fitControl,
-                                              pb = NULL))
-    
-    nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
-      dplyr::mutate(category = "Null")
-    
-    finalOuts <- dplyr::bind_rows(mainOuts, nullOuts)
+    if(null_testing_method == "null model fits"){
+      
+      # Run procedure
+      
+      nullOuts <- 1:num_permutations %>%
+        purrr::map( ~ fit_empirical_null_models(data = tmp, 
+                                                s = .x,
+                                                test_method = test_method,
+                                                theControl = fitControl,
+                                                pb = NULL,
+                                                univariate = TRUE))
+      
+      nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
+        dplyr::mutate(category = "Null")
+      
+      finalOuts <- dplyr::bind_rows(mainOuts, nullOuts)
+      
+    } else{
+      finalOuts <- mainOuts
+    }
     
   } else{
     finalOuts <- mainOuts
@@ -76,9 +91,7 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
 # for empirical nulls
 #--------------------------
 
-# Pooled
-
-calculate_pooled_null <- function(null_vector, main_matrix, x){
+calculate_against_null_vector <- function(nulls, main_matrix, x, p_value_method){
   
   # Filter data matrix to feature of interest
   
@@ -89,10 +102,19 @@ calculate_pooled_null <- function(null_vector, main_matrix, x){
   
   stopifnot(length(true_val) == 1)
   
-  # Use ECDF to calculate p-value
-  
-  fn <- stats::ecdf(null_vector)
-  p_value <- 1 - fn(true_val)
+  if(p_value_method == "empirical"){
+    
+    # Use ECDF to calculate p-value
+    
+    fn <- stats::ecdf(nulls)
+    p_value <- 1 - fn(true_val)
+    
+  } else{
+    
+    # Calculate p-value from Gaussian with null distribution parameters
+    
+    p_value <- 1 - pnorm(true_val, mean = mean(nulls), sd = stats::sd(nulls))
+  }
   
   tmp_outputs <- data.frame(feature = names(main_matrix)[x],
                             statistic_value = true_val,
@@ -103,28 +125,37 @@ calculate_pooled_null <- function(null_vector, main_matrix, x){
 
 # Unpooled
 
-calculate_unpooled_null <- function(.data, x){
+calculate_unpooled_null <- function(.data, x, p_value_method){
   
   # Filter data matrix to feature of interest
   
-  tmp <- .data %>%
+  vals <- .data %>%
     dplyr::select(category, dplyr::all_of(x)) %>%
     dplyr::rename(statistic = 2)
   
-  true_val <- tmp %>%
+  true_val <- vals %>%
     dplyr::filter(category == "Main") %>%
     dplyr::pull(statistic)
   
   stopifnot(length(true_val) == 1)
   
-  nulls <- tmp %>%
+  nulls <- vals %>%
     dplyr::filter(category == "Null") %>%
     dplyr::pull(statistic)
   
-  # Use ECDF to calculate p-value
-  
-  fn <- stats::ecdf(nulls)
-  p_value <- 1 - fn(true_val)
+  if(p_value_method == "empirical"){
+    
+    # Use ECDF to calculate p-value
+    
+    fn <- stats::ecdf(nulls)
+    p_value <- 1 - fn(true_val)
+    
+  } else{
+    
+    # Calculate p-value from Gaussian with null distribution parameters
+    
+    p_value <- 1 - stats::pnorm(true_val, mean = mean(nulls), sd = sd(nulls))
+  }
   
   tmp_outputs <- data.frame(feature = names(.data)[x],
                             statistic_value = true_val,
@@ -152,14 +183,14 @@ gather_binomial_info <- function(data, x){
 #' Fit a classifier to feature matrix to extract top performers
 #' @import dplyr
 #' @importFrom magrittr %>%
-#' @importFrom tidyr drop_na pivot_wider crossing
+#' @importFrom tidyr drop_na pivot_wider
 #' @importFrom tibble rownames_to_column
 #' @importFrom e1071 svm
 #' @importFrom data.table rbindlist
-#' @importFrom stats glm binomial sd wilcox.test t.test ecdf
+#' @importFrom stats glm binomial sd wilcox.test t.test ecdf pnorm
 #' @importFrom purrr map possibly
 #' @importFrom janitor clean_names
-#' @importFrom caret createDataPartition preProcess train
+#' @importFrom caret preProcess train confusionMatrix
 #' @param data the dataframe containing the raw feature matrix
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}
@@ -167,8 +198,11 @@ gather_binomial_info <- function(data, x){
 #' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates if a \code{caret} model is specified for \code{test_method}. Defaults to \code{ FALSE}
 #' @param num_folds an integer specifying the number of k-folds to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}
 #' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if a \code{caret} model is specified for \code{test_method}. Defaults to \code{FALSE}
+#' @param null_testing_method a string specifying the type of statistical method to use to calculate p-values. Defaults to \code{model free shuffles}
+#' @param p_value_method a string specifying the method of calculating p-values. Defaults to \code{"empirical"}
 #' @param num_permutations an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{50}
 #' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if a \code{caret} model is specified for \code{test_method} use_empirical_null is \code{TRUE}. Defaults to \code{FALSE}
+#' @param return_raw_estimates a Boolean (for testing purposes only -- will break \code{compute_top_features}!!) specifying whether to return the raw main and null model results
 #' @return an object of class dataframe containing results
 #' @author Trent Henderson
 #' @export
@@ -188,16 +222,20 @@ gather_binomial_info <- function(data, x){
 #'   use_k_fold = TRUE,
 #'   num_folds = 10,
 #'   use_empirical_null = TRUE,
+#'   null_testing_method = "model free shuffles",
+#'   p_value_method = "empirical",
 #'   num_permutations = 50,
-#'   pool_empirical_null = FALSE) 
+#'   pool_empirical_null = FALSE,
+#'   return_raw_estimates = FALSE) 
 #' }
 #' 
 
 fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                    test_method = "gaussprRadial",
                                    use_k_fold = FALSE, num_folds = 10, 
-                                   use_empirical_null = FALSE, num_permutations = 50,
-                                   pool_empirical_null = FALSE){
+                                   use_empirical_null = FALSE, null_testing_method = c("model free shuffles", "null model fits"),
+                                   p_value_method = c("empirical", "gaussian"), num_permutations = 50,
+                                   pool_empirical_null = FALSE, return_raw_estimates = FALSE){
   
   #---------- Check arguments ------------
   
@@ -225,6 +263,47 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   
   if(!is.null(id_var) && !is.character(id_var)){
     stop("id_var should be a string specifying a variable in the input data that uniquely identifies each observation.")
+  }
+  # Null testing options
+  
+  theoptions <- c("model free shuffles", "null model fits")
+  
+  if(is.null(null_testing_method) || missing(null_testing_method)){
+    null_testing_method <- "model free shuffles"
+    message("No argument supplied to null_testing_method. Using 'model free shuffles' as default.")
+  }
+  
+  if(length(null_testing_method) != 1){
+    stop("null_testing_method should be a single string of either 'model free shuffles' or 'null model fits'.")
+  }
+  
+  if(null_testing_method %ni% theoptions){
+    stop("null_testing_method should be a single string of either 'model free shuffles' or 'null model fits'.")
+  }
+  
+  if(null_testing_method == "model free shuffles" && pool_empirical_null){
+    stop("'model free shuffles' and pooled empirical null are incompatible (pooled null combines each feature's null into a grand null and features don'tt get a null if 'model free shuffles' is used). Please respecify.")
+  }
+  
+  if(null_testing_method == "model free shuffles" && num_permutations < 1000){
+    message("Null testing method 'model free shuffles' is very fast. Consider running more permutations for more reliable results. N = 10000 is recommended.")
+  }
+  
+  # p-value options
+  
+  theoptions_p <- c("empirical", "gaussian")
+  
+  if(is.null(p_value_method) || missing(p_value_method)){
+    p_value_method <- "empirical"
+    message("No argument supplied to p_value_method Using 'empirical' as default.")
+  }
+  
+  if(length(p_value_method) != 1){
+    stop("p_value_method should be a single string of either 'empirical' or 'gaussian'.")
+  }
+  
+  if(p_value_method %ni% theoptions_p){
+    stop("p_value_method should be a single string of either 'empirical' or 'gaussian'.")
   }
   
   #------------- Renaming columns -------------
@@ -403,7 +482,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
     # Very important coffee console message
     
-    if(use_empirical_null & (num_permutations > 10 | length(3:ncol(data_id)) > 22)){
+    if(use_empirical_null & null_testing_method == "null model fits"){
       message("This will take a while. Great reason to go grab a coffee and relax ^_^")
     }
     
@@ -417,12 +496,31 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                               use_k_fold = use_k_fold,
                                               num_folds = num_folds,
                                               use_empirical_null = use_empirical_null,
+                                              null_testing_method = null_testing_method,
                                               num_permutations = num_permutations,
                                               feature = .x,
                                               pb = pb))
     
     output <- output[!sapply(output, is.null)]
     output <- data.table::rbindlist(output, use.names = TRUE)
+    
+    # Run nulls if random shuffles are to be used
+    
+    if(null_testing_method == "model free shuffles"){
+      
+      # Run random shuffles procedure
+      
+      nullOuts <- data.frame(statistic = simulate_null_acc(x = data_id$group, num_permutations = num_permutations)) %>%
+        dplyr::mutate(statistic_sd = NA,
+                      category = "Null",
+                      feature = "model free shuffles")
+      
+      output <- dplyr::bind_rows(output, nullOuts)
+    }
+    
+    if(return_raw_estimates){
+      return(output)
+    }
     
     # Compute statistics for each feature against empirical null distribution
     
@@ -432,7 +530,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
         
         # Set up vector of null accuracies across all features
         
-        null_vector <- output %>%
+        nulls <- output %>%
           dplyr::filter(category == "Null") %>%
           dplyr::pull(statistic)
         
@@ -449,24 +547,47 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
         # Calculate p-values for each feature
         
         feature_statistics <- 2:ncol(main_matrix) %>%
-          purrr::map(~ calculate_pooled_null(null_vector = null_vector, main_matrix = main_matrix, x = .x))
+          purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, x = .x, p_value_method = p_value_method))
         
       } else{
         
-        # Widen data matrix
-        
-        main_matrix <- output %>%
-          dplyr::group_by(feature) %>%
-          dplyr::mutate(id = row_number()) %>%
-          dplyr::ungroup() %>%
-          tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
-          dplyr::select(-c(id))
-        
-        # Calculate p-values for each feature
-        
-        feature_statistics <- 2:ncol(main_matrix) %>%
-          purrr::map(~ calculate_unpooled_null(.data = main_matrix, x = .x))
-        
+        if(null_testing_method == "null model fits"){
+          
+          # Widen data matrix
+          
+          main_matrix <- output %>%
+            dplyr::group_by(feature) %>%
+            dplyr::mutate(id = row_number()) %>%
+            dplyr::ungroup() %>%
+            tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
+            dplyr::select(-c(id))
+          
+          # Calculate p-values for each feature
+          
+          feature_statistics <- 2:ncol(main_matrix) %>%
+            purrr::map(~ calculate_unpooled_null(.data = main_matrix, x = .x, p_value_method = p_value_method))
+          
+        } else{
+          
+          # Set up vector of null accuracies across all features
+          
+          nulls <- output %>%
+            dplyr::filter(category == "Null") %>%
+            dplyr::pull(statistic)
+          
+          # Widen main results matrix
+          
+          main_matrix <- output %>%
+            dplyr::filter(category == "Main") %>%
+            dplyr::group_by(feature) %>%
+            dplyr::mutate(id = row_number()) %>%
+            dplyr::ungroup() %>%
+            tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
+            dplyr::select(-c(id))
+          
+          feature_statistics <- 2:ncol(main_matrix) %>%
+            purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, x = .x, p_value_method = p_value_method))
+        }
       }
       
       # Bind together
