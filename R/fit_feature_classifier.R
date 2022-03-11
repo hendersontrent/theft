@@ -113,7 +113,7 @@ calculate_against_null_vector <- function(nulls, main_matrix, x, p_value_method)
     
     # Calculate p-value from Gaussian with null distribution parameters
     
-    p_value <- 1 - pnorm(true_val, mean = mean(nulls), sd = stats::sd(nulls))
+    p_value <- stats::pnorm(true_val, mean = mean(nulls), sd = stats::sd(nulls), lower.tail = FALSE)
   }
   
   tmp_outputs <- data.frame(feature = names(main_matrix)[x],
@@ -154,7 +154,7 @@ calculate_unpooled_null <- function(.data, x, p_value_method){
     
     # Calculate p-value from Gaussian with null distribution parameters
     
-    p_value <- 1 - stats::pnorm(true_val, mean = mean(nulls), sd = sd(nulls))
+    p_value <- stats::pnorm(true_val, mean = mean(nulls), sd = stats::sd(nulls), lower.tail = FALSE)
   }
   
   tmp_outputs <- data.frame(feature = names(.data)[x],
@@ -185,7 +185,6 @@ gather_binomial_info <- function(data, x){
 #' @importFrom magrittr %>%
 #' @importFrom tidyr drop_na pivot_wider
 #' @importFrom tibble rownames_to_column
-#' @importFrom e1071 svm
 #' @importFrom data.table rbindlist
 #' @importFrom stats glm binomial sd wilcox.test t.test ecdf pnorm
 #' @importFrom purrr map possibly

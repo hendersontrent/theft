@@ -235,7 +235,7 @@ calculate_multivariate_statistics <- function(data, set = NULL, p_value_method){
     
     # Calculate p-value from Gaussian with null distribution parameters
     
-    p_value <- 1 - stats::pnorm(true_val, mean = mean(nulls), sd = stats::sd(nulls))
+    p_value <- stats::pnorm(true_val, mean = mean(nulls), sd = stats::sd(nulls), lower.tail = FALSE)
   }
   
   tmp_outputs <- data.frame(statistic_value = true_val,
