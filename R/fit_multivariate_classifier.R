@@ -209,7 +209,7 @@ calculate_multivariate_statistics <- function(data, set = NULL, p_value_method){
   
   if(!is.null(set)){
     vals <- data %>%
-      dplyr::filter(method == set | method == "model free shuffles")
+      dplyr::filter(method %in% c(set, "model free shuffles"))
   } else{
     vals <- data
   }
@@ -600,7 +600,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       
     if(use_empirical_null){
       
-      TestStatistics <- calculate_multivariate_statistics(data = output, set = NULL) %>%
+      TestStatistics <- calculate_multivariate_statistics(data = output, set = NULL, p_value_method = p_value_method) %>%
         dplyr::mutate(classifier_name = classifier_name,
                       statistic_name = statistic_name)
       
