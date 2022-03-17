@@ -37,7 +37,8 @@ extract_prediction_accuracy <- function(mod){
   results <- as.data.frame(mod$results) %>%
     dplyr::select(c(Accuracy, AccuracySD)) %>%
     dplyr::rename(statistic = Accuracy,
-                  statistic_sd = AccuracySD)
+                  statistic_sd = AccuracySD) %>%
+    dplyr::slice_max(statistic, n = 1) # Catches cases where multiple results are returned by {caret} in `mod`
 
   return(results)
 }
