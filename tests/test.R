@@ -69,7 +69,7 @@ plot_feature_correlations(outs_22, is_normalised = FALSE, id_var = "id", names_v
 plot_feature_correlations(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", cor_method = "spearman", interactive = FALSE)
 plot_feature_correlations(outs_22, is_normalised = FALSE, id_var = "id", names_var = "names", values_var = "values", method = "RobustSigmoid", interactive = TRUE)
 
-# Test 9: Multivariate classification
+# Test 9: Multivariable classification
 
 feature_matrix2 <- calculate_features(data = simData, 
                                       id_var = "id", 
@@ -78,13 +78,13 @@ feature_matrix2 <- calculate_features(data = simData,
                                       group_var = "process", 
                                       feature_set = c("catch22", "feasts"))
 
-multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix2, id_var = "id", group_var = "group",
+multi_classifier_outputs <- fit_multivariable_classifier(feature_matrix2, id_var = "id", group_var = "group",
                                                         by_set = TRUE, test_method = "gaussprRadial",
                                                         use_k_fold = TRUE, num_folds = 10, 
                                                         use_empirical_null = TRUE, null_testing_method = "model free shuffles",
                                                         p_value_method = "empirical", num_permutations = 100)
 
-multi_classifier_outputs2 <- fit_multivariate_classifier(feature_matrix2, id_var = "id", group_var = "group",
+multi_classifier_outputs2 <- fit_multivariable_classifier(feature_matrix2, id_var = "id", group_var = "group",
                                                         by_set = FALSE, test_method = "svmLinear",
                                                         use_k_fold = FALSE, num_folds = 10, 
                                                         use_empirical_null = TRUE, null_testing_method = "null model fits",

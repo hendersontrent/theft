@@ -96,7 +96,7 @@ fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NUL
 # Model fitting
 #--------------
 
-fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, null_testing_method, num_permutations, set = NULL){
+fit_multivariable_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, null_testing_method, num_permutations, set = NULL){
   
   # Set up input matrices
   
@@ -204,7 +204,7 @@ fit_multivariate_models <- function(data, test_method, use_k_fold, num_folds, us
 # p-value calculation
 #--------------------
 
-calculate_multivariate_statistics <- function(data, set = NULL, p_value_method){
+calculate_multivariable_statistics <- function(data, set = NULL, p_value_method){
   
   # Wrangle vectors
   
@@ -287,7 +287,7 @@ calculate_multivariate_statistics <- function(data, set = NULL, p_value_method){
 #'   group_var = "process", 
 #'   feature_set = "catch22")
 #'   
-#' fit_multivariate_classifier(featMat,
+#' fit_multivariable_classifier(featMat,
 #'   id_var = "id",
 #'   group_var = "group",
 #'   by_set = FALSE,
@@ -301,7 +301,7 @@ calculate_multivariate_statistics <- function(data, set = NULL, p_value_method){
 #' }
 #' 
 
-fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group",
+fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group",
                                         by_set = FALSE, test_method = "gaussprRadial",
                                         use_k_fold = TRUE, num_folds = 10, 
                                         use_empirical_null = FALSE, null_testing_method = c("model free shuffles", "null model fits"),
@@ -447,10 +447,10 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
   nrows <- nrow(data_id)
   
   data_id <- data_id %>%
-    dplyr::filter(!is.na(group))
+    tidyr::drop_na()
   
   if(nrow(data_id) < nrows){
-    message(paste0("Dropped ", nrows - nrow(data_id), " time series due to NaN values in the 'group' variable."))
+    message(paste0("Dropped ", nrows - nrow(data_id), " unique IDs due to NA values."))
   }
   
   # Clean up column (feature) names so models fit properly (mainly an issue with SVM formula) and re-join set labels
@@ -486,7 +486,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     # Compute accuracies for each feature set
     
     output <- sets %>%
-      purrr::map(~ fit_multivariate_models(data = data_id, 
+      purrr::map(~ fit_multivariable_models(data = data_id, 
                                            test_method = test_method, 
                                            use_k_fold = use_k_fold, 
                                            num_folds = num_folds, 
@@ -499,7 +499,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     
   } else{
     
-    output <- fit_multivariate_models(data = data_id, 
+    output <- fit_multivariable_models(data = data_id, 
                                       test_method = test_method, 
                                       use_k_fold = use_k_fold, 
                                       num_folds = num_folds, 
@@ -574,7 +574,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
     if(use_empirical_null){
         
       TestStatistics <- sets %>%
-        purrr::map(~ calculate_multivariate_statistics(data = output, set = .x, p_value_method = p_value_method))
+        purrr::map(~ calculate_multivariable_statistics(data = output, set = .x, p_value_method = p_value_method))
       
       TestStatistics <- data.table::rbindlist(TestStatistics, use.names = TRUE) %>%
         dplyr::mutate(classifier_name = classifier_name,
@@ -601,7 +601,7 @@ fit_multivariate_classifier <- function(data, id_var = "id", group_var = "group"
       
     if(use_empirical_null){
       
-      TestStatistics <- calculate_multivariate_statistics(data = output, set = NULL, p_value_method = p_value_method) %>%
+      TestStatistics <- calculate_multivariable_statistics(data = output, set = NULL, p_value_method = p_value_method) %>%
         dplyr::mutate(classifier_name = classifier_name,
                       statistic_name = statistic_name)
       

@@ -374,7 +374,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     dplyr::select(where(~dplyr::n_distinct(.) > 1))
   
   if(ncol(data_id) < ncols){
-    message(paste0("Dropped ", ncols - ncol(data_id), " features due to containing NAs or only a constant."))
+    message(paste0("Dropped ", ncols - ncol(data_id), " features due to containing all NAs or only a constant."))
   }
   
   # Check NAs
@@ -382,10 +382,10 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   nrows <- nrow(data_id)
   
   data_id <- data_id %>%
-    dplyr::filter(!is.na(group))
+    tidyr::drop_na()
   
   if(nrow(data_id) < nrows){
-    message(paste0("Dropped ", nrows - nrow(data_id), " time series due to NaN values in the 'group' variable."))
+    message(paste0("Dropped ", nrows - nrow(data_id), " unique IDs due to NA values."))
   }
   
   # Clean up column (feature) names so models fit properly (mainly an issue with SVM formula)
