@@ -256,7 +256,7 @@ classifier_outputs <- compute_top_features(feature_matrix,
                                            use_empirical_null =  TRUE,
                                            null_testing_method = "model free shuffles",
                                            p_value_method = "empirical",
-                                           num_permutations = 10,
+                                           num_permutations = 1000,
                                            pool_empirical_null = FALSE)
 ```
 
@@ -286,9 +286,9 @@ print(classifier_outputs$ViolinPlots)
 
 For two-class problems, users can fit statistical models to directly compute *p*-values by specifying one of the following models as the string argument to `test_method`: `"t-test"`, `"wilcox"` or `"binomial logistic"`. `theft` has special procedures for these three options if a two-class problem is registered. For multiclass problems, users can specify any model name string that is a valid `method` name in the popular [`caret`](https://topepo.github.io/caret/train-models-by-tag.html) package and `theft` will pass this through to the relevant sub-procedures.
 
-## Multivariate
+## Multivariable
 
-A multivariate option is also available. The `fit_multivariate_classifier` function fits all features at once instead of by individual features to estimate classification accuracy. This can be split by feature set (if the `by_set` argument is set to `TRUE`) to enable systematic comparisons between those made available in `theft`.
+A multivariable option is also available. The `fit_multivariable_classifier` function fits all features at once instead of by individual features to estimate classification accuracy. This can be split by feature set (if the `by_set` argument is set to `TRUE`) to enable systematic comparisons between those made available in `theft`.
 
 First, let's calculate features with more than one set -- we'll just use `catch22` and `feasts` as they are the fastest R-based feature sets in `theft`:
 
@@ -301,10 +301,10 @@ feature_matrix2 <- calculate_features(data = simData,
                                       feature_set = c("catch22", "feasts"))
 ```
 
-Now we can use our multivariate functionality (note the similarity in options to the univariate version we specified above):
+Now we can use our multivariable functionality (note the similarity in options to the univariate version we specified above):
 
 ```{r, message = FALSE, warning = FALSE}
-multi_classifier_outputs <- fit_multivariate_classifier(feature_matrix2, 
+multi_classifier_outputs <- fit_multivariable_classifier(feature_matrix2, 
                                                         id_var = "id", 
                                                         group_var = "group", 
                                                         by_set = TRUE, 
@@ -341,7 +341,7 @@ And here's the raw classifier results:
 head(multi_classifier_outputs$RawClassificationResults)
 ```
 
-Note that for the multivariate version, only valid `caret` method names are able to be used to specify a `test_method`.
+Note that for the multivariable version, only valid `caret` method names are able to be used to specify a `test_method`.
 
 ## Reading and processing hctsa-formatted files
 
