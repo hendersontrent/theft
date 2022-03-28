@@ -32,18 +32,18 @@ simulate_null_acc <- function(x, num_permutations = 10000){
 
 # Function for returning accuracies over the train procedure
 
-extract_prediction_accuracy <- function(mod, balanced_accuracy = FALSE) {
+extract_prediction_accuracy <- function(mod, use_balanced_accuracy = FALSE) {
   results <- as.data.frame(mod$results)
-  if (balanced_accuracy) {
-    results <- results %>%
-      dplyr::select(c(Accuracy, Accuracy)) %>%
-      dplyr::rename(statistic = Accuracy,
-                    statistic_sd = AccuracySD)
-  } else {
+  if (use_balanced_accuracy) {
     results <- results %>%
       dplyr::select(c(Balanced_Accuracy, Balanced_AccuracySD)) %>%
       dplyr::rename(statistic = Balanced_Accuracy,
                     statistic_sd = Balanced_AccuracySD)
+  } else {
+    results <- results %>%
+        dplyr::select(c(Accuracy, AccuracySD)) %>%
+        dplyr::rename(statistic = Accuracy,
+                      statistic_sd = AccuracySD)
   }
 
   results <- results %>%
@@ -95,7 +95,7 @@ fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NUL
       dplyr::rename(statistic = 1)
 
   } else{
-    null_models <- extract_prediction_accuracy(mod = modNull)
+    null_models <- extract_prediction_accuracy(mod = modNull, use_balanced_accuracy = use_balanced_accuracy)
   }
 
   return(null_models)
@@ -169,7 +169,7 @@ fit_multivariable_models <- function(data, test_method, use_balanced_accuracy, u
 
     # Get main predictions
 
-    mainOuts <- extract_prediction_accuracy(mod = mod) %>%
+    mainOuts <- extract_prediction_accuracy(mod = mod, use_balanced_accuracy = use_balanced_accuracy) %>%
       dplyr::mutate(category = "Main")
 
   } else{
