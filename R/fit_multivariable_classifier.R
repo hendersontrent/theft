@@ -35,18 +35,18 @@ simulate_null_acc <- function(x, num_permutations = 10000){
 extract_prediction_accuracy <- function(mod, balanced_accuracy = FALSE) {
   results <- as.data.frame(mod$results)
   if (balanced_accuracy) {
-    results %<>%
+    results <- results %>%
       dplyr::select(c(Accuracy, Accuracy)) %>%
       dplyr::rename(statistic = Accuracy,
                     statistic_sd = AccuracySD)
   } else {
-    results %<>%
+    results <- results %>%
       dplyr::select(c(Balanced_Accuracy, Balanced_AccuracySD)) %>%
       dplyr::rename(statistic = Balanced_Accuracy,
                     statistic_sd = Balanced_AccuracySD)
   }
 
-  results %<>%
+  results <- results %>%
     dplyr::slice_max(statistic, n = 1) # Catches cases where multiple results are returned by {caret} in `mod`
 
   return(results)
