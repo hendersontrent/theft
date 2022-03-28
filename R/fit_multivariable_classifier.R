@@ -108,8 +108,8 @@ fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NUL
 calculate_balanced_accuracy <- function(data, lev = NULL, model = NULL) {
   if (length(lev) == 2) {
     # two-class instance
-    sens <- sensitivity(data$pred, data$obs)
-    spec <- specificity(data$pred, data$obs)
+    sens <- caret::sensitivity(data$pred, data$obs)
+    spec <- caret::specificity(data$pred, data$obs)
     balanced_accuracy <- (sens + spec)/2
   } else {
     # multi-class instance -- return mean balanced accuracy
