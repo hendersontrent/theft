@@ -106,12 +106,17 @@ fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NUL
 #--------------
 
 calculate_balanced_accuracy <- function(data, lev = NULL, model = NULL) {
-  if (length(lev) > 2) {
-    stop(paste("Your outcome has", length(lev), "levels. The twoClassSummary() function isn't appropriate."))
+  if (length(lev) == 2) {
+    # two-class instance
+    sens <- sensitivity(data$pred, data$obs)
+    spec <- specificity(data$pred, data$obs)
+    balanced_accuracy <- (sens + spec)/2
+  } else {
+    # multi-class instance -- return mean balanced accuracy
+    data_cm <- as.data.frame(caret::confusionMatrix(data$pred, data$obs)$byClass)
+    balanced_accuracy <- mean(data_cm$`Balanced Accuracy`, na.rm=T)
   }
-  sens <- sensitivity(data$pred, data$obs)
-  spec <- specificity(data$pred, data$obs)
-  balanced_accuracy <- (sens + spec)/2
+  
   names(balanced_accuracy) <- "Balanced_Accuracy"
   return(balanced_accuracy)
 }
