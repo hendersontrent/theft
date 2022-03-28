@@ -1,10 +1,11 @@
 #--------------- Helper functions ----------------
 
+
 #--------------
 # Model fitting
 #--------------
 
-fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_empirical_null, null_testing_method, num_permutations, feature, pb){
+fit_univariate_models <- function(data, test_method, use_k_fold, use_balanced_accuracy, num_folds, use_empirical_null, null_testing_method, num_permutations, feature, pb){
   
   # Print {purrr} iteration progress updates in the console
   
@@ -18,10 +19,16 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
   if(use_k_fold){
     
     # Train model
-    
-    fitControl <- caret::trainControl(method = "cv",
-                                      number = num_folds,
-                                      classProbs = TRUE)
+    if (use_balanced_accuracy) {
+      fitControl <- caret::trainControl(method = "cv",
+                                        number = num_folds,
+                                        summaryFunction = calculate_balanced_accuracy,
+                                        classProbs = TRUE)
+    } else {
+      fitControl <- caret::trainControl(method = "cv",
+                                        number = num_folds,
+                                        classProbs = TRUE)
+    }
     
     mod <- caret::train(group ~ ., 
                         data = tmp, 
@@ -31,13 +38,19 @@ fit_univariate_models <- function(data, test_method, use_k_fold, num_folds, use_
     
     # Get main predictions
     
-    mainOuts <- extract_prediction_accuracy(mod = mod) %>%
+    mainOuts <- extract_prediction_accuracy(mod = mod, use_balanced_accuracy = use_balanced_accuracy) %>%
       dplyr::mutate(category = "Main")
     
   } else{
     
-    fitControl <- caret::trainControl(method = "none",
-                                      classProbs = TRUE)
+    if (use_balanced_accuracy) {
+      fitControl <- caret::trainControl(method = "none",
+                                        summaryFunction = calculate_balanced_accuracy,
+                                        classProbs = TRUE)
+    } else {
+      fitControl <- caret::trainControl(method = "none",
+                                        classProbs = TRUE)
+    }
     
     mod <- caret::train(group ~ ., 
                         data = tmp, 
@@ -194,6 +207,7 @@ gather_binomial_info <- function(data, x){
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}
 #' @param test_method the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}. Should be either \code{"t-test"}, \code{"wilcox"}, or \code{"binomial logistic"} for two-class problems to obtain exact statistics, or a valid \code{caret} classification model for everything else 
+#' @param use_balanced_accuracy a Boolean specifying whether to use balanced accuracy as the summary metric for caret model training. Defaults to \code{FALSE}
 #' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates if a \code{caret} model is specified for \code{test_method}. Defaults to \code{ FALSE}
 #' @param num_folds an integer specifying the number of k-folds to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}
 #' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if a \code{caret} model is specified for \code{test_method}. Defaults to \code{FALSE}
@@ -231,7 +245,7 @@ gather_binomial_info <- function(data, x){
 
 fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                    test_method = "gaussprRadial",
-                                   use_k_fold = FALSE, num_folds = 10, 
+                                   use_k_fold = FALSE, use_balanced_accuracy = F, num_folds = 10, 
                                    use_empirical_null = FALSE, null_testing_method = c("model free shuffles", "null model fits"),
                                    p_value_method = c("empirical", "gaussian"), num_permutations = 50,
                                    pool_empirical_null = FALSE, return_raw_estimates = FALSE){
@@ -418,7 +432,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   } else{
     
     classifier_name <- test_method
-    statistic_name <- "Average classification accuracy"
+    statistic_name <- ifelse(use_balanced_accuracy, "Mean balanced classification accuracy", "Mean classification accuracy")
   }
   
   #-----------------------------
@@ -494,6 +508,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                               test_method = test_method, 
                                               use_k_fold = use_k_fold,
                                               num_folds = num_folds,
+                                              use_balanced_accuracy = use_balanced_accuracy,
                                               use_empirical_null = use_empirical_null,
                                               null_testing_method = null_testing_method,
                                               num_permutations = num_permutations,
