@@ -510,7 +510,7 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
   #---------------------
 
   classifier_name <- test_method
-  statistic_name <- "Mean classification accuracy"
+  statistic_name <- ifelse(use_balanced_accuracy, "Mean balanced classification accuracy", "Mean classification accuracy")
 
   # Very important coffee console message
 
