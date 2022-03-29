@@ -36,19 +36,15 @@ extract_prediction_accuracy <- function(mod, use_balanced_accuracy = FALSE) {
   results <- as.data.frame(mod$results)
   if (use_balanced_accuracy) {
     results <- results %>%
-      dplyr::select(c(Balanced_Accuracy, Balanced_AccuracySD)) %>%
-      dplyr::rename(statistic = Balanced_Accuracy,
-                    statistic_sd = Balanced_AccuracySD)
+      dplyr::select(c(Accuracy, AccuracySD, Balanced_Accuracy, Balanced_AccuracySD)) %>%
+      dplyr::slice_max(Balanced_Accuracy, n = 1) # Catches cases where multiple results are returned by {caret} in `mod`
   } else {
     results <- results %>%
         dplyr::select(c(Accuracy, AccuracySD)) %>%
         dplyr::rename(statistic = Accuracy,
-                      statistic_sd = AccuracySD)
+                      statistic_sd = AccuracySD) %>%
+      dplyr::slice_max(statistic, n = 1) # Catches cases where multiple results are returned by {caret} in `mod`
   }
-
-  results <- results %>%
-    dplyr::slice_max(statistic, n = 1) # Catches cases where multiple results are returned by {caret} in `mod`
-
   return(results)
 }
 
@@ -106,6 +102,9 @@ fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NUL
 #--------------
 
 calculate_balanced_accuracy <- function(data, lev = NULL, model = NULL) {
+  # calculate accuracy
+  accuracy <- sum(data$pred == data$obs)/length(data$obs)
+  
   if (length(lev) == 2) {
     # two-class instance
     sens <- caret::sensitivity(data$pred, data$obs)
@@ -117,8 +116,9 @@ calculate_balanced_accuracy <- function(data, lev = NULL, model = NULL) {
     balanced_accuracy <- mean(data_cm$`Balanced Accuracy`, na.rm=T)
   }
   
-  names(balanced_accuracy) <- "Balanced_Accuracy"
-  return(balanced_accuracy)
+  out <- c(accuracy, balanced_accuracy)
+  names(out) <- c("Accuracy", "Balanced_Accuracy")
+  return(out)
 }
 
 #--------------
@@ -246,50 +246,94 @@ fit_multivariable_models <- function(data, test_method, use_balanced_accuracy, u
 # p-value calculation
 #--------------------
 
-calculate_multivariable_statistics <- function(data, set = NULL, p_value_method){
+calculate_multivariable_statistics <- function(data, set = NULL, p_value_method, use_balanced_accuracy = FALSE){
 
   # Wrangle vectors
-
+  
   if(!is.null(set)){
     vals <- data %>%
       dplyr::filter(method %in% c(set, "model free shuffles"))
   } else{
     vals <- data
   }
-
-  true_val <- vals %>%
-    dplyr::filter(category == "Main") %>%
-    dplyr::pull(statistic)
-
-  stopifnot(length(true_val) == 1)
-
-  nulls <- vals %>%
-    dplyr::filter(category == "Null") %>%
-    dplyr::pull(statistic)
-
-  if(p_value_method == "empirical"){
-
-    # Use ECDF to calculate p-value
-
-    fn <- stats::ecdf(nulls)
-    p_value <- 1 - fn(true_val)
-
-  } else{
-
-    # Calculate p-value from Gaussian with null distribution parameters
-
-    p_value <- stats::pnorm(true_val, mean = mean(nulls), sd = stats::sd(nulls), lower.tail = FALSE)
+  
+  if (use_balanced_accuracy) {
+    main <- dplyr::filter(vals, category == "Main")
+    true_val_acc <- main$Accuracy
+    true_val_bal_acc <- main$Balanced_Accuracy
+    
+    stopifnot(length(true_val_acc) == 1 | length(true_val_bal_acc) == 1)
+    
+    nulls <- dplyr::filter(vals, category == "Null")
+    
+    nulls_acc <- nulls$Accuracy
+    nulls_bal_acc <- nulls$Balanced_Accuracy
+    
+    # For empirical p-value
+    if (p_value_method == "empirical") {
+      # Use ECDF to calculate p-values
+      fn_acc <- stats::ecdf(nulls_acc)
+      fn_bal_acc <- stats::ecdf(nulls_bal_acc)
+      
+      p_value_acc <- 1 - fn_acc(true_val_acc)
+      p_value_bal_acc <- 1 - fn_bal_acc(true_val_bal_acc)
+    } else {
+      p_value_acc <- stats::pnorm(true_val_acc, 
+                                  mean = mean(nulls_acc),
+                                  sd = stats::sd(nulls_acc),
+                                  lower.tail = FALSE)
+      
+      p_value_bal_acc <- stats::pnorm(true_val_bal_acc, 
+                                  mean = mean(nulls_bal_acc),
+                                  sd = stats::sd(nulls_bal_acc),
+                                  lower.tail = FALSE)
+    }
+    
+    tmp_outputs <- data.frame(Accuracy = true_val_acc,
+                              p_value_accuracy = p_value_acc,
+                              Balanced_Accuracy = true_val_bal_acc,
+                              p_value_balanced_accuracy = p_value_bal_acc)
+    
+    if(!is.null(set)){
+      tmp_outputs <- tmp_outputs %>%
+        dplyr::mutate(method = set) %>%
+        dplyr::select(c(method, Accuracy, p_value_accuracy, Balanced_Accuracy, p_value_balanced_accuracy))
+    }
+    
+  } else {
+    true_val <- vals %>%
+      dplyr::filter(category == "Main") %>%
+      dplyr::pull(statistic)
+    
+    stopifnot(length(true_val) == 1)
+    
+    nulls <- vals %>%
+      dplyr::filter(category == "Null") %>%
+      dplyr::pull(statistic)
+    
+    if(p_value_method == "empirical"){
+      
+      # Use ECDF to calculate p-value
+      
+      fn <- stats::ecdf(nulls)
+      p_value <- 1 - fn(true_val)
+      
+    } else{
+      
+      # Calculate p-value from Gaussian with null distribution parameters
+      
+      p_value <- stats::pnorm(true_val, mean = mean(nulls), sd = stats::sd(nulls), lower.tail = FALSE)
+    }
+    
+    tmp_outputs <- data.frame(statistic_value = true_val,
+                              p_value = p_value)
+    
+    if(!is.null(set)){
+      tmp_outputs <- tmp_outputs %>%
+        dplyr::mutate(method = set) %>%
+        dplyr::select(c(method, statistic_value, p_value))
+    }
   }
-
-  tmp_outputs <- data.frame(statistic_value = true_val,
-                            p_value = p_value)
-
-  if(!is.null(set)){
-    tmp_outputs <- tmp_outputs %>%
-      dplyr::mutate(method = set) %>%
-      dplyr::select(c(method, statistic_value, p_value))
-  }
-
   return(tmp_outputs)
 }
 
@@ -515,7 +559,7 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
   #---------------------
 
   classifier_name <- test_method
-  statistic_name <- ifelse(use_balanced_accuracy, "Mean balanced classification accuracy", "Mean classification accuracy")
+  statistic_name <- ifelse(use_balanced_accuracy, "Mean normal and balanced classification accuracy", "Mean classification accuracy")
 
   # Very important coffee console message
 
@@ -620,7 +664,8 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
     if(use_empirical_null){
 
       TestStatistics <- sets %>%
-        purrr::map(~ calculate_multivariable_statistics(data = output, set = .x, p_value_method = p_value_method))
+        purrr::map(~ calculate_multivariable_statistics(data = output, set = .x, p_value_method = p_value_method,
+                                                        use_balanced_accuracy = use_balanced_accuracy))
 
       TestStatistics <- data.table::rbindlist(TestStatistics, use.names = TRUE) %>%
         dplyr::mutate(classifier_name = classifier_name,
@@ -647,7 +692,8 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
 
     if(use_empirical_null){
 
-      TestStatistics <- calculate_multivariable_statistics(data = output, set = NULL, p_value_method = p_value_method) %>%
+      TestStatistics <- calculate_multivariable_statistics(data = output, set = NULL, p_value_method = p_value_method,
+                                                           use_balanced_accuracy = use_balanced_accuracy) %>%
         dplyr::mutate(classifier_name = classifier_name,
                       statistic_name = statistic_name)
 
