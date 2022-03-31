@@ -383,7 +383,6 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
   return(tmp_outputs)
 }
 
-
 #---------------- Main function ----------------
 
 #' Fit a classifier to feature matrix using all features or all features by set
@@ -426,6 +425,7 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
 #'   group_var = "group",
 #'   by_set = FALSE,
 #'   test_method = "gaussprRadial",
+#'   use_balanced_accuracy = FALSE,
 #'   use_k_fold = TRUE,
 #'   num_folds = 10,
 #'   use_empirical_null = TRUE,
