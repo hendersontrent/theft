@@ -34,7 +34,9 @@ calculate_accuracy <- function(x, seed, use_balanced_accuracy){
   
   set.seed(seed)
   y <- sample(x, replace = FALSE)
-  cm <- as.matrix(caret::confusionMatrix(x, y)$table)
+  u <- dplyr::union(y, x)
+  mytable <- table(factor(y, u), factor(x, u))
+  cm <- as.matrix(caret::confusionMatrix(mytable)$table)
   
   if(use_balanced_accuracy){
     
@@ -90,14 +92,14 @@ extract_prediction_accuracy <- function(mod, use_balanced_accuracy = FALSE) {
   if (use_balanced_accuracy) {
     
     results <- results %>%
-        dplyr::select(c(Accuracy, AccuracySD, Balanced_Accuracy, Balanced_AccuracySD)) %>%
+      dplyr::select(c(Accuracy, AccuracySD, Balanced_Accuracy, Balanced_AccuracySD)) %>%
       janitor::clean_names() %>%
       dplyr::slice_max(balanced_accuracy, n = 1) # Catches cases where multiple results are returned by {caret} in `mod`
     
   } else {
     
     results <- results %>%
-        dplyr::select(c(Accuracy, AccuracySD)) %>%
+      dplyr::select(c(Accuracy, AccuracySD)) %>%
       janitor::clean_names() %>%
       dplyr::slice_max(accuracy, n = 1) # Catches cases where multiple results are returned by {caret} in `mod`
   }
@@ -142,7 +144,9 @@ fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NUL
   
   if(theControl$method == "none"){
     
-    cm <- as.matrix(caret::confusionMatrix(predict(modNull, newdata = shuffledtest), shuffledtest$group)$table)
+    u <- dplyr::union(predict(modNull, newdata = shuffledtest), shuffledtest$group)
+    mytable <- table(factor(predict(modNull, newdata = shuffledtest), u), factor(shuffledtest$group, u))
+    cm <- as.matrix(caret::confusionMatrix(mytable)$table)
     
     if(use_balanced_accuracy){
       
@@ -281,7 +285,9 @@ fit_multivariable_models <- function(data, test_method, use_balanced_accuracy, u
     
     # Get main predictions
     
-    cm <- as.matrix(caret::confusionMatrix(predict(mod, newdata = tmp), tmp$group)$table)
+    u <- dplyr::union(predict(mod, newdata = tmp), tmp$group)
+    mytable <- table(factor(predict(mod, newdata = tmp), u), factor(tmp$group, u))
+    cm <- as.matrix(caret::confusionMatrix(mytable)$table)
     
     if(use_balanced_accuracy){
       
@@ -768,7 +774,7 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
     
     # Run random shuffles procedure
     
-    nullOuts <- simulate_null_acc(x = data_id$group, num_permutations = num_permutations, use_balanced_accuracy) %>%
+    nullOuts <- simulate_null_acc(x = data_id$group, num_permutations = num_permutations, use_balanced_accuracy = use_balanced_accuracy) %>%
       dplyr::mutate(category = "Null",
                     method = "model free shuffles",
                     num_features_used = NA)
