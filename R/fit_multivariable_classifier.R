@@ -1,28 +1,80 @@
 #--------------- Helper functions ----------------
 
+#-----------------------
+# Classification metrics
+#-----------------------
+
+# Recall (for use in computing balanced classification accuracy)
+
+calculate_recall <- function(matrix, x){
+  tp <- as.numeric(matrix[x, x])
+  fn <- sum(matrix[x, -x])
+  recall <- tp / (tp + fn)
+  return(recall)
+}
+
+# Four MECE parts of the confusion matrix (TP, FP, TN, FN)
+
+calculate_cm_stats <- function(matrix, x){
+  tp <- as.numeric(matrix[x, x])
+  fp <- sum(matrix[-x, x])
+  tn <- sum(matrix[-x, -x])
+  fn <- sum(matrix[x, -x])
+  mymat <- matrix(c(tp, fp, tn, fn), nrow = 1, ncol = 4)
+  return(mymat)
+}
+
 #----------------
 # Random shuffles
 #----------------
 
-calculate_accuracy <- function(x, seed){
+calculate_accuracy <- function(x, seed, use_balanced_accuracy){
+  
+  # Randomly shuffle class labels
   
   set.seed(seed)
-  
-  # Randomly shuffle class labels and compute accuracy
-  
   y <- sample(x, replace = FALSE)
-  acc <- sum(x == y, na.rm = TRUE) / length(x)
-  return(acc)
+  
+  if(use_balanced_accuracy){
+    
+    # Calculate balanced accuracy from confusion matrix as the average of class recalls as per https://arxiv.org/pdf/2008.05756.pdf
+    
+    cm <- as.matrix(caret::confusionMatrix(x, y)$table)
+    
+    recall <- 1:nrow(cm) %>%
+      purrr::map(~ calculate_recall(cm, x = .x)) %>%
+      unlist()
+    
+    balanced_accuracy <- sum(recall) / length(recall)
+  }
+  
+  # Calculate accuracy as: (TP + TN) / (TP + TN + FP + FN)
+  
+  acc_mat <- 1:nrow(cm) %>%
+    purrr::map(~ calculate_cm_stats(cm, x = .x))
+  
+  acc_mat <- do.call(rbind, acc_mat)
+  accuracy <- (sum(acc_mat[, 1]) + sum(acc_mat[, 3])) / sum(acc_mat)
+  
+  # Return results
+  
+  if(use_balanced_accuracy){
+    out <- data.frame(accuracy = accuracy, 
+                      balanced_accuracy = balanced_accuracy)
+  } else{
+    out <- data.frame(accuracy = accuracy)
+  }
+  return(out)
 }
 
-simulate_null_acc <- function(x, num_permutations = 10000){
+simulate_null_acc <- function(x, num_permutations = 10000, use_balanced_accuracy){
   
   # Run function over num_permutations
   
   outs <- 1:num_permutations %>%
-    purrr::map(~ calculate_accuracy(x, seed = .x)) %>%
-    unlist()
+    purrr::map(~ calculate_accuracy(x, seed = .x, use_balanced_accuracy = use_balanced_accuracy))
   
+  outs <- data.table::rbindlist(outs, use.names = TRUE)
   return(outs)
 }
 
@@ -104,26 +156,6 @@ fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NUL
 #-------------------------------------
 # Calculate balanced accuracy in caret
 #-------------------------------------
-
-# Recall (for use in computing balanced classification accuracy)
-
-calculate_recall <- function(matrix, x){
-  tp <- as.numeric(matrix[x, x])
-  fn <- sum(matrix[x, -x])
-  recall <- tp / (tp + fn)
-  return(recall)
-}
-
-# Four MECE parts of the confusion matrix (TP, FP, TN, FN)
-
-calculate_cm_stats <- function(matrix, x){
-  tp <- as.numeric(matrix[x, x])
-  fp <- sum(matrix[-x, x])
-  tn <- sum(matrix[-x, -x])
-  fn <- sum(matrix[x, -x])
-  mymat <- matrix(c(tp, fp, tn, fn), nrow = 1, ncol = 4)
-  return(mymat)
-}
 
 calculate_balanced_accuracy <- function(data, lev = NULL, model = NULL) {
   
@@ -296,7 +328,8 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
     true_val_acc <- main$accuracy
     true_val_bal_acc <- main$balanced_accuracy
     
-    stopifnot(length(true_val_acc) == 1 | length(true_val_bal_acc) == 1)
+    stopifnot(length(true_val_acc) == 1)
+    stopifnot(length(true_val_bal_acc) == 1)
     
     # Null models
     
@@ -644,7 +677,7 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
   #---------------------
   
   classifier_name <- test_method
-  statistic_name <- ifelse(use_balanced_accuracy, "Mean normal and balanced classification accuracy", "Mean classification accuracy")
+  statistic_name <- ifelse(use_balanced_accuracy, "Mean classification accuracy and balanced classification accuracy", "Mean classification accuracy")
   
   # Very important coffee console message
   
@@ -690,7 +723,7 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
     
     # Run random shuffles procedure
     
-    nullOuts <- data.frame(accuracy = simulate_null_acc(x = data_id$group, num_permutations = num_permutations)) %>%
+    nullOuts <- simulate_null_acc(x = data_id$group, num_permutations = num_permutations, use_balanced_accuracy) %>%
       dplyr::mutate(category = "Null",
                     method = "model free shuffles",
                     num_features_used = NA)
@@ -698,6 +731,11 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
     if(use_k_fold){
       nullOuts <- nullOuts %>%
         dplyr::mutate(accuracy_sd = NA)
+      
+      if(use_balanced_accuracy){
+        nullOuts <- nullOuts %>%
+          dplyr::mutate(balanced_accuracy_sd = NA)
+      }
     }
     
     output <- dplyr::bind_rows(output, nullOuts)
@@ -724,7 +762,7 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
           tidyr::pivot_longer(cols = c("accuracy", "balanced_accuracy"), names_to = "names", values_to = "statistic")
         
         sds <- output %>%
-          dplyr::filter(category == "Main") %>%
+          dplyr::filter(category == "Main") %>% 
           dplyr::mutate(method = paste0(method, " (", num_features_used, ")")) %>%
           dplyr::select(c(accuracy_sd, balanced_accuracy_sd, category, method, num_features_used)) %>%
           tidyr::pivot_longer(cols = c("accuracy_sd", "balanced_accuracy_sd"), names_to = "names", values_to = "statistic_sd") %>%
@@ -798,6 +836,8 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
     
     if(use_balanced_accuracy){
       
+      # Some visual niceties based on number of sets in the analysis
+      
       if(length(unique(accuracies$method)) > 2){
         FeatureSetResultsPlot <- FeatureSetResultsPlot +
           ggplot2::facet_wrap(~names, dir = "v")
@@ -807,9 +847,9 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
       }
     }
     
-    #----------------
-    #Compute p values
-    #---------------
+    #-----------------
+    # Compute p values
+    #-----------------
     
     if(use_empirical_null){
       
