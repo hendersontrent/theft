@@ -49,13 +49,9 @@ calculate_accuracy <- function(x, seed, use_balanced_accuracy){
     balanced_accuracy <- sum(recall) / length(recall)
   }
   
-  # Calculate accuracy as: (TP + TN) / (TP + TN + FP + FN)
+  # Calculate accuracy
   
-  acc_mat <- 1:nrow(cm) %>%
-    purrr::map(~ calculate_cm_stats(cm, x = .x))
-  
-  acc_mat <- do.call(rbind, acc_mat)
-  accuracy <- (sum(acc_mat[, 1]) + sum(acc_mat[, 3])) / sum(acc_mat)
+  accuracy <- sum(diag(cm)) / sum(cm)
   
   # Return results
   
@@ -157,15 +153,13 @@ fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NUL
       balanced_accuracy <- sum(recall) / length(recall)
     }
     
-    acc_mat <- 1:nrow(cm) %>%
-      purrr::map(~ calculate_cm_stats(cm, x = .x))
+    # Calculate accuracy
     
-    acc_mat <- do.call(rbind, acc_mat)
-    accuracy <- (sum(acc_mat[, 1]) + sum(acc_mat[, 3])) / sum(acc_mat)
+    accuracy <- sum(diag(cm)) / sum(cm)
     
     if(use_balanced_accuracy){
       null_models <- data.frame(accuracy = accuracy, 
-                             balanced_accuracy = balanced_accuracy)
+                                balanced_accuracy = balanced_accuracy)
     } else{
       null_models <- data.frame(accuracy = accuracy)
     }
@@ -196,13 +190,9 @@ calculate_balanced_accuracy <- function(data, lev = NULL, model = NULL) {
   
   balanced_accuracy <- sum(recall) / length(recall)
   
-  # Calculate accuracy as: (TP + TN) / (TP + TN + FP + FN)
+  # Calculate accuracy
   
-  acc_mat <- 1:nrow(cm) %>%
-    purrr::map(~ calculate_cm_stats(cm, x = .x))
-  
-  acc_mat <- do.call(rbind, acc_mat)
-  accuracy <- (sum(acc_mat[, 1]) + sum(acc_mat[, 3])) / sum(acc_mat)
+  accuracy <- sum(diag(cm)) / sum(cm)
   
   # Return results
   
@@ -298,11 +288,9 @@ fit_multivariable_models <- function(data, test_method, use_balanced_accuracy, u
       balanced_accuracy <- sum(recall) / length(recall)
     }
     
-    acc_mat <- 1:nrow(cm) %>%
-      purrr::map(~ calculate_cm_stats(cm, x = .x))
+    # Calculate accuracy
     
-    acc_mat <- do.call(rbind, acc_mat)
-    accuracy <- (sum(acc_mat[, 1]) + sum(acc_mat[, 3])) / sum(acc_mat)
+    accuracy <- sum(diag(cm)) / sum(cm)
     
     if(use_balanced_accuracy){
       mainOuts <- data.frame(accuracy = accuracy, 

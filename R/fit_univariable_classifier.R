@@ -74,11 +74,9 @@ fit_univariable_models <- function(data, test_method, use_balanced_accuracy, use
       balanced_accuracy <- sum(recall) / length(recall)
     }
     
-    acc_mat <- 1:nrow(cm) %>%
-      purrr::map(~ calculate_cm_stats(cm, x = .x))
+    # Calculate accuracy
     
-    acc_mat <- do.call(rbind, acc_mat)
-    accuracy <- (sum(acc_mat[, 1]) + sum(acc_mat[, 3])) / sum(acc_mat)
+    accuracy <- sum(diag(cm)) / sum(cm)
     
     if(use_balanced_accuracy){
       mainOuts <- data.frame(accuracy = accuracy, 
