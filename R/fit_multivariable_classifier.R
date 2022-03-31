@@ -103,10 +103,48 @@ fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NUL
 # Calculate balanced accuracy in caret
 #-------------------------------------
 
+# Recall (for use in computing balanced classification accuracy)
+
+calculate_recall <- function(matrix, x){
+  tp <- as.numeric(matrix[x, x])
+  fn <- sum(matrix[x, -x])
+  recall <- tp / (tp + fn)
+  return(recall)
+}
+
+# Four MECE parts of the confusion matrix (TP, FP, TN, FN)
+
+calculate_cm_stats <- function(matrix, x){
+  tp <- as.numeric(matrix[x, x])
+  fp <- sum(matrix[-x, x])
+  tn <- sum(matrix[-x, -x])
+  fn <- sum(matrix[x, -x])
+  mymat <- matrix(c(tp, fp, tn, fn), nrow = 1, ncol = 4)
+  return(mymat)
+}
+
 calculate_balanced_accuracy <- function(data, lev = NULL, model = NULL) {
-  accuracy <- sum(data$pred == data$obs)/length(data$obs) # Accuracy
-  data_cm <- as.data.frame(caret::confusionMatrix(data$pred, data$obs)$byClass) # Confusion matrix
-  balanced_accuracy <- mean(data_cm$`Balanced Accuracy`, na.rm = TRUE) # Balanced accuracy
+  
+  # Calculate balanced accuracy from confusion matrix as the average of class recalls as per https://arxiv.org/pdf/2008.05756.pdf
+  
+  cm <- as.matrix(caret::confusionMatrix(data$pred, data$obs)$table)
+  
+  recall <- 1:nrow(cm) %>%
+    purrr::map(~ calculate_recall(cm, x = .x)) %>%
+    unlist()
+  
+  balanced_accuracy <- sum(recall) / length(recall)
+  
+  # Calculate accuracy as: (TP + TN) / (TP + TN + FP + FN)
+  
+  acc_mat <- 1:nrow(cm) %>%
+    purrr::map(~ calculate_cm_stats(cm, x = .x))
+  
+  acc_mat <- do.call(rbind, acc_mat)
+  accuracy <- (sum(acc_mat[, 1]) + sum(acc_mat[, 3])) / sum(acc_mat)
+  
+  # Return results
+  
   out <- c(accuracy, balanced_accuracy)
   names(out) <- c("Accuracy", "Balanced_Accuracy")
   return(out)
@@ -609,7 +647,7 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
   
   # Very important coffee console message
   
-  if(null_testing_method == "null model fits" & num_permutations > 100){
+  if(null_testing_method == "null model fits" & num_permutations > 50){
     message("This will take a while. Great reason to go grab a coffee and relax ^_^")
   }
   
