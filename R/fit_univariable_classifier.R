@@ -1,24 +1,24 @@
 #--------------- Helper functions ----------------
 
-
 #--------------
 # Model fitting
 #--------------
 
-fit_univariate_models <- function(data, test_method, use_k_fold, use_balanced_accuracy, num_folds, use_empirical_null, null_testing_method, num_permutations, feature, pb){
+fit_univariable_models <- function(data, test_method, use_balanced_accuracy, use_k_fold, num_folds, use_empirical_null, null_testing_method, num_permutations, feature, pb){
   
   # Print {purrr} iteration progress updates in the console
   
   pb$tick()$print()
   
   tmp <- data %>%
-      dplyr::select(c(group, dplyr::all_of(feature)))
+    dplyr::select(c(group, dplyr::all_of(feature)))
   
   set.seed(123)
   
   if(use_k_fold){
     
-    # Train model
+    # Train main model
+    
     if (use_balanced_accuracy) {
       fitControl <- caret::trainControl(method = "cv",
                                         number = num_folds,
@@ -78,7 +78,7 @@ fit_univariate_models <- function(data, test_method, use_k_fold, use_balanced_ac
                                                 test_method = test_method,
                                                 theControl = fitControl,
                                                 pb = NULL,
-                                                univariate = TRUE))
+                                                univariable = TRUE))
       
       nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
         dplyr::mutate(category = "Null")
@@ -115,18 +115,27 @@ calculate_against_null_vector <- function(nulls, main_matrix, x, p_value_method)
   
   stopifnot(length(true_val) == 1)
   
-  if(p_value_method == "empirical"){
-    
-    # Use ECDF to calculate p-value
-    
-    fn <- stats::ecdf(nulls)
-    p_value <- 1 - fn(true_val)
+  # Catch cases when SD = 0
+  
+  if(stats::sd(nulls) == 0){
+    p_value <- NA
+    print("Insufficient variance to calculate p-value, returning NA.")
     
   } else{
     
-    # Calculate p-value from Gaussian with null distribution parameters
-    
-    p_value <- stats::pnorm(true_val, mean = mean(nulls), sd = stats::sd(nulls), lower.tail = FALSE)
+    if(p_value_method == "empirical"){
+      
+      # Use ECDF to calculate p-value
+      
+      fn <- stats::ecdf(nulls)
+      p_value <- 1 - fn(true_val)
+      
+    } else{
+      
+      # Calculate p-value from Gaussian with null distribution parameters
+      
+      p_value <- stats::pnorm(true_val, mean = mean(nulls), sd = stats::sd(nulls), lower.tail = FALSE)
+    }
   }
   
   tmp_outputs <- data.frame(feature = names(main_matrix)[x],
@@ -156,18 +165,27 @@ calculate_unpooled_null <- function(.data, x, p_value_method){
     dplyr::filter(category == "Null") %>%
     dplyr::pull(statistic)
   
-  if(p_value_method == "empirical"){
-    
-    # Use ECDF to calculate p-value
-    
-    fn <- stats::ecdf(nulls)
-    p_value <- 1 - fn(true_val)
+  # Catch cases when SD = 0
+  
+  if(stats::sd(nulls) == 0){
+    p_value <- NA
+    print("Insufficient variance to calculate p-value, returning NA.")
     
   } else{
     
-    # Calculate p-value from Gaussian with null distribution parameters
-    
-    p_value <- stats::pnorm(true_val, mean = mean(nulls), sd = stats::sd(nulls), lower.tail = FALSE)
+    if(p_value_method == "empirical"){
+      
+      # Use ECDF to calculate p-value
+      
+      fn <- stats::ecdf(nulls)
+      p_value <- 1 - fn(true_val)
+      
+    } else{
+      
+      # Calculate p-value from Gaussian with null distribution parameters
+      
+      p_value <- stats::pnorm(true_val, mean = mean(nulls), sd = stats::sd(nulls), lower.tail = FALSE)
+    }
   }
   
   tmp_outputs <- data.frame(feature = names(.data)[x],
@@ -228,10 +246,11 @@ gather_binomial_info <- function(data, x){
 #'   group_var = "process", 
 #'   feature_set = "catch22")
 #'   
-#' fit_feature_classifier(featMat,
+#' fit_univariable_classifier(featMat,
 #'   id_var = "id",
 #'   group_var = "group",
 #'   test_method = "linear svm",
+#'   use_balanced_accuracy = FALSE,
 #'   use_k_fold = TRUE,
 #'   num_folds = 10,
 #'   use_empirical_null = TRUE,
@@ -243,12 +262,12 @@ gather_binomial_info <- function(data, x){
 #' }
 #' 
 
-fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
-                                   test_method = "gaussprRadial",
-                                   use_k_fold = FALSE, use_balanced_accuracy = F, num_folds = 10, 
-                                   use_empirical_null = FALSE, null_testing_method = c("model free shuffles", "null model fits"),
-                                   p_value_method = c("empirical", "gaussian"), num_permutations = 50,
-                                   pool_empirical_null = FALSE, return_raw_estimates = FALSE){
+fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
+                                       test_method = "gaussprRadial", use_balanced_accuracy = FALSE,
+                                       use_k_fold = FALSE, num_folds = 10, 
+                                       use_empirical_null = FALSE, null_testing_method = c("model free shuffles", "null model fits"),
+                                       p_value_method = c("empirical", "gaussian"), num_permutations = 50,
+                                       pool_empirical_null = FALSE, return_raw_estimates = FALSE){
   
   #---------- Check arguments ------------
   
@@ -501,19 +520,19 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
     # Compute accuracies for each feature
     
-    fit_univariate_models_safe <- purrr::possibly(fit_univariate_models, otherwise = NULL)
+    fit_univariable_models_safe <- purrr::possibly(fit_univariable_models, otherwise = NULL)
     
     output <- 3:ncol(data_id) %>%
-      purrr::map(~ fit_univariate_models_safe(data = data_id, 
-                                              test_method = test_method, 
-                                              use_k_fold = use_k_fold,
-                                              num_folds = num_folds,
-                                              use_balanced_accuracy = use_balanced_accuracy,
-                                              use_empirical_null = use_empirical_null,
-                                              null_testing_method = null_testing_method,
-                                              num_permutations = num_permutations,
-                                              feature = .x,
-                                              pb = pb))
+      purrr::map(~ fit_univariable_models_safe(data = data_id, 
+                                               test_method = test_method,
+                                               use_balanced_accuracy = use_balanced_accuracy,
+                                               use_k_fold = use_k_fold,
+                                               num_folds = num_folds,
+                                               use_empirical_null = use_empirical_null,
+                                               null_testing_method = null_testing_method,
+                                               num_permutations = num_permutations,
+                                               feature = .x,
+                                               pb = pb))
     
     output <- output[!sapply(output, is.null)]
     output <- data.table::rbindlist(output, use.names = TRUE)

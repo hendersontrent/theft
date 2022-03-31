@@ -79,16 +79,16 @@ feature_matrix2 <- calculate_features(data = simData,
                                       feature_set = c("catch22", "feasts"))
 
 multi_classifier_outputs <- fit_multivariable_classifier(feature_matrix2, id_var = "id", group_var = "group",
-                                                        by_set = TRUE, test_method = "gaussprRadial",
-                                                        use_k_fold = TRUE, num_folds = 10, 
-                                                        use_empirical_null = TRUE, null_testing_method = "model free shuffles",
-                                                        p_value_method = "empirical", num_permutations = 100)
+                                                         by_set = TRUE, test_method = "gaussprRadial", use_balanced_accuracy = FALSE,
+                                                         use_k_fold = TRUE, num_folds = 10, 
+                                                         use_empirical_null = TRUE, null_testing_method = "model free shuffles",
+                                                         p_value_method = "empirical", num_permutations = 100)
 
 multi_classifier_outputs2 <- fit_multivariable_classifier(feature_matrix2, id_var = "id", group_var = "group",
-                                                        by_set = FALSE, test_method = "svmLinear",
-                                                        use_k_fold = FALSE, num_folds = 10, 
-                                                        use_empirical_null = TRUE, null_testing_method = "null model fits",
-                                                        p_value_method = "empirical", num_permutations = 50)
+                                                          by_set = FALSE, test_method = "svmLinear", use_balanced_accuracy = TRUE,
+                                                          use_k_fold = FALSE, num_folds = 10, 
+                                                          use_empirical_null = TRUE, null_testing_method = "null model fits",
+                                                          p_value_method = "empirical", num_permutations = 50)
 
 # Test 8: Feature-level classification
 
@@ -102,6 +102,7 @@ classifier_outputs <- compute_top_features(outs_22,
                                            method = "RobustSigmoid",
                                            cor_method = "pearson",
                                            test_method = "gaussprRadial",
+                                           use_balanced_accuracy = FALSE,
                                            use_k_fold = TRUE,
                                            num_folds = 10,
                                            use_empirical_null =  TRUE,
@@ -118,6 +119,7 @@ classifier_outputs_2 <- compute_top_features(outs_22,
                                              method = "z-score",
                                              cor_method = "pearson",
                                              test_method = "gaussprRadial",
+                                             use_balanced_accuracy = TRUE,
                                              use_k_fold = TRUE,
                                              num_folds = 10,
                                              use_empirical_null =  TRUE,
@@ -134,12 +136,13 @@ classifier_outputs_3 <- compute_top_features(outs_22,
                                              method = "z-score",
                                              cor_method = "pearson",
                                              test_method = "gaussprRadial",
+                                             use_balanced_accuracy = FALSE,
                                              use_k_fold = FALSE,
                                              num_folds = 10,
                                              use_empirical_null =  FALSE,
                                              num_permutations = 10,
                                              pool_empirical_null = TRUE)
-  
+
 # Two-class
 
 twoclass <- outs_22 %>% filter(group %in% c("Gaussian Noise", "AR(1)"))

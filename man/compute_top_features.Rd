@@ -13,6 +13,7 @@ compute_top_features(
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
   cor_method = c("pearson", "spearman"),
   test_method = "gaussprRadial",
+  use_balanced_accuracy = FALSE,
   use_k_fold = FALSE,
   num_folds = 10,
   use_empirical_null = FALSE,
@@ -38,6 +39,8 @@ compute_top_features(
 \item{cor_method}{the correlation method to use. Defaults to \code{"pearson"}}
 
 \item{test_method}{the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}}
+
+\item{use_balanced_accuracy}{a Boolean specifying whether to use balanced accuracy as the summary metric for caret model training. Defaults to \code{FALSE}}
 
 \item{use_k_fold}{a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates if a \code{caret} model is specified for \code{test_method}. Defaults to \code{ FALSE}}
 
@@ -76,6 +79,7 @@ compute_top_features(featMat,
   method = "RobustSigmoid",
   cor_method = "pearson",
   test_method = "gaussprRadial",
+  use_balanced_accuracy = use_balanced_accuracy,
   use_k_fold = FALSE,
   num_folds = 10,
   use_empirical_null = TRUE,
