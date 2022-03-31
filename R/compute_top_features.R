@@ -407,31 +407,61 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     
     if(use_empirical_null == FALSE){
       
-      message("\nSelecting top features using mean classification accuracy.")
-      
-      ResultsTable <- classifierOutputs %>%
-        dplyr::slice_max(statistic_value, n = num_features)
-      
-    } else{
-      
-      # Catch cases where most of the p-values are the same (likely 0 given empirical null performance from experiments)
-      
-      unique_p_values <- classifierOutputs %>%
-        dplyr::slice_min(p_value, n = num_features)
-      
-      if(length(unique(unique_p_values$feature)) > num_features || length(unique(unique_p_values$p_value)) == 1){
-        
-        message("\nNot enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
+      if(use_balanced_accuracy){
+        message("\nSelecting top features using mean balanced classification accuracy.")
         
         ResultsTable <- classifierOutputs %>%
           dplyr::slice_max(statistic_value, n = num_features)
         
       } else{
-        
-        message("\nSelecting top features using p-value.")
+        message("\nSelecting top features using mean classification accuracy.")
         
         ResultsTable <- classifierOutputs %>%
-          dplyr::slice_min(p_value, n = num_features)
+          dplyr::slice_max(statistic_value, n = num_features)
+      }
+    } else{
+      
+      # Catch cases where most of the p-values are the same (likely 0 given empirical null performance from experiments)
+      
+      if(use_balanced_accuracy){
+        
+        unique_p_values <- classifierOutputs %>%
+          dplyr::slice_min(p_value_balanced_accuracy, n = num_features)
+        
+        if(length(unique(unique_p_values$feature)) > num_features || length(unique(unique_p_values$p_value_balanced_accuracy)) == 1){
+          
+          message("\nNot enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
+          
+          ResultsTable <- classifierOutputs %>%
+            dplyr::slice_max(balanced_accuracy, n = num_features)
+          
+        } else{
+          
+          message("\nSelecting top features using p-value.")
+          
+          ResultsTable <- classifierOutputs %>%
+            dplyr::slice_min(p_value_balanced_accuracy, n = num_features)
+        }
+        
+      } else{
+        
+        unique_p_values <- classifierOutputs %>%
+          dplyr::slice_min(p_value_accuracy, n = num_features)
+        
+        if(length(unique(unique_p_values$feature)) > num_features || length(unique(unique_p_values$p_value_accuracy)) == 1){
+          
+          message("\nNot enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
+          
+          ResultsTable <- classifierOutputs %>%
+            dplyr::slice_max(accuracy, n = num_features)
+          
+        } else{
+          
+          message("\nSelecting top features using p-value.")
+          
+          ResultsTable <- classifierOutputs %>%
+            dplyr::slice_min(p_value_accuracy, n = num_features)
+        }
       }
     }
   }

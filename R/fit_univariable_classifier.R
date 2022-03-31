@@ -104,7 +104,7 @@ fit_univariable_models <- function(data, test_method, use_balanced_accuracy, use
 # for empirical nulls
 #--------------------------
 
-calculate_against_null_vector <- function(nulls, main_matrix, x, p_value_method){
+calculate_against_null_vector <- function(nulls, main_matrix, x, p_value_method, use_balanced_accuracy){
   
   # Filter data matrix to feature of interest
   
@@ -543,10 +543,19 @@ fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
       
       # Run random shuffles procedure
       
-      nullOuts <- data.frame(statistic = simulate_null_acc(x = data_id$group, num_permutations = num_permutations)) %>%
-        dplyr::mutate(statistic_sd = NA,
-                      category = "Null",
+      nullOuts <- simulate_null_acc(x = data_id$group, num_permutations = num_permutations, use_balanced_accuracy) %>%
+        dplyr::mutate(category = "Null",
                       feature = "model free shuffles")
+      
+      if(use_k_fold){
+        nullOuts <- nullOuts %>%
+          dplyr::mutate(accuracy_sd = NA)
+        
+        if(use_balanced_accuracy){
+          nullOuts <- nullOuts %>%
+            dplyr::mutate(balanced_accuracy_sd = NA)
+        }
+      }
       
       output <- dplyr::bind_rows(output, nullOuts)
     }
@@ -563,19 +572,40 @@ fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
         
         # Set up vector of null accuracies across all features
         
-        nulls <- output %>%
-          dplyr::filter(category == "Null") %>%
-          dplyr::pull(statistic)
-        
-        # Widen main results matrix
-        
-        main_matrix <- output %>%
-          dplyr::filter(category == "Main") %>%
-          dplyr::group_by(feature) %>%
-          dplyr::mutate(id = row_number()) %>%
-          dplyr::ungroup() %>%
-          tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
-          dplyr::select(-c(id))
+        if(use_balanced_accuracy){
+          
+          nulls <- output %>%
+            dplyr::filter(category == "Null") %>%
+            dplyr::pull(balanced_accuracy)
+          
+          # Widen main results matrix
+          
+          main_matrix <- output %>%
+            dplyr::select(c(category, feature, balanced_accuracy)) %>%
+            dplyr::filter(category == "Main") %>%
+            dplyr::group_by(feature) %>%
+            dplyr::mutate(id = row_number()) %>%
+            dplyr::ungroup() %>%
+            tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "balanced_accuracy") %>%
+            dplyr::select(-c(id))
+          
+        } else{
+          
+          nulls <- output %>%
+            dplyr::filter(category == "Null") %>%
+            dplyr::pull(accuracy)
+          
+          # Widen main results matrix
+          
+          main_matrix <- output %>%
+            dplyr::select(c(category, feature, accuracy)) %>%
+            dplyr::filter(category == "Main") %>%
+            dplyr::group_by(feature) %>%
+            dplyr::mutate(id = row_number()) %>%
+            dplyr::ungroup() %>%
+            tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "accuracy") %>%
+            dplyr::select(-c(id))
+        }
         
         # Calculate p-values for each feature
         
@@ -586,14 +616,26 @@ fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
         
         if(null_testing_method == "null model fits"){
           
-          # Widen data matrix
-          
-          main_matrix <- output %>%
-            dplyr::group_by(feature) %>%
-            dplyr::mutate(id = row_number()) %>%
-            dplyr::ungroup() %>%
-            tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
-            dplyr::select(-c(id))
+          if(use_balanced_accuracy){
+            
+            main_matrix <- output %>%
+              dplyr::select(c(category, feature, balanced_accuracy)) %>%
+              dplyr::group_by(feature) %>%
+              dplyr::mutate(id = row_number()) %>%
+              dplyr::ungroup() %>%
+              tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "balanced_accuracy") %>%
+              dplyr::select(-c(id))
+            
+          } else{
+            
+            main_matrix <- output %>%
+              dplyr::select(c(category, feature, accuracy)) %>%
+              dplyr::group_by(feature) %>%
+              dplyr::mutate(id = row_number()) %>%
+              dplyr::ungroup() %>%
+              tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "accuracy") %>%
+              dplyr::select(-c(id))
+          }
           
           # Calculate p-values for each feature
           
@@ -604,19 +646,36 @@ fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
           
           # Set up vector of null accuracies across all features
           
-          nulls <- output %>%
-            dplyr::filter(category == "Null") %>%
-            dplyr::pull(statistic)
-          
-          # Widen main results matrix
-          
-          main_matrix <- output %>%
-            dplyr::filter(category == "Main") %>%
-            dplyr::group_by(feature) %>%
-            dplyr::mutate(id = row_number()) %>%
-            dplyr::ungroup() %>%
-            tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
-            dplyr::select(-c(id))
+          if(use_balanced_accuracy){
+            
+            nulls <- output %>%
+              dplyr::filter(category == "Null") %>%
+              dplyr::pull(balanced_accuracy)
+            
+            main_matrix <- output %>%
+              dplyr::select(c(category, feature, balanced_accuracy)) %>%
+              dplyr::filter(category == "Main") %>%
+              dplyr::group_by(feature) %>%
+              dplyr::mutate(id = row_number()) %>%
+              dplyr::ungroup() %>%
+              tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "balanced_accuracy") %>%
+              dplyr::select(-c(id))
+            
+          } else{
+            
+            nulls <- output %>%
+              dplyr::filter(category == "Null") %>%
+              dplyr::pull(accuracy)
+            
+            main_matrix <- output %>%
+              dplyr::select(c(category, feature, accuracy)) %>%
+              dplyr::filter(category == "Main") %>%
+              dplyr::group_by(feature) %>%
+              dplyr::mutate(id = row_number()) %>%
+              dplyr::ungroup() %>%
+              tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "accuracy") %>%
+              dplyr::select(-c(id))
+          }
           
           feature_statistics <- 2:ncol(main_matrix) %>%
             purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, x = .x, p_value_method = p_value_method))

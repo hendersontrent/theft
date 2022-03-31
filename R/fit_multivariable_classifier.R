@@ -30,16 +30,15 @@ calculate_cm_stats <- function(matrix, x){
 
 calculate_accuracy <- function(x, seed, use_balanced_accuracy){
   
-  # Randomly shuffle class labels
+  # Randomly shuffle class labels and generate confusion matrix
   
   set.seed(seed)
   y <- sample(x, replace = FALSE)
+  cm <- as.matrix(caret::confusionMatrix(x, y)$table)
   
   if(use_balanced_accuracy){
     
     # Calculate balanced accuracy from confusion matrix as the average of class recalls as per https://arxiv.org/pdf/2008.05756.pdf
-    
-    cm <- as.matrix(caret::confusionMatrix(x, y)$table)
     
     recall <- 1:nrow(cm) %>%
       purrr::map(~ calculate_recall(cm, x = .x)) %>%
@@ -89,16 +88,18 @@ extract_prediction_accuracy <- function(mod, use_balanced_accuracy = FALSE) {
   results <- as.data.frame(mod$results)
   
   if (use_balanced_accuracy) {
+    
     results <- results %>%
-      dplyr::select(c(Accuracy, AccuracySD, Balanced_Accuracy, Balanced_AccuracySD)) %>%
+        dplyr::select(c(Accuracy, AccuracySD, Balanced_Accuracy, Balanced_AccuracySD)) %>%
       janitor::clean_names() %>%
       dplyr::slice_max(balanced_accuracy, n = 1) # Catches cases where multiple results are returned by {caret} in `mod`
     
   } else {
+    
     results <- results %>%
-      dplyr::select(c(Accuracy, AccuracySD)) %>%
+        dplyr::select(c(Accuracy, AccuracySD)) %>%
       janitor::clean_names() %>%
-      dplyr::slice_max(statistic, n = 1) # Catches cases where multiple results are returned by {caret} in `mod`
+      dplyr::slice_max(accuracy, n = 1) # Catches cases where multiple results are returned by {caret} in `mod`
   }
   
   return(results)
@@ -141,10 +142,32 @@ fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NUL
   
   if(theControl$method == "none"){
     
-    null_models <- as.data.frame(caret::confusionMatrix(shuffledtest$group, predict(modNull, newdata = shuffledtest))$overall) %>%
-      dplyr::mutate(category = "Null") %>%
-      dplyr::filter(row_number() == 1) %>%
-      dplyr::rename(statistic = 1)
+    cm <- as.matrix(caret::confusionMatrix(predict(modNull, newdata = shuffledtest), shuffledtest$group)$table)
+    
+    if(use_balanced_accuracy){
+      
+      recall <- 1:nrow(cm) %>%
+        purrr::map(~ calculate_recall(cm, x = .x)) %>%
+        unlist()
+      
+      balanced_accuracy <- sum(recall) / length(recall)
+    }
+    
+    acc_mat <- 1:nrow(cm) %>%
+      purrr::map(~ calculate_cm_stats(cm, x = .x))
+    
+    acc_mat <- do.call(rbind, acc_mat)
+    accuracy <- (sum(acc_mat[, 1]) + sum(acc_mat[, 3])) / sum(acc_mat)
+    
+    if(use_balanced_accuracy){
+      null_models <- data.frame(accuracy = accuracy, 
+                             balanced_accuracy = balanced_accuracy)
+    } else{
+      null_models <- data.frame(accuracy = accuracy)
+    }
+    
+    null_models <- null_models%>%
+      dplyr::mutate(category = "Null")
     
   } else{
     null_models <- extract_prediction_accuracy(mod = modNull, use_balanced_accuracy = use_balanced_accuracy)
@@ -258,10 +281,32 @@ fit_multivariable_models <- function(data, test_method, use_balanced_accuracy, u
     
     # Get main predictions
     
-    mainOuts <- as.data.frame(caret::confusionMatrix(tmp$group, predict(mod, newdata = tmp))$overall) %>%
-      dplyr::mutate(category = "Main") %>%
-      dplyr::filter(row_number() == 1) %>%
-      dplyr::rename(statistic = 1)
+    cm <- as.matrix(caret::confusionMatrix(predict(mod, newdata = tmp), tmp$group)$table)
+    
+    if(use_balanced_accuracy){
+      
+      recall <- 1:nrow(cm) %>%
+        purrr::map(~ calculate_recall(cm, x = .x)) %>%
+        unlist()
+      
+      balanced_accuracy <- sum(recall) / length(recall)
+    }
+    
+    acc_mat <- 1:nrow(cm) %>%
+      purrr::map(~ calculate_cm_stats(cm, x = .x))
+    
+    acc_mat <- do.call(rbind, acc_mat)
+    accuracy <- (sum(acc_mat[, 1]) + sum(acc_mat[, 3])) / sum(acc_mat)
+    
+    if(use_balanced_accuracy){
+      mainOuts <- data.frame(accuracy = accuracy, 
+                        balanced_accuracy = balanced_accuracy)
+    } else{
+      mainOuts <- data.frame(accuracy = accuracy)
+    }
+    
+    mainOuts <- mainOuts%>%
+      dplyr::mutate(category = "Main")
   }
   
   if(use_empirical_null){
@@ -403,13 +448,13 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
     
     true_val <- vals %>%
       dplyr::filter(category == "Main") %>%
-      dplyr::pull(statistic)
+      dplyr::pull(accuracy)
     
     stopifnot(length(true_val) == 1)
     
     nulls <- vals %>%
       dplyr::filter(category == "Null") %>%
-      dplyr::pull(statistic)
+      dplyr::pull(accuracy)
     
     # Catch cases when SD = 0
     
@@ -417,13 +462,13 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
       p_value <- NA
       print("Insufficient variance to calculate p-value, returning NA.")
       
-      tmp_outputs <- data.frame(statistic_value = true_val,
-                                p_value = p_value)
+      tmp_outputs <- data.frame(accuracy = true_val,
+                                p_value_accuracy = p_value)
       
       if(!is.null(set)){
         tmp_outputs <- tmp_outputs %>%
           dplyr::mutate(method = set) %>%
-          dplyr::select(c(method, statistic_value, p_value))
+          dplyr::select(c(method, accuracy, p_value_accuracy))
       }
       
     } else{
@@ -442,13 +487,13 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
         p_value <- stats::pnorm(true_val, mean = mean(nulls), sd = stats::sd(nulls), lower.tail = FALSE)
       }
       
-      tmp_outputs <- data.frame(statistic_value = true_val,
-                                p_value = p_value)
+      tmp_outputs <- data.frame(accuracy = true_val,
+                                p_value_accuracy = p_value)
       
       if(!is.null(set)){
         tmp_outputs <- tmp_outputs %>%
           dplyr::mutate(method = set) %>%
-          dplyr::select(c(method, statistic_value, p_value))
+          dplyr::select(c(method, accuracy, p_value_accuracy))
       } 
     }
   }
