@@ -319,7 +319,8 @@ fit_multivariable_models <- function(data, test_method, use_balanced_accuracy, u
                                                 test_method = test_method,
                                                 theControl = fitControl,
                                                 pb = pb,
-                                                univariable = FALSE))
+                                                univariable = FALSE,
+                                                use_balanced_accuracy = use_balanced_accuracy))
       
       nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
         dplyr::mutate(category = "Null")

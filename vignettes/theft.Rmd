@@ -1,15 +1,15 @@
 ---
-  title: "Introduction to theft"
+title: "Introduction to theft"
 author: "Trent Henderson"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Introduction to theft}
-%\VignetteEngine{knitr::knitr}
-%\usepackage[UTF-8]{inputenc}
+  %\VignetteEngine{knitr::knitr}
+  %\usepackage[UTF-8]{inputenc}
 ---
   
-  ```{r, include = FALSE}
+```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -26,13 +26,13 @@ library(theft)
 
 We are going to use a dataset that comes standard with `theft` called `simData`. This dataset contains a collection of randomly generated time series for six different types of processes. The dataset can be accessed via:
   
-  ```{r, message = FALSE, warning = FALSE, eval = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 theft::simData
 ```
 
 The data follows the following structure:
   
-  ```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE}
 head(simData)
 ```
 
@@ -44,7 +44,7 @@ Note that `Kats`, `tsfresh` and `tsfel` are Python packages. The R package `reti
 
 Here is an example with the `catch22` set:
   
-  ```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE}
 feature_matrix <- calculate_features(data = simData, 
                                      id_var = "id", 
                                      time_var = "timepoint", 
@@ -55,7 +55,7 @@ feature_matrix <- calculate_features(data = simData,
 
 Note that for the `catch22` set you can set the additional `catch24` argument to calculate the mean and standard deviation in addition to the standard 22 features:
   
-  ```{r, message = FALSE, warning = FALSE, eval = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 feature_matrix <- calculate_features(data = simData, 
                                      id_var = "id", 
                                      time_var = "timepoint", 
@@ -67,7 +67,7 @@ feature_matrix <- calculate_features(data = simData,
 
 A tidy dataframe of most of the included features and the set they correspond to is available:
   
-  ```{r, message = FALSE, warning = FALSE, eval = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 View(feature_list)
 ```
 
@@ -306,17 +306,17 @@ Now we can use our multivariable functionality (note the similarity in options t
 
 ```{r, message = FALSE, warning = FALSE}
 multi_classifier_outputs <- fit_multivariable_classifier(feature_matrix2, 
-                                                        id_var = "id", 
-                                                        group_var = "group", 
-                                                        by_set = TRUE, 
-                                                        test_method = "gaussprRadial",
-                                                        use_balanced_accuracy = TRUE,
-                                                        use_k_fold = TRUE,
-                                                        num_folds = 10,
-                                                        use_empirical_null =  TRUE,
-                                                        null_testing_method = "null model fits",
-                                                        p_value_method = "gaussian",
-                                                        num_permutations = 10)
+                                                         id_var = "id", 
+                                                         group_var = "group", 
+                                                         by_set = TRUE, 
+                                                         test_method = "gaussprRadial",
+                                                         use_balanced_accuracy = FALSE,
+                                                         use_k_fold = TRUE,
+                                                         num_folds = 10,
+                                                         use_empirical_null =  TRUE,
+                                                         null_testing_method = "null model fits",
+                                                         p_value_method = "gaussian",
+                                                         num_permutations = 10)
 ```
 
 We can now access the various named objects returned by this function, which include:
@@ -327,7 +327,7 @@ We can now access the various named objects returned by this function, which inc
 
 Here's the feature set comparison plot:
   
-  ```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE}
 print(multi_classifier_outputs$FeatureSetResultsPlot)
 ```
 
@@ -339,7 +339,7 @@ head(multi_classifier_outputs$TestStatistics)
 
 And here's the raw classifier results:
   
-  ```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE}
 head(multi_classifier_outputs$RawClassificationResults)
 ```
 

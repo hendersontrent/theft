@@ -101,7 +101,8 @@ fit_univariable_models <- function(data, test_method, use_balanced_accuracy, use
                                                 test_method = test_method,
                                                 theControl = fitControl,
                                                 pb = NULL,
-                                                univariable = TRUE))
+                                                univariable = TRUE,
+                                                use_balanced_accuracy = use_balanced_accuracy))
       
       nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
         dplyr::mutate(category = "Null")
