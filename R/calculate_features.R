@@ -315,6 +315,8 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
                                feature_set = c("catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel"), 
                                catch24 = FALSE, tsfresh_cleanup = FALSE){
   
+  set.seed(123)
+  
   if(is.null(id_var) || is.null(time_var) || is.null(values_var)){
     stop("Input must be a dataframe with at least 3 columns: id, timepoint, value")
   }
