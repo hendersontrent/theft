@@ -10,6 +10,7 @@ fit_multivariable_classifier(
   group_var = "group",
   by_set = FALSE,
   test_method = "gaussprRadial",
+  use_balanced_accuracy = FALSE,
   use_k_fold = TRUE,
   num_folds = 10,
   use_empirical_null = FALSE,
@@ -28,6 +29,8 @@ fit_multivariable_classifier(
 \item{by_set}{Boolean specifying whether to compute classifiers for each feature set. Defaults to \code{FALSE}}
 
 \item{test_method}{the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}}
+
+\item{use_balanced_accuracy}{a Boolean specifying whether to use balanced accuracy as the summary metric for caret model training. Defaults to \code{FALSE}}
 
 \item{use_k_fold}{a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to \code{TRUE}}
 
@@ -49,24 +52,25 @@ Fit a classifier to feature matrix using all features or all features by set
 }
 \examples{
 \dontrun{
-featMat <- calculate_features(data = simData, 
-  id_var = "id", 
-  time_var = "timepoint", 
-  values_var = "values", 
-  group_var = "process", 
+featMat <- calculate_features(data = simData,
+  id_var = "id",
+  time_var = "timepoint",
+  values_var = "values",
+  group_var = "process",
   feature_set = "catch22")
-  
+
 fit_multivariable_classifier(featMat,
   id_var = "id",
   group_var = "group",
   by_set = FALSE,
   test_method = "gaussprRadial",
+  use_balanced_accuracy = FALSE,
   use_k_fold = TRUE,
   num_folds = 10,
   use_empirical_null = TRUE,
   null_testing_method = "model free shuffles",
   p_value_method = "empirical",
-  num_permutations = 100) 
+  num_permutations = 100)
 }
 
 }

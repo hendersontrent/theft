@@ -170,7 +170,14 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
     
     eigen_pc1 <- paste0(eigen_pc1$percent,"%")
     eigen_pc2 <- paste0(eigen_pc2$percent,"%")
+    
   } else{
+    
+    # Check perplexity
+    
+    if(perplexity >= nrow(dat_filtered)){
+      stop("perplexity must be < number of unique IDs.")
+    }
     
     # tSNE calculation
     
@@ -230,7 +237,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
       if(show_covariance){
         p <- p +
           ggplot2::stat_ellipse(ggplot2::aes(x = .fitted1, y = .fitted2, fill = group_id), geom = "polygon", alpha = 0.2) +
-          ggplot2::guides(fill = FALSE) +
+          ggplot2::guides(fill = "none") +
           ggplot2::scale_fill_brewer(palette = "Dark2")
       } else{
         

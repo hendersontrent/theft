@@ -1,24 +1,24 @@
 #--------------- Helper functions ----------------
 
-
 #--------------
 # Model fitting
 #--------------
 
-fit_univariate_models <- function(data, test_method, use_k_fold, use_balanced_accuracy, num_folds, use_empirical_null, null_testing_method, num_permutations, feature, pb){
+fit_univariable_models <- function(data, test_method, use_balanced_accuracy, use_k_fold, num_folds, use_empirical_null, null_testing_method, num_permutations, feature, pb){
   
   # Print {purrr} iteration progress updates in the console
   
   pb$tick()$print()
   
   tmp <- data %>%
-      dplyr::select(c(group, dplyr::all_of(feature)))
+    dplyr::select(c(group, dplyr::all_of(feature)))
   
   set.seed(123)
   
   if(use_k_fold){
     
-    # Train model
+    # Train main model
+    
     if (use_balanced_accuracy) {
       fitControl <- caret::trainControl(method = "cv",
                                         number = num_folds,
@@ -58,12 +58,35 @@ fit_univariate_models <- function(data, test_method, use_k_fold, use_balanced_ac
                         trControl = fitControl,
                         preProcess = c("center", "scale"))
     
-    # Get main predictions
+    # Get main predictions and account for some times when factor level error from {caret appears}
+    # NOTE: Should this also go in the multivariate version or only when a case arises?
     
-    mainOuts <- as.data.frame(caret::confusionMatrix(tmp$group, predict(mod, newdata = tmp))$overall) %>%
-      dplyr::mutate(category = "Main") %>%
-      dplyr::filter(row_number() == 1) %>%
-      dplyr::rename(statistic = 1)
+    u <- dplyr::union(predict(mod, newdata = tmp), tmp$group)
+    mytable <- table(factor(predict(mod, newdata = tmp), u), factor(tmp$group, u))
+    cm <- as.matrix(caret::confusionMatrix(mytable)$table)
+    
+    if(use_balanced_accuracy){
+      
+      recall <- 1:nrow(cm) %>%
+        purrr::map(~ calculate_recall(cm, x = .x)) %>%
+        unlist()
+      
+      balanced_accuracy <- sum(recall) / length(recall)
+    }
+    
+    # Calculate accuracy
+    
+    accuracy <- sum(diag(cm)) / sum(cm)
+    
+    if(use_balanced_accuracy){
+      mainOuts <- data.frame(accuracy = accuracy, 
+                             balanced_accuracy = balanced_accuracy)
+    } else{
+      mainOuts <- data.frame(accuracy = accuracy)
+    }
+    
+    mainOuts <- mainOuts%>%
+      dplyr::mutate(category = "Main")
   }
   
   if(use_empirical_null){
@@ -78,7 +101,8 @@ fit_univariate_models <- function(data, test_method, use_k_fold, use_balanced_ac
                                                 test_method = test_method,
                                                 theControl = fitControl,
                                                 pb = NULL,
-                                                univariate = TRUE))
+                                                univariable = TRUE,
+                                                use_balanced_accuracy = use_balanced_accuracy))
       
       nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
         dplyr::mutate(category = "Null")
@@ -104,75 +128,238 @@ fit_univariate_models <- function(data, test_method, use_k_fold, use_balanced_ac
 # for empirical nulls
 #--------------------------
 
-calculate_against_null_vector <- function(nulls, main_matrix, x, p_value_method){
+calculate_against_null_vector <- function(nulls, main_matrix, main_matrix_balanced = NULL, x, p_value_method, use_balanced_accuracy){
   
-  # Filter data matrix to feature of interest
-  
-  true_val <- main_matrix %>%
-    dplyr::select(dplyr::all_of(x)) %>%
-    dplyr::rename(statistic = 1) %>%
-    dplyr::pull(statistic)
-  
-  stopifnot(length(true_val) == 1)
-  
-  if(p_value_method == "empirical"){
+  if(use_balanced_accuracy) {
     
-    # Use ECDF to calculate p-value
+    true_val_acc <- main_matrix %>%
+      dplyr::select(dplyr::all_of(x)) %>%
+      dplyr::pull()
     
-    fn <- stats::ecdf(nulls)
-    p_value <- 1 - fn(true_val)
+    true_val_bal_acc <- main_matrix_balanced %>%
+      dplyr::select(dplyr::all_of(x)) %>%
+      dplyr::pull()
+    
+    stopifnot(length(true_val_acc) == 1)
+    stopifnot(length(true_val_bal_acc) == 1)
+    
+    # Null models
+    
+    nulls_acc <- nulls$accuracy
+    nulls_bal_acc <- nulls$balanced_accuracy
+    
+    # Catch cases when SD = 0
+    
+    if(stats::sd(nulls_acc) == 0){
+      p_value_acc <- NA
+      print("Insufficient variance to calculate p-value, returning NA.")
+      
+    } else{
+      
+      if(p_value_method == "empirical"){
+        
+        # Use ECDF to calculate p-value
+        
+        fn <- stats::ecdf(nulls_acc)
+        p_value_acc <- 1 - fn(true_val_acc)
+        
+      } else{
+        
+        # Calculate p-value from Gaussian with null distribution parameters
+        
+        p_value_acc <- stats::pnorm(true_val_acc, mean = mean(nulls_acc), sd = stats::sd(nulls_acc), lower.tail = FALSE)
+      }
+    }
+    
+    if(stats::sd(nulls_bal_acc) == 0){
+      p_value_bal_acc <- NA
+      print("Insufficient variance to calculate p-value, returning NA.")
+      
+    } else{
+      
+      if(p_value_method == "empirical"){
+        
+        # Use ECDF to calculate p-value
+        
+        fn_bal_acc <- stats::ecdf(nulls_bal_acc)
+        p_value_bal_acc <- 1 - fn_bal_acc(true_val_bal_acc)
+        
+      } else{
+        
+        # Calculate p-value from Gaussian with null distribution parameters
+        
+        p_value_bal_acc <- stats::pnorm(true_val_bal_acc, mean = mean(nulls_bal_acc), sd = stats::sd(nulls_bal_acc), lower.tail = FALSE)
+      }
+    }
+    
+    tmp_outputs <- data.frame(feature = names(main_matrix)[x],
+                              accuracy = true_val_acc,
+                              p_value_accuracy = p_value_acc,
+                              balanced_accuracy = true_val_bal_acc,
+                              p_value_balanced_accuracy = p_value_bal_acc)
     
   } else{
     
-    # Calculate p-value from Gaussian with null distribution parameters
+    true_val_acc <- main_matrix %>%
+      dplyr::select(dplyr::all_of(x)) %>%
+      dplyr::pull()
     
-    p_value <- stats::pnorm(true_val, mean = mean(nulls), sd = stats::sd(nulls), lower.tail = FALSE)
+    stopifnot(length(true_val_acc) == 1)
+    nulls_acc <- nulls
+    
+    # Catch cases when SD = 0
+    
+    if(stats::sd(nulls_acc) == 0){
+      p_value_acc <- NA
+      print("Insufficient variance to calculate p-value, returning NA.")
+      
+    } else{
+      
+      if(p_value_method == "empirical"){
+        
+        # Use ECDF to calculate p-value
+        
+        fn <- stats::ecdf(nulls_acc)
+        p_value_acc <- 1 - fn(true_val_acc)
+        
+      } else{
+        
+        # Calculate p-value from Gaussian with null distribution parameters
+        
+        p_value_acc <- stats::pnorm(true_val_acc, mean = mean(nulls_acc), sd = stats::sd(nulls_acc), lower.tail = FALSE)
+      }
+    }
+    
+    tmp_outputs <- data.frame(feature = names(main_matrix)[x],
+                              accuracy = true_val_acc,
+                              p_value_accuracy = p_value_acc)
   }
-  
-  tmp_outputs <- data.frame(feature = names(main_matrix)[x],
-                            statistic_value = true_val,
-                            p_value = p_value)
   
   return(tmp_outputs)
 }
 
 # Unpooled
 
-calculate_unpooled_null <- function(.data, x, p_value_method){
+calculate_unpooled_null <- function(main_matrix, main_matrix_balanced = NULL, x, p_value_method, use_balanced_accuracy = FALSE){
   
-  # Filter data matrix to feature of interest
-  
-  vals <- .data %>%
-    dplyr::select(category, dplyr::all_of(x)) %>%
-    dplyr::rename(statistic = 2)
-  
-  true_val <- vals %>%
-    dplyr::filter(category == "Main") %>%
-    dplyr::pull(statistic)
-  
-  stopifnot(length(true_val) == 1)
-  
-  nulls <- vals %>%
-    dplyr::filter(category == "Null") %>%
-    dplyr::pull(statistic)
-  
-  if(p_value_method == "empirical"){
+  if(use_balanced_accuracy) {
     
-    # Use ECDF to calculate p-value
+    true_val_acc <- main_matrix %>%
+      dplyr::filter(category == "Main") %>%
+      dplyr::select(dplyr::all_of(x)) %>%
+      dplyr::pull()
     
-    fn <- stats::ecdf(nulls)
-    p_value <- 1 - fn(true_val)
+    true_val_bal_acc <- main_matrix_balanced %>%
+      dplyr::filter(category == "Main") %>%
+      dplyr::select(dplyr::all_of(x)) %>%
+      dplyr::pull()
+    
+    stopifnot(length(true_val_acc) == 1)
+    stopifnot(length(true_val_bal_acc) == 1)
+    
+    # Null models
+    
+    nulls_acc <- main_matrix %>%
+      dplyr::filter(category == "Null") %>%
+      dplyr::select(dplyr::all_of(x)) %>%
+      dplyr::pull()
+    
+    nulls_bal_acc <- main_matrix_balanced %>%
+      dplyr::filter(category == "Null") %>%
+      dplyr::select(dplyr::all_of(x)) %>%
+      dplyr::pull()
+    
+    # Catch cases when SD = 0
+    
+    if(stats::sd(nulls_acc) == 0){
+      p_value_acc <- NA
+      print("Insufficient variance to calculate p-value, returning NA.")
+      
+    } else{
+      
+      if(p_value_method == "empirical"){
+        
+        # Use ECDF to calculate p-value
+        
+        fn <- stats::ecdf(nulls_acc)
+        p_value_acc <- 1 - fn(true_val_acc)
+        
+      } else{
+        
+        # Calculate p-value from Gaussian with null distribution parameters
+        
+        p_value_acc <- stats::pnorm(true_val_acc, mean = mean(nulls_acc), sd = stats::sd(nulls_acc), lower.tail = FALSE)
+      }
+    }
+    
+    if(stats::sd(nulls_bal_acc) == 0){
+      p_value_bal_acc <- NA
+      print("Insufficient variance to calculate p-value, returning NA.")
+      
+    } else{
+      
+      if(p_value_method == "empirical"){
+        
+        # Use ECDF to calculate p-value
+        
+        fn_bal_acc <- stats::ecdf(nulls_bal_acc)
+        p_value_bal_acc <- 1 - fn_bal_acc(true_val_bal_acc)
+        
+      } else{
+        
+        # Calculate p-value from Gaussian with null distribution parameters
+        
+        p_value_bal_acc <- stats::pnorm(true_val_bal_acc, mean = mean(nulls_bal_acc), sd = stats::sd(nulls_bal_acc), lower.tail = FALSE)
+      }
+    }
+    
+    tmp_outputs <- data.frame(feature = names(main_matrix)[x],
+                              accuracy = true_val_acc,
+                              p_value_accuracy = p_value_acc,
+                              balanced_accuracy = true_val_bal_acc,
+                              p_value_balanced_accuracy = p_value_bal_acc)
     
   } else{
     
-    # Calculate p-value from Gaussian with null distribution parameters
+    true_val_acc <- main_matrix %>%
+      dplyr::filter(category == "Main") %>%
+      dplyr::select(dplyr::all_of(x)) %>%
+      dplyr::pull()
     
-    p_value <- stats::pnorm(true_val, mean = mean(nulls), sd = stats::sd(nulls), lower.tail = FALSE)
+    stopifnot(length(true_val_acc) == 1)
+    
+    nulls_acc <- main_matrix %>%
+      dplyr::filter(category == "Null") %>%
+      dplyr::select(dplyr::all_of(x)) %>%
+      dplyr::pull()
+    
+    # Catch cases when SD = 0
+    
+    if(stats::sd(nulls_acc) == 0){
+      p_value_acc <- NA
+      print("Insufficient variance to calculate p-value, returning NA.")
+      
+    } else{
+      
+      if(p_value_method == "empirical"){
+        
+        # Use ECDF to calculate p-value
+        
+        fn <- stats::ecdf(nulls_acc)
+        p_value_acc <- 1 - fn(true_val_acc)
+        
+      } else{
+        
+        # Calculate p-value from Gaussian with null distribution parameters
+        
+        p_value_acc <- stats::pnorm(true_val_acc, mean = mean(nulls_acc), sd = stats::sd(nulls_acc), lower.tail = FALSE)
+      }
+    }
+    
+    tmp_outputs <- data.frame(feature = names(main_matrix)[x],
+                              accuracy = true_val_acc,
+                              p_value_accuracy = p_value_acc)
   }
-  
-  tmp_outputs <- data.frame(feature = names(.data)[x],
-                            statistic_value = true_val,
-                            p_value = p_value)
   
   return(tmp_outputs)
 }
@@ -228,10 +415,11 @@ gather_binomial_info <- function(data, x){
 #'   group_var = "process", 
 #'   feature_set = "catch22")
 #'   
-#' fit_feature_classifier(featMat,
+#' fit_univariable_classifier(featMat,
 #'   id_var = "id",
 #'   group_var = "group",
 #'   test_method = "linear svm",
+#'   use_balanced_accuracy = FALSE,
 #'   use_k_fold = TRUE,
 #'   num_folds = 10,
 #'   use_empirical_null = TRUE,
@@ -243,12 +431,12 @@ gather_binomial_info <- function(data, x){
 #' }
 #' 
 
-fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
-                                   test_method = "gaussprRadial",
-                                   use_k_fold = FALSE, use_balanced_accuracy = F, num_folds = 10, 
-                                   use_empirical_null = FALSE, null_testing_method = c("model free shuffles", "null model fits"),
-                                   p_value_method = c("empirical", "gaussian"), num_permutations = 50,
-                                   pool_empirical_null = FALSE, return_raw_estimates = FALSE){
+fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
+                                       test_method = "gaussprRadial", use_balanced_accuracy = FALSE,
+                                       use_k_fold = FALSE, num_folds = 10, 
+                                       use_empirical_null = FALSE, null_testing_method = c("model free shuffles", "null model fits"),
+                                       p_value_method = c("empirical", "gaussian"), num_permutations = 50,
+                                       pool_empirical_null = FALSE, return_raw_estimates = FALSE){
   
   #---------- Check arguments ------------
   
@@ -307,8 +495,8 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   theoptions_p <- c("empirical", "gaussian")
   
   if(is.null(p_value_method) || missing(p_value_method)){
-    p_value_method <- "empirical"
-    message("No argument supplied to p_value_method Using 'empirical' as default.")
+    p_value_method <- "gaussian"
+    message("No argument supplied to p_value_method Using 'gaussian' as default.")
   }
   
   if(length(p_value_method) != 1){
@@ -432,7 +620,7 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
   } else{
     
     classifier_name <- test_method
-    statistic_name <- ifelse(use_balanced_accuracy, "Mean balanced classification accuracy", "Mean classification accuracy")
+    statistic_name <- ifelse(use_balanced_accuracy, "Mean classification accuracy and balanced classification accuracy", "Mean classification accuracy")
   }
   
   #-----------------------------
@@ -501,19 +689,19 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
     
     # Compute accuracies for each feature
     
-    fit_univariate_models_safe <- purrr::possibly(fit_univariate_models, otherwise = NULL)
+    fit_univariable_models_safe <- purrr::possibly(fit_univariable_models, otherwise = NULL)
     
     output <- 3:ncol(data_id) %>%
-      purrr::map(~ fit_univariate_models_safe(data = data_id, 
-                                              test_method = test_method, 
-                                              use_k_fold = use_k_fold,
-                                              num_folds = num_folds,
-                                              use_balanced_accuracy = use_balanced_accuracy,
-                                              use_empirical_null = use_empirical_null,
-                                              null_testing_method = null_testing_method,
-                                              num_permutations = num_permutations,
-                                              feature = .x,
-                                              pb = pb))
+      purrr::map(~ fit_univariable_models_safe(data = data_id, 
+                                               test_method = test_method,
+                                               use_balanced_accuracy = use_balanced_accuracy,
+                                               use_k_fold = use_k_fold,
+                                               num_folds = num_folds,
+                                               use_empirical_null = use_empirical_null,
+                                               null_testing_method = null_testing_method,
+                                               num_permutations = num_permutations,
+                                               feature = .x,
+                                               pb = pb))
     
     output <- output[!sapply(output, is.null)]
     output <- data.table::rbindlist(output, use.names = TRUE)
@@ -524,10 +712,19 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
       
       # Run random shuffles procedure
       
-      nullOuts <- data.frame(statistic = simulate_null_acc(x = data_id$group, num_permutations = num_permutations)) %>%
-        dplyr::mutate(statistic_sd = NA,
-                      category = "Null",
+      nullOuts <- simulate_null_acc(x = data_id$group, num_permutations = num_permutations, use_balanced_accuracy) %>%
+        dplyr::mutate(category = "Null",
                       feature = "model free shuffles")
+      
+      if(use_k_fold){
+        nullOuts <- nullOuts %>%
+          dplyr::mutate(accuracy_sd = NA)
+        
+        if(use_balanced_accuracy){
+          nullOuts <- nullOuts %>%
+            dplyr::mutate(balanced_accuracy_sd = NA)
+        }
+      }
       
       output <- dplyr::bind_rows(output, nullOuts)
     }
@@ -544,63 +741,159 @@ fit_feature_classifier <- function(data, id_var = "id", group_var = "group",
         
         # Set up vector of null accuracies across all features
         
-        nulls <- output %>%
-          dplyr::filter(category == "Null") %>%
-          dplyr::pull(statistic)
-        
-        # Widen main results matrix
-        
-        main_matrix <- output %>%
-          dplyr::filter(category == "Main") %>%
-          dplyr::group_by(feature) %>%
-          dplyr::mutate(id = row_number()) %>%
-          dplyr::ungroup() %>%
-          tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
-          dplyr::select(-c(id))
-        
-        # Calculate p-values for each feature
-        
-        feature_statistics <- 2:ncol(main_matrix) %>%
-          purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, x = .x, p_value_method = p_value_method))
-        
-      } else{
-        
-        if(null_testing_method == "null model fits"){
+        if(use_balanced_accuracy){
           
-          # Widen data matrix
+          nulls <- output %>%
+            dplyr::filter(category == "Null") %>%
+            dplyr::select(c(accuracy, balanced_accuracy))
+          
+          # Widen main results matrix
           
           main_matrix <- output %>%
+            dplyr::select(c(category, feature, accuracy)) %>%
+            dplyr::filter(category == "Main") %>%
             dplyr::group_by(feature) %>%
             dplyr::mutate(id = row_number()) %>%
             dplyr::ungroup() %>%
-            tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
+            tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "accuracy") %>%
+            dplyr::select(-c(id))
+          
+          main_matrix_balanced <- output %>%
+            dplyr::select(c(category, feature, balanced_accuracy)) %>%
+            dplyr::filter(category == "Main") %>%
+            dplyr::group_by(feature) %>%
+            dplyr::mutate(id = row_number()) %>%
+            dplyr::ungroup() %>%
+            tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "balanced_accuracy") %>%
             dplyr::select(-c(id))
           
           # Calculate p-values for each feature
           
           feature_statistics <- 2:ncol(main_matrix) %>%
-            purrr::map(~ calculate_unpooled_null(.data = main_matrix, x = .x, p_value_method = p_value_method))
+            purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = main_matrix_balanced,
+                                                       x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
+          
+        } else{
+          
+          nulls <- output %>%
+            dplyr::filter(category == "Null") %>%
+            dplyr::select(c(accuracy))
+          
+          # Widen main results matrix
+          
+          main_matrix <- output %>%
+            dplyr::select(c(category, feature, accuracy)) %>%
+            dplyr::filter(category == "Main") %>%
+            dplyr::group_by(feature) %>%
+            dplyr::mutate(id = row_number()) %>%
+            dplyr::ungroup() %>%
+            tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "accuracy") %>%
+            dplyr::select(-c(id))
+          
+          # Calculate p-values for each feature
+          
+          feature_statistics <- 2:ncol(main_matrix) %>%
+            purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = NULL,
+                                                       x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
+        }
+        
+      } else{
+        
+        if(null_testing_method == "null model fits"){
+          
+          if(use_balanced_accuracy){
+            
+            main_matrix <- output %>%
+              dplyr::select(c(category, feature, accuracy)) %>%
+              dplyr::group_by(feature) %>%
+              dplyr::mutate(id = row_number()) %>%
+              dplyr::ungroup() %>%
+              tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "accuracy") %>%
+              dplyr::select(-c(id))
+            
+            main_matrix_balanced <- output %>%
+              dplyr::select(c(category, feature, balanced_accuracy)) %>%
+              dplyr::group_by(feature) %>%
+              dplyr::mutate(id = row_number()) %>%
+              dplyr::ungroup() %>%
+              tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "balanced_accuracy") %>%
+              dplyr::select(-c(id))
+            
+            # Calculate p-values for each feature
+            
+            feature_statistics <- 2:ncol(main_matrix) %>%
+              purrr::map(~ calculate_unpooled_null(main_matrix = main_matrix, main_matrix_balanced = main_matrix_balanced, 
+                                                   x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
+            
+          } else{
+            
+            main_matrix <- output %>%
+              dplyr::select(c(category, feature, accuracy)) %>%
+              dplyr::group_by(feature) %>%
+              dplyr::mutate(id = row_number()) %>%
+              dplyr::ungroup() %>%
+              tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "accuracy") %>%
+              dplyr::select(-c(id))
+            
+            # Calculate p-values for each feature
+            
+            feature_statistics <- 2:ncol(main_matrix) %>%
+              purrr::map(~ calculate_unpooled_null(main_matrix = main_matrix, main_matrix_balanced = NULL, 
+                                                   x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
+          }
           
         } else{
           
           # Set up vector of null accuracies across all features
           
-          nulls <- output %>%
-            dplyr::filter(category == "Null") %>%
-            dplyr::pull(statistic)
-          
-          # Widen main results matrix
-          
-          main_matrix <- output %>%
-            dplyr::filter(category == "Main") %>%
-            dplyr::group_by(feature) %>%
-            dplyr::mutate(id = row_number()) %>%
-            dplyr::ungroup() %>%
-            tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "statistic") %>%
-            dplyr::select(-c(id))
-          
-          feature_statistics <- 2:ncol(main_matrix) %>%
-            purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, x = .x, p_value_method = p_value_method))
+          if(use_balanced_accuracy){
+            
+            nulls <- output %>%
+              dplyr::filter(category == "Null") %>%
+              dplyr::select(c(accuracy, balanced_accuracy))
+            
+            main_matrix <- output %>%
+              dplyr::select(c(category, feature, accuracy)) %>%
+              dplyr::filter(category == "Main") %>%
+              dplyr::group_by(feature) %>%
+              dplyr::mutate(id = row_number()) %>%
+              dplyr::ungroup() %>%
+              tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "accuracy") %>%
+              dplyr::select(-c(id))
+            
+            main_matrix_balanced <- output %>%
+              dplyr::select(c(category, feature, balanced_accuracy)) %>%
+              dplyr::filter(category == "Main") %>%
+              dplyr::group_by(feature) %>%
+              dplyr::mutate(id = row_number()) %>%
+              dplyr::ungroup() %>%
+              tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "balanced_accuracy") %>%
+              dplyr::select(-c(id))
+            
+            feature_statistics <- 2:ncol(main_matrix) %>%
+              purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = main_matrix_balanced, 
+                                                         x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
+            
+          } else{
+            
+            nulls <- output %>%
+              dplyr::filter(category == "Null") %>%
+              dplyr::pull(accuracy)
+            
+            main_matrix <- output %>%
+              dplyr::select(c(category, feature, accuracy)) %>%
+              dplyr::filter(category == "Main") %>%
+              dplyr::group_by(feature) %>%
+              dplyr::mutate(id = row_number()) %>%
+              dplyr::ungroup() %>%
+              tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "accuracy") %>%
+              dplyr::select(-c(id))
+            
+            feature_statistics <- 2:ncol(main_matrix) %>%
+              purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = NULL, 
+                                                         x = .x, p_value_method = p_value_method,
+                                                         use_balanced_accuracy = use_balanced_accuracy))
+          }
         }
       }
       

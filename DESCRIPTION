@@ -1,10 +1,11 @@
 Package: theft
 Type: Package
 Title: Tools for Handling Extraction of Features from Time series
-Version: 0.3.8.9
-Date: 2022-03-21
+Version: 0.3.9.0
+Date: 2022-04-01
 Authors@R: c(
-  person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut"))
+  person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut")),
+  person("Annie", "Bryant", role = "ctb", comment = "Balanced classification accuracy")
   )
 Maintainer: Trent Henderson <then6675@uni.sydney.edu.au>
 Description: Consolidates and calculates different sets of time-series features from multiple  
@@ -43,6 +44,7 @@ Imports:
 Suggests: 
     knitr,
     markdown,
-    rmarkdown
+    rmarkdown,
+    testthat
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr

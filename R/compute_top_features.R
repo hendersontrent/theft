@@ -77,7 +77,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
   #------------- Normalise data -------------------
   
   facet_order <- rank_data %>%
-      dplyr::pull(feature)
+    dplyr::pull(feature)
   
   normed <- normed %>% 
     dplyr::mutate(names = factor(names, levels = facet_order))
@@ -131,6 +131,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
 #' @param cor_method the correlation method to use. Defaults to \code{"pearson"}
 #' @param test_method the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}
+#' @param use_balanced_accuracy a Boolean specifying whether to use balanced accuracy as the summary metric for caret model training. Defaults to \code{FALSE}
 #' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates if a \code{caret} model is specified for \code{test_method}. Defaults to \code{ FALSE}
 #' @param num_folds an integer specifying the number of k-folds to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}
 #' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if a \code{caret} model is specified for \code{test_method}. Defaults to \code{FALSE}
@@ -158,6 +159,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #'   method = "RobustSigmoid",
 #'   cor_method = "pearson",
 #'   test_method = "gaussprRadial",
+#'   use_balanced_accuracy = use_balanced_accuracy,
 #'   use_k_fold = FALSE,
 #'   num_folds = 10,
 #'   use_empirical_null = TRUE,
@@ -173,7 +175,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                  normalise_violin_plots = FALSE,
                                  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                  cor_method = c("pearson", "spearman"),
-                                 test_method = "gaussprRadial",
+                                 test_method = "gaussprRadial", use_balanced_accuracy = FALSE,
                                  use_k_fold = FALSE, num_folds = 10, 
                                  use_empirical_null = FALSE, null_testing_method = c("model free shuffles", "null model fits"),
                                  p_value_method = c("empirical", "gaussian"), num_permutations = 50,
@@ -277,8 +279,8 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   theoptions_p <- c("empirical", "gaussian")
   
   if(is.null(p_value_method) || missing(p_value_method)){
-    p_value_method <- "empirical"
-    message("No argument supplied to p_value_method Using 'empirical' as default.")
+    p_value_method <- "gaussian"
+    message("No argument supplied to p_value_method Using 'gaussian' as default.")
   }
   
   if(length(p_value_method) != 1){
@@ -378,18 +380,19 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Fit algorithm
   
-  classifierOutputs <- fit_feature_classifier(data_id, 
-                                              id_var = "id", 
-                                              group_var = "group",
-                                              test_method = test_method,
-                                              use_k_fold = use_k_fold,
-                                              num_folds = num_folds,
-                                              use_empirical_null = use_empirical_null,
-                                              null_testing_method = null_testing_method,
-                                              p_value_method = p_value_method,
-                                              num_permutations = num_permutations,
-                                              pool_empirical_null = pool_empirical_null,
-                                              return_raw_estimates = FALSE)
+  classifierOutputs <- fit_univariable_classifier(data_id, 
+                                                  id_var = "id", 
+                                                  group_var = "group",
+                                                  test_method = test_method,
+                                                  use_balanced_accuracy = use_balanced_accuracy,
+                                                  use_k_fold = use_k_fold,
+                                                  num_folds = num_folds,
+                                                  use_empirical_null = use_empirical_null,
+                                                  null_testing_method = null_testing_method,
+                                                  p_value_method = p_value_method,
+                                                  num_permutations = num_permutations,
+                                                  pool_empirical_null = pool_empirical_null,
+                                                  return_raw_estimates = FALSE)
   
   # Filter results to get list of top features
   
@@ -404,31 +407,61 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     
     if(use_empirical_null == FALSE){
       
-      message("\nSelecting top features using mean classification accuracy.")
-      
-      ResultsTable <- classifierOutputs %>%
-        dplyr::slice_max(statistic_value, n = num_features)
-      
-    } else{
-      
-      # Catch cases where most of the p-values are the same (likely 0 given empirical null performance from experiments)
-      
-      unique_p_values <- classifierOutputs %>%
-        dplyr::slice_min(p_value, n = num_features)
-      
-      if(length(unique(unique_p_values$feature)) > num_features || length(unique(unique_p_values$p_value)) == 1){
-        
-        message("\nNot enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
+      if(use_balanced_accuracy){
+        message("\nSelecting top features using mean balanced classification accuracy.")
         
         ResultsTable <- classifierOutputs %>%
           dplyr::slice_max(statistic_value, n = num_features)
         
       } else{
-        
-        message("\nSelecting top features using p-value.")
+        message("\nSelecting top features using mean classification accuracy.")
         
         ResultsTable <- classifierOutputs %>%
-          dplyr::slice_min(p_value, n = num_features)
+          dplyr::slice_max(statistic_value, n = num_features)
+      }
+    } else{
+      
+      # Catch cases where most of the p-values are the same (likely 0 given empirical null performance from experiments)
+      
+      if(use_balanced_accuracy){
+        
+        unique_p_values <- classifierOutputs %>%
+          dplyr::slice_min(p_value_balanced_accuracy, n = num_features)
+        
+        if(length(unique(unique_p_values$feature)) > num_features || length(unique(unique_p_values$p_value_balanced_accuracy)) == 1){
+          
+          message("\nNot enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
+          
+          ResultsTable <- classifierOutputs %>%
+            dplyr::slice_max(balanced_accuracy, n = num_features)
+          
+        } else{
+          
+          message("\nSelecting top features using p-value.")
+          
+          ResultsTable <- classifierOutputs %>%
+            dplyr::slice_min(p_value_balanced_accuracy, n = num_features)
+        }
+        
+      } else{
+        
+        unique_p_values <- classifierOutputs %>%
+          dplyr::slice_min(p_value_accuracy, n = num_features)
+        
+        if(length(unique(unique_p_values$feature)) > num_features || length(unique(unique_p_values$p_value_accuracy)) == 1){
+          
+          message("\nNot enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
+          
+          ResultsTable <- classifierOutputs %>%
+            dplyr::slice_max(accuracy, n = num_features)
+          
+        } else{
+          
+          message("\nSelecting top features using p-value.")
+          
+          ResultsTable <- classifierOutputs %>%
+            dplyr::slice_min(p_value_accuracy, n = num_features)
+        }
       }
     }
   }

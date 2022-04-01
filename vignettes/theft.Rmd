@@ -8,7 +8,7 @@ vignette: >
   %\VignetteEngine{knitr::knitr}
   %\usepackage[UTF-8]{inputenc}
 ---
-
+  
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -25,13 +25,13 @@ library(theft)
 ## Core calculation functions
 
 We are going to use a dataset that comes standard with `theft` called `simData`. This dataset contains a collection of randomly generated time series for six different types of processes. The dataset can be accessed via:
-
+  
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 theft::simData
 ```
 
 The data follows the following structure:
-
+  
 ```{r, message = FALSE, warning = FALSE}
 head(simData)
 ```
@@ -43,7 +43,7 @@ The core function that automates the calculation of the feature statistics at on
 Note that `Kats`, `tsfresh` and `tsfel` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, depending on the input time-series, `theft` provides access to ~1200 features. Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `tsfel` feature sets - the R-based sets will run fine) you should have a working Python installation and download `Kats` using the instructions located [here](https://facebookresearch.github.io/Kats/), `tsfresh` [here](https://tsfresh.com) or `tsfel` [here](https://github.com/fraunhoferportugal/tsfel). For this reason, features included in these three sets are not included in the `all` argument option. 
 
 Here is an example with the `catch22` set:
-
+  
 ```{r, message = FALSE, warning = FALSE}
 feature_matrix <- calculate_features(data = simData, 
                                      id_var = "id", 
@@ -54,7 +54,7 @@ feature_matrix <- calculate_features(data = simData,
 ```
 
 Note that for the `catch22` set you can set the additional `catch24` argument to calculate the mean and standard deviation in addition to the standard 22 features:
-
+  
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 feature_matrix <- calculate_features(data = simData, 
                                      id_var = "id", 
@@ -66,7 +66,7 @@ feature_matrix <- calculate_features(data = simData,
 ```
 
 A tidy dataframe of most of the included features and the set they correspond to is available:
-
+  
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 View(feature_list)
 ```
@@ -229,18 +229,18 @@ This function returns an object with three components to summarise the above ste
 The code below produces analysis for a multiclass problem using a Gaussian process classifier with a radial basis function kernel. It implements a custom "empirical null" procedure for estimating a *p*-value based on classification accuracy of the real data compared to a distribution of null samples built from classification accuracies of the same data but with random class label shuffles. This is also known as permutation testing (see [this document](https://faculty.washington.edu/kenrice/sisg/SISG-08-06.pdf)^[Rice, Ken & Lumley, Thomas. (2008) "Permutation tests"] for a good overview). Note that higher numbers of permutation samples means that a better empirical null distribution can be generated. It is recommended to run 100-1000 permutations, though this comes with considerable computation time. We'll enable a [k-fold cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) procedure too for good measure. Note that using these procedures increases the computation time. Electing to not use an empirical null will be faster, but top features will be determined based off classification accuracy of features and not *p*-values. Further, when `use_k_fold = FALSE`, the model will instead be fit on all data and predict classes based off the same data (in `caret` language, this is equivalent to `caret::trainControl(method = "none")` and then calling `predict` on the input data and getting accuracy from the confusion matrix between the two). This will very likely lead to overfitting, but will return results orders of magnitude faster than if `use_k_fold = TRUE`.
 
 Importantly, the argument `null_testing_method` has two choices:
-
-1. `model free shuffles` -- Generates `num_permutations` number of random shuffles of group labels and computes the proportion that match, returning a distribution of "accuracies". This model is extremely fast as it involves no null model fitting
+  
+  1. `model free shuffles` -- Generates `num_permutations` number of random shuffles of group labels and computes the proportion that match, returning a distribution of "accuracies". This model is extremely fast as it involves no null model fitting
 2. `null model fits` -- Generates `num_permutations` number of models that are trained and tested on data where the class label is shuffled. This method is slow but fits separate null models for each `num_permutations` shuffle
 
 `p_value_method` also has two choices:
-
-1. `empirical` -- calculates the proportion of null classification accuracies that are equal to or greater than the main model accuracy
+  
+  1. `empirical` -- calculates the proportion of null classification accuracies that are equal to or greater than the main model accuracy
 2. `gaussian` -- calculates mean and standard deviation of the null distribution to analytically calculate *p*-value for main model against. Initial package testing indicated that the null distributions (especially for increasing `num_permutations`) were approximately Gaussian, meaning this approach can be feasibly used
 
 Note that `model free shuffles` is incompatible with `pool_empirical_null = TRUE` as the null distributions would be exactly the same. Further, if you set `pool_empirical_null = TRUE` this will compute statistical analysis for each feature against the entire pooled empirical null classification results of all features. Setting it to `FALSE` will compute a *p*-value for each feature against only its empirical null distribution.
 
-**IMPORTANT NOTE:** `theft` currently does not label any results as "statistically significant". If you intend to in your work, please adjust for multiple comparisons when considering results against a threshold (e.g., $\alpha = 0.05$).
+**IMPORTANT NOTE:** `theft` currently does not label any results as "statistically significant". If you intend to in your work, please adjust for multiple comparisons when considering numerous results against a threshold (e.g., $\alpha = 0.05$) and ensure any decisions you make are grounded in careful thought.
 
 ```{r, message = FALSE, warning = FALSE}
 classifier_outputs <- compute_top_features(feature_matrix, 
@@ -251,6 +251,7 @@ classifier_outputs <- compute_top_features(feature_matrix,
                                            method = "RobustSigmoid",
                                            cor_method = "pearson",
                                            test_method = "gaussprRadial",
+                                           use_balanced_accuracy = FALSE,
                                            use_k_fold = TRUE,
                                            num_folds = 10,
                                            use_empirical_null =  TRUE,
@@ -284,7 +285,7 @@ The violin plots are accessed as the third object:
 print(classifier_outputs$ViolinPlots)
 ```
 
-For two-class problems, users can fit statistical models to directly compute *p*-values by specifying one of the following models as the string argument to `test_method`: `"t-test"`, `"wilcox"` or `"binomial logistic"`. `theft` has special procedures for these three options if a two-class problem is registered. For multiclass problems, users can specify any model name string that is a valid `method` name in the popular [`caret`](https://topepo.github.io/caret/train-models-by-tag.html) package and `theft` will pass this through to the relevant sub-procedures.
+For two-class problems, users can fit statistical models to directly compute *p*-values by specifying one of the following models as the string argument to `test_method`: `"t-test"`, `"wilcox"` or `"binomial logistic"`. `theft` has special procedures for these three options if a two-class problem is registered and thus none of the function arguments pertaining to empirical null testing or classification model parameters are used. For multiclass problems (or binary), users can specify any model name string that is a valid `method` name in the popular [`caret`](https://topepo.github.io/caret/train-models-by-tag.html) package and `theft` will pass this through to the relevant sub-procedures which will make use of the arguments relating to *k*-fold cross-validation, permutation testing, and *p*-value calculation.
 
 ## Multivariable
 
@@ -301,20 +302,21 @@ feature_matrix2 <- calculate_features(data = simData,
                                       feature_set = c("catch22", "feasts"))
 ```
 
-Now we can use our multivariable functionality (note the similarity in options to the univariate version we specified above):
+Now we can use our multivariable functionality (note the similarity in options to the univariable version we specified above):
 
 ```{r, message = FALSE, warning = FALSE}
 multi_classifier_outputs <- fit_multivariable_classifier(feature_matrix2, 
-                                                        id_var = "id", 
-                                                        group_var = "group", 
-                                                        by_set = TRUE, 
-                                                        test_method = "gaussprRadial",
-                                                        use_k_fold = TRUE,
-                                                        num_folds = 10,
-                                                        use_empirical_null =  TRUE,
-                                                        null_testing_method = "null model fits",
-                                                        p_value_method = "gaussian",
-                                                        num_permutations = 10)
+                                                         id_var = "id", 
+                                                         group_var = "group", 
+                                                         by_set = TRUE, 
+                                                         test_method = "gaussprRadial",
+                                                         use_balanced_accuracy = FALSE,
+                                                         use_k_fold = TRUE,
+                                                         num_folds = 10,
+                                                         use_empirical_null =  TRUE,
+                                                         null_testing_method = "null model fits",
+                                                         p_value_method = "gaussian",
+                                                         num_permutations = 10)
 ```
 
 We can now access the various named objects returned by this function, which include:
@@ -324,7 +326,7 @@ We can now access the various named objects returned by this function, which inc
 3. `RawClassificationResults` -- a dataframe containing classification accuracies results from each main and null prediction
 
 Here's the feature set comparison plot:
-
+  
 ```{r, message = FALSE, warning = FALSE}
 print(multi_classifier_outputs$FeatureSetResultsPlot)
 ```
@@ -336,7 +338,7 @@ head(multi_classifier_outputs$TestStatistics)
 ```
 
 And here's the raw classifier results:
-
+  
 ```{r, message = FALSE, warning = FALSE}
 head(multi_classifier_outputs$RawClassificationResults)
 ```
