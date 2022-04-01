@@ -8,7 +8,7 @@ feature_matrix <- calculate_features(data = theft::simData,
                                      feature_set = "catch22")
 
 test_that("feature correlations", {
-  expect_equal(length(unique(feature_matrix$names)) ^ 2,
+  expect_equal(length(unique(feature_matrix$id)) ^ 2,
                nrow(plot_feature_correlations(feature_matrix, 
                                               is_normalised = FALSE, 
                                               id_var = "id",
