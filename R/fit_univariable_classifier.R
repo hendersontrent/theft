@@ -195,7 +195,7 @@ calculate_against_null_vector <- function(nulls, main_matrix, main_matrix_balanc
                               accuracy = true_val_acc,
                               p_value_accuracy = p_value_acc,
                               balanced_accuracy = true_val_bal_acc,
-                              p_value_balanced_accurary = p_value_bal_acc)
+                              p_value_balanced_accuracy = p_value_bal_acc)
     
   } else{
     
@@ -316,7 +316,7 @@ calculate_unpooled_null <- function(main_matrix, main_matrix_balanced = NULL, x,
                               accuracy = true_val_acc,
                               p_value_accuracy = p_value_acc,
                               balanced_accuracy = true_val_bal_acc,
-                              p_value_balanced_accurary = p_value_bal_acc)
+                              p_value_balanced_accuracy = p_value_bal_acc)
     
   } else{
     
