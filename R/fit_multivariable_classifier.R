@@ -105,7 +105,7 @@ extract_prediction_accuracy <- function(mod, use_balanced_accuracy = FALSE) {
 
 # Function for iterating over random shuffle permutations of class labels
 
-fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NULL, univariable = FALSE){
+fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NULL, univariable = FALSE, use_balanced_accuracy = FALSE){
   
   # Print {purrr} iteration progress updates in the console
   
@@ -817,7 +817,10 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
         
         accuracies <- output %>%
           dplyr::filter(category == "Main") %>%
-          dplyr::mutate(method = paste0(method, " (", num_features_used, ")"))
+          dplyr::mutate(method = paste0(method, " (", num_features_used, ")")) %>%
+          dplyr::select(c(accuracy, balanced_accuracy, category, method, num_features_used)) %>%
+          tidyr::pivot_longer(cols = c("accuracy", "balanced_accuracy"), names_to = "names", values_to = "statistic") %>%
+          dplyr::mutate(names = ifelse(names == "accuracy", "Accuracy", "Balanced Accuracy"))
       }
     } else{
       
@@ -832,7 +835,8 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
         
         accuracies <- output %>%
           dplyr::filter(category == "Main") %>%
-          dplyr::mutate(method = paste0(method, " (", num_features_used, ")"))
+          dplyr::mutate(method = paste0(method, " (", num_features_used, ")")) %>%
+          dplyr::rename(statistic = accuracy) 
       }
     }
     
