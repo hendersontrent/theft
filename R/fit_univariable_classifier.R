@@ -127,15 +127,17 @@ fit_univariable_models <- function(data, test_method, use_balanced_accuracy, use
 # for empirical nulls
 #--------------------------
 
-calculate_against_null_vector <- function(nulls, main_matrix, main_matrix_balanced = NULL, x, p_value_method){
+calculate_against_null_vector <- function(nulls, main_matrix, main_matrix_balanced = NULL, x, p_value_method, use_balanced_accuracy){
   
   if(use_balanced_accuracy) {
     
     true_val_acc <- main_matrix %>%
-      dplyr::select(dplyr::all_of(x))
+      dplyr::select(dplyr::all_of(x)) %>%
+      dplyr::pull()
     
     true_val_bal_acc <- main_matrix_balanced %>%
-      dplyr::select(dplyr::all_of(x))
+      dplyr::select(dplyr::all_of(x)) %>%
+      dplyr::pull()
     
     stopifnot(length(true_val_acc) == 1)
     stopifnot(length(true_val_bal_acc) == 1)
@@ -198,10 +200,11 @@ calculate_against_null_vector <- function(nulls, main_matrix, main_matrix_balanc
   } else{
     
     true_val_acc <- main_matrix %>%
-      dplyr::select(dplyr::all_of(x))
+      dplyr::select(dplyr::all_of(x)) %>%
+      dplyr::pull()
     
     stopifnot(length(true_val_acc) == 1)
-    nulls_acc <- nulls$accuracy
+    nulls_acc <- nulls
     
     # Catch cases when SD = 0
     
@@ -242,11 +245,13 @@ calculate_unpooled_null <- function(main_matrix, main_matrix_balanced = NULL, x,
     
     true_val_acc <- main_matrix %>%
       dplyr::filter(category == "Main") %>%
-      dplyr::select(dplyr::all_of(x))
+      dplyr::select(dplyr::all_of(x)) %>%
+      dplyr::pull()
     
     true_val_bal_acc <- main_matrix_balanced %>%
       dplyr::filter(category == "Main") %>%
-      dplyr::select(dplyr::all_of(x))
+      dplyr::select(dplyr::all_of(x)) %>%
+      dplyr::pull()
     
     stopifnot(length(true_val_acc) == 1)
     stopifnot(length(true_val_bal_acc) == 1)
@@ -317,7 +322,8 @@ calculate_unpooled_null <- function(main_matrix, main_matrix_balanced = NULL, x,
     
     true_val_acc <- main_matrix %>%
       dplyr::filter(category == "Main") %>%
-      dplyr::select(dplyr::all_of(x))
+      dplyr::select(dplyr::all_of(x)) %>%
+      dplyr::pull()
     
     stopifnot(length(true_val_acc) == 1)
     
@@ -488,8 +494,8 @@ fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
   theoptions_p <- c("empirical", "gaussian")
   
   if(is.null(p_value_method) || missing(p_value_method)){
-    p_value_method <- "empirical"
-    message("No argument supplied to p_value_method Using 'empirical' as default.")
+    p_value_method <- "gaussian"
+    message("No argument supplied to p_value_method Using 'gaussian' as default.")
   }
   
   if(length(p_value_method) != 1){

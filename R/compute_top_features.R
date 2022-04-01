@@ -279,8 +279,8 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   theoptions_p <- c("empirical", "gaussian")
   
   if(is.null(p_value_method) || missing(p_value_method)){
-    p_value_method <- "empirical"
-    message("No argument supplied to p_value_method Using 'empirical' as default.")
+    p_value_method <- "gaussian"
+    message("No argument supplied to p_value_method Using 'gaussian' as default.")
   }
   
   if(length(p_value_method) != 1){
