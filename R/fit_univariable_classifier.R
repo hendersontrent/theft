@@ -619,7 +619,7 @@ fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
   } else{
     
     classifier_name <- test_method
-    statistic_name <- ifelse(use_balanced_accuracy, "Mean balanced classification accuracy", "Mean classification accuracy")
+    statistic_name <- ifelse(use_balanced_accuracy, "Mean classification accuracy and balanced classification accuracy", "Mean classification accuracy")
   }
   
   #-----------------------------
@@ -770,7 +770,7 @@ fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
           
           feature_statistics <- 2:ncol(main_matrix) %>%
             purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = main_matrix_balanced,
-                                                       x = .x, p_value_method = p_value_method))
+                                                       x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
           
         } else{
           
@@ -793,7 +793,7 @@ fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
           
           feature_statistics <- 2:ncol(main_matrix) %>%
             purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = NULL,
-                                                       x = .x, p_value_method = p_value_method))
+                                                       x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
         }
         
       } else{
@@ -822,7 +822,7 @@ fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
             
             feature_statistics <- 2:ncol(main_matrix) %>%
               purrr::map(~ calculate_unpooled_null(main_matrix = main_matrix, main_matrix_balanced = main_matrix_balanced, 
-                                                   x = .x, p_value_method = p_value_method))
+                                                   x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
             
           } else{
             
@@ -838,7 +838,7 @@ fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
             
             feature_statistics <- 2:ncol(main_matrix) %>%
               purrr::map(~ calculate_unpooled_null(main_matrix = main_matrix, main_matrix_balanced = NULL, 
-                                                   x = .x, p_value_method = p_value_method))
+                                                   x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
           }
           
         } else{
@@ -870,8 +870,8 @@ fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
               dplyr::select(-c(id))
             
             feature_statistics <- 2:ncol(main_matrix) %>%
-              purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, x = .x, p_value_method = p_value_method,
-                                                         main_matrix_balanced = main_matrix_balanced))
+              purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = main_matrix_balanced, 
+                                                         x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
             
           } else{
             
@@ -889,8 +889,9 @@ fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
               dplyr::select(-c(id))
             
             feature_statistics <- 2:ncol(main_matrix) %>%
-              purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, x = .x, p_value_method = p_value_method,
-                                                         main_matrix_balanced = NULL))
+              purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = NULL, 
+                                                         x = .x, p_value_method = p_value_method,
+                                                         use_balanced_accuracy = use_balanced_accuracy))
           }
         }
       }
