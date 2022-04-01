@@ -59,5 +59,6 @@ test_that("t-sne perplexity", {
                                   low_dim_method = "t-SNE", 
                                   perplexity = (length(feature_matrix$id) + 1),
                                   show_covariance = FALSE),
-               "Error in .check_tsne_params(nrow(X), dims = dims, perplexity = perplexity,  : perplexity is too large for the number of samples ")
+               "perplexity must be < number of unique IDs.",
+               fixed = TRUE)
 })
