@@ -139,6 +139,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #' @param p_value_method a string specifying the method of calculating p-values. Defaults to \code{"empirical"}
 #' @param num_permutations an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{50}
 #' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if a \code{caret} model is specified for \code{test_method} use_empirical_null is \code{TRUE}. Defaults to \code{FALSE}
+#' @param seed fixed number for R's random number generator to ensure reproducibility
 #' @return an object of class list containing a dataframe of results, a feature x feature matrix plot, and a violin plot
 #' @author Trent Henderson
 #' @export
@@ -166,7 +167,8 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #'   null_testing_method = "model free shuffles",
 #'   p_value_method = "empirical",
 #'   num_permutations = 100,
-#'   pool_empirical_null = FALSE) 
+#'   pool_empirical_null = FALSE,
+#'   seed = 123) 
 #' }
 #' 
 
@@ -179,7 +181,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                  use_k_fold = FALSE, num_folds = 10, 
                                  use_empirical_null = FALSE, null_testing_method = c("model free shuffles", "null model fits"),
                                  p_value_method = c("empirical", "gaussian"), num_permutations = 50,
-                                 pool_empirical_null = FALSE){
+                                 pool_empirical_null = FALSE, seed = 123){
   
   # Make RobustSigmoid the default
   
@@ -361,6 +363,13 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     message(paste0("Number of specified features exceeds number of features in your data. Automatically adjusting to ", num_features))
   }
   
+  # Seed
+  
+  if(is.null(seed) || missing(seed)){
+    seed <- 123
+    message("No argument supplied to seed, using 123 as default.")
+  }
+  
   # Prep factor levels as names for {caret} if the 3 base two-class options aren't being used
   
   if(test_method %ni% c("t-test", "wilcox", "binomial logistic")){
@@ -392,6 +401,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                                   p_value_method = p_value_method,
                                                   num_permutations = num_permutations,
                                                   pool_empirical_null = pool_empirical_null,
+                                                  seed = seed,
                                                   return_raw_estimates = FALSE)
   
   # Filter results to get list of top features

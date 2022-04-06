@@ -65,10 +65,16 @@ feature_matrix <- calculate_features(data = simData,
                                      catch24 = TRUE)
 ```
 
-A tidy dataframe of most of the included features and the set they correspond to is available:
-  
+Note that if you want to use any of the Python-based packages, you must first tell R (prior to running `calculate_features`) which Python location on your computer contains the installed libraries. This can be done via the `init_theft` function, where `path_to_python` is a string specifying the filepath location. For example, for me (Trent), the filepath to the correct Python is `"~/opt/anaconda3/bin/python"` which is what I would enter for the `path_to_python` argument. You only need to call `init_theft` once per R session.
+
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
-View(feature_list)
+init_theft(path_to_python)
+```
+
+A tidy dataframe of most of the included features and the set they correspond to is available in the dataframe `feature_list`:
+  
+```{r, message = FALSE, warning = FALSE}
+head(feature_list)
 ```
 
 NOTE: If using the `tsfresh` feature set, you might want to consider the `tsfresh_cleanup` argument to `calculate_features`. This argument defaults to `FALSE` and specifies whether to use the in-built `tsfresh` relevant feature filter or not.
@@ -242,6 +248,8 @@ Note that `model free shuffles` is incompatible with `pool_empirical_null = TRUE
 
 **IMPORTANT NOTE:** `theft` currently does not label any results as "statistically significant". If you intend to in your work, please adjust for multiple comparisons when considering numerous results against a threshold (e.g., $\alpha = 0.05$) and ensure any decisions you make are grounded in careful thought.
 
+The `seed` argument allows you to specify a number to fix R's random number generator for reproducible results. It defaults to `123` if nothing is provided.
+
 ```{r, message = FALSE, warning = FALSE}
 classifier_outputs <- compute_top_features(feature_matrix, 
                                            id_var = "id", 
@@ -258,7 +266,8 @@ classifier_outputs <- compute_top_features(feature_matrix,
                                            null_testing_method = "model free shuffles",
                                            p_value_method = "empirical",
                                            num_permutations = 1000,
-                                           pool_empirical_null = FALSE)
+                                           pool_empirical_null = FALSE,
+                                           seed = 123)
 ```
 
 Each component is named and can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
@@ -316,7 +325,8 @@ multi_classifier_outputs <- fit_multivariable_classifier(feature_matrix2,
                                                          use_empirical_null =  TRUE,
                                                          null_testing_method = "null model fits",
                                                          p_value_method = "gaussian",
-                                                         num_permutations = 10)
+                                                         num_permutations = 10,
+                                                         seed = 123)
 ```
 
 We can now access the various named objects returned by this function, which include:
