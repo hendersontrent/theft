@@ -16,7 +16,8 @@ fit_multivariable_classifier(
   use_empirical_null = FALSE,
   null_testing_method = c("model free shuffles", "null model fits"),
   p_value_method = c("empirical", "gaussian"),
-  num_permutations = 100
+  num_permutations = 100,
+  seed = 123
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ fit_multivariable_classifier(
 \item{p_value_method}{a string specifying the method of calculating p-values. Defaults to \code{"empirical"}}
 
 \item{num_permutations}{an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{100}}
+
+\item{seed}{fixed number for R's random number generator to ensure reproducibility}
 }
 \value{
 an object of class list containing dataframe summaries of the classification models and a \code{ggplot} object if \code{by_set} is \code{TRUE}
@@ -70,7 +73,8 @@ fit_multivariable_classifier(featMat,
   use_empirical_null = TRUE,
   null_testing_method = "model free shuffles",
   p_value_method = "empirical",
-  num_permutations = 100)
+  num_permutations = 100,
+  seed = 123)
 }
 
 }

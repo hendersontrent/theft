@@ -242,6 +242,8 @@ Note that `model free shuffles` is incompatible with `pool_empirical_null = TRUE
 
 **IMPORTANT NOTE:** `theft` currently does not label any results as "statistically significant". If you intend to in your work, please adjust for multiple comparisons when considering numerous results against a threshold (e.g., $\alpha = 0.05$) and ensure any decisions you make are grounded in careful thought.
 
+The `seed` argument allows you to specify a number to fix R's random number generator for reproducible results. It defaults to `123` if nothing is provided.
+
 ```{r, message = FALSE, warning = FALSE}
 classifier_outputs <- compute_top_features(feature_matrix, 
                                            id_var = "id", 
@@ -258,7 +260,8 @@ classifier_outputs <- compute_top_features(feature_matrix,
                                            null_testing_method = "model free shuffles",
                                            p_value_method = "empirical",
                                            num_permutations = 1000,
-                                           pool_empirical_null = FALSE)
+                                           pool_empirical_null = FALSE,
+                                           seed = 123)
 ```
 
 Each component is named and can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
@@ -316,7 +319,8 @@ multi_classifier_outputs <- fit_multivariable_classifier(feature_matrix2,
                                                          use_empirical_null =  TRUE,
                                                          null_testing_method = "null model fits",
                                                          p_value_method = "gaussian",
-                                                         num_permutations = 10)
+                                                         num_permutations = 10,
+                                                         seed = 123)
 ```
 
 We can now access the various named objects returned by this function, which include:

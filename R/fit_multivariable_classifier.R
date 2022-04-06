@@ -205,7 +205,7 @@ calculate_balanced_accuracy <- function(data, lev = NULL, model = NULL) {
 # Model fitting
 #--------------
 
-fit_multivariable_models <- function(data, test_method, use_balanced_accuracy, use_k_fold, num_folds, use_empirical_null, null_testing_method, num_permutations, set = NULL){
+fit_multivariable_models <- function(data, test_method, use_balanced_accuracy, use_k_fold, num_folds, use_empirical_null, null_testing_method, num_permutations, set = NULL, seed){
   
   # Set up input matrices
   
@@ -229,7 +229,7 @@ fit_multivariable_models <- function(data, test_method, use_balanced_accuracy, u
   
   # Fit models
   
-  set.seed(123)
+  set.seed(seed)
   
   if(use_k_fold){
     
@@ -520,6 +520,7 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
 #' @param null_testing_method a string specifying the type of statistical method to use to calculate p-values. Defaults to \code{model free shuffles}
 #' @param p_value_method a string specifying the method of calculating p-values. Defaults to \code{"empirical"}
 #' @param num_permutations an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{100}
+#' @param seed fixed number for R's random number generator to ensure reproducibility
 #' @return an object of class list containing dataframe summaries of the classification models and a \code{ggplot} object if \code{by_set} is \code{TRUE}
 #' @author Trent Henderson
 #' @export
@@ -543,7 +544,8 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
 #'   use_empirical_null = TRUE,
 #'   null_testing_method = "model free shuffles",
 #'   p_value_method = "empirical",
-#'   num_permutations = 100)
+#'   num_permutations = 100,
+#'   seed = 123)
 #' }
 #'
 
@@ -551,7 +553,7 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
                                          by_set = FALSE, test_method = "gaussprRadial",
                                          use_balanced_accuracy = FALSE, use_k_fold = TRUE, num_folds = 10,
                                          use_empirical_null = FALSE, null_testing_method = c("model free shuffles", "null model fits"),
-                                         p_value_method = c("empirical", "gaussian"), num_permutations = 100){
+                                         p_value_method = c("empirical", "gaussian"), num_permutations = 100, seed = 123){
   
   #---------- Check arguments ------------
   
@@ -617,6 +619,13 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
   
   if(p_value_method %ni% theoptions_p){
     stop("p_value_method should be a single string of either 'empirical' or 'gaussian'.")
+  }
+  
+  # Seed
+  
+  if(is.null(seed) || missing(seed)){
+    seed <- 123
+    message("No argument supplied to seed, using 123 as default.")
   }
   
   #------------- Renaming columns -------------
@@ -740,7 +749,8 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
                                             use_empirical_null = use_empirical_null,
                                             null_testing_method = null_testing_method,
                                             num_permutations = num_permutations,
-                                            set = .x))
+                                            set = .x,
+                                            seed = seed))
     
     output <- data.table::rbindlist(output, use.names = TRUE)
     
@@ -754,7 +764,8 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
                                        use_empirical_null = use_empirical_null,
                                        null_testing_method = null_testing_method,
                                        num_permutations = num_permutations,
-                                       set = NULL)
+                                       set = NULL,
+                                       seed = seed)
   }
   
   # Run nulls if random shuffles are to be used

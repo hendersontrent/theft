@@ -20,7 +20,8 @@ compute_top_features(
   null_testing_method = c("model free shuffles", "null model fits"),
   p_value_method = c("empirical", "gaussian"),
   num_permutations = 50,
-  pool_empirical_null = FALSE
+  pool_empirical_null = FALSE,
+  seed = 123
 )
 }
 \arguments{
@@ -55,6 +56,8 @@ compute_top_features(
 \item{num_permutations}{an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{50}}
 
 \item{pool_empirical_null}{a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if a \code{caret} model is specified for \code{test_method} use_empirical_null is \code{TRUE}. Defaults to \code{FALSE}}
+
+\item{seed}{fixed number for R's random number generator to ensure reproducibility}
 }
 \value{
 an object of class list containing a dataframe of results, a feature x feature matrix plot, and a violin plot
@@ -86,7 +89,8 @@ compute_top_features(featMat,
   null_testing_method = "model free shuffles",
   p_value_method = "empirical",
   num_permutations = 100,
-  pool_empirical_null = FALSE) 
+  pool_empirical_null = FALSE,
+  seed = 123) 
 }
 
 }

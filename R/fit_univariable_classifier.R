@@ -4,7 +4,7 @@
 # Model fitting
 #--------------
 
-fit_univariable_models <- function(data, test_method, use_balanced_accuracy, use_k_fold, num_folds, use_empirical_null, null_testing_method, num_permutations, feature, pb){
+fit_univariable_models <- function(data, test_method, use_balanced_accuracy, use_k_fold, num_folds, use_empirical_null, null_testing_method, num_permutations, feature, pb, seed){
   
   # Print {purrr} iteration progress updates in the console
   
@@ -13,7 +13,7 @@ fit_univariable_models <- function(data, test_method, use_balanced_accuracy, use
   tmp <- data %>%
     dplyr::select(c(group, dplyr::all_of(feature)))
   
-  set.seed(123)
+  set.seed(seed)
   
   if(use_k_fold){
     
@@ -402,6 +402,7 @@ gather_binomial_info <- function(data, x){
 #' @param p_value_method a string specifying the method of calculating p-values. Defaults to \code{"empirical"}
 #' @param num_permutations an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{50}
 #' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if a \code{caret} model is specified for \code{test_method} use_empirical_null is \code{TRUE}. Defaults to \code{FALSE}
+#' @param seed fixed number for R's random number generator to ensure reproducibility
 #' @param return_raw_estimates a Boolean (for testing purposes only -- will break \code{compute_top_features}!!) specifying whether to return the raw main and null model results
 #' @return an object of class dataframe containing results
 #' @author Trent Henderson
@@ -427,6 +428,7 @@ gather_binomial_info <- function(data, x){
 #'   p_value_method = "empirical",
 #'   num_permutations = 50,
 #'   pool_empirical_null = FALSE,
+#'   seed = 123,
 #'   return_raw_estimates = FALSE) 
 #' }
 #' 
@@ -436,7 +438,7 @@ fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
                                        use_k_fold = FALSE, num_folds = 10, 
                                        use_empirical_null = FALSE, null_testing_method = c("model free shuffles", "null model fits"),
                                        p_value_method = c("empirical", "gaussian"), num_permutations = 50,
-                                       pool_empirical_null = FALSE, return_raw_estimates = FALSE){
+                                       pool_empirical_null = FALSE, seed = 123, return_raw_estimates = FALSE){
   
   #---------- Check arguments ------------
   
@@ -701,7 +703,8 @@ fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
                                                null_testing_method = null_testing_method,
                                                num_permutations = num_permutations,
                                                feature = .x,
-                                               pb = pb))
+                                               pb = pb,
+                                               seed = seed))
     
     output <- output[!sapply(output, is.null)]
     output <- data.table::rbindlist(output, use.names = TRUE)
