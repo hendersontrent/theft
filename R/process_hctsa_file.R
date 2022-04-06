@@ -2,7 +2,6 @@
 #' 
 #' @importFrom R.matlab readMat
 #' @importFrom data.table rbindlist
-#' @importFrom magrittr %>%
 #' @import dplyr
 #' @param data a string specifying the filepath to the \code{MATLAB} file to parse
 #' @return an object of class dataframe in tidy format

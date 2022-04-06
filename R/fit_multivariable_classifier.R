@@ -499,7 +499,6 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
 
 #' Fit a classifier to feature matrix using all features or all features by set
 #' @import dplyr
-#' @importFrom magrittr %>%
 #' @import ggplot2
 #' @importFrom tidyr drop_na pivot_wider pivot_longer
 #' @importFrom tibble rownames_to_column

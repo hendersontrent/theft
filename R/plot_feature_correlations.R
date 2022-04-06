@@ -1,7 +1,6 @@
 #' Produce a correlation matrix plot showing pairwise correlations of feature vectors by unique id with automatic hierarchical clustering.
 #' 
 #' @import dplyr
-#' @importFrom magrittr %>%
 #' @import ggplot2
 #' @importFrom tidyr pivot_wider
 #' @importFrom reshape2 melt

@@ -276,7 +276,6 @@ calc_kats <- function(data){
 
 #' Compute features on an input time series dataset
 #' @import dplyr
-#' @importFrom magrittr %>%
 #' @importFrom tibble as_tibble
 #' @importFrom tidyr gather
 #' @importFrom tidyr pivot_longer

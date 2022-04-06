@@ -22,7 +22,6 @@ Imports:
     data.table,
     dplyr,
     ggplot2,
-    magrittr,
     tidyr,
     reshape2,
     scales,

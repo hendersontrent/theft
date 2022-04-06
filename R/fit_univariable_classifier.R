@@ -382,7 +382,6 @@ gather_binomial_info <- function(data, x){
 
 #' Fit a classifier to feature matrix to extract top performers
 #' @import dplyr
-#' @importFrom magrittr %>%
 #' @importFrom tidyr drop_na pivot_wider
 #' @importFrom tibble rownames_to_column
 #' @importFrom data.table rbindlist
