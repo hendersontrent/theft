@@ -1,6 +1,5 @@
 #' Produce a matrix visualisation of data types computed by feature calculation function.
 #' @import dplyr
-#' @importFrom magrittr %>%
 #' @import ggplot2
 #' @importFrom stats reorder
 #' @param data a dataframe with at least 2 columns called \code{"names"} and \code{"values"}

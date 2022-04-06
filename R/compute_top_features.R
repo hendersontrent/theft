@@ -117,7 +117,6 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 
 #' Return an object containing results from top-performing features on a classification task
 #' @import dplyr
-#' @importFrom magrittr %>%
 #' @import ggplot2
 #' @importFrom tidyr drop_na pivot_wider
 #' @importFrom stats hclust dist cor
