@@ -415,7 +415,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   if("tsfresh" %in% feature_set){
     
-    message("'tsfresh' requires a Python installation and the 'tsfresh' Python package to also be installed. Please ensure you have this working (see https://tsfresh.com for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): use_python = 'path_to_your_python_as_a_string_here' or use_virtualenv = 'name_of_your_virtualenv_here'")
+    message("'tsfresh' requires a Python installation and the 'tsfresh' Python package to also be installed. Please ensure you have this working (see https://tsfresh.com for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(path_to_python) where path_to_python is a string specifying the location of Python with the installed libraries on your machine.")
     
     if(tsfresh_cleanup == TRUE){
       cleanuper <- "Yes"
@@ -431,14 +431,14 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   if("tsfel" %in% feature_set){
     
-    message("'tsfel' requires a Python installation and the 'tsfel' Python package to also be installed. Please ensure you have this working (see https://tsfel.readthedocs.io/en/latest/ for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): use_python = 'path_to_your_python_as_a_string_here' or use_virtualenv = 'name_of_your_virtualenv_here'")
+    message("'tsfel' requires a Python installation and the 'tsfel' Python package to also be installed. Please ensure you have this working (see https://tsfel.readthedocs.io/en/latest/ for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(path_to_python) where path_to_python is a string specifying the location of Python with the installed libraries on your machine.")
     message("\nRunning computations for tsfel...")
     tmp_tsfel <- calc_tsfel(data = data_re)
   }
   
   if("kats" %in% feature_set){
     
-    message("'kats' requires a Python installation and the 'kats' Python package to also be installed. Please ensure you have this working (see https://facebookresearch.github.io/Kats/ for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): use_python = 'path_to_your_python_as_a_string_here' or use_virtualenv = 'name_of_your_virtualenv_here'")
+    message("'kats' requires a Python installation and the 'kats' Python package to also be installed. Please ensure you have this working (see https://facebookresearch.github.io/Kats/ for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(path_to_python) where path_to_python is a string specifying the location of Python with the installed libraries on your machine.")
     message("\nRunning computations for kats...")
     tmp_kats <- calc_kats(data = data_re)
   }

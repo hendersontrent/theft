@@ -65,10 +65,16 @@ feature_matrix <- calculate_features(data = simData,
                                      catch24 = TRUE)
 ```
 
-A tidy dataframe of most of the included features and the set they correspond to is available:
-  
+Note that if you want to use any of the Python-based packages, you must first tell R (prior to running `calculate_features`) which Python location on your computer contains the installed libraries. This can be done via the `init_theft` function, where `path_to_python` is a string specifying the filepath location. For example, for me (Trent), the filepath to the correct Python is `"~/opt/anaconda3/bin/python"` which is what I would enter for the `path_to_python` argument. You only need to call `init_theft` once per R session.
+
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
-View(feature_list)
+init_theft(path_to_python)
+```
+
+A tidy dataframe of most of the included features and the set they correspond to is available in the dataframe `feature_list`:
+  
+```{r, message = FALSE, warning = FALSE}
+head(feature_list)
 ```
 
 NOTE: If using the `tsfresh` feature set, you might want to consider the `tsfresh_cleanup` argument to `calculate_features`. This argument defaults to `FALSE` and specifies whether to use the in-built `tsfresh` relevant feature filter or not.
