@@ -213,7 +213,7 @@ plot_feature_correlations(feature_matrix,
 
 ## Time-series classification
 
-## Feature-by-feature
+### Feature-by-feature
 
 Since feature-based time-series analysis has shown particular promise for classification problems, `theft` includes functionality for exploring group separation in addition to the low dimensional representation. The `compute_top_features` function takes the computed features and performs the following:
 
@@ -296,7 +296,7 @@ print(classifier_outputs$ViolinPlots)
 
 For two-class problems, users can fit statistical models to directly compute *p*-values by specifying one of the following models as the string argument to `test_method`: `"t-test"`, `"wilcox"` or `"binomial logistic"`. `theft` has special procedures for these three options if a two-class problem is registered and thus none of the function arguments pertaining to empirical null testing or classification model parameters are used. For multiclass problems (or binary), users can specify any model name string that is a valid `method` name in the popular [`caret`](https://topepo.github.io/caret/train-models-by-tag.html) package and `theft` will pass this through to the relevant sub-procedures which will make use of the arguments relating to *k*-fold cross-validation, permutation testing, and *p*-value calculation.
 
-## Multivariable
+### Multivariable
 
 A multivariable option is also available. The `fit_multivariable_classifier` function fits all features at once instead of by individual features to estimate classification accuracy. This can be split by feature set (if the `by_set` argument is set to `TRUE`) to enable systematic comparisons between those made available in `theft`.
 
