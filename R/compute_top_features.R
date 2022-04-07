@@ -41,7 +41,7 @@ draw_top_feature_plot <- function(data, method, cor_method, num_features){
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
                    legend.position = "bottom",
-                   axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
+                   axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
   
   return(FeatureFeatureCorrelationPlot)
 }
@@ -89,8 +89,17 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
   p <- normed %>%
     dplyr::mutate(group = as.factor(group)) %>%
     ggplot2::ggplot(ggplot2::aes(x = group, y = values, colour = group)) +
-    ggplot2::geom_violin() +
-    ggplot2::geom_point(size = 1, alpha = 0.9, position = ggplot2::position_jitter(w = 0.05)) +
+    ggplot2::geom_violin()
+  
+  if(length(unique(normed$names)) > 8){
+    p <- p +
+      ggplot2::geom_point(size = 0.7, alpha = 0.9, position = ggplot2::position_jitter(w = 0.05))
+  } else{
+    p <- p +
+      ggplot2::geom_point(size = 1, alpha = 0.9, position = ggplot2::position_jitter(w = 0.05))
+  }
+  
+  p <- p +  
     ggplot2::labs(title = "Class discrimination for top performing features",
                   subtitle = "Features are ordered by performance from left to right",
                   x = "Class",
@@ -104,10 +113,10 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
   
   if(normalise){
     p <- p +
-      ggplot2::facet_wrap(~names, ncol = 4)
+      ggplot2::facet_wrap(~names, ncol = 3)
   } else{
     p <- p +
-      ggplot2::facet_wrap(~names, ncol = 4, scales = "free_y")
+      ggplot2::facet_wrap(~names, ncol = 3, scales = "free_y")
   }
   
   return(p)
@@ -388,20 +397,20 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Fit algorithm
   
-  classifierOutputs <- fit_univariable_classifier(data_id, 
-                                                  id_var = "id", 
-                                                  group_var = "group",
-                                                  test_method = test_method,
-                                                  use_balanced_accuracy = use_balanced_accuracy,
-                                                  use_k_fold = use_k_fold,
-                                                  num_folds = num_folds,
-                                                  use_empirical_null = use_empirical_null,
-                                                  null_testing_method = null_testing_method,
-                                                  p_value_method = p_value_method,
-                                                  num_permutations = num_permutations,
-                                                  pool_empirical_null = pool_empirical_null,
-                                                  seed = seed,
-                                                  return_raw_estimates = FALSE)
+  classifierOutputs <- fit_single_feature_classifier(data_id, 
+                                                     id_var = "id", 
+                                                     group_var = "group",
+                                                     test_method = test_method,
+                                                     use_balanced_accuracy = use_balanced_accuracy,
+                                                     use_k_fold = use_k_fold,
+                                                     num_folds = num_folds,
+                                                     use_empirical_null = use_empirical_null,
+                                                     null_testing_method = null_testing_method,
+                                                     p_value_method = p_value_method,
+                                                     num_permutations = num_permutations,
+                                                     pool_empirical_null = pool_empirical_null,
+                                                     seed = seed,
+                                                     return_raw_estimates = FALSE)
   
   # Filter results to get list of top features
   

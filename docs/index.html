@@ -37,7 +37,7 @@
     
     <a class="navbar-brand me-2" href="index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,21 +89,28 @@
 <div class="section level2">
 <h2 id="general-purpose">General purpose<a class="anchor" aria-label="anchor" href="#general-purpose"></a>
 </h2>
-<p><code>theft</code> is a software package for R that facilitates user-friendly access to a structured analytical pipeline for the computation, analysis, and visualisation of time-series features. The package provides a single point of access to a large number of time-series features from a range of existing R and Python packages and lets the user specify which groups (or all) of the these features to calculate. The packages which <code>theft</code> currently ‘steals’ features from include:</p>
+<p><code>theft</code> is a software package for R that facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. The package provides a single point of access to a large number of time-series features from a range of existing R and Python packages and lets the user specify which groups (or all) of the these features to calculate. The packages which <code>theft</code> currently ‘steals’ features from include:</p>
 <ul>
-<li><a href="https://github.com/hendersontrent/Rcatch22" class="external-link">Rcatch22</a></li>
-<li><a href="https://feasts.tidyverts.org" class="external-link">feasts</a></li>
-<li><a href="https://github.com/robjhyndman/tsfeatures" class="external-link">tsfeatures</a></li>
-<li><a href="https://facebookresearch.github.io/Kats/" class="external-link">Kats</a></li>
-<li><a href="https://tsfresh.com" class="external-link">tsfresh</a></li>
-<li><a href="https://tsfel.readthedocs.io/en/latest/" class="external-link">TSFEL</a></li>
+<li>
+<a href="https://link.springer.com/article/10.1007/s10618-019-00647-x" class="external-link">catch22</a> (R; <a href="https://github.com/hendersontrent/Rcatch22" class="external-link">see <code>Rcatch22</code> for the native implementation on CRAN</a>)</li>
+<li>
+<a href="https://feasts.tidyverts.org" class="external-link">feasts</a> (R)</li>
+<li>
+<a href="https://github.com/robjhyndman/tsfeatures" class="external-link">tsfeatures</a> (R)</li>
+<li>
+<a href="https://facebookresearch.github.io/Kats/" class="external-link">kats</a> (Python)</li>
+<li>
+<a href="https://tsfresh.com" class="external-link">tsfresh</a> (Python)</li>
+<li>
+<a href="https://tsfel.readthedocs.io/en/latest/" class="external-link">tsfel</a> (Python)</li>
 </ul>
-<p>Note that <code>Kats</code>, <code>tsfresh</code> and <code>tsfel</code> are Python packages. The R package <code>reticulate</code> is used to call Python code that uses these packages and applies it within the broader <em>tidy</em> data philosophy embodied by <code>theft</code>. At present, depending on the input time series, <code>theft</code> provides access to &gt;1300 features. Prior to using <code>theft</code> (only if you want to use the <code>Kats</code>, <code>tsfresh</code> or <code>tsfel</code> feature sets - the R-based sets will run fine) you should have a working Python installation and download <code>Kats</code> using the instructions located <a href="https://facebookresearch.github.io/Kats/" class="external-link">here</a>, <code>tsfresh</code> <a href="https://tsfresh.com" class="external-link">here</a> or <code>tsfel</code> <a href="https://github.com/fraunhoferportugal/tsfel" class="external-link">here</a>.</p>
+<p>Note that <code>kats</code>, <code>tsfresh</code> and <code>tsfel</code> are Python packages. The R package <code>reticulate</code> is used to call Python code that uses these packages and applies it within the broader <em>tidy</em> data philosophy embodied by <code>theft</code>. At present, depending on the input time series, <code>theft</code> provides access to &gt;1300 features. Prior to using <code>theft</code> (only if you want to use the <code>kats</code>, <code>tsfresh</code> or <code>tsfel</code> feature sets; the R-based sets will run fine) you should have a working Python installation and download <code>kats</code> using the instructions located <a href="https://facebookresearch.github.io/Kats/" class="external-link">here</a>, <code>tsfresh</code> <a href="https://tsfresh.com" class="external-link">here</a> and/or <code>tsfel</code> <a href="https://github.com/fraunhoferportugal/tsfel" class="external-link">here</a>.</p>
+<p>For a comprehensive comparison of these six feature sets, please refer to the recent paper <a href="https://ieeexplore.ieee.org/document/9679937" class="external-link">An Empirical Evaluation of Time-Series Feature Sets</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="statistical-and-graphical-tools">Statistical and graphical tools<a class="anchor" aria-label="anchor" href="#statistical-and-graphical-tools"></a>
 </h2>
-<p>The package also contains a suite of tools for automatic processing of extracted feature vectors, low dimensional projections, data matrix visualisations, top feature and multivariate feature classification analyses, and various other statistical and graphical procedures.</p>
+<p><code>theft</code> also contains an extensive suite of tools for automatic processing of extracted feature vectors (including data quality assessments and normalisation methods), low dimensional projections (linear and nonlinear), data matrix visualisations, single feature and multiple feature time-series classification procedures, and various other statistical and graphical tools.</p>
 </div>
 <div class="section level2">
 <h2 id="web-application">Web application<a class="anchor" aria-label="anchor" href="#web-application"></a>
@@ -116,16 +123,18 @@
 <div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>To cite package <span class="st">'theft'</span> <span class="cf">in</span> publications use<span class="sc">:</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  Trent <span class="fu">Henderson</span> (<span class="dv">2022</span>). theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  Features from Time series. R package version <span class="dv">0</span>.<span class="dv">3</span>.<span class="dv">9</span>.<span class="fl">1.</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>A BibTeX entry <span class="cf">for</span> LaTeX users is</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="sc">@</span>Manual{,</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    title <span class="ot">=</span> {theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of Features from Time series},</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    author <span class="ot">=</span> {Trent Henderson},</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    year <span class="ot">=</span> {<span class="dv">2022</span>},</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="dv">3</span>.<span class="fl">9.1</span>},</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  Features from Time series. R package version <span class="dv">0</span>.<span class="dv">3</span>.<span class="dv">9</span>.<span class="fl">2.</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theft<span class="sc">/</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>A BibTeX entry <span class="cf">for</span> LaTeX users is</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="sc">@</span>Manual{,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    title <span class="ot">=</span> {theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of Features from Time series},</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    author <span class="ot">=</span> {Trent Henderson},</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    year <span class="ot">=</span> {<span class="dv">2022</span>},</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="dv">3</span>.<span class="fl">9.2</span>},</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    url <span class="ot">=</span> {https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theft<span class="sc">/</span>},</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
