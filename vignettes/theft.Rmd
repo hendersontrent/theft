@@ -296,9 +296,9 @@ print(outputs$ViolinPlots)
 
 For two-class problems, users can fit statistical models to directly compute *p*-values by specifying one of the following models as the string argument to `test_method`: `"t-test"`, `"wilcox"` or `"binomial logistic"`. `theft` has special procedures for these three options if a two-class problem is registered and thus none of the function arguments pertaining to empirical null testing or classification model parameters are used. For multiclass problems (and binary), users can specify any model name string that is a valid `method` name in the popular [`caret`](https://topepo.github.io/caret/train-models-by-tag.html) package and `theft` will pass this through to the relevant sub-procedures which will make use of the arguments relating to *k*-fold cross-validation, permutation testing, and *p*-value calculation.
 
-### Multivariable
+### Multi-feature
 
-A multivariable option is also available. The `fit_multivariable_classifier` function fits all features at once instead of by individual features to estimate classification accuracy. This can be split by feature set (if the `by_set` argument is set to `TRUE`) to enable systematic comparisons between those made available in `theft`.
+A multi-feature option is also available. The `fit_multivariable_classifier` function fits all features at once instead of by individual features to estimate classification accuracy. This can be split by feature set (if the `by_set` argument is set to `TRUE`) to enable systematic comparisons between those made available in `theft`.
 
 First, let's calculate features with more than one set -- we'll just use `catch22` and `feasts` as they are the fastest R-based feature sets in `theft`:
 
