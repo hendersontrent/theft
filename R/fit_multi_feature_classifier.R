@@ -878,7 +878,7 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
       
       # Expand y axis if max (mean + (2*SD)) is > 100%
       
-      if(max(accuracies$upper, na.rm = TRUE) > 100){
+      if(max(accuracies$upper, na.rm = TRUE) >= 100){
         
         FeatureSetResultsPlot <- FeatureSetResultsPlot +
           ggplot2::scale_y_continuous(limits = c(0, 100),
