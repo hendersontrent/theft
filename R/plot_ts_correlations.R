@@ -7,8 +7,7 @@
 #' @importFrom stats hclust
 #' @importFrom stats dist
 #' @importFrom stats cor
-#' @importFrom plotly ggplotly
-#' @importFrom plotly config
+#' @importFrom plotly ggplotly config layout
 #' @param data a dataframewith at least 2 columns for \code{"id"} and \code{"values"} variables
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}
 #' @param id_var a string specifying the ID variable to compute pairwise correlations between. Defaults to \code{"id"}
@@ -148,8 +147,8 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
   p <- p +
     ggplot2::geom_tile(ggplot2::aes(fill = value)) +
     ggplot2::labs(title = "Pairwise correlation matrix",
-                  x = NULL,
-                  y = NULL,
+                  x = "Time series",
+                  y = "Time series",
                   fill = "Correlation coefficient") +
     ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1,1)) +
     ggplot2::theme_bw() +
@@ -158,7 +157,7 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
   
   if(nrow(cluster_out) <= 20){
     p <- p +
-      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
+      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
   } else {
     p <- p +
       ggplot2::theme(axis.text = ggplot2::element_blank())
@@ -166,6 +165,7 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
   
   if(interactive){
     p <- plotly::ggplotly(p, tooltip = c("text")) %>%
+      plotly::layout(legend = list(orientation = "h", x = 0, y = -0.3)) %>%
       plotly::config(displayModeBar = FALSE)
   } else{
     

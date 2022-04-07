@@ -19,7 +19,7 @@
 #' @importFrom R.matlab readMat
 #' @import reticulate
 #' @import dplyr
-#' @importFrom plotly ggplotly config
+#' @importFrom plotly ggplotly config layout
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom caret preProcess train confusionMatrix
 #' @importFrom purrr map possibly

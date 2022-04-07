@@ -9,7 +9,15 @@
 calculate_recall <- function(matrix, x){
   tp <- as.numeric(matrix[x, x])
   fn <- sum(matrix[x, -x])
-  recall <- tp / (tp + fn)
+  
+  # Add a catch for when 0s occupy the entire row in the confusion matrix
+  # NOTE: Is this the correct way to handle? Seems consistent with {caret}'s default matrix
+  
+  if(tp + fn == 0){
+    recall <- 0
+  } else{
+    recall <- tp / (tp + fn)
+  }
   return(recall)
 }
 
@@ -205,7 +213,7 @@ calculate_balanced_accuracy <- function(data, lev = NULL, model = NULL) {
 # Model fitting
 #--------------
 
-fit_multivariable_models <- function(data, test_method, use_balanced_accuracy, use_k_fold, num_folds, use_empirical_null, null_testing_method, num_permutations, set = NULL, seed){
+fit_multi_feature_models <- function(data, test_method, use_balanced_accuracy, use_k_fold, num_folds, use_empirical_null, null_testing_method, num_permutations, set = NULL, seed){
   
   # Set up input matrices
   
@@ -532,7 +540,7 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
 #'   group_var = "process",
 #'   feature_set = "catch22")
 #'
-#' fit_multivariable_classifier(featMat,
+#' fit_multi_feature_classifier(featMat,
 #'   id_var = "id",
 #'   group_var = "group",
 #'   by_set = FALSE,
@@ -548,7 +556,7 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
 #' }
 #'
 
-fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group",
+fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group",
                                          by_set = FALSE, test_method = "gaussprRadial",
                                          use_balanced_accuracy = FALSE, use_k_fold = TRUE, num_folds = 10,
                                          use_empirical_null = FALSE, null_testing_method = c("model free shuffles", "null model fits"),
@@ -740,7 +748,7 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
     # Compute accuracies for each feature set
     
     output <- sets %>%
-      purrr::map(~ fit_multivariable_models(data = data_id,
+      purrr::map(~ fit_multi_feature_models(data = data_id,
                                             test_method = test_method,
                                             use_balanced_accuracy = use_balanced_accuracy,
                                             use_k_fold = use_k_fold,
@@ -755,7 +763,7 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
     
   } else{
     
-    output <- fit_multivariable_models(data = data_id,
+    output <- fit_multi_feature_models(data = data_id,
                                        test_method = test_method,
                                        use_balanced_accuracy = use_balanced_accuracy,
                                        use_k_fold = use_k_fold,
@@ -853,25 +861,50 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
     
     # Draw plot
     
-    FeatureSetResultsPlot <- accuracies %>%
+    accuracies <- accuracies %>%
       dplyr::mutate(statistic = statistic * 100)
     
     if(use_k_fold){
       
-      FeatureSetResultsPlot <- FeatureSetResultsPlot %>%
+      accuracies <- accuracies %>%
         mutate(statistic_sd = statistic_sd * 100) %>%
         dplyr::mutate(lower = statistic - (2 * statistic_sd),
-                      upper = statistic + (2 * statistic_sd)) %>%
+                      upper = statistic + (2 * statistic_sd))
+      
+      FeatureSetResultsPlot <- accuracies %>%
         ggplot2::ggplot(ggplot2::aes(x = stats::reorder(method, -statistic))) +
         ggplot2::geom_bar(ggplot2::aes(y = statistic, fill = method), stat = "identity") +
-        ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper), colour = "black") +
-        ggplot2::labs(subtitle = "Number of features is indicated in parentheses. Error bars are +- 2 times pointwise SD")
+        ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper), colour = "black")
+      
+      # Expand y axis if max (mean + (2*SD)) is > 100%
+      
+      if(max(accuracies$upper, na.rm = TRUE) > 100){
+        
+        FeatureSetResultsPlot <- FeatureSetResultsPlot +
+          ggplot2::scale_y_continuous(limits = c(0, 100),
+                                      breaks = seq(from = 0, to = 120, by = 20),
+                                      labels = function(x) paste0(x, "%"))
+        
+      } else{
+        
+        FeatureSetResultsPlot <- FeatureSetResultsPlot +
+          ggplot2::scale_y_continuous(limits = c(0, 100),
+                                      breaks = seq(from = 0, to = 100, by = 20),
+                                      labels = function(x) paste0(x, "%"))
+      }
+      
+      FeatureSetResultsPlot <- FeatureSetResultsPlot +
+        ggplot2::labs(subtitle = "Number of features is indicated in parentheses. Error bars are +- 2 times SD")
       
     } else{
-      FeatureSetResultsPlot <- FeatureSetResultsPlot %>%
+      
+      FeatureSetResultsPlot <- accuracies %>%
         ggplot2::ggplot(ggplot2::aes(x = stats::reorder(method, -statistic))) +
         ggplot2::geom_bar(ggplot2::aes(y = statistic, fill = method), stat = "identity") +
-        ggplot2::labs(subtitle = "Number of features is indicated in parentheses")
+        ggplot2::labs(subtitle = "Number of features is indicated in parentheses") +
+        ggplot2::scale_y_continuous(limits = c(0, 100),
+                                    breaks = seq(from = 0, to = 100, by = 20),
+                                    labels = function(x) paste0(x, "%"))
     }
     
     FeatureSetResultsPlot <- FeatureSetResultsPlot +
@@ -880,9 +913,6 @@ fit_multivariable_classifier <- function(data, id_var = "id", group_var = "group
                     x = "Feature set",
                     fill = NULL) +
       ggplot2::theme_bw() +
-      ggplot2::scale_y_continuous(limits = c(0, 100),
-                                  breaks = seq(from = 0, to = 100, by = 20),
-                                  labels = function(x) paste0(x, "%")) +
       ggplot2::scale_fill_brewer(palette = "Dark2") +
       ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
                      legend.position = "none",

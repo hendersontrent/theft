@@ -13,8 +13,8 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.height = 6,
-  fig.width = 9
+  fig.height = 8,
+  fig.width = 8
 )
 ```
 
@@ -251,50 +251,50 @@ Note that `model free shuffles` is incompatible with `pool_empirical_null = TRUE
 The `seed` argument allows you to specify a number to fix R's random number generator for reproducible results. It defaults to `123` if nothing is provided.
 
 ```{r, message = FALSE, warning = FALSE}
-classifier_outputs <- compute_top_features(feature_matrix, 
-                                           id_var = "id", 
-                                           group_var = "group",
-                                           num_features = 10, 
-                                           normalise_violin_plots = FALSE,
-                                           method = "RobustSigmoid",
-                                           cor_method = "pearson",
-                                           test_method = "gaussprRadial",
-                                           use_balanced_accuracy = FALSE,
-                                           use_k_fold = TRUE,
-                                           num_folds = 10,
-                                           use_empirical_null =  TRUE,
-                                           null_testing_method = "model free shuffles",
-                                           p_value_method = "empirical",
-                                           num_permutations = 1000,
-                                           pool_empirical_null = FALSE,
-                                           seed = 123)
+outputs <- compute_top_features(feature_matrix, 
+                                id_var = "id", 
+                                group_var = "group",
+                                num_features = 10, 
+                                normalise_violin_plots = FALSE,
+                                method = "RobustSigmoid",
+                                cor_method = "pearson",
+                                test_method = "gaussprRadial",
+                                use_balanced_accuracy = FALSE,
+                                use_k_fold = TRUE,
+                                num_folds = 10,
+                                use_empirical_null =  TRUE,
+                                null_testing_method = "model free shuffles",
+                                p_value_method = "empirical",
+                                num_permutations = 1000,
+                                pool_empirical_null = FALSE,
+                                seed = 123)
 ```
 
 Each component is named and can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
 
 ```{r, message = FALSE, warning = FALSE}
-head(classifier_outputs$ResultsTable)
+head(outputs$ResultsTable)
 ```
 
 We could equivalently achieve the same with:
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
-head(classifier_outputs[[1]])
+head(outputs[[1]])
 ```
 
 The feature-feature correlation plots are accessed as the second object:
 
 ```{r, message = FALSE, warning = FALSE}
-print(classifier_outputs$FeatureFeatureCorrelationPlot)
+print(outputs$FeatureFeatureCorrelationPlot)
 ```
 
 The violin plots are accessed as the third object:
 
 ```{r, message = FALSE, warning = FALSE}
-print(classifier_outputs$ViolinPlots)
+print(outputs$ViolinPlots)
 ```
 
-For two-class problems, users can fit statistical models to directly compute *p*-values by specifying one of the following models as the string argument to `test_method`: `"t-test"`, `"wilcox"` or `"binomial logistic"`. `theft` has special procedures for these three options if a two-class problem is registered and thus none of the function arguments pertaining to empirical null testing or classification model parameters are used. For multiclass problems (or binary), users can specify any model name string that is a valid `method` name in the popular [`caret`](https://topepo.github.io/caret/train-models-by-tag.html) package and `theft` will pass this through to the relevant sub-procedures which will make use of the arguments relating to *k*-fold cross-validation, permutation testing, and *p*-value calculation.
+For two-class problems, users can fit statistical models to directly compute *p*-values by specifying one of the following models as the string argument to `test_method`: `"t-test"`, `"wilcox"` or `"binomial logistic"`. `theft` has special procedures for these three options if a two-class problem is registered and thus none of the function arguments pertaining to empirical null testing or classification model parameters are used. For multiclass problems (and binary), users can specify any model name string that is a valid `method` name in the popular [`caret`](https://topepo.github.io/caret/train-models-by-tag.html) package and `theft` will pass this through to the relevant sub-procedures which will make use of the arguments relating to *k*-fold cross-validation, permutation testing, and *p*-value calculation.
 
 ### Multivariable
 
@@ -311,22 +311,22 @@ feature_matrix2 <- calculate_features(data = simData,
                                       feature_set = c("catch22", "feasts"))
 ```
 
-Now we can use our multivariable functionality (note the similarity in options to the univariable version we specified above):
+Now we can use our multi-feature functionality (note the similarity in options to the single feature version we specified above):
 
 ```{r, message = FALSE, warning = FALSE}
-multi_classifier_outputs <- fit_multivariable_classifier(feature_matrix2, 
-                                                         id_var = "id", 
-                                                         group_var = "group", 
-                                                         by_set = TRUE, 
-                                                         test_method = "gaussprRadial",
-                                                         use_balanced_accuracy = FALSE,
-                                                         use_k_fold = TRUE,
-                                                         num_folds = 10,
-                                                         use_empirical_null =  TRUE,
-                                                         null_testing_method = "null model fits",
-                                                         p_value_method = "gaussian",
-                                                         num_permutations = 10,
-                                                         seed = 123)
+multi_outputs <- fit_multi_feature_classifier(feature_matrix2, 
+                                              id_var = "id", 
+                                              group_var = "group", 
+                                              by_set = TRUE, 
+                                              test_method = "gaussprRadial",
+                                              use_balanced_accuracy = TRUE,
+                                              use_k_fold = TRUE,
+                                              num_folds = 10,
+                                              use_empirical_null =  TRUE,
+                                              null_testing_method = "null model fits",
+                                              p_value_method = "gaussian",
+                                              num_permutations = 10,
+                                              seed = 123)
 ```
 
 We can now access the various named objects returned by this function, which include:
@@ -338,19 +338,19 @@ We can now access the various named objects returned by this function, which inc
 Here's the feature set comparison plot:
   
 ```{r, message = FALSE, warning = FALSE}
-print(multi_classifier_outputs$FeatureSetResultsPlot)
+print(multi_outputs$FeatureSetResultsPlot)
 ```
 
 Here's the test statistics summary:
 
 ```{r, message = FALSE, warning = FALSE}
-head(multi_classifier_outputs$TestStatistics)
+head(multi_outputs$TestStatistics)
 ```
 
 And here's the raw classifier results:
   
 ```{r, message = FALSE, warning = FALSE}
-head(multi_classifier_outputs$RawClassificationResults)
+head(multi_outputs$RawClassificationResults)
 ```
 
 Note that for the multivariable version, only valid `caret` method names are able to be used to specify a `test_method`.

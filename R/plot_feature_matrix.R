@@ -8,8 +8,7 @@
 #' @importFrom reshape2 melt
 #' @importFrom stats hclust
 #' @importFrom stats dist
-#' @importFrom plotly ggplotly
-#' @importFrom plotly config
+#' @importFrom plotly ggplotly config layout
 #' @importFrom RColorBrewer brewer.pal
 #' @param data a dataframe with at least 2 columns called \code{"names"} and \code{"values"}
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}
@@ -178,12 +177,20 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
                   y = "Time series") +
     ggplot2::theme_bw() + 
     ggplot2::theme(axis.text.y = ggplot2::element_blank(),
-                   axis.text.x = ggplot2::element_text(angle = 90, hjust = 1),
                    panel.grid = ggplot2::element_blank()) +
       ggplot2::labs(fill = "Scaled value")
   
+  if(length(cluster_out$names) <= 22){
+    p <- p +
+      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+  } else {
+    p <- p +
+      ggplot2::theme(axis.text = ggplot2::element_blank())
+  }
+  
   if(interactive){
     p <- plotly::ggplotly(p, tooltip = c("text")) %>%
+      plotly::layout(legend = list(orientation = "h", x = 0, y = -0.3)) %>%
       plotly::config(displayModeBar = FALSE)
   } else{
     p <- p +

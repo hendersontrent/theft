@@ -89,7 +89,7 @@ plot_quality_matrix <- function(data){
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
                    legend.position = "bottom",
-                   axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
+                   axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 
   return(p)
 }

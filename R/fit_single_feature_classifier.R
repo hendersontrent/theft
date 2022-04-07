@@ -4,7 +4,7 @@
 # Model fitting
 #--------------
 
-fit_univariable_models <- function(data, test_method, use_balanced_accuracy, use_k_fold, num_folds, use_empirical_null, null_testing_method, num_permutations, feature, pb, seed){
+fit_single_feature_models <- function(data, test_method, use_balanced_accuracy, use_k_fold, num_folds, use_empirical_null, null_testing_method, num_permutations, feature, pb, seed){
   
   # Print {purrr} iteration progress updates in the console
   
@@ -415,7 +415,7 @@ gather_binomial_info <- function(data, x){
 #'   group_var = "process", 
 #'   feature_set = "catch22")
 #'   
-#' fit_univariable_classifier(featMat,
+#' fit_single_feature_classifier(featMat,
 #'   id_var = "id",
 #'   group_var = "group",
 #'   test_method = "linear svm",
@@ -432,12 +432,12 @@ gather_binomial_info <- function(data, x){
 #' }
 #' 
 
-fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
-                                       test_method = "gaussprRadial", use_balanced_accuracy = FALSE,
-                                       use_k_fold = FALSE, num_folds = 10, 
-                                       use_empirical_null = FALSE, null_testing_method = c("model free shuffles", "null model fits"),
-                                       p_value_method = c("empirical", "gaussian"), num_permutations = 50,
-                                       pool_empirical_null = FALSE, seed = 123, return_raw_estimates = FALSE){
+fit_single_feature_classifier <- function(data, id_var = "id", group_var = "group",
+                                          test_method = "gaussprRadial", use_balanced_accuracy = FALSE,
+                                          use_k_fold = FALSE, num_folds = 10, 
+                                          use_empirical_null = FALSE, null_testing_method = c("model free shuffles", "null model fits"),
+                                          p_value_method = c("empirical", "gaussian"), num_permutations = 50,
+                                          pool_empirical_null = FALSE, seed = 123, return_raw_estimates = FALSE){
   
   #---------- Check arguments ------------
   
@@ -690,20 +690,20 @@ fit_univariable_classifier <- function(data, id_var = "id", group_var = "group",
     
     # Compute accuracies for each feature
     
-    fit_univariable_models_safe <- purrr::possibly(fit_univariable_models, otherwise = NULL)
+    fit_single_feature_models_safe <- purrr::possibly(fit_single_feature_models, otherwise = NULL)
     
     output <- 3:ncol(data_id) %>%
-      purrr::map(~ fit_univariable_models_safe(data = data_id, 
-                                               test_method = test_method,
-                                               use_balanced_accuracy = use_balanced_accuracy,
-                                               use_k_fold = use_k_fold,
-                                               num_folds = num_folds,
-                                               use_empirical_null = use_empirical_null,
-                                               null_testing_method = null_testing_method,
-                                               num_permutations = num_permutations,
-                                               feature = .x,
-                                               pb = pb,
-                                               seed = seed))
+      purrr::map(~ fit_single_feature_models_safe(data = data_id, 
+                                                  test_method = test_method,
+                                                  use_balanced_accuracy = use_balanced_accuracy,
+                                                  use_k_fold = use_k_fold,
+                                                  num_folds = num_folds,
+                                                  use_empirical_null = use_empirical_null,
+                                                  null_testing_method = null_testing_method,
+                                                  num_permutations = num_permutations,
+                                                  feature = .x,
+                                                  pb = pb,
+                                                  seed = seed))
     
     output <- output[!sapply(output, is.null)]
     output <- data.table::rbindlist(output, use.names = TRUE)
