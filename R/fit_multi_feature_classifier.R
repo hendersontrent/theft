@@ -36,7 +36,11 @@ calculate_cm_stats <- function(matrix, x){
 # Random shuffles
 #----------------
 
-calculate_accuracy <- function(x, seed, use_balanced_accuracy){
+calculate_accuracy <- function(x, seed, use_balanced_accuracy, pb){
+  
+  # Print {purrr} iteration progress updates in the console
+  
+  pb$tick()$print()
   
   # Randomly shuffle class labels and generate confusion matrix
   
@@ -76,8 +80,10 @@ simulate_null_acc <- function(x, num_permutations = 10000, use_balanced_accuracy
   
   # Run function over num_permutations
   
+  pb <- dplyr::progress_estimated(num_permutations)
+  
   outs <- 1:num_permutations %>%
-    purrr::map(~ calculate_accuracy(x, seed = .x, use_balanced_accuracy = use_balanced_accuracy))
+    purrr::map(~ calculate_accuracy(x, seed = .x, use_balanced_accuracy = use_balanced_accuracy, pb = pb))
   
   outs <- data.table::rbindlist(outs, use.names = TRUE)
   return(outs)
@@ -781,7 +787,12 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
     
     # Run random shuffles procedure
     
-    nullOuts <- simulate_null_acc(x = data_id$group, num_permutations = num_permutations, use_balanced_accuracy = use_balanced_accuracy) %>%
+    x_prep <- data_id %>%
+      dplyr::select(c(id, group)) %>%
+      dplyr::distinct() %>%
+      dplyr::pull(group)
+    
+    nullOuts <- simulate_null_acc(x = x_prep, num_permutations = num_permutations, use_balanced_accuracy = use_balanced_accuracy) %>%
       dplyr::mutate(category = "Null",
                     method = "model free shuffles",
                     num_features_used = NA)
