@@ -714,7 +714,12 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
       
       # Run random shuffles procedure
       
-      nullOuts <- simulate_null_acc(x = data_id$group, num_permutations = num_permutations, use_balanced_accuracy) %>%
+      x_prep <- data_id %>%
+        dplyr::select(c(id, group)) %>%
+        dplyr::distinct() %>%
+        dplyr::pull(group)
+      
+      nullOuts <- simulate_null_acc(x = x_prep, num_permutations = num_permutations, use_balanced_accuracy) %>%
         dplyr::mutate(category = "Null",
                       feature = "model free shuffles")
       
