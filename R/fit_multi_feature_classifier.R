@@ -83,9 +83,8 @@ simulate_null_acc <- function(x, num_permutations = 10000, use_balanced_accuracy
   pb <- dplyr::progress_estimated(num_permutations)
   
   outs <- 1:num_permutations %>%
-    purrr::map(~ calculate_accuracy(x, seed = .x, use_balanced_accuracy = use_balanced_accuracy, pb = pb))
-  
-  outs <- data.table::rbindlist(outs, use.names = TRUE)
+    purrr::map_df(~ calculate_accuracy(x, seed = .x, use_balanced_accuracy = use_balanced_accuracy, pb = pb))
+
   return(outs)
 }
 
@@ -155,7 +154,7 @@ fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NUL
   if(theControl$method == "none"){
     
     u <- dplyr::union(predict(modNull, newdata = shuffledtest), shuffledtest$group)
-    mytable <- table(factor(predict(modNull, newdata = shuffledtest), u), factor(shuffledtest$group, u))
+    mytable <- table(factor(stats::predict(modNull, newdata = shuffledtest), u), factor(shuffledtest$group, u))
     cm <- as.matrix(caret::confusionMatrix(mytable)$table)
     
     if(use_balanced_accuracy){
@@ -290,7 +289,7 @@ fit_multi_feature_models <- function(data, test_method, use_balanced_accuracy, u
     # Get main predictions
     
     u <- dplyr::union(predict(mod, newdata = tmp), tmp$group)
-    mytable <- table(factor(predict(mod, newdata = tmp), u), factor(tmp$group, u))
+    mytable <- table(factor(stats::predict(mod, newdata = tmp), u), factor(tmp$group, u))
     cm <- as.matrix(caret::confusionMatrix(mytable)$table)
     
     if(use_balanced_accuracy){
@@ -308,7 +307,7 @@ fit_multi_feature_models <- function(data, test_method, use_balanced_accuracy, u
     
     if(use_balanced_accuracy){
       mainOuts <- data.frame(accuracy = accuracy, 
-                        balanced_accuracy = balanced_accuracy)
+                             balanced_accuracy = balanced_accuracy)
     } else{
       mainOuts <- data.frame(accuracy = accuracy)
     }
@@ -328,15 +327,13 @@ fit_multi_feature_models <- function(data, test_method, use_balanced_accuracy, u
       # Run procedure
       
       nullOuts <- 1:num_permutations %>%
-        purrr::map( ~ fit_empirical_null_models(data = tmp,
+        purrr::map_df( ~ fit_empirical_null_models(data = tmp,
                                                 s = .x,
                                                 test_method = test_method,
                                                 theControl = fitControl,
                                                 pb = pb,
                                                 univariable = FALSE,
-                                                use_balanced_accuracy = use_balanced_accuracy))
-      
-      nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
+                                                use_balanced_accuracy = use_balanced_accuracy)) %>%
         dplyr::mutate(category = "Null")
       
       finalOuts <- dplyr::bind_rows(mainOuts, nullOuts)
@@ -516,9 +513,8 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
 #' @import ggplot2
 #' @importFrom tidyr drop_na pivot_wider pivot_longer
 #' @importFrom tibble rownames_to_column
-#' @importFrom data.table rbindlist
 #' @importFrom stats sd reorder ecdf pnorm
-#' @importFrom purrr map
+#' @importFrom purrr map map_df
 #' @importFrom janitor clean_names
 #' @importFrom caret preProcess train confusionMatrix
 #' @param data the dataframe containing the raw feature data as calculated by \code{theft::calculate_features}
@@ -754,7 +750,7 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
     # Compute accuracies for each feature set
     
     output <- sets %>%
-      purrr::map(~ fit_multi_feature_models(data = data_id,
+      purrr::map_df(~ fit_multi_feature_models(data = data_id,
                                             test_method = test_method,
                                             use_balanced_accuracy = use_balanced_accuracy,
                                             use_k_fold = use_k_fold,
@@ -764,8 +760,6 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
                                             num_permutations = num_permutations,
                                             set = .x,
                                             seed = seed))
-    
-    output <- data.table::rbindlist(output, use.names = TRUE)
     
   } else{
     
@@ -949,10 +943,8 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
     if(use_empirical_null){
       
       TestStatistics <- sets %>%
-        purrr::map(~ calculate_multivariable_statistics(data = output, set = .x, p_value_method = p_value_method,
-                                                        use_balanced_accuracy = use_balanced_accuracy))
-      
-      TestStatistics <- data.table::rbindlist(TestStatistics, use.names = TRUE) %>%
+        purrr::map_df(~ calculate_multivariable_statistics(data = output, set = .x, p_value_method = p_value_method,
+                                                        use_balanced_accuracy = use_balanced_accuracy)) %>%
         dplyr::mutate(classifier_name = classifier_name,
                       statistic_name = statistic_name)
       

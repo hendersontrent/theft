@@ -96,15 +96,13 @@ fit_single_feature_models <- function(data, test_method, use_balanced_accuracy, 
       # Run procedure
       
       nullOuts <- 1:num_permutations %>%
-        purrr::map( ~ fit_empirical_null_models(data = tmp, 
+        purrr::map_df( ~ fit_empirical_null_models(data = tmp, 
                                                 s = .x,
                                                 test_method = test_method,
                                                 theControl = fitControl,
                                                 pb = NULL,
                                                 univariable = TRUE,
-                                                use_balanced_accuracy = use_balanced_accuracy))
-      
-      nullOuts <- data.table::rbindlist(nullOuts, use.names = TRUE) %>%
+                                                use_balanced_accuracy = use_balanced_accuracy)) %>%
         dplyr::mutate(category = "Null")
       
       finalOuts <- dplyr::bind_rows(mainOuts, nullOuts)
@@ -365,17 +363,36 @@ calculate_unpooled_null <- function(main_matrix, main_matrix_balanced = NULL, x,
 }
 
 #------------------------
-# Binomial GLM extraction 
-# helper
+# Binomial GLM extraction
 #------------------------
 
 gather_binomial_info <- function(data, x){
   
-  tmp <- data.frame(feature = as.character(data[[x]]$terms[[3]]),
-                    statistic_value = as.numeric(summary(data[[x]])$coefficients[,3][2]),
-                    p_value = as.numeric(summary(data[[x]])$coefficients[,4][2]))
+  mod <- stats::glm(formula = stats::formula(paste0("group ~ ", colnames(data[x]))), data = data, family = stats::binomial())
+  
+  tmp <- data.frame(feature = as.character(mod$terms[[3]]),
+                    statistic_value = as.numeric(summary(mod)$coefficients[,3][2]),
+                    p_value = as.numeric(summary(mod)$coefficients[,4][2]))
   
   return(tmp)
+}
+
+#-----------------------------
+# t-test and wilcox extraction
+#-----------------------------
+
+mean_diff_calculator <- function(data, x, method){
+  
+  if(method == "t-test"){
+    results <- stats::t.test(formula = stats::formula(paste0(colnames(data[x]), " ~ group")), data = data)
+  } else{
+    results <- stats::t.test(formula = stats::formula(paste0(colnames(data[x]), " ~ group")), data = data)
+  }
+  
+  results <- data.frame(feature = results$data.name, 
+                        statistic_value = results$statistic, 
+                        p_value = results$p.value)
+  return(results)
 }
 
 #-------------- Main exported function ---------------
@@ -384,8 +401,7 @@ gather_binomial_info <- function(data, x){
 #' @import dplyr
 #' @importFrom tidyr drop_na pivot_wider
 #' @importFrom tibble rownames_to_column
-#' @importFrom data.table rbindlist
-#' @importFrom stats glm binomial sd wilcox.test t.test ecdf pnorm
+#' @importFrom stats glm binomial sd wilcox.test t.test ecdf pnorm formula predict
 #' @importFrom purrr map possibly
 #' @importFrom janitor clean_names
 #' @importFrom caret preProcess train confusionMatrix
@@ -632,45 +648,32 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
   if(test_method == "t-test"){
     
     output <- 3:ncol(data_id) %>%
-      purrr::map(~ stats::t.test(formula = formula(paste0(colnames(data_id[.x]), " ~ group")), data = data_id))
-    
-    output <- data.table::rbindlist(output, use.names = TRUE) %>%
-      dplyr::select(c(data.name, statistic, p.value)) %>%
+      purrr::map_df(~ mean_diff_calculator(data = data_id, x = .x, method = test_method)) %>%
       dplyr::distinct() %>%
-      dplyr::rename(feature = data.name) %>%
       dplyr::mutate(feature = gsub(" .*", "\\1", feature),
                     classifier_name = classifier_name,
-                    statistic_name = statistic_name) %>%
-      dplyr::rename(statistic_value = 2,
-                    p_value = 3)
+                    statistic_name = statistic_name)
     
     return(output)
     
   } else if (test_method == "wilcox"){
     
     output <- 3:ncol(data_id) %>%
-      purrr::map(~ stats::wilcox.test(formula = formula(paste0(colnames(data_id[.x]), " ~ group")), data = data_id))
-    
-    output <- data.table::rbindlist(output, use.names = TRUE) %>%
-      dplyr::select(c(data.name, statistic, p.value)) %>%
-      dplyr::rename(feature = data.name) %>%
+      purrr::map_df(~ mean_diff_calculator(data = data_id, x = .x, method = test_method)) %>%
+      dplyr::distinct() %>%
       dplyr::mutate(feature = gsub(" .*", "\\1", feature),
                     classifier_name = classifier_name,
-                    statistic_name = statistic_name) %>%
-      dplyr::rename(statistic_value = 2,
-                    p_value = 3)
+                    statistic_name = statistic_name)
     
     return(output)
     
   } else if (test_method == "binomial logistic"){
     
+    data_id <- data_id %>%
+      dplyr::mutate(group = as.factor(group))
+    
     output <- 3:ncol(data_id) %>%
-      purrr::map(~ stats::glm(formula = formula(paste0("group ~ ", colnames(data_id[.x]))), data = data_id, family = stats::binomial()))
-    
-    output <- 1:length(output) %>%
-      purrr::map(~ gather_binomial_info(output, .x))
-    
-    output <- data.table::rbindlist(output, use.names = TRUE) %>%
+      purrr::map_df(~ gather_binomial_info(data_id, .x)) %>%
       dplyr::mutate(classifier_name = classifier_name,
                     statistic_name = statistic_name)
     
@@ -706,7 +709,7 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
                                                   seed = seed))
     
     output <- output[!sapply(output, is.null)]
-    output <- data.table::rbindlist(output, use.names = TRUE)
+    output <- do.call(rbind, output)
     
     # Run nulls if random shuffles are to be used
     
@@ -777,8 +780,8 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
           # Calculate p-values for each feature
           
           feature_statistics <- 2:ncol(main_matrix) %>%
-            purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = main_matrix_balanced,
-                                                       x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
+            purrr::map_df(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = main_matrix_balanced,
+                                                          x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
           
         } else{
           
@@ -800,8 +803,8 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
           # Calculate p-values for each feature
           
           feature_statistics <- 2:ncol(main_matrix) %>%
-            purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = NULL,
-                                                       x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
+            purrr::map_df(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = NULL,
+                                                          x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
         }
         
       } else{
@@ -829,8 +832,8 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
             # Calculate p-values for each feature
             
             feature_statistics <- 2:ncol(main_matrix) %>%
-              purrr::map(~ calculate_unpooled_null(main_matrix = main_matrix, main_matrix_balanced = main_matrix_balanced, 
-                                                   x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
+              purrr::map_df(~ calculate_unpooled_null(main_matrix = main_matrix, main_matrix_balanced = main_matrix_balanced, 
+                                                      x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
             
           } else{
             
@@ -845,8 +848,8 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
             # Calculate p-values for each feature
             
             feature_statistics <- 2:ncol(main_matrix) %>%
-              purrr::map(~ calculate_unpooled_null(main_matrix = main_matrix, main_matrix_balanced = NULL, 
-                                                   x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
+              purrr::map_df(~ calculate_unpooled_null(main_matrix = main_matrix, main_matrix_balanced = NULL, 
+                                                      x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
           }
           
         } else{
@@ -878,8 +881,8 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
               dplyr::select(-c(id))
             
             feature_statistics <- 2:ncol(main_matrix) %>%
-              purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = main_matrix_balanced, 
-                                                         x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
+              purrr::map_df(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = main_matrix_balanced, 
+                                                            x = .x, p_value_method = p_value_method, use_balanced_accuracy = use_balanced_accuracy))
             
           } else{
             
@@ -897,16 +900,16 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
               dplyr::select(-c(id))
             
             feature_statistics <- 2:ncol(main_matrix) %>%
-              purrr::map(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = NULL, 
-                                                         x = .x, p_value_method = p_value_method,
-                                                         use_balanced_accuracy = use_balanced_accuracy))
+              purrr::map_df(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = NULL, 
+                                                            x = .x, p_value_method = p_value_method,
+                                                            use_balanced_accuracy = use_balanced_accuracy))
           }
         }
       }
       
       # Bind together
       
-      feature_statistics <- data.table::rbindlist(feature_statistics, use.names = TRUE) %>%
+      feature_statistics <- feature_statistics %>%
         dplyr::mutate(classifier_name = classifier_name,
                       statistic_name = statistic_name)
     } else{

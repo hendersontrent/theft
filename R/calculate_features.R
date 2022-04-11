@@ -285,7 +285,6 @@ calc_kats <- function(data){
 #' @importFrom tsfeatures lumpiness stability max_level_shift max_var_shift max_kl_shift crossing_points flat_spots hurst compengine autocorr_features pred_features station_features dist_features scal_features embed2_incircle firstzero_ac ac_9 firstmin_ac trev_num motiftwo_entro3 binarize_mean walker_propcross localsimple_taures sampen_first sampenc std1st_der spreadrandomlocal_meantaul histogram_mode outlierinclude_mdrmd fluctanal_prop_r1 entropy tsfeatures stl_features acf_features pacf_features holt_parameters hw_parameters heterogeneity nonlinearity arch_stat
 #' @import feasts
 #' @import reticulate
-#' @importFrom data.table rbindlist
 #' @importFrom fabletools features
 #' @importFrom fabletools feature_set
 #' @param data a dataframe with at least 4 columns: id variable, group variable, time variable, value variable
@@ -339,8 +338,8 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   the_sets <- c("catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel")
   '%ni%' <- Negate('%in%')
   
-  if(feature_set %ni% the_sets){
-    stop("feature_set should be a single string selection or vector combination of 'catch22', 'feasts', 'tsfeatures', 'kats', 'tsfresh' or 'tsfel'.")
+  if(length(base::setdiff(feature_set, the_sets)) != 0){
+    stop("feature_set should be a single string specification or vector of 'catch22', 'feasts', 'tsfeatures', 'kats', 'tsfresh' or 'tsfel'.")
   }
   
   if(!is.null(group_var) && !is.character(group_var)){
@@ -416,11 +415,9 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     
     message("'tsfresh' requires a Python installation and the 'tsfresh' Python package to also be installed. Please ensure you have this working (see https://tsfresh.com for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(path_to_python) where path_to_python is a string specifying the location of Python with the installed libraries on your machine.")
     
-    if(tsfresh_cleanup == TRUE){
+    if(tsfresh_cleanup){
       cleanuper <- "Yes"
-    }
-    
-    if(tsfresh_cleanup == FALSE){
+    } else{
       cleanuper <- "No"
     }
     

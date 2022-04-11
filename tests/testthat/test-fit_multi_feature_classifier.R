@@ -5,7 +5,7 @@ feature_matrix <- calculate_features(data = theft::simData,
                                      time_var = "timepoint", 
                                      values_var = "values", 
                                      group_var = "process", 
-                                     feature_set = c("catch22", "feasts"))
+                                     feature_set = "catch22")
 
 test_that("graphics", {
   expect_equal(2, 

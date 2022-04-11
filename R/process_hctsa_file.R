@@ -1,7 +1,25 @@
+#---------------- Helper function ------------------
+
+hctsa_iterator <- function(labels, keywords, timeSeriesData, x){
+  
+  tmp <- timeSeriesData[[x]][[1]]
+  tmp <- as.data.frame(tmp)
+  
+  tmp <- tmp %>%
+    dplyr::rename(values = V1) %>%
+    dplyr::mutate(timepoint = dplyr::row_number()) %>%
+    dplyr::mutate(group = keywords[x],
+                  id = labels[x])
+  
+  return(tmp)
+}
+
+#---------------- Core function ------------------
+
 #' Load in hctsa formatted MATLAB files of time series data into a tidy format ready for feature extraction
 #' 
 #' @importFrom R.matlab readMat
-#' @importFrom data.table rbindlist
+#' @importFrom purrr map_df
 #' @import dplyr
 #' @param data a string specifying the filepath to the \code{MATLAB} file to parse
 #' @return an object of class dataframe in tidy format
@@ -24,7 +42,6 @@ process_hctsa_file <- function(data){
   # Read MATLAB file into list
   
   d <- R.matlab::readMat(data)
-  
   theNames <- names(d)
   correctNames <- c("timeSeriesData", "labels", "keywords")
   
@@ -36,31 +53,14 @@ process_hctsa_file <- function(data){
     stop("3 variables should be 'timeSeriesData', 'labels', and 'keywords'.")
   }
   
-  # Parse 3 separate variables into single dataframe
+  # Parse into single tidy dataframe
   
-  tmp <- data.table::rbindlist(d$keywords, use.names = TRUE)
-  tmpVec <- tmp$V1
-  tmp1 <- data.table::rbindlist(d$labels, use.names = TRUE)
-  tmp1Vec <- tmp1$V1
-  tmp2 <- d$timeSeriesData
+  keywords <- as.vector(do.call(rbind, d$keywords))
+  labels <- as.vector(do.call(rbind, d$labels))
+  timeSeriesData <- d$timeSeriesData
   
-  indices <- seq(from = 1, to = length(tmp2), by = 1)
-  storage <- list()
-  
-  for(i in indices){
-    tmpList <- tmp2[[i]][[1]]
-    tmpListDat <- as.data.frame(tmpList)
-    
-    tmpList2 <- tmpListDat %>%
-      dplyr::rename(values = V1) %>%
-      dplyr::mutate(timepoint = dplyr::row_number()) %>%
-      dplyr::mutate(group = tmpVec[i],
-                    id = tmp1Vec[i])
-    
-    storage[[i]] <- tmpList2
-  }
-  
-  myData <- data.table::rbindlist(storage, use.names = TRUE)
+  myData <- 1:length(timeSeriesData) %>%
+    purrr::map_df(~ hctsa_iterator(labels, keywords, timeSeriesData, .x))
   
   if(!is.numeric(myData$values)){
     stop("Non-numerics identified in values.")
