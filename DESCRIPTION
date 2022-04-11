@@ -2,7 +2,7 @@ Package: theft
 Type: Package
 Title: Tools for Handling Extraction of Features from Time series
 Version: 0.3.9.3
-Date: 2022-04-08
+Date: 2022-04-12
 Authors@R: c(
   person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut")),
   person("Annie", "Bryant", role = "ctb", comment = "Balanced classification accuracy")
@@ -12,14 +12,13 @@ Description: Consolidates and calculates different sets of time-series features 
     R and Python packages and provides a standardised workflow from feature calculation 
     to feature matrix processing, machine learning classification procedures, and the production of statistical graphics.
 BugReports: https://github.com/hendersontrent/theft/issues
-License: GPL-3
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Depends: 
     R (>= 3.5.0)
 Imports: 
     stats,
-    data.table,
     dplyr,
     ggplot2,
     tidyr,

@@ -2,11 +2,14 @@
 title: "Introduction to theft"
 author: "Trent Henderson"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
 vignette: >
   %\VignetteIndexEntry{Introduction to theft}
-  %\VignetteEngine{knitr::knitr}
-  %\usepackage[UTF-8]{inputenc}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
   
 ```{r, include = FALSE}
@@ -14,7 +17,9 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.height = 8,
-  fig.width = 8
+  fig.width = 8,
+  warning = FALSE,
+  fig.align = "center"
 )
 ```
 
@@ -129,7 +134,7 @@ plot_feature_matrix(feature_matrix,
 
 If you set `interactive = TRUE` the function will return an interactive plot using `plotly` which lets you hover over entries in the matrix to better understand which is which. This is especially useful if your dataset is large.
 
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 plot_feature_matrix(feature_matrix, 
                     is_normalised = FALSE, 
                     id_var = "id", 
@@ -161,7 +166,7 @@ plot_low_dimension(feature_matrix,
                    group_var = "group", 
                    method = "z-score", 
                    low_dim_method = "t-SNE", 
-                   perplexity = 5, 
+                   perplexity = 10, 
                    plot = TRUE,
                    show_covariance = FALSE)
 ```
@@ -185,7 +190,7 @@ plot_ts_correlations(simData,
 
 Again, if you set `interactive = TRUE` the function will return an interactive plot using `plotly` which lets you hover over entries in the matrix to better understand which is which.
 
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 plot_ts_correlations(simData, 
                      is_normalised = FALSE, 
                      id_var = "id", 
@@ -353,7 +358,7 @@ And here's the raw classifier results:
 head(multi_outputs$RawClassificationResults)
 ```
 
-Note that for the multivariable version, only valid `caret` method names are able to be used to specify a `test_method`.
+Note that for the multi-feature version, only valid `caret` method names are able to be used to specify a `test_method`.
 
 ## Reading and processing hctsa-formatted files
 

@@ -16,7 +16,9 @@ Boolean of whether the data is good to extract features on or not
 Check data quality of a vector
 }
 \examples{
-x <- rnorm(x)
+\dontrun{
+x <- stats::rnorm(x)
 check_vector_quality(x)
+}
 
 }
