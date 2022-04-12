@@ -11,7 +11,7 @@ fit_single_feature_models <- function(data, test_method, use_balanced_accuracy, 
   pb$tick()$print()
   
   tmp <- data %>%
-    dplyr::select(c(group, dplyr::all_of(feature)))
+    dplyr::select(c(.data$group, dplyr::all_of(feature)))
   
   set.seed(seed)
   
@@ -243,12 +243,12 @@ calculate_unpooled_null <- function(main_matrix, main_matrix_balanced = NULL, x,
   if(use_balanced_accuracy) {
     
     true_val_acc <- main_matrix %>%
-      dplyr::filter(category == "Main") %>%
+      dplyr::filter(.data$category == "Main") %>%
       dplyr::select(dplyr::all_of(x)) %>%
       dplyr::pull()
     
     true_val_bal_acc <- main_matrix_balanced %>%
-      dplyr::filter(category == "Main") %>%
+      dplyr::filter(.data$category == "Main") %>%
       dplyr::select(dplyr::all_of(x)) %>%
       dplyr::pull()
     
@@ -258,12 +258,12 @@ calculate_unpooled_null <- function(main_matrix, main_matrix_balanced = NULL, x,
     # Null models
     
     nulls_acc <- main_matrix %>%
-      dplyr::filter(category == "Null") %>%
+      dplyr::filter(.data$category == "Null") %>%
       dplyr::select(dplyr::all_of(x)) %>%
       dplyr::pull()
     
     nulls_bal_acc <- main_matrix_balanced %>%
-      dplyr::filter(category == "Null") %>%
+      dplyr::filter(.data$category == "Null") %>%
       dplyr::select(dplyr::all_of(x)) %>%
       dplyr::pull()
     
@@ -320,14 +320,14 @@ calculate_unpooled_null <- function(main_matrix, main_matrix_balanced = NULL, x,
   } else{
     
     true_val_acc <- main_matrix %>%
-      dplyr::filter(category == "Main") %>%
+      dplyr::filter(.data$category == "Main") %>%
       dplyr::select(dplyr::all_of(x)) %>%
       dplyr::pull()
     
     stopifnot(length(true_val_acc) == 1)
     
     nulls_acc <- main_matrix %>%
-      dplyr::filter(category == "Null") %>%
+      dplyr::filter(.data$category == "Null") %>%
       dplyr::select(dplyr::all_of(x)) %>%
       dplyr::pull()
     
@@ -398,11 +398,12 @@ mean_diff_calculator <- function(data, x, method){
 #-------------- Main exported function ---------------
 
 #' Fit a classifier to feature matrix to extract top performers
+#' @importFrom rlang .data
 #' @import dplyr
 #' @importFrom tidyr drop_na pivot_wider
 #' @importFrom tibble rownames_to_column
 #' @importFrom stats glm binomial sd wilcox.test t.test ecdf pnorm formula predict
-#' @importFrom purrr map possibly
+#' @importFrom purrr map map_df possibly
 #' @importFrom janitor clean_names
 #' @importFrom caret preProcess train confusionMatrix
 #' @param data the dataframe containing the raw feature matrix
@@ -534,7 +535,7 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
     data_id <- data %>%
       dplyr::rename(id = dplyr::all_of(id_var),
                     group = dplyr::all_of(group_var)) %>%
-      dplyr::select(c(id, group, method, names, values))
+      dplyr::select(c(.data$id, .data$group, .data$method, .data$names, .data$values))
   }
   
   num_classes <- length(unique(data_id$group)) # Get number of classes in the data
@@ -580,8 +581,8 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
   # Widening for model matrix
   
   data_id <- data_id %>%
-    dplyr::mutate(names = paste0(method, "_", names)) %>%
-    dplyr::select(-c(method)) %>%
+    dplyr::mutate(names = paste0(.data$method, "_", .data$names)) %>%
+    dplyr::select(-c(.data$method)) %>%
     tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
   
   ncols <- ncol(data_id)
@@ -590,7 +591,7 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
   
   data_id <- data_id %>%
     dplyr::select_if(~sum(!is.na(.)) > 0) %>%
-    dplyr::select(where(~dplyr::n_distinct(.) > 1))
+    dplyr::select(mywhere(~dplyr::n_distinct(.) > 1))
   
   if(ncol(data_id) < ncols){
     message(paste0("Dropped ", ncols - ncol(data_id), " features due to containing all NAs or only a constant."))
@@ -650,7 +651,7 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
     output <- 3:ncol(data_id) %>%
       purrr::map_df(~ mean_diff_calculator(data = data_id, x = .x, method = test_method)) %>%
       dplyr::distinct() %>%
-      dplyr::mutate(feature = gsub(" .*", "\\1", feature),
+      dplyr::mutate(feature = gsub(" .*", "\\1", .data$feature),
                     classifier_name = classifier_name,
                     statistic_name = statistic_name)
     
@@ -661,7 +662,7 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
     output <- 3:ncol(data_id) %>%
       purrr::map_df(~ mean_diff_calculator(data = data_id, x = .x, method = test_method)) %>%
       dplyr::distinct() %>%
-      dplyr::mutate(feature = gsub(" .*", "\\1", feature),
+      dplyr::mutate(feature = gsub(" .*", "\\1", .data$feature),
                     classifier_name = classifier_name,
                     statistic_name = statistic_name)
     
@@ -670,7 +671,7 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
   } else if (test_method == "binomial logistic"){
     
     data_id <- data_id %>%
-      dplyr::mutate(group = as.factor(group))
+      dplyr::mutate(group = as.factor(.data$group))
     
     output <- 3:ncol(data_id) %>%
       purrr::map_df(~ gather_binomial_info(data_id, .x)) %>%
@@ -718,9 +719,9 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
       # Run random shuffles procedure
       
       x_prep <- data_id %>%
-        dplyr::select(c(id, group)) %>%
+        dplyr::select(c(.data$id, .data$group)) %>%
         dplyr::distinct() %>%
-        dplyr::pull(group)
+        dplyr::pull(.data$group)
       
       nullOuts <- simulate_null_acc(x = x_prep, num_permutations = num_permutations, use_balanced_accuracy) %>%
         dplyr::mutate(category = "Null",
@@ -754,28 +755,28 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
         if(use_balanced_accuracy){
           
           nulls <- output %>%
-            dplyr::filter(category == "Null") %>%
-            dplyr::select(c(accuracy, balanced_accuracy))
+            dplyr::filter(.data$category == "Null") %>%
+            dplyr::select(c(.data$accuracy, .data$balanced_accuracy))
           
           # Widen main results matrix
           
           main_matrix <- output %>%
-            dplyr::select(c(category, feature, accuracy)) %>%
-            dplyr::filter(category == "Main") %>%
-            dplyr::group_by(feature) %>%
-            dplyr::mutate(id = row_number()) %>%
+            dplyr::select(c(.data$category, .data$feature, .data$accuracy)) %>%
+            dplyr::filter(.data$category == "Main") %>%
+            dplyr::group_by(.data$feature) %>%
+            dplyr::mutate(id = dplyr::row_number()) %>%
             dplyr::ungroup() %>%
             tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "accuracy") %>%
-            dplyr::select(-c(id))
+            dplyr::select(-c(.data$id))
           
           main_matrix_balanced <- output %>%
-            dplyr::select(c(category, feature, balanced_accuracy)) %>%
-            dplyr::filter(category == "Main") %>%
-            dplyr::group_by(feature) %>%
-            dplyr::mutate(id = row_number()) %>%
+            dplyr::select(c(.data$category, .data$feature, .data$balanced_accuracy)) %>%
+            dplyr::filter(.data$category == "Main") %>%
+            dplyr::group_by(.data$feature) %>%
+            dplyr::mutate(id = dplyr::row_number()) %>%
             dplyr::ungroup() %>%
             tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "balanced_accuracy") %>%
-            dplyr::select(-c(id))
+            dplyr::select(-c(.data$id))
           
           # Calculate p-values for each feature
           
@@ -786,19 +787,19 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
         } else{
           
           nulls <- output %>%
-            dplyr::filter(category == "Null") %>%
-            dplyr::select(c(accuracy))
+            dplyr::filter(.data$category == "Null") %>%
+            dplyr::select(c(.data$accuracy))
           
           # Widen main results matrix
           
           main_matrix <- output %>%
-            dplyr::select(c(category, feature, accuracy)) %>%
-            dplyr::filter(category == "Main") %>%
-            dplyr::group_by(feature) %>%
-            dplyr::mutate(id = row_number()) %>%
+            dplyr::select(c(.data$category, .data$feature, .data$accuracy)) %>%
+            dplyr::filter(.data$category == "Main") %>%
+            dplyr::group_by(.data$feature) %>%
+            dplyr::mutate(id = dplyr::row_number()) %>%
             dplyr::ungroup() %>%
             tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "accuracy") %>%
-            dplyr::select(-c(id))
+            dplyr::select(-c(.data$id))
           
           # Calculate p-values for each feature
           
@@ -814,20 +815,20 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
           if(use_balanced_accuracy){
             
             main_matrix <- output %>%
-              dplyr::select(c(category, feature, accuracy)) %>%
-              dplyr::group_by(feature) %>%
-              dplyr::mutate(id = row_number()) %>%
+              dplyr::select(c(.data$category, .data$feature, .data$accuracy)) %>%
+              dplyr::group_by(.data$feature) %>%
+              dplyr::mutate(id = dplyr::row_number()) %>%
               dplyr::ungroup() %>%
               tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "accuracy") %>%
-              dplyr::select(-c(id))
+              dplyr::select(-c(.data$id))
             
             main_matrix_balanced <- output %>%
-              dplyr::select(c(category, feature, balanced_accuracy)) %>%
-              dplyr::group_by(feature) %>%
-              dplyr::mutate(id = row_number()) %>%
+              dplyr::select(c(.data$category, .data$feature, .data$balanced_accuracy)) %>%
+              dplyr::group_by(.data$feature) %>%
+              dplyr::mutate(id = dplyr::row_number()) %>%
               dplyr::ungroup() %>%
               tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "balanced_accuracy") %>%
-              dplyr::select(-c(id))
+              dplyr::select(-c(.data$id))
             
             # Calculate p-values for each feature
             
@@ -838,12 +839,12 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
           } else{
             
             main_matrix <- output %>%
-              dplyr::select(c(category, feature, accuracy)) %>%
-              dplyr::group_by(feature) %>%
-              dplyr::mutate(id = row_number()) %>%
+              dplyr::select(c(.data$category, .data$feature, .data$accuracy)) %>%
+              dplyr::group_by(.data$feature) %>%
+              dplyr::mutate(id = dplyr::row_number()) %>%
               dplyr::ungroup() %>%
               tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "accuracy") %>%
-              dplyr::select(-c(id))
+              dplyr::select(-c(.data$id))
             
             # Calculate p-values for each feature
             
@@ -859,26 +860,26 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
           if(use_balanced_accuracy){
             
             nulls <- output %>%
-              dplyr::filter(category == "Null") %>%
-              dplyr::select(c(accuracy, balanced_accuracy))
+              dplyr::filter(.data$category == "Null") %>%
+              dplyr::select(c(.data$accuracy, .data$balanced_accuracy))
             
             main_matrix <- output %>%
-              dplyr::select(c(category, feature, accuracy)) %>%
-              dplyr::filter(category == "Main") %>%
-              dplyr::group_by(feature) %>%
-              dplyr::mutate(id = row_number()) %>%
+              dplyr::select(c(.data$category, .data$feature, .data$accuracy)) %>%
+              dplyr::filter(.data$category == "Main") %>%
+              dplyr::group_by(.data$feature) %>%
+              dplyr::mutate(id = dplyr::row_number()) %>%
               dplyr::ungroup() %>%
               tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "accuracy") %>%
-              dplyr::select(-c(id))
+              dplyr::select(-c(.data$id))
             
             main_matrix_balanced <- output %>%
-              dplyr::select(c(category, feature, balanced_accuracy)) %>%
-              dplyr::filter(category == "Main") %>%
-              dplyr::group_by(feature) %>%
-              dplyr::mutate(id = row_number()) %>%
+              dplyr::select(c(.data$category, .data$feature, .data$balanced_accuracy)) %>%
+              dplyr::filter(.data$category == "Main") %>%
+              dplyr::group_by(.data$feature) %>%
+              dplyr::mutate(id = dplyr::row_number()) %>%
               dplyr::ungroup() %>%
               tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "balanced_accuracy") %>%
-              dplyr::select(-c(id))
+              dplyr::select(-c(.data$id))
             
             feature_statistics <- 2:ncol(main_matrix) %>%
               purrr::map_df(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = main_matrix_balanced, 
@@ -887,17 +888,17 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
           } else{
             
             nulls <- output %>%
-              dplyr::filter(category == "Null") %>%
-              dplyr::pull(accuracy)
+              dplyr::filter(.data$category == "Null") %>%
+              dplyr::pull(.data$accuracy)
             
             main_matrix <- output %>%
-              dplyr::select(c(category, feature, accuracy)) %>%
-              dplyr::filter(category == "Main") %>%
-              dplyr::group_by(feature) %>%
-              dplyr::mutate(id = row_number()) %>%
+              dplyr::select(c(.data$category, .data$feature, .data$accuracy)) %>%
+              dplyr::filter(.data$category == "Main") %>%
+              dplyr::group_by(.data$feature) %>%
+              dplyr::mutate(id = dplyr::row_number()) %>%
               dplyr::ungroup() %>%
               tidyr::pivot_wider(id_cols = c("id", "category"), names_from = "feature", values_from = "accuracy") %>%
-              dplyr::select(-c(id))
+              dplyr::select(-c(.data$id))
             
             feature_statistics <- 2:ncol(main_matrix) %>%
               purrr::map_df(~ calculate_against_null_vector(nulls = nulls, main_matrix = main_matrix, main_matrix_balanced = NULL, 
@@ -915,7 +916,7 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
     } else{
       
       feature_statistics <- output %>%
-        dplyr::rename(statistic_value = statistic) %>%
+        dplyr::rename(statistic_value = .data$statistic) %>%
         dplyr::mutate(classifier_name = classifier_name,
                       statistic_name = statistic_name)
     }

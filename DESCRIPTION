@@ -18,6 +18,7 @@ LazyData: true
 Depends: 
     R (>= 3.5.0)
 Imports: 
+    rlang,
     stats,
     dplyr,
     ggplot2,
@@ -36,7 +37,6 @@ Imports:
     Rtsne,
     R.matlab,
     plotly,
-    RColorBrewer,
     caret,
     janitor
 Suggests: 

@@ -6,7 +6,7 @@ hctsa_iterator <- function(labels, keywords, timeSeriesData, x){
   tmp <- as.data.frame(tmp)
   
   tmp <- tmp %>%
-    dplyr::rename(values = V1) %>%
+    dplyr::rename(values = .data$V1) %>%
     dplyr::mutate(timepoint = dplyr::row_number()) %>%
     dplyr::mutate(group = keywords[x],
                   id = labels[x])
@@ -17,7 +17,7 @@ hctsa_iterator <- function(labels, keywords, timeSeriesData, x){
 #---------------- Core function ------------------
 
 #' Load in hctsa formatted MATLAB files of time series data into a tidy format ready for feature extraction
-#' 
+#' @importFrom rlang .data
 #' @importFrom R.matlab readMat
 #' @importFrom purrr map_df
 #' @import dplyr

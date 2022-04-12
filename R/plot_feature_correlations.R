@@ -1,5 +1,5 @@
 #' Produce a correlation matrix plot showing pairwise correlations of feature vectors by unique id with automatic hierarchical clustering.
-#' 
+#' @importFrom rlang .data
 #' @import dplyr
 #' @import ggplot2
 #' @importFrom tidyr pivot_wider
@@ -103,10 +103,10 @@ plot_feature_correlations <- function(data, is_normalised = FALSE, id_var = "id"
   } else{
     
     normed <- data_re %>%
-      dplyr::select(c(id, names, values)) %>%
+      dplyr::select(c(.data$id, .data$names, .data$values)) %>%
       tidyr::drop_na() %>%
-      dplyr::group_by(names) %>%
-      dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
+      dplyr::group_by(.data$names) %>%
+      dplyr::mutate(values = normalise_feature_vector(.data$values, method = method)) %>%
       dplyr::ungroup() %>%
       tidyr::drop_na()
     
@@ -120,17 +120,17 @@ plot_feature_correlations <- function(data, is_normalised = FALSE, id_var = "id"
   features <- unique(normed$names)
   
   ids_to_keep <- normed %>%
-    dplyr::group_by(id) %>%
+    dplyr::group_by(.data$id) %>%
     dplyr::summarise(counter = dplyr::n()) %>%
     dplyr::ungroup() %>%
-    dplyr::filter(counter == length(features))
+    dplyr::filter(.data$counter == length(features))
   
   ids_to_keep <- ids_to_keep$id
   
   cor_dat <- normed %>%
-    dplyr::filter(id %in% ids_to_keep) %>%
-    tidyr::pivot_wider(id_cols = names, names_from = id, values_from = values) %>%
-    dplyr::select(-c(names))
+    dplyr::filter(.data$id %in% ids_to_keep) %>%
+    tidyr::pivot_wider(id_cols = "names", names_from = "id", values_from = "values") %>%
+    dplyr::select(-c(.data$names))
   
   #--------- Correlation ----------
   
@@ -153,17 +153,17 @@ plot_feature_correlations <- function(data, is_normalised = FALSE, id_var = "id"
   
   if(interactive){
     p <- cluster_out %>%
-      ggplot2::ggplot(ggplot2::aes(x = Var1, y = Var2,
-                                   text = paste('<br><b>ID 1:</b>', Var1,
-                                                '<br><b>ID 2:</b>', Var2,
-                                                '<br><b>Correlation:</b>', round(value, digits = 3))))
+      ggplot2::ggplot(ggplot2::aes(x = .data$Var1, y = .data$Var2,
+                                   text = paste('<br><b>ID 1:</b>', .data$Var1,
+                                                '<br><b>ID 2:</b>', .data$Var2,
+                                                '<br><b>Correlation:</b>', round(.data$value, digits = 3))))
   } else{
     p <- cluster_out %>%
-      ggplot2::ggplot(ggplot2::aes(x = Var1, y = Var2)) 
+      ggplot2::ggplot(ggplot2::aes(x = .data$Var1, y = .data$Var2)) 
   }
   
   p <- p +
-    ggplot2::geom_tile(ggplot2::aes(fill = value)) +
+    ggplot2::geom_tile(ggplot2::aes(fill = .data$value)) +
     ggplot2::labs(title = "Pairwise correlation matrix",
                   x = "Feature",
                   y = "Feature",

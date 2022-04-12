@@ -16,7 +16,7 @@ minmax_scaler <- function(x){
   
   x1 <- as.vector(x) # Catches class "ts" cases
   
-  x_new <- scales::rescale(x1, to = c(0,1))
+  x_new <- scales::rescale(x1, to = c(0, 1))
   return(x_new)
 }
 
@@ -38,7 +38,7 @@ zscore_scaler <- function(x){
   
   x1 <- as.vector(x) # Catches class "ts" cases
   
-  x_new <- (x1-mean(x1, na.rm = TRUE))/stats::sd(x1, na.rm = TRUE)
+  x_new <- (x1 - mean(x1, na.rm = TRUE)) / stats::sd(x1, na.rm = TRUE)
   return(x_new)
 }
 
@@ -62,10 +62,10 @@ sigmoid_scaler <- function(x, unitInt = TRUE){
   
   x1 <- as.vector(x) # Catches class "ts" cases
   
-  x_new <- 1/(1+exp(-((x1-mean(x1, na.rm = TRUE))/stats::sd(x1, na.rm = TRUE))))
+  x_new <- 1 / (1 + exp(-((x1 - mean(x1, na.rm = TRUE)) / stats::sd(x1, na.rm = TRUE))))
   
   if(unitInt){
-    x_new <- scales::rescale(x_new, to = c(0,1))
+    x_new <- scales::rescale(x_new, to = c(0, 1))
   } else{
     x_new
   }
@@ -94,10 +94,10 @@ robustsigmoid_scaler <- function(x, unitInt = TRUE){
   
   x1 <- as.vector(x) # Catches class "ts" cases
   
-  x_new <- 1/(1+exp(-((x1-stats::median(x1, na.rm = TRUE))/(stats::IQR(x1, na.rm = TRUE)/1.35))))
+  x_new <- 1 / (1 + exp(-((x1 - stats::median(x1, na.rm = TRUE)) / (stats::IQR(x1, na.rm = TRUE) / 1.35))))
   
   if(unitInt){
-    x_new <- scales::rescale(x_new, to = c(0,1))
+    x_new <- scales::rescale(x_new, to = c(0, 1))
   } else{
     x_new
   }

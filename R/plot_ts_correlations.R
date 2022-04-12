@@ -1,5 +1,5 @@
 #' Produce a correlation matrix plot showing pairwise correlations of time series with automatic hierarchical clustering
-#' 
+#' @importFrom rlang .data
 #' @import dplyr
 #' @import ggplot2
 #' @importFrom tidyr pivot_wider
@@ -97,9 +97,9 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
   } else{
     
     normed <- data_re %>%
-      dplyr::select(c(id, timepoint, values)) %>%
+      dplyr::select(c(.data$id, .data$timepoint, .data$values)) %>%
       tidyr::drop_na() %>%
-      dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
+      dplyr::mutate(values = normalise_feature_vector(.data$values, method = method)) %>%
       tidyr::drop_na()
     
     if(nrow(normed) != nrow(data_re)){
@@ -110,8 +110,8 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
   #------------- Data reshaping -------------
   
   cor_dat <- normed %>%
-    tidyr::pivot_wider(id_cols = timepoint, names_from = id, values_from = values) %>%
-    dplyr::select(-c(timepoint)) %>%
+    tidyr::pivot_wider(id_cols = "timepoint", names_from = "id", values_from = "values") %>%
+    dplyr::select(-c(.data$timepoint)) %>%
     tidyr::drop_na()
   
   #--------- Correlation ----------
@@ -135,22 +135,22 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
   
   if(interactive){
     p <- cluster_out %>%
-      ggplot2::ggplot(ggplot2::aes(x = Var1, y = Var2,
-                                   text = paste('<br><b>ID 1:</b>', Var1,
-                                                '<br><b>ID 2:</b>', Var2,
-                                                '<br><b>Correlation:</b>', round(value, digits = 3))))
+      ggplot2::ggplot(ggplot2::aes(x = .data$Var1, y = .data$Var2,
+                                   text = paste('<br><b>ID 1:</b>', .data$Var1,
+                                                '<br><b>ID 2:</b>', .data$Var2,
+                                                '<br><b>Correlation:</b>', round(.data$value, digits = 3))))
   } else{
     p <- cluster_out %>%
-      ggplot2::ggplot(ggplot2::aes(x = Var1, y = Var2)) 
+      ggplot2::ggplot(ggplot2::aes(x = .data$Var1, y = .data$Var2)) 
   }
   
   p <- p +
-    ggplot2::geom_tile(ggplot2::aes(fill = value)) +
+    ggplot2::geom_tile(ggplot2::aes(fill = .data$value)) +
     ggplot2::labs(title = "Pairwise correlation matrix",
                   x = "Time series",
                   y = "Time series",
                   fill = "Correlation coefficient") +
-    ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1,1)) +
+    ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1, 1)) +
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
                    legend.position = "bottom")

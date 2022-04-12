@@ -1,4 +1,5 @@
 #' Produce a matrix visualisation of data types computed by feature calculation function.
+#' @importFrom rlang .data
 #' @import dplyr
 #' @import ggplot2
 #' @importFrom stats reorder
@@ -42,24 +43,24 @@ plot_quality_matrix <- function(data){
 
   tmp <- data %>%
     dplyr::mutate(quality = dplyr::case_when(
-                  is.na(values)                         ~ "NaN",
-                  is.nan(values)                        ~ "NaN",
-                  is.infinite(values)                   ~ "-Inf or Inf",
-                  is.numeric(values) & !is.na(values) &
-                    !is.na(values) & !is.nan(values)    ~ "Good")) %>%
-    dplyr::group_by(names, quality) %>%
+                  is.na(.data$values)                               ~ "NaN",
+                  is.nan(.data$values)                              ~ "NaN",
+                  is.infinite(.data$values)                         ~ "-Inf or Inf",
+                  is.numeric(.data$values) & !is.na(.data$values) &
+                    !is.na(.data$values) & !is.nan(.data$values)    ~ "Good")) %>%
+    dplyr::group_by(.data$names, .data$quality) %>%
     dplyr::summarise(counter = dplyr::n()) %>%
-    dplyr::group_by(names) %>%
-    dplyr::mutate(props = counter / sum(counter)) %>%
+    dplyr::group_by(.data$names) %>%
+    dplyr::mutate(props = .data$counter / sum(.data$counter)) %>%
     dplyr::ungroup() %>%
-    dplyr::mutate(quality = factor(quality, levels = c("-Inf or Inf", "NaN", "Good")))
+    dplyr::mutate(quality = factor(.data$quality, levels = c("-Inf or Inf", "NaN", "Good")))
 
   # Calculate order of 'good' quality feature vectors to visually steer plot
 
   ordering <- tmp %>%
-    dplyr::filter(quality == "Good") %>%
-    dplyr::mutate(ranker = dplyr::dense_rank(props)) %>%
-    dplyr::select(c(names, ranker))
+    dplyr::filter(.data$quality == "Good") %>%
+    dplyr::mutate(ranker = dplyr::dense_rank(.data$props)) %>%
+    dplyr::select(c(.data$names, .data$ranker))
 
   # Join back in
 
@@ -77,8 +78,8 @@ plot_quality_matrix <- function(data){
   # Plot
 
   p <- tmp1 %>%
-    ggplot2::ggplot(ggplot2::aes(x = stats::reorder(names, -ranker), y = props)) +
-    ggplot2::geom_bar(stat = "identity", ggplot2::aes(fill = quality)) +
+    ggplot2::ggplot(ggplot2::aes(x = stats::reorder(.data$names, -.data$ranker), y = .data$props)) +
+    ggplot2::geom_bar(stat = "identity", ggplot2::aes(fill = .data$quality)) +
     ggplot2::labs(title = "Data quality for computed features",
                   x = "Feature",
                   y = "Proportion of Outputs",

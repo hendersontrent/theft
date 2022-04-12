@@ -101,16 +101,16 @@ extract_prediction_accuracy <- function(mod, use_balanced_accuracy = FALSE) {
   if (use_balanced_accuracy) {
     
     results <- results %>%
-      dplyr::select(c(Accuracy, AccuracySD, Balanced_Accuracy, Balanced_AccuracySD)) %>%
+      dplyr::select(c(.data$Accuracy, .data$AccuracySD, .data$Balanced_Accuracy, .data$Balanced_AccuracySD)) %>%
       janitor::clean_names() %>%
-      dplyr::slice_max(balanced_accuracy, n = 1) # Catches cases where multiple results are returned by {caret} in `mod`
+      dplyr::slice_max(.data$balanced_accuracy, n = 1) # Catches cases where multiple results are returned by {caret} in `mod`
     
   } else {
     
     results <- results %>%
-      dplyr::select(c(Accuracy, AccuracySD)) %>%
+      dplyr::select(c(.data$Accuracy, .data$AccuracySD)) %>%
       janitor::clean_names() %>%
-      dplyr::slice_max(accuracy, n = 1) # Catches cases where multiple results are returned by {caret} in `mod`
+      dplyr::slice_max(.data$accuracy, n = 1) # Catches cases where multiple results are returned by {caret} in `mod`
   }
   
   return(results)
@@ -129,7 +129,7 @@ fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NUL
   
   # Null shuffles and computations
   
-  y <- data %>% dplyr::pull(group)
+  y <- data %>% dplyr::pull(.data$group)
   y <- as.character(y)
   
   set.seed(s)
@@ -137,7 +137,7 @@ fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NUL
   
   shuffledtest <- data %>%
     dplyr::mutate(group = shuffles) %>%
-    dplyr::mutate(group = as.factor(group))
+    dplyr::mutate(group = as.factor(.data$group))
   
   if(univariable){
     processes <- c("center", "scale")
@@ -227,17 +227,17 @@ fit_multi_feature_models <- function(data, test_method, use_balanced_accuracy, u
     message(paste0("\nCalculating models for ", set))
     
     tmp <- data %>%
-      dplyr::filter(method == set) %>%
-      dplyr::select(-c(method)) %>%
+      dplyr::filter(.data$method == set) %>%
+      dplyr::select(-c(.data$method)) %>%
       tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
-      dplyr::select(-c(id))
+      dplyr::select(-c(.data$id))
     
   } else{
     
     tmp <- data %>%
-      dplyr::select(-c(method)) %>%
+      dplyr::select(-c(.data$method)) %>%
       tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
-      dplyr::select(-c(id))
+      dplyr::select(-c(.data$id))
   }
   
   # Fit models
@@ -365,7 +365,7 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
   
   if(!is.null(set)){
     vals <- data %>%
-      dplyr::filter(method %in% c(set, "model free shuffles"))
+      dplyr::filter(.data$method %in% c(set, "model free shuffles"))
   } else{
     vals <- data
   }
@@ -375,7 +375,7 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
   # Main models
   
   if (use_balanced_accuracy) {
-    main <- dplyr::filter(vals, category == "Main")
+    main <- dplyr::filter(vals, .data$category == "Main")
     true_val_acc <- main$accuracy
     true_val_bal_acc <- main$balanced_accuracy
     
@@ -384,7 +384,7 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
     
     # Null models
     
-    nulls <- dplyr::filter(vals, category == "Null")
+    nulls <- dplyr::filter(vals, .data$category == "Null")
     nulls_acc <- nulls$accuracy
     nulls_bal_acc <- nulls$balanced_accuracy
     
@@ -447,20 +447,20 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
     if(!is.null(set)){
       tmp_outputs <- tmp_outputs %>%
         dplyr::mutate(method = set) %>%
-        dplyr::select(c(method, accuracy, p_value_accuracy, balanced_accuracy, p_value_balanced_accuracy))
+        dplyr::select(c(.data$method, .data$accuracy, .data$p_value_accuracy, .data$balanced_accuracy, .data$p_value_balanced_accuracy))
     }
     
   } else {
     
     true_val <- vals %>%
-      dplyr::filter(category == "Main") %>%
-      dplyr::pull(accuracy)
+      dplyr::filter(.data$category == "Main") %>%
+      dplyr::pull(.data$accuracy)
     
     stopifnot(length(true_val) == 1)
     
     nulls <- vals %>%
-      dplyr::filter(category == "Null") %>%
-      dplyr::pull(accuracy)
+      dplyr::filter(.data$category == "Null") %>%
+      dplyr::pull(.data$accuracy)
     
     # Catch cases when SD = 0
     
@@ -474,7 +474,7 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
       if(!is.null(set)){
         tmp_outputs <- tmp_outputs %>%
           dplyr::mutate(method = set) %>%
-          dplyr::select(c(method, accuracy, p_value_accuracy))
+          dplyr::select(c(.data$method, .data$accuracy, .data$p_value_accuracy))
       }
       
     } else{
@@ -499,16 +499,38 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
       if(!is.null(set)){
         tmp_outputs <- tmp_outputs %>%
           dplyr::mutate(method = set) %>%
-          dplyr::select(c(method, accuracy, p_value_accuracy))
+          dplyr::select(c(.data$method, .data$accuracy, .data$p_value_accuracy))
       } 
     }
   }
   return(tmp_outputs)
 }
 
+#---------------
+# 'where' helper
+#---------------
+
+# NOTE: This is from {tidyselect} but due to import limitations for CRAN (and it not being namespaced) it's rebuilt here
+# See https://github.com/r-lib/tidyselect/blob/main/R/helpers-where.R for implementation
+
+mywhere <- function(fn) {
+  predicate <- rlang::as_function(fn)
+  
+  function(x, ...) {
+    out <- predicate(x, ...)
+    
+    if (!rlang::is_bool(out)) {
+      rlang::abort("`where()` must be used with functions that return `TRUE` or `FALSE`.")
+    }
+    
+    out
+  }
+}
+
 #---------------- Main function ----------------
 
 #' Fit a classifier to feature matrix using all features or all features by set
+#' @importFrom rlang .data as_function is_bool abort
 #' @import dplyr
 #' @import ggplot2
 #' @importFrom tidyr drop_na pivot_wider pivot_longer
@@ -647,7 +669,7 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
     data_id <- data %>%
       dplyr::rename(id = dplyr::all_of(id_var),
                     group = dplyr::all_of(group_var)) %>%
-      dplyr::select(c(id, group, method, names, values))
+      dplyr::select(c(.data$id, .data$group, .data$method, .data$names, .data$values))
   }
   
   num_classes <- length(unique(data_id$group)) # Get number of classes in the data
@@ -690,8 +712,8 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
   # Widening for model matrix
   
   data_id <- data_id %>%
-    dplyr::mutate(names = paste0(method, "_", names)) %>%
-    dplyr::select(-c(method)) %>%
+    dplyr::mutate(names = paste0(.data$method, "_", .data$names)) %>%
+    dplyr::select(-c(.data$method)) %>%
     tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
   
   ncols <- ncol(data_id)
@@ -700,7 +722,7 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
   
   data_id <- data_id %>%
     dplyr::select_if(~sum(!is.na(.)) > 0) %>%
-    dplyr::select(where(~dplyr::n_distinct(.) > 1))
+    dplyr::select(mywhere(~dplyr::n_distinct(.) > 1))
   
   if(ncol(data_id) < ncols){
     message(paste0("Dropped ", ncols - ncol(data_id), " features due to containing NAs or only a constant."))
@@ -723,9 +745,9 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
   data_id <- data_id %>%
     janitor::clean_names() %>%
     tidyr::pivot_longer(cols = 3:ncol(data_id), names_to = "names", values_to = "values") %>%
-    dplyr::mutate(method = gsub("_.*", "\\1", names)) %>%
-    dplyr::mutate(group = make.names(group),
-                  group = as.factor(group))
+    dplyr::mutate(method = gsub("_.*", "\\1", .data$names)) %>%
+    dplyr::mutate(group = make.names(.data$group),
+                  group = as.factor(.data$group))
   
   #------------- Fit models -------------------
   
@@ -751,15 +773,15 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
     
     output <- sets %>%
       purrr::map_df(~ fit_multi_feature_models(data = data_id,
-                                            test_method = test_method,
-                                            use_balanced_accuracy = use_balanced_accuracy,
-                                            use_k_fold = use_k_fold,
-                                            num_folds = num_folds,
-                                            use_empirical_null = use_empirical_null,
-                                            null_testing_method = null_testing_method,
-                                            num_permutations = num_permutations,
-                                            set = .x,
-                                            seed = seed))
+                                               test_method = test_method,
+                                               use_balanced_accuracy = use_balanced_accuracy,
+                                               use_k_fold = use_k_fold,
+                                               num_folds = num_folds,
+                                               use_empirical_null = use_empirical_null,
+                                               null_testing_method = null_testing_method,
+                                               num_permutations = num_permutations,
+                                               set = .x,
+                                               seed = seed))
     
   } else{
     
@@ -782,9 +804,9 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
     # Run random shuffles procedure
     
     x_prep <- data_id %>%
-      dplyr::select(c(id, group)) %>%
+      dplyr::select(c(.data$id, .data$group)) %>%
       dplyr::distinct() %>%
-      dplyr::pull(group)
+      dplyr::pull(.data$group)
     
     nullOuts <- simulate_null_acc(x = x_prep, num_permutations = num_permutations, use_balanced_accuracy = use_balanced_accuracy) %>%
       dplyr::mutate(category = "Null",
@@ -819,67 +841,67 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
       if(use_k_fold){
        
         means <- output %>%
-          dplyr::filter(category == "Main") %>%
-          dplyr::mutate(method = paste0(method, " (", num_features_used, ")")) %>%
-          dplyr::select(c(accuracy, balanced_accuracy, category, method, num_features_used)) %>%
+          dplyr::filter(.data$category == "Main") %>%
+          dplyr::mutate(method = paste0(.data$method, " (", .data$num_features_used, ")")) %>%
+          dplyr::select(c(.data$accuracy, .data$balanced_accuracy, .data$category, .data$method, .data$num_features_used)) %>%
           tidyr::pivot_longer(cols = c("accuracy", "balanced_accuracy"), names_to = "names", values_to = "statistic")
         
         sds <- output %>%
-          dplyr::filter(category == "Main") %>% 
-          dplyr::mutate(method = paste0(method, " (", num_features_used, ")")) %>%
-          dplyr::select(c(accuracy_sd, balanced_accuracy_sd, category, method, num_features_used)) %>%
+          dplyr::filter(.data$category == "Main") %>% 
+          dplyr::mutate(method = paste0(.data$method, " (", .data$num_features_used, ")")) %>%
+          dplyr::select(c(.data$accuracy_sd, .data$balanced_accuracy_sd, .data$category, .data$method, .data$num_features_used)) %>%
           tidyr::pivot_longer(cols = c("accuracy_sd", "balanced_accuracy_sd"), names_to = "names", values_to = "statistic_sd") %>%
-          dplyr::mutate(names = gsub("_sd", "\\1", names))
+          dplyr::mutate(names = gsub("_sd", "\\1", .data$names))
         
         stopifnot(nrow(means) == nrow(sds))
         
         accuracies <- means %>%
           dplyr::inner_join(sds, by = c("method" = "method", "category" = "category", "num_features_used" = "num_features_used", "names" = "names")) %>%
-          dplyr::mutate(names = ifelse(names == "accuracy", "Accuracy", "Balanced Accuracy"))
+          dplyr::mutate(names = ifelse(.data$names == "accuracy", "Accuracy", "Balanced Accuracy"))
         
       } else{
         
         accuracies <- output %>%
-          dplyr::filter(category == "Main") %>%
-          dplyr::mutate(method = paste0(method, " (", num_features_used, ")")) %>%
-          dplyr::select(c(accuracy, balanced_accuracy, category, method, num_features_used)) %>%
+          dplyr::filter(.data$category == "Main") %>%
+          dplyr::mutate(method = paste0(.data$method, " (", .data$num_features_used, ")")) %>%
+          dplyr::select(c(.data$accuracy, .data$balanced_accuracy, .data$category, .data$method, .data$num_features_used)) %>%
           tidyr::pivot_longer(cols = c("accuracy", "balanced_accuracy"), names_to = "names", values_to = "statistic") %>%
-          dplyr::mutate(names = ifelse(names == "accuracy", "Accuracy", "Balanced Accuracy"))
+          dplyr::mutate(names = ifelse(.data$names == "accuracy", "Accuracy", "Balanced Accuracy"))
       }
     } else{
       
       if(use_k_fold){
        
         accuracies <- output %>%
-          dplyr::filter(category == "Main") %>%
-          dplyr::mutate(method = paste0(method, " (", num_features_used, ")")) %>%
-          dplyr::rename(statistic = accuracy,
-                        statistic_sd = accuracy_sd) 
+          dplyr::filter(.data$category == "Main") %>%
+          dplyr::mutate(method = paste0(.data$method, " (", .data$num_features_used, ")")) %>%
+          dplyr::rename(statistic = .data$accuracy,
+                        statistic_sd = .data$accuracy_sd) 
       } else{
         
         accuracies <- output %>%
-          dplyr::filter(category == "Main") %>%
-          dplyr::mutate(method = paste0(method, " (", num_features_used, ")")) %>%
-          dplyr::rename(statistic = accuracy) 
+          dplyr::filter(.data$category == "Main") %>%
+          dplyr::mutate(method = paste0(.data$method, " (", .data$num_features_used, ")")) %>%
+          dplyr::rename(statistic = .data$accuracy) 
       }
     }
     
     # Draw plot
     
     accuracies <- accuracies %>%
-      dplyr::mutate(statistic = statistic * 100)
+      dplyr::mutate(statistic = .data$statistic * 100)
     
     if(use_k_fold){
       
       accuracies <- accuracies %>%
-        mutate(statistic_sd = statistic_sd * 100) %>%
-        dplyr::mutate(lower = statistic - (2 * statistic_sd),
-                      upper = statistic + (2 * statistic_sd))
+        mutate(statistic_sd = .data$statistic_sd * 100) %>%
+        dplyr::mutate(lower = .data$statistic - (2 * .data$statistic_sd),
+                      upper = .data$statistic + (2 * .data$statistic_sd))
       
       FeatureSetResultsPlot <- accuracies %>%
-        ggplot2::ggplot(ggplot2::aes(x = stats::reorder(method, -statistic))) +
-        ggplot2::geom_bar(ggplot2::aes(y = statistic, fill = method), stat = "identity") +
-        ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper), colour = "black")
+        ggplot2::ggplot(ggplot2::aes(x = stats::reorder(.data$method, -.data$statistic))) +
+        ggplot2::geom_bar(ggplot2::aes(y = .data$statistic, fill = .data$method), stat = "identity") +
+        ggplot2::geom_errorbar(ggplot2::aes(ymin = .data$lower, ymax = .data$upper), colour = "black")
       
       # Expand y axis if max (mean + (2*SD)) is > 100%
       
@@ -904,8 +926,8 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
     } else{
       
       FeatureSetResultsPlot <- accuracies %>%
-        ggplot2::ggplot(ggplot2::aes(x = stats::reorder(method, -statistic))) +
-        ggplot2::geom_bar(ggplot2::aes(y = statistic, fill = method), stat = "identity") +
+        ggplot2::ggplot(ggplot2::aes(x = stats::reorder(.data$method, -.data$statistic))) +
+        ggplot2::geom_bar(ggplot2::aes(y = .data$statistic, fill = .data$method), stat = "identity") +
         ggplot2::labs(subtitle = "Number of features is indicated in parentheses") +
         ggplot2::scale_y_continuous(limits = c(0, 100),
                                     breaks = seq(from = 0, to = 100, by = 20),
@@ -960,7 +982,7 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
       output <- output %>%
         dplyr::mutate(classifier_name = classifier_name,
                       statistic_name = statistic_name) %>%
-        dplyr::select(-c(category))
+        dplyr::select(-c(.data$category))
       
       myList <- list(FeatureSetResultsPlot, output)
       names(myList) <- c("FeatureSetResultsPlot", "RawClassificationResults")
@@ -986,7 +1008,7 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
       output <- output %>%
         dplyr::mutate(classifier_name = classifier_name,
                       statistic_name = statistic_name) %>%
-        dplyr::select(-c(category))
+        dplyr::select(-c(.data$category))
       
       myList <- list(output)
       names(myList) <- c("RawClassificationResults")
