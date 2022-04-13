@@ -33,7 +33,7 @@ x <- featMat \%>\%
   filter(names == "DN_HistogramMode_5") \%>\%
   pull(values)
   
-xnormed <- normalise_feature_vector(x, method = "RobustSigmoid")
+xnormed <- normalize_feature_vector(x, method = "RobustSigmoid")
 }
 
 }

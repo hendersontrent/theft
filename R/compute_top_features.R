@@ -9,13 +9,13 @@ draw_top_feature_plot <- function(data, method, cor_method, num_features){
   # Wrangle dataframe
   
   cor_dat <- data %>%
-    dplyr::select(c(id, names, values)) %>%
+    dplyr::select(c(.data$id, .data$names, .data$values)) %>%
     tidyr::drop_na() %>%
-    dplyr::group_by(names) %>%
-    dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
+    dplyr::group_by(.data$names) %>%
+    dplyr::mutate(values = normalise_feature_vector(.data$values, method = method)) %>%
     tidyr::drop_na() %>%
-    tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
-    dplyr::select(-c(id))
+    tidyr::pivot_wider(id_cols = .data$id, names_from = .data$names, values_from = .data$values) %>%
+    dplyr::select(-c(.data$id))
   
   # Calculate correlations
   
@@ -31,8 +31,8 @@ draw_top_feature_plot <- function(data, method, cor_method, num_features){
   # Draw plot
   
   FeatureFeatureCorrelationPlot <- cluster_out %>%
-    ggplot2::ggplot(ggplot2::aes(x = Var1, y = Var2)) +
-    ggplot2::geom_tile(ggplot2::aes(fill = value)) +
+    ggplot2::ggplot(ggplot2::aes(x = .data$Var1, y = .data$Var2)) +
+    ggplot2::geom_tile(ggplot2::aes(fill = .data$value)) +
     ggplot2::labs(title = paste0("Pairwise correlation matrix of top ", num_features, " features"),
                   x = NULL,
                   y = NULL,
@@ -60,10 +60,10 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
   if(normalise){
     
     normed <- data %>%
-      dplyr::select(c(id, names, values, group)) %>%
+      dplyr::select(c(.data$id, .data$names, .data$values, .data$group)) %>%
       tidyr::drop_na() %>%
-      dplyr::group_by(names) %>%
-      dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
+      dplyr::group_by(.data$names) %>%
+      dplyr::mutate(values = normalise_feature_vector(.data$values, method = method)) %>%
       dplyr::ungroup() %>%
       tidyr::drop_na()
     
@@ -77,18 +77,18 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
   #------------- Normalise data -------------------
   
   facet_order <- rank_data %>%
-    dplyr::pull(feature)
+    dplyr::pull(.data$feature)
   
   normed <- normed %>% 
-    dplyr::mutate(names = factor(names, levels = facet_order))
+    dplyr::mutate(names = factor(.data$names, levels = facet_order))
   
   #------------- Produce plots --------------------
   
   # Draw plot
   
   p <- normed %>%
-    dplyr::mutate(group = as.factor(group)) %>%
-    ggplot2::ggplot(ggplot2::aes(x = group, y = values, colour = group)) +
+    dplyr::mutate(group = as.factor(.data$group)) %>%
+    ggplot2::ggplot(ggplot2::aes(x = .data$group, y = .data$values, colour = .data$group)) +
     ggplot2::geom_violin()
   
   if(length(unique(normed$names)) > 8){
@@ -109,7 +109,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
     ggplot2::theme(legend.position = "none",
                    panel.grid.minor = ggplot2::element_blank(),
                    strip.background = ggplot2::element_blank(),
-                   axis.text.x = element_text(angle = 90))
+                   axis.text.x = ggplot2::element_text(angle = 90))
   
   if(normalise){
     p <- p +
@@ -125,6 +125,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #-------------- Main exported function ---------------
 
 #' Return an object containing results from top-performing features on a classification task
+#' @importFrom rlang .data
 #' @import dplyr
 #' @import ggplot2
 #' @importFrom tidyr drop_na pivot_wider
@@ -319,7 +320,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     data_id <- data %>%
       dplyr::rename(id = dplyr::all_of(id_var),
                     group = dplyr::all_of(group_var)) %>%
-      dplyr::select(c(id, group, method, names, values))
+      dplyr::select(c(.data$id, .data$group, .data$method, .data$names, .data$values))
   }
   
   num_classes <- length(unique(data_id$group)) # Get number of classes in the data
@@ -382,11 +383,11 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   if(test_method %ni% c("t-test", "wilcox", "binomial logistic")){
     data_id <- data_id %>%
-      dplyr::mutate(group = make.names(group),
-                    group = as.factor(group))
+      dplyr::mutate(group = make.names(.data$group),
+                    group = as.factor(.data$group))
   } else{
     data_id <- data_id %>%
-      dplyr::mutate(group = as.factor(group))
+      dplyr::mutate(group = as.factor(.data$group))
   }
   
   #---------------  Computations ----------------
@@ -419,7 +420,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     message("\nSelecting top features using p-values.")
     
     ResultsTable <- classifierOutputs %>%
-      dplyr::slice_min(p_value, n = num_features)
+      dplyr::slice_min(.data$p_value, n = num_features)
     
   } else{
     
@@ -429,13 +430,13 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
         message("\nSelecting top features using mean balanced classification accuracy.")
         
         ResultsTable <- classifierOutputs %>%
-          dplyr::slice_max(statistic_value, n = num_features)
+          dplyr::slice_max(.data$statistic_value, n = num_features)
         
       } else{
         message("\nSelecting top features using mean classification accuracy.")
         
         ResultsTable <- classifierOutputs %>%
-          dplyr::slice_max(statistic_value, n = num_features)
+          dplyr::slice_max(.data$statistic_value, n = num_features)
       }
     } else{
       
@@ -444,41 +445,41 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
       if(use_balanced_accuracy){
         
         unique_p_values <- classifierOutputs %>%
-          dplyr::slice_min(p_value_balanced_accuracy, n = num_features)
+          dplyr::slice_min(.data$p_value_balanced_accuracy, n = num_features)
         
         if(length(unique(unique_p_values$feature)) > num_features || length(unique(unique_p_values$p_value_balanced_accuracy)) == 1){
           
           message("\nNot enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
           
           ResultsTable <- classifierOutputs %>%
-            dplyr::slice_max(balanced_accuracy, n = num_features)
+            dplyr::slice_max(.data$balanced_accuracy, n = num_features)
           
         } else{
           
           message("\nSelecting top features using p-value.")
           
           ResultsTable <- classifierOutputs %>%
-            dplyr::slice_min(p_value_balanced_accuracy, n = num_features)
+            dplyr::slice_min(.data$p_value_balanced_accuracy, n = num_features)
         }
         
       } else{
         
         unique_p_values <- classifierOutputs %>%
-          dplyr::slice_min(p_value_accuracy, n = num_features)
+          dplyr::slice_min(.data$p_value_accuracy, n = num_features)
         
         if(length(unique(unique_p_values$feature)) > num_features || length(unique(unique_p_values$p_value_accuracy)) == 1){
           
           message("\nNot enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.")
           
           ResultsTable <- classifierOutputs %>%
-            dplyr::slice_max(accuracy, n = num_features)
+            dplyr::slice_max(.data$accuracy, n = num_features)
           
         } else{
           
           message("\nSelecting top features using p-value.")
           
           ResultsTable <- classifierOutputs %>%
-            dplyr::slice_min(p_value_accuracy, n = num_features)
+            dplyr::slice_min(.data$p_value_accuracy, n = num_features)
         }
       }
     }
@@ -487,12 +488,12 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   # Filter original data to just the top performers
   
   dataFiltered <- data_id %>%
-    dplyr::mutate(names = paste0(method, "_", names)) %>%
-    dplyr::select(-c(method)) %>%
+    dplyr::mutate(names = paste0(.data$method, "_", .data$names)) %>%
+    dplyr::select(-c(.data$method)) %>%
     tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
     janitor::clean_names() %>%
     tidyr::pivot_longer(cols = !c("id", "group"), names_to = "names", values_to = "values") %>%
-    dplyr::filter(names %in% ResultsTable$feature)
+    dplyr::filter(.data$names %in% ResultsTable$feature)
   
   #-----------------------
   # Feature x feature plot

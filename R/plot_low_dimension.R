@@ -1,4 +1,5 @@
 #' Produce a principal components analysis (PCA) on normalised feature values and render a bivariate plot to visualise it
+#' @importFrom rlang .data
 #' @import dplyr
 #' @import ggplot2
 #' @import tibble
@@ -123,10 +124,10 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
   } else{
     
     normed <- data_id %>%
-      dplyr::select(c(id, names, values)) %>%
+      dplyr::select(c(.data$id, .data$names, .data$values)) %>%
       tidyr::drop_na() %>%
-      dplyr::group_by(names) %>%
-      dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
+      dplyr::group_by(.data$names) %>%
+      dplyr::mutate(values = normalise_feature_vector(.data$values, method = method)) %>%
       dplyr::ungroup() %>%
       tidyr::drop_na()
 
@@ -140,7 +141,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
   # Produce matrix
   
   dat_filtered <- normed %>%
-    tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
+    tidyr::pivot_wider(id_cols = "id", names_from = "names", values_from = "values") %>%
     tibble::column_to_rownames(var = "id") %>%
     tidyr::drop_na()
   
@@ -157,15 +158,15 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
     
     eigens <- fits %>%
       broom::tidy(matrix = "eigenvalues") %>%
-      dplyr::filter(PC %in% c(1,2)) %>% # Filter to just the 2 going in the plot
-      dplyr::select(c(PC, percent)) %>%
-      dplyr::mutate(percent = round(percent*100), digits = 1)
+      dplyr::filter(.data$PC %in% c(1, 2)) %>% # Filter to just the 2 going in the plot
+      dplyr::select(c(.data$PC, .data$percent)) %>%
+      dplyr::mutate(percent = round(.data$percent * 100), digits = 1)
     
     eigen_pc1 <- eigens %>%
-      dplyr::filter(PC == 1)
+      dplyr::filter(.data$PC == 1)
     
     eigen_pc2 <- eigens %>%
-      dplyr::filter(PC == 2)
+      dplyr::filter(.data$PC == 2)
     
     eigen_pc1 <- paste0(eigen_pc1$percent,"%")
     eigen_pc2 <- paste0(eigen_pc2$percent,"%")
@@ -178,7 +179,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
       stop("perplexity must be < number of unique IDs.")
     }
     
-    # tSNE calculation
+    # t-SNE calculation
     
     set.seed(123)
     
@@ -189,7 +190,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
     
     id_ref <- dat_filtered %>%
       tibble::rownames_to_column(var = "id") %>%
-      dplyr::select(c(id))
+      dplyr::select(c(.data$id))
     
     fits <- data.frame(.fitted1 = tsneOut$Y[,1],
                        .fitted2 = tsneOut$Y[,2]) %>%
@@ -207,22 +208,22 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
       if(low_dim_method == "PCA"){
         fits <- fits %>%
           broom::augment(dat_filtered) %>%
-          dplyr::rename(id = `.rownames`) %>%
-          dplyr::mutate(id = as.factor(id)) %>%
-          dplyr::rename(.fitted1 = .fittedPC1,
-                 .fitted2 = .fittedPC2)
+          dplyr::rename(id = 1) %>%
+          dplyr::mutate(id = as.factor(.data$id)) %>%
+          dplyr::rename(.fitted1 = .data$.fittedPC1,
+                        .fitted2 = .data$.fittedPC2)
       } else{
         fits <- fits %>%
-          dplyr::mutate(id = as.factor(id))
+          dplyr::mutate(id = as.factor(.data$id))
       }
       
       groups <- data_id %>%
         dplyr::rename(group_id = dplyr::all_of(group_var)) %>%
-        dplyr::group_by(id, group_id) %>%
+        dplyr::group_by(.data$id, .data$group_id) %>%
         dplyr::summarise(counter = dplyr::n()) %>%
         dplyr::ungroup() %>%
-        dplyr::select(-c(counter)) %>%
-        dplyr::mutate(id = as.factor(id))
+        dplyr::select(-c(.data$counter)) %>%
+        dplyr::mutate(id = as.factor(.data$id))
       
       fits <- fits %>%
         dplyr::inner_join(groups, by = c("id" = "id"))
@@ -230,12 +231,12 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
       # Draw plot
       
       p <- fits %>%
-          dplyr::mutate(group_id = as.factor(group_id)) %>%
-          ggplot2::ggplot(ggplot2::aes(x = .fitted1, y = .fitted2))
+          dplyr::mutate(group_id = as.factor(.data$group_id)) %>%
+          ggplot2::ggplot(ggplot2::aes(x = .data$.fitted1, y = .data$.fitted2))
       
       if(show_covariance){
         p <- p +
-          ggplot2::stat_ellipse(ggplot2::aes(x = .fitted1, y = .fitted2, fill = group_id), geom = "polygon", alpha = 0.2) +
+          ggplot2::stat_ellipse(ggplot2::aes(x = .data$.fitted1, y = .data$.fitted2, fill = .data$group_id), geom = "polygon", alpha = 0.2) +
           ggplot2::guides(fill = "none") +
           ggplot2::scale_fill_brewer(palette = "Dark2")
       } else{
@@ -244,17 +245,17 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
 
       if(nrow(fits) > 200){
         p <- p +
-          ggplot2::geom_point(size = 1.5, ggplot2::aes(colour = group_id))
+          ggplot2::geom_point(size = 1.5, ggplot2::aes(colour = .data$group_id))
       } else{
         p <- p +
-          ggplot2::geom_point(size = 2.25, ggplot2::aes(colour = group_id))
+          ggplot2::geom_point(size = 2.25, ggplot2::aes(colour = .data$group_id))
       }
       
       if(low_dim_method == "PCA"){
         p <- p +
           ggplot2::labs(title = "Low dimensional projection of time series",
-                        x = paste0("PC 1"," (",eigen_pc1,")"),
-                        y = paste0("PC 2"," (",eigen_pc2,")"),
+                        x = paste0("PC 1"," (", eigen_pc1, ")"),
+                        y = paste0("PC 2"," (", eigen_pc2, ")"),
                         colour = NULL) +
           ggplot2::scale_colour_brewer(palette = "Dark2") +
           ggplot2::theme_bw() +
@@ -278,17 +279,17 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
       if(low_dim_method == "PCA"){
         fits <- fits %>%
           broom::augment(dat_filtered) %>%
-          dplyr::rename(id = `.rownames`) %>%
+          dplyr::rename(id = 1) %>%
           dplyr::mutate(id = as.factor(id)) %>%
-          dplyr::rename(.fitted1 = .fittedPC1,
-                        .fitted2 = .fittedPC2)
+          dplyr::rename(.fitted1 = .data$.fittedPC1,
+                        .fitted2 = .data$.fittedPC2)
       } else{
         fits <- fits %>%
-          dplyr::mutate(id = as.factor(id))
+          dplyr::mutate(id = as.factor(.data$id))
       }
 
       p <- fits %>%
-        ggplot2::ggplot(ggplot2::aes(x = .fitted1, y = .fitted2))
+        ggplot2::ggplot(ggplot2::aes(x = .data$.fitted1, y = .data$.fitted2))
 
       if(nrow(fits) > 200){
         p <- p +
@@ -301,8 +302,8 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
       if(low_dim_method == "PCA"){
         p <- p +
           ggplot2::labs(title = "Low dimensional projection of time series",
-                        x = paste0("PC 1"," (",eigen_pc1,")"),
-                        y = paste0("PC 2"," (",eigen_pc2,")")) +
+                        x = paste0("PC 1"," (", eigen_pc1, ")"),
+                        y = paste0("PC 2"," (", eigen_pc2, ")")) +
           ggplot2::theme_bw() +
           ggplot2::theme(panel.grid.minor = ggplot2::element_blank())
       } else{
@@ -319,7 +320,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
     if(low_dim_method == "PCA"){
       p <- fits %>%
         broom::tidy(matrix = "eigenvalues") %>%
-        dplyr::select(c(PC, percent))
+        dplyr::select(c(.data$PC, .data$percent))
     } else{
       p <- fits
     }

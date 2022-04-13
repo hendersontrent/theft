@@ -1,4 +1,5 @@
 #' Produce a heatmap matrix of the calculated feature value vectors and each unique time series with automatic hierarchical clustering.
+#' @importFrom rlang .data
 #' @import dplyr
 #' @import ggplot2
 #' @import tibble
@@ -9,7 +10,6 @@
 #' @importFrom stats hclust
 #' @importFrom stats dist
 #' @importFrom plotly ggplotly config layout
-#' @importFrom RColorBrewer brewer.pal
 #' @param data a dataframe with at least 2 columns called \code{"names"} and \code{"values"}
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}
 #' @param id_var a string specifying the ID variable to identify each time series. Defaults to \code{"id"}
@@ -98,10 +98,10 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   } else{
     
     normed <- data_id %>%
-      dplyr::select(c(id, names, values)) %>%
+      dplyr::select(c(.data$id, .data$names, .data$values)) %>%
       tidyr::drop_na() %>%
-      dplyr::group_by(names) %>%
-      dplyr::mutate(values = normalise_feature_vector(values, method = method)) %>%
+      dplyr::group_by(.data$names) %>%
+      dplyr::mutate(values = normalise_feature_vector(.data$values, method = method)) %>%
       dplyr::ungroup() %>%
       tidyr::drop_na()
     
@@ -113,7 +113,7 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   #------------- Hierarchical clustering ----------
 
   dat <- normed %>%
-    tidyr::pivot_wider(id_cols = id, names_from = names, values_from = values) %>%
+    tidyr::pivot_wider(id_cols = "id", names_from = "names", values_from = "values") %>%
     tibble::column_to_rownames(var = "id")
   
   # Remove any columns with >50% NAs to prevent masses of rows getting dropped due to poor features
@@ -133,26 +133,30 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   col.order <- stats::hclust(stats::dist(t(dat_filtered)))$order # Hierarchical cluster on columns
   dat_new <- dat_filtered[row.order, col.order] # Re-order matrix by cluster outputs
   cluster_out <- reshape2::melt(as.matrix(dat_new)) %>% # Turn into dataframe
-    dplyr::rename(id = Var1,
-                  names = Var2)
+    dplyr::rename(id = .data$Var1,
+                  names = .data$Var2)
 
   #------------- Draw graphic ---------------------
+  
+  # Define a nice colour palette consistent with RColorBrewer in other functions to reduce dependency
+  
+  mypalette <- c("#D73027", "#FC8D59", "#FEE090", "#E0F3F8", "#91BFDB", "#4575B4")
   
   if(interactive){
     if(method %in% c("Sigmoid", "RobustSigmoid", "MinMax")){
       p <- cluster_out %>%
-        ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value,
-                                     text = paste('<br><b>ID:</b>', id,
-                                                  '<br><b>Feature:</b>', names,
-                                                  '<br><b>Scaled Value:</b>', round(value, digits = 3)))) +
+        ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value,
+                                     text = paste('<br><b>ID:</b>', .data$id,
+                                                  '<br><b>Feature:</b>', .data$names,
+                                                  '<br><b>Scaled Value:</b>', round(.data$value, digits = 3)))) +
         ggplot2::geom_tile() +
-        ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(RColorBrewer::brewer.pal(6, "RdYlBu")))
+        ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette))
     } else{
       p <- cluster_out %>%
-        ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value,
-                                     text = paste('<br><b>ID:</b>', id,
-                                                  '<br><b>Feature:</b>', names,
-                                                  '<br><b>Scaled Value:</b>', round(value, digits = 3)))) +
+        ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value,
+                                     text = paste('<br><b>ID:</b>', .data$id,
+                                                  '<br><b>Feature:</b>', .data$names,
+                                                  '<br><b>Scaled Value:</b>', round(.data$value, digits = 3)))) +
         ggplot2::geom_tile() +
         ggplot2::scale_fill_distiller(palette = "RdYlBu")
     } 
@@ -160,12 +164,12 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   } else{
     if(method %in% c("Sigmoid", "RobustSigmoid", "MinMax")){
       p <- cluster_out %>%
-        ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value))  +
+        ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value))  +
         ggplot2::geom_tile() +
-        ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(RColorBrewer::brewer.pal(6, "RdYlBu")))
+        ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette))
     } else{
       p <- cluster_out %>%
-        ggplot2::ggplot(ggplot2::aes(x = names, y = id, fill = value)) +
+        ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value)) +
         ggplot2::geom_tile() +
         ggplot2::scale_fill_distiller(palette = "RdYlBu")
     }

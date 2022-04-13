@@ -3,8 +3,8 @@
 zscore_function <- function(data){
   
   tmp <- data %>%
-    dplyr::group_by(names) %>%
-    dplyr::mutate(values = normalise_feature_vector(values, method = "z-score")) %>%
+    dplyr::group_by(.data$names) %>%
+    dplyr::mutate(values = normalise_feature_vector(.data$values, method = "z-score")) %>%
     dplyr::ungroup()
   
   return(tmp)
@@ -13,8 +13,8 @@ zscore_function <- function(data){
 sigmoid_function <- function(data){
   
   tmp <- data %>%
-    dplyr::group_by(names) %>%
-    dplyr::mutate(values = normalise_feature_vector(values, method = "Sigmoid")) %>%
+    dplyr::group_by(.data$names) %>%
+    dplyr::mutate(values = normalise_feature_vector(.data$values, method = "Sigmoid")) %>%
     dplyr::ungroup()
   
   return(tmp)
@@ -23,8 +23,8 @@ sigmoid_function <- function(data){
 rsigmoid_function <- function(data){
   
   tmp <- data %>%
-    dplyr::group_by(names) %>%
-    dplyr::mutate(values = normalise_feature_vector(values, method = "RobustSigmoid")) %>%
+    dplyr::group_by(.data$names) %>%
+    dplyr::mutate(values = normalise_feature_vector(.data$values, method = "RobustSigmoid")) %>%
     dplyr::ungroup()
   
   return(tmp)
@@ -33,8 +33,8 @@ rsigmoid_function <- function(data){
 mm_function <- function(data){
   
   tmp <- data %>%
-    dplyr::group_by(names) %>%
-    dplyr::mutate(values = normalise_feature_vector(values, method = "MinMax")) %>%
+    dplyr::group_by(.data$names) %>%
+    dplyr::mutate(values = normalise_feature_vector(.data$values, method = "MinMax")) %>%
     dplyr::ungroup()
   
   return(tmp)
@@ -43,6 +43,7 @@ mm_function <- function(data){
 #------------------- Main function ---------------------------------
 
 #' Scale each feature vector into a user-specified range for visualisation and modelling
+#' @importFrom rlang .data
 #' @import dplyr
 #' @param data a dataframe with at least 2 columns: names variable (feature names) and value variable
 #' @param names_var a string denoting the name of the variable/column that holds the feature names. Defaults to \code{"names"}
@@ -127,8 +128,8 @@ normalise_feature_frame <- function(data, names_var = "names", values_var = "val
 }
 
 
-
 #' Scale each feature vector into a user-specified range for visualisation and modelling
+#' @importFrom rlang .data
 #' @import dplyr
 #' @param data a dataframe with at least 2 columns: names variable (feature names) and value variable
 #' @param names_var a string denoting the name of the variable/column that holds the feature names. Defaults to \code{"names"}
