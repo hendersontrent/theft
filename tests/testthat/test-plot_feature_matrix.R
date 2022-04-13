@@ -1,13 +1,5 @@
 context("test-plot_feature_matrix")
 
-feature_matrix <- calculate_features(data = simData, 
-                                     id_var = "id", 
-                                     time_var = "timepoint", 
-                                     values_var = "values", 
-                                     group_var = "process", 
-                                     feature_set = "catch22", 
-                                     catch24 = FALSE)
-
 normed <- normalise_feature_frame(feature_matrix, 
                                   names_var = "names", 
                                   values_var = "values", 

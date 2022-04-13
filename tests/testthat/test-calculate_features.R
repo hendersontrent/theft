@@ -1,20 +1,9 @@
 context("test-calculate_features")
 
-tmp <- theft::simData
-tmp <- tmp[tmp$process %in% c("Gaussian Noise", "AR(1)"), ]
-
 test_that("catch22 feature calculation", {
   
-  features_catch22 <- calculate_features(data = tmp, 
-                                         id_var = "id", 
-                                         time_var = "timepoint", 
-                                         values_var = "values", 
-                                         group_var = "process", 
-                                         feature_set = "catch22", 
-                                         catch24 = FALSE)
-  
   expect_equal(22 * length(unique(tmp$id)), 
-               nrow(features_catch22))
+               nrow(feature_matrix))
   
   features_catch24 <- calculate_features(data = tmp, 
                                          id_var = "id", 

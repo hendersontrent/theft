@@ -1,12 +1,5 @@
 context("test-fit_multi_feature_classifier")
 
-feature_matrix <- calculate_features(data = theft::simData, 
-                                     id_var = "id", 
-                                     time_var = "timepoint", 
-                                     values_var = "values", 
-                                     group_var = "process", 
-                                     feature_set = "catch22")
-
 test_that("multi feature graphics", {
   expect_equal(2, 
                length(fit_multi_feature_classifier(feature_matrix, id_var = "id", group_var = "group",

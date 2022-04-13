@@ -1,12 +1,5 @@
 context("test-plot_feature_correlations")
 
-feature_matrix <- calculate_features(data = theft::simData, 
-                                     id_var = "id", 
-                                     time_var = "timepoint", 
-                                     values_var = "values", 
-                                     group_var = "process", 
-                                     feature_set = "catch22")
-
 test_that("feature correlations", {
   expect_equal(length(unique(feature_matrix$id)) ^ 2,
                nrow(plot_feature_correlations(feature_matrix, 

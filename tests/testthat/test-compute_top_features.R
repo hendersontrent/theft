@@ -1,14 +1,5 @@
 context("test-compute_top_features")
 
-feature_matrix <- calculate_features(data = theft::simData, 
-                                     id_var = "id", 
-                                     time_var = "timepoint", 
-                                     values_var = "values", 
-                                     group_var = "process", 
-                                     feature_set = "catch22")
-
-binary_case <- feature_matrix[feature_matrix$group %in% c("Gaussian Noise", "AR(1)"), ]
-
 test_that("single feature plots", {
   expect_equal(10,
                length(unique(compute_top_features(feature_matrix, 
@@ -70,44 +61,44 @@ test_that("single feature null method", {
 test_that("single feature balanced accuracy", {
   expect_equal(7,
                ncol(compute_top_features(feature_matrix, 
-                                    id_var = "id", 
-                                    group_var = "group",
-                                    num_features = 10, 
-                                    normalise_violin_plots = FALSE,
-                                    method = "RobustSigmoid",
-                                    cor_method = "pearson",
-                                    test_method = "gaussprRadial",
-                                    use_balanced_accuracy = TRUE,
-                                    use_k_fold = FALSE,
-                                    num_folds = 10,
-                                    use_empirical_null =  TRUE,
-                                    null_testing_method = "model free shuffles",
-                                    num_permutations = 10,
-                                    p_value_method = "gaussian",
-                                    pool_empirical_null = FALSE)$ResultsTable))
+                                         id_var = "id", 
+                                         group_var = "group",
+                                         num_features = 10, 
+                                         normalise_violin_plots = FALSE,
+                                         method = "RobustSigmoid",
+                                         cor_method = "pearson",
+                                         test_method = "gaussprRadial",
+                                         use_balanced_accuracy = TRUE,
+                                         use_k_fold = FALSE,
+                                         num_folds = 10,
+                                         use_empirical_null =  TRUE,
+                                         null_testing_method = "model free shuffles",
+                                         num_permutations = 10,
+                                         p_value_method = "gaussian",
+                                         pool_empirical_null = FALSE)$ResultsTable))
   
   expect_equal(5,
                ncol(compute_top_features(feature_matrix, 
-                                    id_var = "id", 
-                                    group_var = "group",
-                                    num_features = 10, 
-                                    normalise_violin_plots = FALSE,
-                                    method = "RobustSigmoid",
-                                    cor_method = "pearson",
-                                    test_method = "gaussprRadial",
-                                    use_balanced_accuracy = FALSE,
-                                    use_k_fold = FALSE,
-                                    num_folds = 10,
-                                    use_empirical_null =  TRUE,
-                                    null_testing_method = "model free shuffles",
-                                    num_permutations = 10,
-                                    p_value_method = "gaussian",
-                                    pool_empirical_null = FALSE)$ResultsTable))
+                                         id_var = "id", 
+                                         group_var = "group",
+                                         num_features = 10, 
+                                         normalise_violin_plots = FALSE,
+                                         method = "RobustSigmoid",
+                                         cor_method = "pearson",
+                                         test_method = "gaussprRadial",
+                                         use_balanced_accuracy = FALSE,
+                                         use_k_fold = FALSE,
+                                         num_folds = 10,
+                                         use_empirical_null =  TRUE,
+                                         null_testing_method = "model free shuffles",
+                                         num_permutations = 10,
+                                         p_value_method = "gaussian",
+                                         pool_empirical_null = FALSE)$ResultsTable))
 })
 
 test_that("single feature binary options", {
   
-  t_test_ref <- compute_top_features(binary_case, 
+  t_test_ref <- compute_top_features(feature_matrix, 
                                      id_var = "id", 
                                      group_var = "group",
                                      num_features = 10, 
@@ -118,7 +109,7 @@ test_that("single feature binary options", {
                                      pool_empirical_null = FALSE)
   
   expect_equal(length(unique(t_test_ref$ResultsTable$feature)),
-               length(unique(compute_top_features(binary_case, 
+               length(unique(compute_top_features(feature_matrix, 
                                                   id_var = "id", 
                                                   group_var = "group",
                                                   num_features = 10, 
@@ -129,7 +120,7 @@ test_that("single feature binary options", {
                                                   pool_empirical_null = FALSE)$ResultsTable$feature)))
   
   expect_equal(length(unique(t_test_ref$ResultsTable$feature)),
-               length(unique(compute_top_features(binary_case, 
+               length(unique(compute_top_features(feature_matrix, 
                                                   id_var = "id", 
                                                   group_var = "group",
                                                   num_features = 10, 
