@@ -24,7 +24,7 @@ calc_catch22 <- function(data, catch24){
       dplyr::mutate(method = "catch22")
   }
   
-  message("Calculations completed for catch22.")
+  message("\nCalculations completed for catch22.")
   return(outData)
 }
 
@@ -50,7 +50,7 @@ calc_feasts <- function(data){
       dplyr::mutate(method = "feasts")
   }
   
-  message("Calculations completed for feasts.")
+  message("\nCalculations completed for feasts.")
   return(outData)
 }
 
@@ -113,7 +113,7 @@ calc_tsfeatures <- function(data){
     }
   }
   
-  message("Calculations completed for tsfeatures.")
+  message("\nCalculations completed for tsfeatures.")
   return(outData)
 }
 
@@ -132,6 +132,7 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
   
   # Load Python function
   
+  tsfresh_calculator <- function(){}
   reticulate::source_python(system.file("python", "tsfresh_calculator.py", package = "theft")) # Ships with package
   
   # Convert time index column to numeric to avoid {tsfresh} errors
@@ -187,7 +188,7 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
   } else{
   }
   
-  message("Calculations completed for tsfresh.")
+  message("\nCalculations completed for tsfresh.")
   return(outData)
 }
 
@@ -199,6 +200,7 @@ calc_tsfel <- function(data){
   
   # Load Python function
   
+  tsfel_calculator <- function(){}
   reticulate::source_python(system.file("python", "tsfel_calculator.py", package = "theft")) # Ships with package
   
   if("group" %in% colnames(data)){
@@ -221,7 +223,7 @@ calc_tsfel <- function(data){
       dplyr::mutate(method = "TSFEL")
   }
   
-  message("Calculations completed for TSFEL.")
+  message("\nCalculations completed for TSFEL.")
   return(outData)
 }
 
@@ -233,8 +235,8 @@ calc_kats <- function(data){
   
   # Load Python function
   
+  kats_calculator <- function(){}
   reticulate::source_python(system.file("python", "kats_calculator.py", package = "theft")) # Ships with package
-  kats_calculator2 <- kats_calculator # Trying to avoid CRAN warnings about global functions...
   
   # Convert numeric time index to datetime as Kats requires it
   
@@ -251,7 +253,7 @@ calc_kats <- function(data){
       dplyr::select(-c(.data$timepoint)) %>%
       dplyr::group_by(.data$id, .data$group) %>%
       dplyr::arrange(.data$time) %>%
-      dplyr::summarise(results = list(kats_calculator2(timepoints = .data$time, values = .data$values))) %>%
+      dplyr::summarise(results = list(kats_calculator(timepoints = .data$time, values = .data$values))) %>%
       tidyr::unnest_wider(.data$results) %>%
       dplyr::ungroup() %>%
       tidyr::gather("names", "values", -c(.data$id, .data$group)) %>%
@@ -262,14 +264,14 @@ calc_kats <- function(data){
       dplyr::select(-c(.data$timepoint)) %>%
       dplyr::group_by(.data$id) %>%
       dplyr::arrange(.data$time) %>%
-      dplyr::summarise(results = list(kats_calculator2(timepoints = .data$time, values = .data$values))) %>%
+      dplyr::summarise(results = list(kats_calculator(timepoints = .data$time, values = .data$values))) %>%
       tidyr::unnest_wider(.data$results) %>%
       dplyr::ungroup() %>%
       tidyr::gather("names", "values", -c(.data$id)) %>%
       dplyr::mutate(method = "Kats")
   }
   
-  message("Calculations completed for Kats.")
+  message("\nCalculations completed for Kats.")
   return(outData)
 }
 

@@ -30,25 +30,6 @@ test_that("low dim data matrices", {
                                        show_covariance = FALSE)$data))
 })
 
-test_that("pca covariance", {
-  expect_equal(nrow(plot_low_dimension(feature_matrix, 
-                                       is_normalised = FALSE, 
-                                       id_var = "id", 
-                                       group_var = "group", 
-                                       plot = TRUE, 
-                                       method = "RobustSigmoid", 
-                                       low_dim_method = "PCA", 
-                                       show_covariance = FALSE)$data), 
-               nrow(plot_low_dimension(feature_matrix, 
-                                       is_normalised = FALSE, 
-                                       id_var = "id", 
-                                       group_var = "group", 
-                                       plot = TRUE, 
-                                       method = "RobustSigmoid", 
-                                       low_dim_method = "PCA", 
-                                       show_covariance = TRUE)$data))
-})
-
 test_that("t-sne perplexity", {
   expect_error(plot_low_dimension(feature_matrix, 
                                   is_normalised = FALSE, 

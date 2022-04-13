@@ -9,25 +9,7 @@ feature_matrix <- calculate_features(data = theft::simData,
 
 binary_case <- feature_matrix[feature_matrix$group %in% c("Gaussian Noise", "AR(1)"), ]
 
-test_that("univariable plots", {
-  expect_equal(10,
-               length(unique(compute_top_features(feature_matrix, 
-                                                  id_var = "id", 
-                                                  group_var = "group",
-                                                  num_features = 10, 
-                                                  normalise_violin_plots = FALSE,
-                                                  method = "RobustSigmoid",
-                                                  cor_method = "pearson",
-                                                  test_method = "gaussprRadial",
-                                                  use_balanced_accuracy = FALSE,
-                                                  use_k_fold = FALSE,
-                                                  num_folds = 10,
-                                                  use_empirical_null =  TRUE,
-                                                  null_testing_method = "model free shuffles",
-                                                  num_permutations = 10,
-                                                  p_value_method = "empirical",
-                                                  pool_empirical_null = FALSE)$FeatureFeatureCorrelationPlot$data$Var1)))
-  
+test_that("single feature plots", {
   expect_equal(10,
                length(unique(compute_top_features(feature_matrix, 
                                                   id_var = "id", 
@@ -47,7 +29,10 @@ test_that("univariable plots", {
                                                   pool_empirical_null = FALSE)$ViolinPlots$data$names)))
 })
 
-test_that("univariable null method", {
+test_that("single feature null method", {
+  
+  skip_on_cran()
+  
   expect_equal(nrow(compute_top_features(feature_matrix, 
                                          id_var = "id", 
                                          group_var = "group",
@@ -82,42 +67,7 @@ test_that("univariable null method", {
                                          pool_empirical_null = FALSE)$ResultsTable))
 })
 
-test_that("univariable p-value method", {
-  expect_equal(nrow(compute_top_features(feature_matrix, 
-                                         id_var = "id", 
-                                         group_var = "group",
-                                         num_features = 10, 
-                                         normalise_violin_plots = FALSE,
-                                         method = "RobustSigmoid",
-                                         cor_method = "pearson",
-                                         test_method = "gaussprRadial",
-                                         use_balanced_accuracy = FALSE,
-                                         use_k_fold = FALSE,
-                                         num_folds = 10,
-                                         use_empirical_null =  TRUE,
-                                         null_testing_method = "model free shuffles",
-                                         num_permutations = 100,
-                                         p_value_method = "empirical",
-                                         pool_empirical_null = FALSE)$ResultsTable),
-               nrow(compute_top_features(feature_matrix, 
-                                         id_var = "id", 
-                                         group_var = "group",
-                                         num_features = 10, 
-                                         normalise_violin_plots = FALSE,
-                                         method = "RobustSigmoid",
-                                         cor_method = "pearson",
-                                         test_method = "gaussprRadial",
-                                         use_balanced_accuracy = FALSE,
-                                         use_k_fold = FALSE,
-                                         num_folds = 10,
-                                         use_empirical_null =  TRUE,
-                                         null_testing_method = "model free shuffles",
-                                         num_permutations = 100,
-                                         p_value_method = "gaussian",
-                                         pool_empirical_null = FALSE)$ResultsTable))
-})
-
-test_that("univariable balanced accuracy", {
+test_that("single feature balanced accuracy", {
   expect_equal(7,
                ncol(compute_top_features(feature_matrix, 
                                     id_var = "id", 
@@ -132,7 +82,7 @@ test_that("univariable balanced accuracy", {
                                     num_folds = 10,
                                     use_empirical_null =  TRUE,
                                     null_testing_method = "model free shuffles",
-                                    num_permutations = 100,
+                                    num_permutations = 10,
                                     p_value_method = "gaussian",
                                     pool_empirical_null = FALSE)$ResultsTable))
   
@@ -150,12 +100,12 @@ test_that("univariable balanced accuracy", {
                                     num_folds = 10,
                                     use_empirical_null =  TRUE,
                                     null_testing_method = "model free shuffles",
-                                    num_permutations = 100,
+                                    num_permutations = 10,
                                     p_value_method = "gaussian",
                                     pool_empirical_null = FALSE)$ResultsTable))
 })
 
-test_that("univariable binary options", {
+test_that("single feature binary options", {
   
   t_test_ref <- compute_top_features(binary_case, 
                                      id_var = "id", 
@@ -166,24 +116,6 @@ test_that("univariable binary options", {
                                      cor_method = "pearson",
                                      test_method = "t-test",
                                      pool_empirical_null = FALSE)
-  
-  expect_equal(length(unique(compute_top_features(binary_case, 
-                                                  id_var = "id", 
-                                                  group_var = "group",
-                                                  num_features = 10, 
-                                                  normalise_violin_plots = FALSE,
-                                                  method = "RobustSigmoid",
-                                                  cor_method = "pearson",
-                                                  test_method = "gaussprRadial",
-                                                  use_balanced_accuracy = FALSE,
-                                                  use_k_fold = FALSE,
-                                                  num_folds = 10,
-                                                  use_empirical_null =  TRUE,
-                                                  null_testing_method = "null model fits",
-                                                  num_permutations = 10,
-                                                  p_value_method = "gaussian",
-                                                  pool_empirical_null = FALSE)$ResultsTable$feature)),
-               length(unique(t_test_ref$ResultsTable$feature)))
   
   expect_equal(length(unique(t_test_ref$ResultsTable$feature)),
                length(unique(compute_top_features(binary_case, 
