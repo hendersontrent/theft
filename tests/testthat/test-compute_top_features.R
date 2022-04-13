@@ -1,6 +1,9 @@
 context("test-compute_top_features")
 
 test_that("single feature plots", {
+  
+  skip_on_cran()
+  
   expect_equal(10,
                length(unique(compute_top_features(feature_matrix, 
                                                   id_var = "id", 
@@ -59,6 +62,9 @@ test_that("single feature null method", {
 })
 
 test_that("single feature balanced accuracy", {
+  
+  skip_on_cran()
+  
   expect_equal(7,
                ncol(compute_top_features(feature_matrix, 
                                          id_var = "id", 
