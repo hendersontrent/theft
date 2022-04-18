@@ -117,31 +117,82 @@
 <span class="r-in">  time_var <span class="op">=</span> <span class="st">"timepoint"</span>, </span>
 <span class="r-in">  values_var <span class="op">=</span> <span class="st">"values"</span>, </span>
 <span class="r-in">  group_var <span class="op">=</span> <span class="st">"process"</span>, </span>
-<span class="r-in">  feature_set <span class="op">=</span> <span class="st">"catch22"</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> No argument supplied to seed, using 123 as default.</span>
+<span class="r-in">  feature_set <span class="op">=</span> <span class="st">"catch22"</span>,</span>
+<span class="r-in">  seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> No IDs removed. All value vectors good for feature extraction.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running computations for catch22...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculations completed for catch22.</span>
 <span class="r-in">  </span>
+<span class="r-in"><span class="co"># Mimic machinery of theft::compute_top_features</span></span>
+<span class="r-in"><span class="co"># which calls fit_single_feature_classifier and</span></span>
+<span class="r-in"><span class="co"># does these operations prior</span></span>
+<span class="r-in">  </span>
+<span class="r-in"><span class="va">featMat</span><span class="op">$</span><span class="va">group</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/make.names.html" class="external-link">make.names</a></span><span class="op">(</span><span class="va">featMat</span><span class="op">$</span><span class="va">group</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">featMat</span><span class="op">$</span><span class="va">group</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">featMat</span><span class="op">$</span><span class="va">group</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">featMat</span><span class="op">$</span><span class="va">values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">featMat</span><span class="op">$</span><span class="va">values</span><span class="op">)</span></span>
+<span class="r-in">  </span>
 <span class="r-in"><span class="fu">fit_single_feature_classifier</span><span class="op">(</span><span class="va">featMat</span>,</span>
 <span class="r-in">  id_var <span class="op">=</span> <span class="st">"id"</span>,</span>
 <span class="r-in">  group_var <span class="op">=</span> <span class="st">"group"</span>,</span>
-<span class="r-in">  test_method <span class="op">=</span> <span class="st">"linear svm"</span>,</span>
+<span class="r-in">  test_method <span class="op">=</span> <span class="st">"gaussprRadial"</span>,</span>
 <span class="r-in">  use_balanced_accuracy <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span class="r-in">  use_k_fold <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span class="r-in">  num_folds <span class="op">=</span> <span class="fl">10</span>,</span>
 <span class="r-in">  use_empirical_null <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span class="r-in">  null_testing_method <span class="op">=</span> <span class="st">"model free shuffles"</span>,</span>
-<span class="r-in">  p_value_method <span class="op">=</span> <span class="st">"empirical"</span>,</span>
+<span class="r-in">  p_value_method <span class="op">=</span> <span class="st">"gaussian"</span>,</span>
 <span class="r-in">  num_permutations <span class="op">=</span> <span class="fl">50</span>,</span>
 <span class="r-in">  pool_empirical_null <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span class="r-in">  seed <span class="op">=</span> <span class="fl">123</span>,</span>
 <span class="r-in">  return_raw_estimates <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Null testing method 'model free shuffles' is very fast. Consider running more permutations for more reliable results. N = 10000 is recommended.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in loc_validate(pos, vars, call = error_call):</span> Can't subset columns past the end.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span><span> Location 2 doesn't exist.</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span><span> There is only 1 column.</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Null testing method 'model free shuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                 feature  accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                           catch22_dn_histogram_mode_5 0.3611111</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                          catch22_dn_histogram_mode_10 0.3111111</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                                     catch22_co_f1ecac 0.5000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                               catch22_co_first_min_ac 0.6666667</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                     catch22_co_histogram_ami_even_2_5 0.6722222</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                                 catch22_co_trev_1_num 0.4388889</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7                          catch22_md_hrv_classic_pnn40 0.4333333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8             catch22_sb_binary_stats_mean_longstretch1 0.6388889</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9           catch22_sb_transition_matrix_3ac_sumdiagcov 0.5333333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10                   catch22_pd_periodicity_wang_th0_01 0.5111111</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11         catch22_co_embed2_dist_tau_d_expfit_meandiff 0.6944444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12   catch22_in_auto_mutual_info_stats_40_gaussian_fmmi 0.5333333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13              catch22_fc_local_simple_mean1_tauresrat 0.6222222</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14               catch22_dn_outlier_include_p_001_mdrmd 0.3222222</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15               catch22_dn_outlier_include_n_001_mdrmd 0.3555556</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16             catch22_sp_summaries_welch_rect_area_5_1 0.9500000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17            catch22_sb_binary_stats_diff_longstretch0 0.4333333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18                   catch22_sb_motif_three_quantile_hh 0.7777778</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 catch22_sc_fluct_anal_2_rsrangefit_50_1_logi_prop_r1 0.2722222</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20      catch22_sc_fluct_anal_2_dfa_50_1_2_logi_prop_r1 0.2500000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21             catch22_sp_summaries_welch_rect_centroid 0.8722222</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22                 catch22_fc_local_simple_mean3_stderr 0.8222222</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    p_value_accuracy classifier_name               statistic_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      2.646837e-10   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      2.436996e-06   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      2.498908e-27   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      1.488492e-59   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      7.518342e-61   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6      9.654280e-19   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7      4.783652e-18   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8      2.756663e-53   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9      9.659005e-33   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10     4.474297e-29   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11     3.515038e-66   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12     9.659005e-33   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13     1.068134e-49   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14     4.016075e-07   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15     8.304186e-10   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16    5.107928e-144   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17     4.783652e-18   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18     3.229540e-88   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19     4.928403e-04   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20     5.148504e-03   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21    4.182436e-117   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22    2.709871e-101   gaussprRadial Mean classification accuracy</span>
 <span class="r-in"><span class="co"># }</span></span>
 <span class="r-in"></span>
 </code></pre></div>

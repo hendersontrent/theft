@@ -35,7 +35,8 @@ featMat <- calculate_features(data = simData,
   time_var = "timepoint", 
   values_var = "values", 
   group_var = "process", 
-  feature_set = "catch22")
+  feature_set = "catch22",
+  seed = 123)
 
 plot_feature_matrix(featMat, 
   is_normalised = FALSE, 

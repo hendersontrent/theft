@@ -10,7 +10,8 @@
 #'   time_var = "timepoint", 
 #'   values_var = "values", 
 #'   group_var = "process", 
-#'   feature_set = "catch22")
+#'   feature_set = "catch22",
+#'   seed = 123)
 #'   
 #' x <- featMat[featMat$names == "DN_HistogramMode_5", ]
 #' xnormed <- normalise_feature_vector(x$values, method = "RobustSigmoid")
@@ -81,7 +82,8 @@ normalise_feature_vector <- function(x, method = c("z-score", "Sigmoid", "Robust
 #'   time_var = "timepoint", 
 #'   values_var = "values", 
 #'   group_var = "process", 
-#'   feature_set = "catch22")
+#'   feature_set = "catch22",
+#'   seed = 123)
 #'   
 #' x <- featMat[featMat$names == "DN_HistogramMode_5", ]
 #' xnormed <- normalise_feature_vector(x$values, method = "RobustSigmoid")

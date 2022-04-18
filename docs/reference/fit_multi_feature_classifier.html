@@ -114,8 +114,8 @@
 <span class="r-in">  time_var <span class="op">=</span> <span class="st">"timepoint"</span>,</span>
 <span class="r-in">  values_var <span class="op">=</span> <span class="st">"values"</span>,</span>
 <span class="r-in">  group_var <span class="op">=</span> <span class="st">"process"</span>,</span>
-<span class="r-in">  feature_set <span class="op">=</span> <span class="st">"catch22"</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> No argument supplied to seed, using 123 as default.</span>
+<span class="r-in">  feature_set <span class="op">=</span> <span class="st">"catch22"</span>,</span>
+<span class="r-in">  seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> No IDs removed. All value vectors good for feature extraction.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running computations for catch22...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -131,221 +131,121 @@
 <span class="r-in">  num_folds <span class="op">=</span> <span class="fl">10</span>,</span>
 <span class="r-in">  use_empirical_null <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span class="r-in">  null_testing_method <span class="op">=</span> <span class="st">"model free shuffles"</span>,</span>
-<span class="r-in">  p_value_method <span class="op">=</span> <span class="st">"empirical"</span>,</span>
-<span class="r-in">  num_permutations <span class="op">=</span> <span class="fl">100</span>,</span>
+<span class="r-in">  p_value_method <span class="op">=</span> <span class="st">"gaussian"</span>,</span>
+<span class="r-in">  num_permutations <span class="op">=</span> <span class="fl">50</span>,</span>
 <span class="r-in">  seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Null testing method 'model free shuffles' is very fast. Consider running more permutations for more reliable results. N = 10000 is recommended.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Null testing method 'model free shuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: lattice</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: ggplot2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $TestStatistics</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    accuracy p_value_accuracy classifier_name               statistic_name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.8611111                0   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.8611111    1.721254e-113   gaussprRadial Mean classification accuracy</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $RawClassificationResults</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      accuracy accuracy_sd category              method num_features_used</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   0.8611111   0.0539903     Main                &lt;NA&gt;                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   0.1222222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3   0.2277778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4   0.1444444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5   0.1444444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6   0.1444444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7   0.1777778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8   0.1888889          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9   0.1777778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10  0.1611111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11  0.1277778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12  0.1722222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13  0.1611111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14  0.1555556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15  0.1555556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16  0.2055556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17  0.1944444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18  0.1500000          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19  0.1777778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20  0.1444444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21  0.1500000          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22  0.1611111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23  0.1277778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24  0.1722222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25  0.2333333          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26  0.2222222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27  0.1777778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28  0.2222222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29  0.1611111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30  0.2222222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31  0.2111111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 32  0.1388889          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 33  0.1388889          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34  0.1666667          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 35  0.1833333          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 36  0.1444444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 37  0.1500000          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 38  0.1722222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 39  0.1888889          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 40  0.1888889          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 41  0.1722222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 42  0.1555556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43  0.1555556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 44  0.1944444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 45  0.1555556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 46  0.1277778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 47  0.1444444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 48  0.1777778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 49  0.1833333          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 50  0.2000000          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 51  0.2555556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 52  0.1611111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 53  0.1277778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 54  0.1611111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 55  0.1333333          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 56  0.2000000          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 57  0.1555556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 58  0.1722222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 59  0.1777778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 60  0.1722222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 61  0.1555556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 62  0.1555556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 63  0.1555556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 64  0.2111111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 65  0.1722222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 66  0.2111111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 67  0.1388889          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 68  0.1277778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 69  0.1277778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 70  0.1277778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 71  0.1166667          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 72  0.1611111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 73  0.2055556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 74  0.1722222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 75  0.1722222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 76  0.1444444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 77  0.1777778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 78  0.2222222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 79  0.1777778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 80  0.1833333          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 81  0.1111111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 82  0.1388889          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 83  0.1888889          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 84  0.1333333          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 85  0.1888889          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 86  0.1777778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 87  0.1055556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 88  0.1944444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 89  0.1666667          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 90  0.1833333          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 91  0.1666667          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 92  0.1444444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 93  0.1388889          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 94  0.1722222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 95  0.1722222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 96  0.1888889          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 97  0.1611111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 98  0.1500000          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 99  0.1666667          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 100 0.1555556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 101 0.1666667          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     classifier_name               statistic_name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2     gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4     gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5     gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6     gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7     gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8     gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9     gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 32    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 33    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 35    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 36    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 37    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 38    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 39    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 40    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 41    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 42    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 44    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 45    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 46    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 47    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 48    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 49    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 50    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 51    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 52    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 53    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 54    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 55    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 56    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 57    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 58    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 59    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 60    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 61    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 62    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 63    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 64    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 65    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 66    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 67    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 68    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 69    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 70    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 71    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 72    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 73    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 74    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 75    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 76    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 77    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 78    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 79    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 80    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 81    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 82    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 83    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 84    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 85    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 86    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 87    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 88    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 89    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 90    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 91    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 92    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 93    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 94    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 95    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 96    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 97    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 98    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 99    gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 100   gaussprRadial Mean classification accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 101   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     accuracy accuracy_sd category              method num_features_used</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.8611111   0.0539903     Main                &lt;NA&gt;                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.1222222          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.2277778          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.1444444          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.1444444          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0.1444444          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  0.1777778          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  0.1888889          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  0.1777778          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 0.1611111          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 0.1277778          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 0.1722222          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 0.1611111          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 0.1555556          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 0.1555556          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16 0.2055556          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17 0.1944444          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 0.1500000          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 0.1777778          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 0.1444444          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21 0.1500000          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22 0.1611111          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23 0.1277778          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24 0.1722222          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25 0.2333333          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26 0.2222222          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27 0.1777778          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28 0.2222222          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29 0.1611111          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30 0.2222222          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31 0.2111111          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32 0.1388889          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33 0.1388889          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34 0.1666667          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35 0.1833333          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36 0.1444444          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37 0.1500000          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38 0.1722222          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39 0.1888889          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40 0.1888889          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 41 0.1722222          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 42 0.1555556          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43 0.1555556          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 44 0.1944444          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 45 0.1555556          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 46 0.1277778          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 47 0.1444444          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 48 0.1777778          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 49 0.1833333          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 50 0.2000000          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 51 0.2555556          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    classifier_name               statistic_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 41   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 42   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 44   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 45   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 46   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 47   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 48   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 49   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 50   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 51   gaussprRadial Mean classification accuracy</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span class="co"># }</span></span>
 <span class="r-in"></span>

@@ -105,8 +105,8 @@
 <span class="r-in">  time_var <span class="op">=</span> <span class="st">"timepoint"</span>, </span>
 <span class="r-in">  values_var <span class="op">=</span> <span class="st">"values"</span>, </span>
 <span class="r-in">  group_var <span class="op">=</span> <span class="st">"process"</span>, </span>
-<span class="r-in">  feature_set <span class="op">=</span> <span class="st">"catch22"</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> No argument supplied to seed, using 123 as default.</span>
+<span class="r-in">  feature_set <span class="op">=</span> <span class="st">"catch22"</span>,</span>
+<span class="r-in">  seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> No IDs removed. All value vectors good for feature extraction.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running computations for catch22...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -115,14 +115,13 @@
 <span class="r-in"><span class="fu">plot_low_dimension</span><span class="op">(</span><span class="va">featMat</span>, </span>
 <span class="r-in">  is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span class="r-in">  id_var <span class="op">=</span> <span class="st">"id"</span>, </span>
-<span class="r-in">  group_var <span class="op">=</span> <span class="st">"State"</span>, </span>
+<span class="r-in">  group_var <span class="op">=</span> <span class="st">"group"</span>, </span>
 <span class="r-in">  method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>, </span>
 <span class="r-in">  low_dim_method <span class="op">=</span> <span class="st">"PCA"</span>, </span>
 <span class="r-in">  plot <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span class="r-in">  show_covariance <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span class="r-in">  seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in chr_as_locations(x, vars, call = call):</span> Can't rename columns that don't exist.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span><span> Column `State` doesn't exist.</span></span>
+<span class="r-plt img"><img src="plot_low_dimension-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span class="co"># }</span></span>
 <span class="r-in"></span>
 </code></pre></div>

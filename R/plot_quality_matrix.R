@@ -13,7 +13,8 @@
 #'   time_var = "timepoint", 
 #'   values_var = "values", 
 #'   group_var = "process", 
-#'   feature_set = "catch22")
+#'   feature_set = "catch22",
+#'   seed = 123)
 #'
 #' plot_quality_matrix(data = featMat)
 #'

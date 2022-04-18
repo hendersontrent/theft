@@ -562,7 +562,8 @@ mywhere <- function(fn) {
 #'   time_var = "timepoint",
 #'   values_var = "values",
 #'   group_var = "process",
-#'   feature_set = "catch22")
+#'   feature_set = "catch22",
+#'   seed = 123)
 #'
 #' fit_multi_feature_classifier(featMat,
 #'   id_var = "id",
@@ -574,8 +575,8 @@ mywhere <- function(fn) {
 #'   num_folds = 10,
 #'   use_empirical_null = TRUE,
 #'   null_testing_method = "model free shuffles",
-#'   p_value_method = "empirical",
-#'   num_permutations = 100,
+#'   p_value_method = "gaussian",
+#'   num_permutations = 50,
 #'   seed = 123)
 #' }
 #'
@@ -632,7 +633,7 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
   }
   
   if(null_testing_method == "model free shuffles" && num_permutations < 1000){
-    message("Null testing method 'model free shuffles' is very fast. Consider running more permutations for more reliable results. N = 10000 is recommended.")
+    message("Null testing method 'model free shuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.")
   }
   
   # p-value options

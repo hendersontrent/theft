@@ -60,7 +60,8 @@ featMat <- calculate_features(data = simData,
   time_var = "timepoint",
   values_var = "values",
   group_var = "process",
-  feature_set = "catch22")
+  feature_set = "catch22",
+  seed = 123)
 
 fit_multi_feature_classifier(featMat,
   id_var = "id",
@@ -72,8 +73,8 @@ fit_multi_feature_classifier(featMat,
   num_folds = 10,
   use_empirical_null = TRUE,
   null_testing_method = "model free shuffles",
-  p_value_method = "empirical",
-  num_permutations = 100,
+  p_value_method = "gaussian",
+  num_permutations = 50,
   seed = 123)
 }
 

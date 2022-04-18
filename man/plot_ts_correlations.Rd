@@ -45,7 +45,7 @@ plot_ts_correlations(data = simData,
   time_var = "timepoint",
   values_var = "values",
   method = "RobustSigmoid",
-  cor_method = "person",
+  cor_method = "pearson",
   interactive = FALSE)
 
 }

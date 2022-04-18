@@ -28,12 +28,13 @@
 #'   time_var = "timepoint", 
 #'   values_var = "values", 
 #'   group_var = "process", 
-#'   feature_set = "catch22")
+#'   feature_set = "catch22",
+#'   seed = 123)
 #'
 #' plot_low_dimension(featMat, 
 #'   is_normalised = FALSE, 
 #'   id_var = "id", 
-#'   group_var = "State", 
+#'   group_var = "group", 
 #'   method = "RobustSigmoid", 
 #'   low_dim_method = "PCA", 
 #'   plot = TRUE,

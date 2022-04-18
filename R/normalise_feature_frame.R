@@ -58,7 +58,8 @@ mm_function <- function(data){
 #'   time_var = "timepoint", 
 #'   values_var = "values", 
 #'   group_var = "process", 
-#'   feature_set = "catch22")
+#'   feature_set = "catch22",
+#'   seed = 123)
 #'   
 #' normed <- normalise_feature_frame(featMat, 
 #'   names_var = "names", 
@@ -142,7 +143,8 @@ normalise_feature_frame <- function(data, names_var = "names", values_var = "val
 #'   time_var = "timepoint", 
 #'   values_var = "values", 
 #'   group_var = "process", 
-#'   feature_set = "catch22")
+#'   feature_set = "catch22",
+#'   seed = 123)
 #'   
 #' normed <- normalize_feature_frame(featMat, 
 #'   names_var = "names", 

@@ -72,7 +72,8 @@ featMat <- calculate_features(data = simData,
   time_var = "timepoint", 
   values_var = "values", 
   group_var = "process", 
-  feature_set = "catch22")
+  feature_set = "catch22",
+  seed = 123)
   
 compute_top_features(featMat,
   id_var = "id",
@@ -87,7 +88,7 @@ compute_top_features(featMat,
   num_folds = 10,
   use_empirical_null = TRUE,
   null_testing_method = "model free shuffles",
-  p_value_method = "empirical",
+  p_value_method = "gaussian",
   num_permutations = 100,
   pool_empirical_null = FALSE,
   seed = 123) 
