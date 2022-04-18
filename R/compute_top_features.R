@@ -169,7 +169,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #'   method = "RobustSigmoid",
 #'   cor_method = "pearson",
 #'   test_method = "gaussprRadial",
-#'   use_balanced_accuracy = use_balanced_accuracy,
+#'   use_balanced_accuracy = FALSE,
 #'   use_k_fold = FALSE,
 #'   num_folds = 10,
 #'   use_empirical_null = TRUE,

@@ -54,7 +54,7 @@ an object of class list containing dataframe summaries of the classification mod
 Fit a classifier to feature matrix using all features or all features by set
 }
 \examples{
-\dontrun{
+\donttest{
 featMat <- calculate_features(data = simData,
   id_var = "id",
   time_var = "timepoint",

@@ -39,7 +39,7 @@ an object of class \code{ggplot} that contains the correlation matrix graphic
 Produce a correlation matrix plot showing pairwise correlations of feature vectors by unique id with automatic hierarchical clustering.
 }
 \examples{
-\dontrun{
+\donttest{
 featMat <- calculate_features(data = simData, 
   id_var = "id", 
   time_var = "timepoint", 

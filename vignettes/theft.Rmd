@@ -55,7 +55,8 @@ feature_matrix <- calculate_features(data = simData,
                                      time_var = "timepoint", 
                                      values_var = "values", 
                                      group_var = "process", 
-                                     feature_set = "catch22")
+                                     feature_set = "catch22",
+                                     seed = 123)
 ```
 
 Note that for the `catch22` set you can set the additional `catch24` argument to calculate the mean and standard deviation in addition to the standard 22 features:
@@ -67,7 +68,8 @@ feature_matrix <- calculate_features(data = simData,
                                      values_var = "values", 
                                      group_var = "process", 
                                      feature_set = "catch22",
-                                     catch24 = TRUE)
+                                     catch24 = TRUE,
+                                     seed = 123)
 ```
 
 Note that if you want to use any of the Python-based packages, you must first tell R (prior to running `calculate_features`) which Python location on your computer contains the installed libraries. This can be done via the `init_theft` function, where `path_to_python` is a string specifying the filepath location. For example, for me (Trent), the filepath to the correct Python is `"~/opt/anaconda3/bin/python"` which is what I would enter for the `path_to_python` argument. You only need to call `init_theft` once per R session.
@@ -154,7 +156,8 @@ plot_low_dimension(feature_matrix,
                    method = "z-score", 
                    low_dim_method = "PCA", 
                    plot = TRUE,
-                   show_covariance = TRUE)
+                   show_covariance = TRUE,
+                   seed = 123)
 ```
 
 Alternatively, a *t*-SNE version can be specified in a similar fashion, with the `perplexity` hyperparameter able to be controlled by the user. Typical values for this range between 5 and 50, depending on the size of the data. At lower levels of `perplexity`, local variations tend to dominate, while at very high levels of `perplexity`, results can be uninterpretable as clusters can merge. See [this interactive article](https://distill.pub/2016/misread-tsne/) for a detailed review.
@@ -168,7 +171,8 @@ plot_low_dimension(feature_matrix,
                    low_dim_method = "t-SNE", 
                    perplexity = 10, 
                    plot = TRUE,
-                   show_covariance = FALSE)
+                   show_covariance = FALSE,
+                   seed = 123)
 ```
 
 ### Pairwise correlations

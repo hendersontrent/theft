@@ -21,7 +21,7 @@ a vector of scalar values normalised into the selected range
 Scale each value into a user-specified range for visualisation and analysis
 }
 \examples{
-\dontrun{
+\donttest{
 featMat <- calculate_features(data = simData, 
   id_var = "id", 
   time_var = "timepoint", 
@@ -29,11 +29,8 @@ featMat <- calculate_features(data = simData,
   group_var = "process", 
   feature_set = "catch22")
   
-x <- featMat \%>\%
-  filter(names == "DN_HistogramMode_5") \%>\%
-  pull(values)
-  
-xnormed <- normalize_feature_vector(x, method = "RobustSigmoid")
+x <- featMat[featMat$names == "DN_HistogramMode_5", ]
+xnormed <- normalise_feature_vector(x$values, method = "RobustSigmoid")
 }
 
 }

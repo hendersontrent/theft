@@ -12,7 +12,8 @@ calculate_features(
   group_var = NULL,
   feature_set = c("catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel"),
   catch24 = FALSE,
-  tsfresh_cleanup = FALSE
+  tsfresh_cleanup = FALSE,
+  seed = 123
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ calculate_features(
 \item{catch24}{a Boolean specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}}
 
 \item{tsfresh_cleanup}{a Boolean specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}}
+
+\item{seed}{fixed number for R's random number generator to ensure reproducibility}
 }
 \value{
 object of class dataframe that contains the summary statistics for each feature
@@ -39,7 +42,7 @@ object of class dataframe that contains the summary statistics for each feature
 Compute features on an input time series dataset
 }
 \examples{
-\dontrun{
+\donttest{
 featMat <- calculate_features(data = simData, 
   id_var = "id", 
   time_var = "timepoint", 

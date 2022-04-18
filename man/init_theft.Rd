@@ -9,11 +9,14 @@ init_theft(path_to_python)
 \arguments{
 \item{path_to_python}{a string specifying the filepath to the version of Python containing the relevant libraries for calculating features}
 }
+\value{
+no return value; called for side effects
+}
 \description{
 Communicate to R the correct Python version containing the relevant libraries for calculating features
 }
 \examples{
-\dontrun{
+\donttest{
 init_theft("~/opt/anaconda3/bin/python")
 }
 

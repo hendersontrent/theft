@@ -39,8 +39,8 @@ an object of class \code{ggplot}
 Produce a correlation matrix plot showing pairwise correlations of time series with automatic hierarchical clustering
 }
 \examples{
-\dontrun{
-plot_ts_correlations(data = featMat, 
+\donttest{
+plot_ts_correlations(data = simData, 
   is_normalised = FALSE, 
   id_var = "id", 
   time_var = "timepoint",

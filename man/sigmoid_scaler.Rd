@@ -18,10 +18,7 @@ x a numeric rescaled vector
 This function rescales a vector of numerical values with a Sigmoidal transformation
 }
 \examples{
-\dontrun{
-x <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
-outs <- sigmoid_scaler(x)
-}
+sigmoid_scaler(stats::rnorm(10))
 
 }
 \author{

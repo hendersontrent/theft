@@ -27,7 +27,7 @@ a dataframe with the value column rescaled into the specified range
 Scale each feature vector into a user-specified range for visualisation and modelling
 }
 \examples{
-\dontrun{
+\donttest{
 featMat <- calculate_features(data = simData, 
   id_var = "id", 
   time_var = "timepoint", 

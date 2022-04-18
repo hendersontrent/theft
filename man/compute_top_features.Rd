@@ -66,7 +66,7 @@ an object of class list containing a dataframe of results, a feature x feature m
 Return an object containing results from top-performing features on a classification task
 }
 \examples{
-\dontrun{
+\donttest{
 featMat <- calculate_features(data = simData, 
   id_var = "id", 
   time_var = "timepoint", 
@@ -82,7 +82,7 @@ compute_top_features(featMat,
   method = "RobustSigmoid",
   cor_method = "pearson",
   test_method = "gaussprRadial",
-  use_balanced_accuracy = use_balanced_accuracy,
+  use_balanced_accuracy = FALSE,
   use_k_fold = FALSE,
   num_folds = 10,
   use_empirical_null = TRUE,

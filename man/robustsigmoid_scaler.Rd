@@ -18,10 +18,7 @@ x a numeric rescaled vector
 This function rescales a vector of numerical values with an outlier-robust Sigmoidal transformation
 }
 \examples{
-\dontrun{
-x <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
-outs <- robustsigmoid_scaler(x)
-}
+robustsigmoid_scaler(stats::rnorm(10))
 
 }
 \author{

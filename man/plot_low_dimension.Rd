@@ -13,7 +13,8 @@ plot_low_dimension(
   low_dim_method = c("PCA", "t-SNE"),
   perplexity = 30,
   plot = TRUE,
-  show_covariance = FALSE
+  show_covariance = FALSE,
+  seed = 123
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ plot_low_dimension(
 \item{plot}{a Boolean as to whether a plot or model fit information should be returned. Defaults to \code{TRUE}}
 
 \item{show_covariance}{a Boolean as to whether covariance ellipses should be shown on the plot. Defaults to \code{FALSE}}
+
+\item{seed}{fixed number for R's random number generator to ensure reproducibility}
 }
 \value{
 if \code{plot = TRUE}, returns an object of class \code{ggplot}, if \code{plot = FALSE} returns an object of class dataframe with PCA results
@@ -42,7 +45,7 @@ if \code{plot = TRUE}, returns an object of class \code{ggplot}, if \code{plot =
 Produce a principal components analysis (PCA) on normalised feature values and render a bivariate plot to visualise it
 }
 \examples{
-\dontrun{
+\donttest{
 featMat <- calculate_features(data = simData, 
   id_var = "id", 
   time_var = "timepoint", 
@@ -57,7 +60,8 @@ plot_low_dimension(featMat,
   method = "RobustSigmoid", 
   low_dim_method = "PCA", 
   plot = TRUE,
-  show_covariance = TRUE)
+  show_covariance = TRUE,
+  seed = 123)
 }
 
 }

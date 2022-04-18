@@ -16,7 +16,7 @@ an object of class \code{ggplot}
 Produce a matrix visualisation of data types computed by feature calculation function.
 }
 \examples{
-\dontrun{
+\donttest{
 featMat <- calculate_features(data = simData, 
   id_var = "id", 
   time_var = "timepoint", 

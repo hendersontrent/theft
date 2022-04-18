@@ -57,7 +57,7 @@ an object of class dataframe containing results
 Fit a classifier to feature matrix to extract top performers
 }
 \examples{
-\dontrun{
+\donttest{
 featMat <- calculate_features(data = simData, 
   id_var = "id", 
   time_var = "timepoint", 
