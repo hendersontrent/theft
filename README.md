@@ -78,15 +78,15 @@ not all functionality has been copied across to the webtool yet.
     To cite package 'theft' in publications use:
 
       Trent Henderson (2022). theft: Tools for Handling Extraction of
-      Features from Time series. R package version 0.3.9.3.
+      Features from Time Series. R package version 0.3.9.4.
       https://hendersontrent.github.io/theft/
 
     A BibTeX entry for LaTeX users is
 
       @Manual{,
-        title = {theft: Tools for Handling Extraction of Features from Time series},
+        title = {theft: Tools for Handling Extraction of Features from Time Series},
         author = {Trent Henderson},
         year = {2022},
-        note = {R package version 0.3.9.3},
+        note = {R package version 0.3.9.4},
         url = {https://hendersontrent.github.io/theft/},
       }
