@@ -5,7 +5,6 @@
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \donttest{
 #' featMat <- calculate_features(data = simData, 
 #'   id_var = "id", 
 #'   time_var = "timepoint", 
@@ -15,7 +14,6 @@
 #'   
 #' x <- featMat[featMat$names == "DN_HistogramMode_5", ]
 #' xnormed <- normalise_feature_vector(x$values, method = "RobustSigmoid")
-#' }
 #'
 
 normalise_feature_vector <- function(x, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")){
@@ -78,7 +76,6 @@ normalise_feature_vector <- function(x, method = c("z-score", "Sigmoid", "Robust
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \donttest{
 #' featMat <- calculate_features(data = simData, 
 #'   id_var = "id", 
 #'   time_var = "timepoint", 
@@ -88,7 +85,6 @@ normalise_feature_vector <- function(x, method = c("z-score", "Sigmoid", "Robust
 #'   
 #' x <- featMat[featMat$names == "DN_HistogramMode_5", ]
 #' xnormed <- normalise_feature_vector(x$values, method = "RobustSigmoid")
-#' }
 #'
 
 normalize_feature_vector <- function(x, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")){

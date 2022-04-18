@@ -93,13 +93,17 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">featMat</span> <span class="op">&lt;-</span> <span class="fu"><a href="calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, </span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">featMat</span> <span class="op">&lt;-</span> <span class="fu"><a href="calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, </span>
 <span class="r-in">  id_var <span class="op">=</span> <span class="st">"id"</span>, </span>
 <span class="r-in">  time_var <span class="op">=</span> <span class="st">"timepoint"</span>, </span>
 <span class="r-in">  values_var <span class="op">=</span> <span class="st">"values"</span>, </span>
 <span class="r-in">  group_var <span class="op">=</span> <span class="st">"process"</span>, </span>
 <span class="r-in">  feature_set <span class="op">=</span> <span class="st">"catch22"</span><span class="op">)</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> No argument supplied to seed, using 123 as default.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> No IDs removed. All value vectors good for feature extraction.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Running computations for catch22...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Calculations completed for catch22.</span>
 <span class="r-in">  </span>
 <span class="r-in"><span class="fu">plot_feature_correlations</span><span class="op">(</span>data <span class="op">=</span> <span class="va">featMat</span>, </span>
 <span class="r-in">  is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, </span>
@@ -108,7 +112,7 @@
 <span class="r-in">  values_var <span class="op">=</span> <span class="st">"values"</span>,</span>
 <span class="r-in">  method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,</span>
 <span class="r-in">  interactive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+<span class="r-plt img"><img src="plot_feature_correlations-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"></span>
 </code></pre></div>
     </div>

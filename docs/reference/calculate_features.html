@@ -59,7 +59,8 @@
   group_var <span class="op">=</span> <span class="cn">NULL</span>,
   feature_set <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"catch22"</span>, <span class="st">"feasts"</span>, <span class="st">"tsfeatures"</span>, <span class="st">"kats"</span>, <span class="st">"tsfresh"</span>, <span class="st">"tsfel"</span><span class="op">)</span>,
   catch24 <span class="op">=</span> <span class="cn">FALSE</span>,
-  tsfresh_cleanup <span class="op">=</span> <span class="cn">FALSE</span>
+  tsfresh_cleanup <span class="op">=</span> <span class="cn">FALSE</span>,
+  seed <span class="op">=</span> <span class="fl">123</span>
 <span class="op">)</span></code></pre></div>
     </div>
 
@@ -81,6 +82,8 @@
 <dd><p>a Boolean specifying whether to compute <code>catch24</code> in addition to <code>catch22</code> if <code>catch22</code> is one of the feature sets selected. Defaults to <code>FALSE</code></p></dd>
 <dt>tsfresh_cleanup</dt>
 <dd><p>a Boolean specifying whether to use the in-built <code>tsfresh</code> relevant feature filter or not. Defaults to <code>FALSE</code></p></dd>
+<dt>seed</dt>
+<dd><p>fixed number for R's random number generator to ensure reproducibility</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -93,14 +96,17 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">featMat</span> <span class="op">&lt;-</span> <span class="fu">calculate_features</span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, </span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">featMat</span> <span class="op">&lt;-</span> <span class="fu">calculate_features</span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, </span>
 <span class="r-in">  id_var <span class="op">=</span> <span class="st">"id"</span>, </span>
 <span class="r-in">  time_var <span class="op">=</span> <span class="st">"timepoint"</span>, </span>
 <span class="r-in">  values_var <span class="op">=</span> <span class="st">"values"</span>, </span>
 <span class="r-in">  group_var <span class="op">=</span> <span class="st">"process"</span>, </span>
 <span class="r-in">  feature_set <span class="op">=</span> <span class="st">"catch22"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> No argument supplied to seed, using 123 as default.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> No IDs removed. All value vectors good for feature extraction.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Running computations for catch22...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Calculations completed for catch22.</span>
 <span class="r-in"></span>
 </code></pre></div>
     </div>

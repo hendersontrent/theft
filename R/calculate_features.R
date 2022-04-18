@@ -304,14 +304,12 @@ calc_kats <- function(data){
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \donttest{
 #' featMat <- calculate_features(data = simData, 
 #'   id_var = "id", 
 #'   time_var = "timepoint", 
 #'   values_var = "values", 
 #'   group_var = "process", 
 #'   feature_set = "catch22")
-#' }
 #'
 
 calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var = NULL, group_var = NULL,

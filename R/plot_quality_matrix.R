@@ -8,7 +8,6 @@
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \donttest{
 #' featMat <- calculate_features(data = simData, 
 #'   id_var = "id", 
 #'   time_var = "timepoint", 
@@ -17,7 +16,6 @@
 #'   feature_set = "catch22")
 #'
 #' plot_quality_matrix(data = featMat)
-#' }
 #'
 
 plot_quality_matrix <- function(data){

@@ -53,7 +53,6 @@ mm_function <- function(data){
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \donttest{
 #' featMat <- calculate_features(data = simData, 
 #'   id_var = "id", 
 #'   time_var = "timepoint", 
@@ -65,7 +64,6 @@ mm_function <- function(data){
 #'   names_var = "names", 
 #'   values_var = "values", 
 #'   method = "RobustSigmoid")
-#' }
 #'
 
 normalise_feature_frame <- function(data, names_var = "names", values_var = "values", 
@@ -139,7 +137,6 @@ normalise_feature_frame <- function(data, names_var = "names", values_var = "val
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \donttest{
 #' featMat <- calculate_features(data = simData, 
 #'   id_var = "id", 
 #'   time_var = "timepoint", 
@@ -151,7 +148,6 @@ normalise_feature_frame <- function(data, names_var = "names", values_var = "val
 #'   names_var = "names", 
 #'   values_var = "values", 
 #'   method = "RobustSigmoid")
-#' }
 #'
 
 normalize_feature_frame <- function(data, names_var = "names", values_var = "values", 

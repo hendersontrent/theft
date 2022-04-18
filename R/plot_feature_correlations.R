@@ -20,7 +20,6 @@
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \donttest{
 #' featMat <- calculate_features(data = simData, 
 #'   id_var = "id", 
 #'   time_var = "timepoint", 
@@ -35,7 +34,6 @@
 #'   values_var = "values",
 #'   method = "RobustSigmoid",
 #'   interactive = FALSE)
-#' }
 #'
 
 plot_feature_correlations <- function(data, is_normalised = FALSE, id_var = "id", 

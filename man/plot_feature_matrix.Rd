@@ -30,7 +30,6 @@ an object of class \code{ggplot} that contains the heatmap graphic
 Produce a heatmap matrix of the calculated feature value vectors and each unique time series with automatic hierarchical clustering.
 }
 \examples{
-\donttest{
 featMat <- calculate_features(data = simData, 
   id_var = "id", 
   time_var = "timepoint", 
@@ -43,7 +42,6 @@ plot_feature_matrix(featMat,
   id_var = "id", 
   method = "MinMax",
   interactive = FALSE)
-}
 
 }
 \author{

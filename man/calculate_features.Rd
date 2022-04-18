@@ -42,14 +42,12 @@ object of class dataframe that contains the summary statistics for each feature
 Compute features on an input time series dataset
 }
 \examples{
-\donttest{
 featMat <- calculate_features(data = simData, 
   id_var = "id", 
   time_var = "timepoint", 
   values_var = "values", 
   group_var = "process", 
   feature_set = "catch22")
-}
 
 }
 \author{

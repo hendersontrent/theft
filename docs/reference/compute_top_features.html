@@ -120,13 +120,18 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># \donttest{</span></span>
 <span class="r-in"><span class="va">featMat</span> <span class="op">&lt;-</span> <span class="fu"><a href="calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, </span>
 <span class="r-in">  id_var <span class="op">=</span> <span class="st">"id"</span>, </span>
 <span class="r-in">  time_var <span class="op">=</span> <span class="st">"timepoint"</span>, </span>
 <span class="r-in">  values_var <span class="op">=</span> <span class="st">"values"</span>, </span>
 <span class="r-in">  group_var <span class="op">=</span> <span class="st">"process"</span>, </span>
 <span class="r-in">  feature_set <span class="op">=</span> <span class="st">"catch22"</span><span class="op">)</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> No argument supplied to seed, using 123 as default.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> No IDs removed. All value vectors good for feature extraction.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Running computations for catch22...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Calculations completed for catch22.</span>
 <span class="r-in">  </span>
 <span class="r-in"><span class="fu">compute_top_features</span><span class="op">(</span><span class="va">featMat</span>,</span>
 <span class="r-in">  id_var <span class="op">=</span> <span class="st">"id"</span>,</span>
@@ -136,7 +141,7 @@
 <span class="r-in">  method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,</span>
 <span class="r-in">  cor_method <span class="op">=</span> <span class="st">"pearson"</span>,</span>
 <span class="r-in">  test_method <span class="op">=</span> <span class="st">"gaussprRadial"</span>,</span>
-<span class="r-in">  use_balanced_accuracy <span class="op">=</span> <span class="va">use_balanced_accuracy</span>,</span>
+<span class="r-in">  use_balanced_accuracy <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span class="r-in">  use_k_fold <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span class="r-in">  num_folds <span class="op">=</span> <span class="fl">10</span>,</span>
 <span class="r-in">  use_empirical_null <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -145,7 +150,40 @@
 <span class="r-in">  num_permutations <span class="op">=</span> <span class="fl">100</span>,</span>
 <span class="r-in">  pool_empirical_null <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span class="r-in">  seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span> </span>
-<span class="r-in"><span class="op">}</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Null testing method 'model free shuffles' is very fast. Consider running more permutations for more reliable results. N = 10000 is recommended.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Not enough unique p-values to select top features informatively. Selecting top features using mean classification accuracy instead.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ResultsTable</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                         feature  accuracy p_value_accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      catch22_sp_summaries_welch_rect_area_5_1 0.9666667                0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      catch22_sp_summaries_welch_rect_centroid 0.8888889                0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3          catch22_fc_local_simple_mean3_stderr 0.8277778                0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4            catch22_sb_motif_three_quantile_hh 0.8000000                0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  catch22_co_embed2_dist_tau_d_expfit_meandiff 0.7444444                0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6             catch22_co_histogram_ami_even_2_5 0.7055556                0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7                       catch22_co_first_min_ac 0.7000000                0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8     catch22_sb_binary_stats_mean_longstretch1 0.6555556                0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9   catch22_sb_transition_matrix_3ac_sumdiagcov 0.6333333                0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10      catch22_fc_local_simple_mean1_tauresrat 0.6277778                0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    classifier_name               statistic_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9    gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10   gaussprRadial Mean classification accuracy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $FeatureFeatureCorrelationPlot</span>
+<span class="r-plt img"><img src="compute_top_features-1.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ViolinPlots</span>
+<span class="r-plt img"><img src="compute_top_features-2.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span class="co"># }</span></span>
 <span class="r-in"></span>
 </code></pre></div>
     </div>
