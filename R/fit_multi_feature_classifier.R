@@ -400,7 +400,7 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
       
       if(stats::sd(nulls_acc) == 0){
         p_value_acc <- NA
-        print("Insufficient variance to calculate p-value, returning NA.")
+        message("Insufficient variance to calculate p-value, returning NA.")
       } else{
         fn_acc <- stats::ecdf(nulls_acc)
         p_value_acc <- 1 - fn_acc(true_val_acc)
@@ -408,7 +408,7 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
       
       if(stats::sd(nulls_bal_acc) == 0){
         p_value_bal_acc <- NA
-        print("Insufficient variance to calculate p-value, returning NA.")
+        message("Insufficient variance to calculate p-value, returning NA.")
       } else{
         fn_bal_acc <- stats::ecdf(nulls_bal_acc)
         p_value_bal_acc <- 1 - fn_bal_acc(true_val_bal_acc)
@@ -420,7 +420,7 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
       
       if(stats::sd(nulls_acc) == 0){
         p_value_acc <- NA
-        print("Insufficient variance to calculate p-value, returning NA.")
+        message("Insufficient variance to calculate p-value, returning NA.")
       } else{
         p_value_acc <- stats::pnorm(true_val_acc, 
                                     mean = mean(nulls_acc),
@@ -430,7 +430,7 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
       
       if(stats::sd(nulls_bal_acc) == 0){
         p_value_bal_acc <- NA
-        print("Insufficient variance to calculate p-value, returning NA.")
+        message("Insufficient variance to calculate p-value, returning NA.")
       } else{
         p_value_bal_acc <- stats::pnorm(true_val_bal_acc, 
                                         mean = mean(nulls_bal_acc),
@@ -466,7 +466,7 @@ calculate_multivariable_statistics <- function(data, set = NULL, p_value_method,
     
     if(stats::sd(nulls) == 0){
       p_value <- NA
-      print("Insufficient variance to calculate p-value, returning NA.")
+      message("Insufficient variance to calculate p-value, returning NA.")
       
       tmp_outputs <- data.frame(accuracy = true_val,
                                 p_value_accuracy = p_value)
@@ -556,13 +556,14 @@ mywhere <- function(fn) {
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' featMat <- calculate_features(data = simData,
 #'   id_var = "id",
 #'   time_var = "timepoint",
 #'   values_var = "values",
 #'   group_var = "process",
-#'   feature_set = "catch22")
+#'   feature_set = "catch22",
+#'   seed = 123)
 #'
 #' fit_multi_feature_classifier(featMat,
 #'   id_var = "id",
@@ -574,8 +575,8 @@ mywhere <- function(fn) {
 #'   num_folds = 10,
 #'   use_empirical_null = TRUE,
 #'   null_testing_method = "model free shuffles",
-#'   p_value_method = "empirical",
-#'   num_permutations = 100,
+#'   p_value_method = "gaussian",
+#'   num_permutations = 50,
 #'   seed = 123)
 #' }
 #'
@@ -632,7 +633,7 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
   }
   
   if(null_testing_method == "model free shuffles" && num_permutations < 1000){
-    message("Null testing method 'model free shuffles' is very fast. Consider running more permutations for more reliable results. N = 10000 is recommended.")
+    message("Null testing method 'model free shuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.")
   }
   
   # p-value options

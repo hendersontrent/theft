@@ -20,16 +20,14 @@
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \dontrun{
-#' plot_ts_correlations(data = featMat, 
+#' plot_ts_correlations(data = simData, 
 #'   is_normalised = FALSE, 
 #'   id_var = "id", 
 #'   time_var = "timepoint",
 #'   values_var = "values",
 #'   method = "RobustSigmoid",
-#'   cor_method = "person",
+#'   cor_method = "pearson",
 #'   interactive = FALSE)
-#' }
 #'
 
 plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id", 

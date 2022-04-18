@@ -150,7 +150,7 @@ calculate_against_null_vector <- function(nulls, main_matrix, main_matrix_balanc
     
     if(stats::sd(nulls_acc) == 0){
       p_value_acc <- NA
-      print("Insufficient variance to calculate p-value, returning NA.")
+      message("Insufficient variance to calculate p-value, returning NA.")
       
     } else{
       
@@ -171,7 +171,7 @@ calculate_against_null_vector <- function(nulls, main_matrix, main_matrix_balanc
     
     if(stats::sd(nulls_bal_acc) == 0){
       p_value_bal_acc <- NA
-      print("Insufficient variance to calculate p-value, returning NA.")
+      message("Insufficient variance to calculate p-value, returning NA.")
       
     } else{
       
@@ -209,7 +209,7 @@ calculate_against_null_vector <- function(nulls, main_matrix, main_matrix_balanc
     
     if(stats::sd(nulls_acc) == 0){
       p_value_acc <- NA
-      print("Insufficient variance to calculate p-value, returning NA.")
+      message("Insufficient variance to calculate p-value, returning NA.")
       
     } else{
       
@@ -271,7 +271,7 @@ calculate_unpooled_null <- function(main_matrix, main_matrix_balanced = NULL, x,
     
     if(stats::sd(nulls_acc) == 0){
       p_value_acc <- NA
-      print("Insufficient variance to calculate p-value, returning NA.")
+      message("Insufficient variance to calculate p-value, returning NA.")
       
     } else{
       
@@ -292,7 +292,7 @@ calculate_unpooled_null <- function(main_matrix, main_matrix_balanced = NULL, x,
     
     if(stats::sd(nulls_bal_acc) == 0){
       p_value_bal_acc <- NA
-      print("Insufficient variance to calculate p-value, returning NA.")
+      message("Insufficient variance to calculate p-value, returning NA.")
       
     } else{
       
@@ -335,7 +335,7 @@ calculate_unpooled_null <- function(main_matrix, main_matrix_balanced = NULL, x,
     
     if(stats::sd(nulls_acc) == 0){
       p_value_acc <- NA
-      print("Insufficient variance to calculate p-value, returning NA.")
+      message("Insufficient variance to calculate p-value, returning NA.")
       
     } else{
       
@@ -424,24 +424,33 @@ mean_diff_calculator <- function(data, x, method){
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' featMat <- calculate_features(data = simData, 
 #'   id_var = "id", 
 #'   time_var = "timepoint", 
 #'   values_var = "values", 
 #'   group_var = "process", 
-#'   feature_set = "catch22")
+#'   feature_set = "catch22",
+#'   seed = 123)
+#'   
+#' # Mimic machinery of theft::compute_top_features
+#' # which calls fit_single_feature_classifier and
+#' # does these operations prior
+#'   
+#' featMat$group <- make.names(featMat$group)
+#' featMat$group <- as.factor(featMat$group)
+#' featMat$values <- as.numeric(featMat$values)
 #'   
 #' fit_single_feature_classifier(featMat,
 #'   id_var = "id",
 #'   group_var = "group",
-#'   test_method = "linear svm",
+#'   test_method = "gaussprRadial",
 #'   use_balanced_accuracy = FALSE,
 #'   use_k_fold = TRUE,
 #'   num_folds = 10,
 #'   use_empirical_null = TRUE,
 #'   null_testing_method = "model free shuffles",
-#'   p_value_method = "empirical",
+#'   p_value_method = "gaussian",
 #'   num_permutations = 50,
 #'   pool_empirical_null = FALSE,
 #'   seed = 123,
@@ -505,7 +514,7 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
   }
   
   if(null_testing_method == "model free shuffles" && num_permutations < 1000){
-    message("Null testing method 'model free shuffles' is very fast. Consider running more permutations for more reliable results. N = 10000 is recommended.")
+    message("Null testing method 'model free shuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.")
   }
   
   # p-value options

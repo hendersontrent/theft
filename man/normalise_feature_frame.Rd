@@ -27,19 +27,18 @@ a dataframe with the value column rescaled into the specified range
 Scale each feature vector into a user-specified range for visualisation and modelling
 }
 \examples{
-\dontrun{
 featMat <- calculate_features(data = simData, 
   id_var = "id", 
   time_var = "timepoint", 
   values_var = "values", 
   group_var = "process", 
-  feature_set = "catch22")
+  feature_set = "catch22",
+  seed = 123)
   
 normed <- normalise_feature_frame(featMat, 
   names_var = "names", 
   values_var = "values", 
   method = "RobustSigmoid")
-}
 
 }
 \author{

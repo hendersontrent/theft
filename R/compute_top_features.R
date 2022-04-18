@@ -153,13 +153,14 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' featMat <- calculate_features(data = simData, 
 #'   id_var = "id", 
 #'   time_var = "timepoint", 
 #'   values_var = "values", 
 #'   group_var = "process", 
-#'   feature_set = "catch22")
+#'   feature_set = "catch22",
+#'   seed = 123)
 #'   
 #' compute_top_features(featMat,
 #'   id_var = "id",
@@ -169,12 +170,12 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #'   method = "RobustSigmoid",
 #'   cor_method = "pearson",
 #'   test_method = "gaussprRadial",
-#'   use_balanced_accuracy = use_balanced_accuracy,
+#'   use_balanced_accuracy = FALSE,
 #'   use_k_fold = FALSE,
 #'   num_folds = 10,
 #'   use_empirical_null = TRUE,
 #'   null_testing_method = "model free shuffles",
-#'   p_value_method = "empirical",
+#'   p_value_method = "gaussian",
 #'   num_permutations = 100,
 #'   pool_empirical_null = FALSE,
 #'   seed = 123) 

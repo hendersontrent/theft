@@ -5,20 +5,16 @@
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \dontrun{
 #' featMat <- calculate_features(data = simData, 
 #'   id_var = "id", 
 #'   time_var = "timepoint", 
 #'   values_var = "values", 
 #'   group_var = "process", 
-#'   feature_set = "catch22")
+#'   feature_set = "catch22",
+#'   seed = 123)
 #'   
-#' x <- featMat %>%
-#'   filter(names == "DN_HistogramMode_5") %>%
-#'   pull(values)
-#'   
-#' xnormed <- normalise_feature_vector(x, method = "RobustSigmoid")
-#' }
+#' x <- featMat[featMat$names == "DN_HistogramMode_5", ]
+#' xnormed <- normalise_feature_vector(x$values, method = "RobustSigmoid")
 #'
 
 normalise_feature_vector <- function(x, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")){
@@ -81,20 +77,16 @@ normalise_feature_vector <- function(x, method = c("z-score", "Sigmoid", "Robust
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \dontrun{
 #' featMat <- calculate_features(data = simData, 
 #'   id_var = "id", 
 #'   time_var = "timepoint", 
 #'   values_var = "values", 
 #'   group_var = "process", 
-#'   feature_set = "catch22")
+#'   feature_set = "catch22",
+#'   seed = 123)
 #'   
-#' x <- featMat %>%
-#'   filter(names == "DN_HistogramMode_5") %>%
-#'   pull(values)
-#'   
-#' xnormed <- normalize_feature_vector(x, method = "RobustSigmoid")
-#' }
+#' x <- featMat[featMat$names == "DN_HistogramMode_5", ]
+#' xnormed <- normalise_feature_vector(x$values, method = "RobustSigmoid")
 #'
 
 normalize_feature_vector <- function(x, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")){

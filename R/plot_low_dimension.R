@@ -17,33 +17,36 @@
 #' @param perplexity the perplexity hyperparameter to use if t-SNE algorithm is selected. Defaults to \code{30}
 #' @param plot a Boolean as to whether a plot or model fit information should be returned. Defaults to \code{TRUE}
 #' @param show_covariance a Boolean as to whether covariance ellipses should be shown on the plot. Defaults to \code{FALSE}
+#' @param seed fixed number for R's random number generator to ensure reproducibility
 #' @return if \code{plot = TRUE}, returns an object of class \code{ggplot}, if \code{plot = FALSE} returns an object of class dataframe with PCA results
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' featMat <- calculate_features(data = simData, 
 #'   id_var = "id", 
 #'   time_var = "timepoint", 
 #'   values_var = "values", 
 #'   group_var = "process", 
-#'   feature_set = "catch22")
+#'   feature_set = "catch22",
+#'   seed = 123)
 #'
 #' plot_low_dimension(featMat, 
 #'   is_normalised = FALSE, 
 #'   id_var = "id", 
-#'   group_var = "State", 
+#'   group_var = "group", 
 #'   method = "RobustSigmoid", 
 #'   low_dim_method = "PCA", 
 #'   plot = TRUE,
-#'   show_covariance = TRUE)
+#'   show_covariance = TRUE,
+#'   seed = 123)
 #' }
 #'
 
 plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group_var = NULL, 
                                method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                low_dim_method = c("PCA", "t-SNE"), perplexity = 30, 
-                               plot = TRUE, show_covariance = FALSE){
+                               plot = TRUE, show_covariance = FALSE, seed = 123){
 
   # Make z-score the default
 
@@ -105,6 +108,13 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
   if(low_dim_method == "t-SNE" && !is.numeric(perplexity)){
     stop("perplexity should be an integer number, typically between 2 and 100.")
   }
+  
+  # Seed
+  
+  if(is.null(seed) || missing(seed)){
+    seed <- 123
+    message("No argument supplied to seed, using 123 as default.")
+  }
 
   #------------- Assign ID variable ---------------
 
@@ -149,7 +159,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
     
     # PCA calculation
     
-    set.seed(123)
+    set.seed(seed)
     
     fits <- dat_filtered %>%
       stats::prcomp(scale = FALSE)
@@ -181,7 +191,7 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
     
     # t-SNE calculation
     
-    set.seed(123)
+    set.seed(seed)
     
     tsneOut <- Rtsne::Rtsne(as.matrix(dat_filtered), perplexity = perplexity, max_iter = 5000, dims = 2,
                             check_duplicates = FALSE)

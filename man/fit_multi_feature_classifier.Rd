@@ -54,13 +54,14 @@ an object of class list containing dataframe summaries of the classification mod
 Fit a classifier to feature matrix using all features or all features by set
 }
 \examples{
-\dontrun{
+\donttest{
 featMat <- calculate_features(data = simData,
   id_var = "id",
   time_var = "timepoint",
   values_var = "values",
   group_var = "process",
-  feature_set = "catch22")
+  feature_set = "catch22",
+  seed = 123)
 
 fit_multi_feature_classifier(featMat,
   id_var = "id",
@@ -72,8 +73,8 @@ fit_multi_feature_classifier(featMat,
   num_folds = 10,
   use_empirical_null = TRUE,
   null_testing_method = "model free shuffles",
-  p_value_method = "empirical",
-  num_permutations = 100,
+  p_value_method = "gaussian",
+  num_permutations = 50,
   seed = 123)
 }
 

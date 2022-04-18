@@ -16,10 +16,7 @@ x a numeric vector, rescaled into z-scores
 This function rescales a vector of numerical values into z-scores
 }
 \examples{
-\dontrun{
-x <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
-outs <- zscore_scaler(x)
-}
+zscore_scaler(stats::rnorm(10))
 
 }
 \author{

@@ -1,10 +1,11 @@
 #' Communicate to R the correct Python version containing the relevant libraries for calculating features
 #' @importFrom reticulate use_python
 #' @param path_to_python a string specifying the filepath to the version of Python containing the relevant libraries for calculating features
+#' @return no return value; called for side effects
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' init_theft("~/opt/anaconda3/bin/python")
 #' }
 #' 

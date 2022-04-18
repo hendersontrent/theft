@@ -16,7 +16,7 @@ an object of class dataframe in tidy format
 Load in hctsa formatted MATLAB files of time series data into a tidy format ready for feature extraction
 }
 \examples{
-\dontrun{
+\donttest{
 myfile <- process_hctsa_file(
   "https://cloudstor.aarnet.edu.au/plus/s/6sRD6IPMJyZLNlN/download"
   )

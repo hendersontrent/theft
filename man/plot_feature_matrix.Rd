@@ -30,20 +30,19 @@ an object of class \code{ggplot} that contains the heatmap graphic
 Produce a heatmap matrix of the calculated feature value vectors and each unique time series with automatic hierarchical clustering.
 }
 \examples{
-\dontrun{
 featMat <- calculate_features(data = simData, 
   id_var = "id", 
   time_var = "timepoint", 
   values_var = "values", 
   group_var = "process", 
-  feature_set = "catch22")
+  feature_set = "catch22",
+  seed = 123)
 
 plot_feature_matrix(featMat, 
   is_normalised = FALSE, 
   id_var = "id", 
   method = "MinMax",
   interactive = FALSE)
-}
 
 }
 \author{

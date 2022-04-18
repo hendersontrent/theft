@@ -26,7 +26,7 @@ hctsa_iterator <- function(labels, keywords, timeSeriesData, x){
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' myfile <- process_hctsa_file(
 #'   "https://cloudstor.aarnet.edu.au/plus/s/6sRD6IPMJyZLNlN/download"
 #'   )

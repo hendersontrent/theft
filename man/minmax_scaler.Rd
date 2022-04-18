@@ -16,10 +16,7 @@ x a numeric vector, rescaled into the \code{[0,1]} unit interval
 This function rescales a vector of numerical values into the unit interval [0,1]
 }
 \examples{
-\dontrun{
-x <- 1 + 0.5 * 1:1000 + arima.sim(list(ma = 0.5), n = 1000)
-outs <- minmax_scaler(x)
-}
+minmax_scaler(stats::rnorm(10))
 
 }
 \author{
