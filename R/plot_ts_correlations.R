@@ -20,8 +20,8 @@
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \dontrun{
-#' plot_ts_correlations(data = featMat, 
+#' \donttest{
+#' plot_ts_correlations(data = simData, 
 #'   is_normalised = FALSE, 
 #'   id_var = "id", 
 #'   time_var = "timepoint",

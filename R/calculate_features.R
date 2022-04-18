@@ -299,11 +299,12 @@ calc_kats <- function(data){
 #' @param feature_set the set of time-series features to calculate. Defaults to \code{catch22}
 #' @param catch24 a Boolean specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}
 #' @param tsfresh_cleanup a Boolean specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}
+#' @param seed fixed number for R's random number generator to ensure reproducibility
 #' @return object of class dataframe that contains the summary statistics for each feature
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' featMat <- calculate_features(data = simData, 
 #'   id_var = "id", 
 #'   time_var = "timepoint", 
@@ -315,9 +316,7 @@ calc_kats <- function(data){
 
 calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var = NULL, group_var = NULL,
                                feature_set = c("catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel"), 
-                               catch24 = FALSE, tsfresh_cleanup = FALSE){
-  
-  set.seed(123)
+                               catch24 = FALSE, tsfresh_cleanup = FALSE, seed = 123){
   
   if(is.null(id_var) || is.null(time_var) || is.null(values_var)){
     stop("Input must be a dataframe with at least 3 columns: id, timepoint, value")
@@ -333,6 +332,13 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   if(is.null(feature_set)){
     feature_set <- "catch22"
     message("No feature set entered. Running catch22 by default.")
+  }
+  
+  # Seed
+  
+  if(is.null(seed) || missing(seed)){
+    seed <- 123
+    message("No argument supplied to seed, using 123 as default.")
   }
   
   #--------- Error catches ---------
@@ -385,7 +391,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   
   if(length(bad_list) > 0){
     for(b in bad_list){
-      print(paste0("Removed ID: ", b, " due to non-real values."))
+      message(paste0("Removed ID: ", b, " due to non-real values."))
     }
     message(paste0("Total IDs removed due to non-real values: ", bad_ids$id, " (", round(nrow(bad_ids) / (nrow(good_ids) + nrow(bad_ids)), digits = 2)*100, "%)"))
   } else{

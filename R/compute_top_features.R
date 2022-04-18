@@ -153,7 +153,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' featMat <- calculate_features(data = simData, 
 #'   id_var = "id", 
 #'   time_var = "timepoint", 

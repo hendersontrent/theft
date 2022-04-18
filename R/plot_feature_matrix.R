@@ -19,7 +19,7 @@
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' featMat <- calculate_features(data = simData, 
 #'   id_var = "id", 
 #'   time_var = "timepoint", 

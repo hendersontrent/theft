@@ -150,7 +150,7 @@ calculate_against_null_vector <- function(nulls, main_matrix, main_matrix_balanc
     
     if(stats::sd(nulls_acc) == 0){
       p_value_acc <- NA
-      print("Insufficient variance to calculate p-value, returning NA.")
+      message("Insufficient variance to calculate p-value, returning NA.")
       
     } else{
       
@@ -171,7 +171,7 @@ calculate_against_null_vector <- function(nulls, main_matrix, main_matrix_balanc
     
     if(stats::sd(nulls_bal_acc) == 0){
       p_value_bal_acc <- NA
-      print("Insufficient variance to calculate p-value, returning NA.")
+      message("Insufficient variance to calculate p-value, returning NA.")
       
     } else{
       
@@ -209,7 +209,7 @@ calculate_against_null_vector <- function(nulls, main_matrix, main_matrix_balanc
     
     if(stats::sd(nulls_acc) == 0){
       p_value_acc <- NA
-      print("Insufficient variance to calculate p-value, returning NA.")
+      message("Insufficient variance to calculate p-value, returning NA.")
       
     } else{
       
@@ -271,7 +271,7 @@ calculate_unpooled_null <- function(main_matrix, main_matrix_balanced = NULL, x,
     
     if(stats::sd(nulls_acc) == 0){
       p_value_acc <- NA
-      print("Insufficient variance to calculate p-value, returning NA.")
+      message("Insufficient variance to calculate p-value, returning NA.")
       
     } else{
       
@@ -292,7 +292,7 @@ calculate_unpooled_null <- function(main_matrix, main_matrix_balanced = NULL, x,
     
     if(stats::sd(nulls_bal_acc) == 0){
       p_value_bal_acc <- NA
-      print("Insufficient variance to calculate p-value, returning NA.")
+      message("Insufficient variance to calculate p-value, returning NA.")
       
     } else{
       
@@ -335,7 +335,7 @@ calculate_unpooled_null <- function(main_matrix, main_matrix_balanced = NULL, x,
     
     if(stats::sd(nulls_acc) == 0){
       p_value_acc <- NA
-      print("Insufficient variance to calculate p-value, returning NA.")
+      message("Insufficient variance to calculate p-value, returning NA.")
       
     } else{
       
@@ -424,7 +424,7 @@ mean_diff_calculator <- function(data, x, method){
 #' @author Trent Henderson
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' featMat <- calculate_features(data = simData, 
 #'   id_var = "id", 
 #'   time_var = "timepoint", 
