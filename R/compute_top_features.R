@@ -431,13 +431,13 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
         message("\nSelecting top features using mean balanced classification accuracy.")
         
         ResultsTable <- classifierOutputs %>%
-          dplyr::slice_max(.data$statistic_value, n = num_features)
+          dplyr::slice_max(.data$balanced_accuracy, n = num_features)
         
       } else{
         message("\nSelecting top features using mean classification accuracy.")
         
         ResultsTable <- classifierOutputs %>%
-          dplyr::slice_max(.data$statistic_value, n = num_features)
+          dplyr::slice_max(.data$accuracy, n = num_features)
       }
     } else{
       
