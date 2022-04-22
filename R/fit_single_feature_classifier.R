@@ -925,7 +925,6 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
     } else{
       
       feature_statistics <- output %>%
-        dplyr::rename(statistic_value = .data$statistic) %>%
         dplyr::mutate(classifier_name = classifier_name,
                       statistic_name = statistic_name)
     }
