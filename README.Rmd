@@ -4,6 +4,8 @@ output: rmarkdown::github_document
 
 # theft <img src="man/figures/logo.png" align="right" width="120" />
 
+[![CRAN version](http://www.r-pkg.org/badges/version/theft)](http://www.r-pkg.org/pkg/theft)
+[![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/theft)](http://www.r-pkg.org/pkg/theft)
 [![DOI](https://zenodo.org/badge/351259952.svg)](https://zenodo.org/badge/latestdoi/351259952)
 
 Tools for Handling Extraction of Features from Time series (theft)
@@ -15,7 +17,11 @@ comment = NA, fig.width = 12, fig.height = 8, cache = FALSE)
 
 ## Installation
 
-*Coming to CRAN soon... Stay posted!*
+You can install the stable version of `theft` from CRAN:
+
+```{r eval = FALSE}
+install.packages("theft")
+```
 
 You can install the development version of `theft` from GitHub using the following:
 

@@ -1,13 +1,21 @@
 
 # theft <img src="man/figures/logo.png" align="right" width="120" />
 
+[![CRAN
+version](http://www.r-pkg.org/badges/version/theft)](http://www.r-pkg.org/pkg/theft)
+[![CRAN RStudio mirror
+downloads](http://cranlogs.r-pkg.org/badges/theft)](http://www.r-pkg.org/pkg/theft)
 [![DOI](https://zenodo.org/badge/351259952.svg)](https://zenodo.org/badge/latestdoi/351259952)
 
 Tools for Handling Extraction of Features from Time series (theft)
 
 ## Installation
 
-*Coming to CRAN soon… Stay posted!*
+You can install the stable version of `theft` from CRAN:
+
+``` r
+install.packages("theft")
+```
 
 You can install the development version of `theft` from GitHub using the
 following:
@@ -78,7 +86,7 @@ not all functionality has been copied across to the webtool yet.
     To cite package 'theft' in publications use:
 
       Trent Henderson (2022). theft: Tools for Handling Extraction of
-      Features from Time Series. R package version 0.3.9.5.
+      Features from Time Series. R package version 0.3.9.6.
       https://hendersontrent.github.io/theft/
 
     A BibTeX entry for LaTeX users is
@@ -87,6 +95,6 @@ not all functionality has been copied across to the webtool yet.
         title = {theft: Tools for Handling Extraction of Features from Time Series},
         author = {Trent Henderson},
         year = {2022},
-        note = {R package version 0.3.9.5},
+        note = {R package version 0.3.9.6},
         url = {https://hendersontrent.github.io/theft/},
       }

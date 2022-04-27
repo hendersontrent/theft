@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9.6</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,7 +75,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Introduction to theft</h1>
                         <h4 data-toc-skip class="author">Trent Henderson</h4>
             
-            <h4 data-toc-skip class="date">2022-04-22</h4>
+            <h4 data-toc-skip class="date">2022-04-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/HEAD/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -306,6 +306,7 @@
 <li>
 <code>null model fits</code> – Generates <code>num_permutations</code> number of models that are trained and tested on data where the class label is shuffled. This method is slow but fits separate null models for each <code>num_permutations</code> shuffle</li>
 </ol>
+<p>We we only use <code>model free shuffles</code> throughout this tutorial to reduce computation time.</p>
 <p><code>p_value_method</code> also has two choices:</p>
 <ol style="list-style-type: decimal">
 <li>
@@ -330,20 +331,20 @@
                                 num_folds <span class="op">=</span> <span class="fl">10</span>,
                                 use_empirical_null <span class="op">=</span>  <span class="cn">TRUE</span>,
                                 null_testing_method <span class="op">=</span> <span class="st">"model free shuffles"</span>,
-                                p_value_method <span class="op">=</span> <span class="st">"empirical"</span>,
-                                num_permutations <span class="op">=</span> <span class="fl">1000</span>,
+                                p_value_method <span class="op">=</span> <span class="st">"gaussian"</span>,
+                                num_permutations <span class="op">=</span> <span class="fl">10</span>,
                                 pool_empirical_null <span class="op">=</span> <span class="cn">FALSE</span>,
                                 seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
 <p>Each component is named and can be accessed through regular use of the <code>$</code> operator or through list indexing (both return the same object). Here’s the top few rows:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">$</span><span class="va">ResultsTable</span><span class="op">)</span>
 <span class="co">#&gt;                                        feature  accuracy p_value_accuracy</span>
-<span class="co">#&gt; 1     catch22_sp_summaries_welch_rect_area_5_1 0.9500000                0</span>
-<span class="co">#&gt; 2     catch22_sp_summaries_welch_rect_centroid 0.8722222                0</span>
-<span class="co">#&gt; 3         catch22_fc_local_simple_mean3_stderr 0.8222222                0</span>
-<span class="co">#&gt; 4           catch22_sb_motif_three_quantile_hh 0.7777778                0</span>
-<span class="co">#&gt; 5 catch22_co_embed2_dist_tau_d_expfit_meandiff 0.6944444                0</span>
-<span class="co">#&gt; 6            catch22_co_histogram_ami_even_2_5 0.6722222                0</span>
+<span class="co">#&gt; 1     catch22_sp_summaries_welch_rect_area_5_1 0.9500000    3.583919e-134</span>
+<span class="co">#&gt; 2     catch22_sp_summaries_welch_rect_centroid 0.8722222    1.977506e-109</span>
+<span class="co">#&gt; 3         catch22_fc_local_simple_mean3_stderr 0.8222222     7.091601e-95</span>
+<span class="co">#&gt; 4           catch22_sb_motif_three_quantile_hh 0.7777778     7.962008e-83</span>
+<span class="co">#&gt; 5 catch22_co_embed2_dist_tau_d_expfit_meandiff 0.6944444     1.761311e-62</span>
+<span class="co">#&gt; 6            catch22_co_histogram_ami_even_2_5 0.6722222     1.499138e-57</span>
 <span class="co">#&gt;   classifier_name               statistic_name</span>
 <span class="co">#&gt; 1   gaussprRadial Mean classification accuracy</span>
 <span class="co">#&gt; 2   gaussprRadial Mean classification accuracy</span>
@@ -367,18 +368,10 @@
 <div class="section level3">
 <h3 id="multi-feature">Multi-feature<a class="anchor" aria-label="anchor" href="#multi-feature"></a>
 </h3>
-<p>A multi-feature option is also available. The <code>fit_multivariable_classifier</code> function fits all features at once instead of by individual features to estimate classification accuracy. This can be split by feature set (if the <code>by_set</code> argument is set to <code>TRUE</code>) to enable systematic comparisons between those made available in <code>theft</code>.</p>
-<p>First, let’s calculate features with more than one set – we’ll just use <code>catch22</code> and <code>feasts</code> as they are the fastest R-based feature sets in <code>theft</code>:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">feature_matrix2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, 
-                                      id_var <span class="op">=</span> <span class="st">"id"</span>, 
-                                      time_var <span class="op">=</span> <span class="st">"timepoint"</span>, 
-                                      values_var <span class="op">=</span> <span class="st">"values"</span>, 
-                                      group_var <span class="op">=</span> <span class="st">"process"</span>, 
-                                      feature_set <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"catch22"</span>, <span class="st">"feasts"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<p>A multi-feature option is also available. The <code>fit_multivariable_classifier</code> function fits all features at once instead of by individual features to estimate classification accuracy. This can be split by feature set (if the <code>by_set</code> argument is set to <code>TRUE</code>) to enable systematic comparisons between those made available in <code>theft</code>. To save computation time in this tutorial, we will only analyse <code>catch22</code> (with <code>by_set = TRUE</code> to demonstrate automated plotting functionality), but comparing multiple calculated feature sets is recommended in practice.</p>
 <p>Now we can use our multi-feature functionality (note the similarity in options to the single feature version we specified above):</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">multi_outputs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_multi_feature_classifier.html">fit_multi_feature_classifier</a></span><span class="op">(</span><span class="va">feature_matrix2</span>, 
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">multi_outputs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_multi_feature_classifier.html">fit_multi_feature_classifier</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
                                               id_var <span class="op">=</span> <span class="st">"id"</span>, 
                                               group_var <span class="op">=</span> <span class="st">"group"</span>, 
                                               by_set <span class="op">=</span> <span class="cn">TRUE</span>, 
@@ -387,7 +380,7 @@
                                               use_k_fold <span class="op">=</span> <span class="cn">TRUE</span>,
                                               num_folds <span class="op">=</span> <span class="fl">10</span>,
                                               use_empirical_null <span class="op">=</span>  <span class="cn">TRUE</span>,
-                                              null_testing_method <span class="op">=</span> <span class="st">"null model fits"</span>,
+                                              null_testing_method <span class="op">=</span> <span class="st">"model free shuffles"</span>,
                                               p_value_method <span class="op">=</span> <span class="st">"gaussian"</span>,
                                               num_permutations <span class="op">=</span> <span class="fl">10</span>,
                                               seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
@@ -401,38 +394,35 @@
 <code>RawClassificationResults</code> – a dataframe containing classification accuracies results from each main and null prediction</li>
 </ol>
 <p>Here’s the feature set comparison plot:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">FeatureSetResultsPlot</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-24-1.png" width="768" style="display: block; margin: auto;"></p>
+<p><img src="theft_files/figure-html/unnamed-chunk-23-1.png" width="768" style="display: block; margin: auto;"></p>
 <p>Here’s the test statistics summary:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">TestStatistics</span><span class="op">)</span>
 <span class="co">#&gt;    method  accuracy p_value_accuracy balanced_accuracy</span>
-<span class="co">#&gt; 1 catch22 0.6555556     1.320085e-21         0.5071429</span>
-<span class="co">#&gt; 2  feasts 0.7555556    1.324658e-177         0.6870040</span>
+<span class="co">#&gt; 1 catch22 0.6555556     5.452103e-54         0.5071429</span>
 <span class="co">#&gt;   p_value_balanced_accuracy classifier_name</span>
-<span class="co">#&gt; 1              3.068251e-08       svmLinear</span>
-<span class="co">#&gt; 2              4.600860e-86       svmLinear</span>
+<span class="co">#&gt; 1              1.904744e-27       svmLinear</span>
 <span class="co">#&gt;                                                      statistic_name</span>
-<span class="co">#&gt; 1 Mean classification accuracy and balanced classification accuracy</span>
-<span class="co">#&gt; 2 Mean classification accuracy and balanced classification accuracy</span></code></pre></div>
+<span class="co">#&gt; 1 Mean classification accuracy and balanced classification accuracy</span></code></pre></div>
 <p>And here’s the raw classifier results:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">RawClassificationResults</span><span class="op">)</span>
-<span class="co">#&gt;    accuracy accuracy_sd balanced_accuracy balanced_accuracy_sd category  method</span>
-<span class="co">#&gt; 1 0.6555556  0.04382281         0.5071429           0.06738091     Main catch22</span>
-<span class="co">#&gt; 2 0.2777778  0.10798059         0.2835185           0.15716018     Null catch22</span>
-<span class="co">#&gt; 3 0.1833333  0.05885277         0.1735065           0.10662566     Null catch22</span>
-<span class="co">#&gt; 4 0.1888889  0.10540926         0.1596429           0.12118208     Null catch22</span>
-<span class="co">#&gt; 5 0.2388889  0.08705674         0.2429563           0.12935024     Null catch22</span>
-<span class="co">#&gt; 6 0.1944444  0.10877167         0.1412981           0.08834743     Null catch22</span>
-<span class="co">#&gt;   num_features_used classifier_name</span>
-<span class="co">#&gt; 1                22       svmLinear</span>
-<span class="co">#&gt; 2                22       svmLinear</span>
-<span class="co">#&gt; 3                22       svmLinear</span>
-<span class="co">#&gt; 4                22       svmLinear</span>
-<span class="co">#&gt; 5                22       svmLinear</span>
-<span class="co">#&gt; 6                22       svmLinear</span>
+<span class="co">#&gt;    accuracy accuracy_sd balanced_accuracy balanced_accuracy_sd category</span>
+<span class="co">#&gt; 1 0.6555556  0.04382281         0.5071429           0.06738091     Main</span>
+<span class="co">#&gt; 2 0.1222222          NA         0.1222222                   NA     Null</span>
+<span class="co">#&gt; 3 0.2277778          NA         0.2277778                   NA     Null</span>
+<span class="co">#&gt; 4 0.1444444          NA         0.1444444                   NA     Null</span>
+<span class="co">#&gt; 5 0.1444444          NA         0.1444444                   NA     Null</span>
+<span class="co">#&gt; 6 0.1444444          NA         0.1444444                   NA     Null</span>
+<span class="co">#&gt;                method num_features_used classifier_name</span>
+<span class="co">#&gt; 1             catch22                22       svmLinear</span>
+<span class="co">#&gt; 2 model free shuffles                NA       svmLinear</span>
+<span class="co">#&gt; 3 model free shuffles                NA       svmLinear</span>
+<span class="co">#&gt; 4 model free shuffles                NA       svmLinear</span>
+<span class="co">#&gt; 5 model free shuffles                NA       svmLinear</span>
+<span class="co">#&gt; 6 model free shuffles                NA       svmLinear</span>
 <span class="co">#&gt;                                                      statistic_name</span>
 <span class="co">#&gt; 1 Mean classification accuracy and balanced classification accuracy</span>
 <span class="co">#&gt; 2 Mean classification accuracy and balanced classification accuracy</span>
@@ -447,7 +437,7 @@
 <h2 id="reading-and-processing-hctsa-formatted-files">Reading and processing hctsa-formatted files<a class="anchor" aria-label="anchor" href="#reading-and-processing-hctsa-formatted-files"></a>
 </h2>
 <p>As <code>theft</code> is based on the foundations laid by <a href="https://github.com/benfulcher/hctsa" class="external-link"><code>hctsa</code></a>, there is also functionality for reading in <code>hctsa</code>-formatted Matlab files and automatically processing them into tidy dataframes ready for feature extraction in <code>theft</code>. The <code>process_hctsa_file</code> function takes a string filepath to the Matlab file and does all the work for you, returning a dataframe with naming conventions consistent with other <code>theft</code> functionality. As per <code>hctsa</code> specifications for <a href="https://hctsa-users.gitbook.io/hctsa-manual/calculating/input_files" class="external-link">Input File Format 1</a>, this file should have 3 variables with the following exact names: <code>timeSeriesData</code>, <code>labels</code>, and <code>keywords</code>. Here is an example using the <a href="https://journals.aps.org/pre/abstract/10.1103/PhysRevE.64.061907" class="external-link">Bonn University EEG dataset</a><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Andrzejak, Ralph G., et al. (2001) “Indications of nonlinear deterministic and finite-dimensional structures in time series of brain electrical activity: Dependence on recording region and brain state.” Physical Review E 64(6): 061907&lt;/p&gt;"><sup>3</sup></a>.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">d2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/process_hctsa_file.html">process_hctsa_file</a></span><span class="op">(</span><span class="st">"https://cloudstor.aarnet.edu.au/plus/s/6sRD6IPMJyZLNlN/download"</span><span class="op">)</span></code></pre></div>
 </div>
 

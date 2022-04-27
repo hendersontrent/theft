@@ -386,7 +386,7 @@ mean_diff_calculator <- function(data, x, method){
   if(method == "t-test"){
     results <- stats::t.test(formula = stats::formula(paste0(colnames(data[x]), " ~ group")), data = data)
   } else{
-    results <- stats::t.test(formula = stats::formula(paste0(colnames(data[x]), " ~ group")), data = data)
+    results <- stats::wilcox.test(formula = stats::formula(paste0(colnames(data[x]), " ~ group")), data = data)
   }
   
   results <- data.frame(feature = results$data.name, 
@@ -474,15 +474,15 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
   '%ni%' <- Negate('%in%')
   
   if(expected_cols_1 %ni% the_cols){
-    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by calculate_features(). Please consider running this first and then passing the resultant dataframe in to this function.")
+    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by theft::calculate_features(). Please consider running this first and then passing the resultant dataframe to this function.")
   }
   
   if(expected_cols_2 %ni% the_cols){
-    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by calculate_features(). Please consider running this first and then passing the resultant dataframe in to this function.")
+    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by theft::calculate_features(). Please consider running this first and then passing the resultant dataframe to this function.")
   }
   
   if(expected_cols_3 %ni% the_cols){
-    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by calculate_features(). Please consider running this first and then passing the resultant dataframe in to this function.")
+    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by theft::calculate_features(). Please consider running this first and then passing the resultant dataframe to this function.")
   }
   
   if(!is.numeric(data$values)){
