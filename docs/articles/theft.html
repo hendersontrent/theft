@@ -75,7 +75,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Introduction to theft</h1>
                         <h4 data-toc-skip class="author">Trent Henderson</h4>
             
-            <h4 data-toc-skip class="date">2022-04-27</h4>
+            <h4 data-toc-skip class="date">2022-05-03</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/HEAD/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -401,16 +401,16 @@
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">TestStatistics</span><span class="op">)</span>
 <span class="co">#&gt;    method  accuracy p_value_accuracy balanced_accuracy</span>
-<span class="co">#&gt; 1 catch22 0.6555556     5.452103e-54         0.5071429</span>
+<span class="co">#&gt; 1 catch22 0.6555556     5.452103e-54         0.6555556</span>
 <span class="co">#&gt;   p_value_balanced_accuracy classifier_name</span>
-<span class="co">#&gt; 1              1.904744e-27       svmLinear</span>
+<span class="co">#&gt; 1              5.452103e-54       svmLinear</span>
 <span class="co">#&gt;                                                      statistic_name</span>
 <span class="co">#&gt; 1 Mean classification accuracy and balanced classification accuracy</span></code></pre></div>
 <p>And here’s the raw classifier results:</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">RawClassificationResults</span><span class="op">)</span>
 <span class="co">#&gt;    accuracy accuracy_sd balanced_accuracy balanced_accuracy_sd category</span>
-<span class="co">#&gt; 1 0.6555556  0.04382281         0.5071429           0.06738091     Main</span>
+<span class="co">#&gt; 1 0.6555556  0.04382281         0.6555556           0.04382281     Main</span>
 <span class="co">#&gt; 2 0.1222222          NA         0.1222222                   NA     Null</span>
 <span class="co">#&gt; 3 0.2277778          NA         0.2277778                   NA     Null</span>
 <span class="co">#&gt; 4 0.1444444          NA         0.1444444                   NA     Null</span>
