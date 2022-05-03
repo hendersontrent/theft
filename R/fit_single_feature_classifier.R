@@ -63,7 +63,7 @@ fit_single_feature_models <- function(data, test_method, use_balanced_accuracy, 
     
     u <- dplyr::union(predict(mod, newdata = tmp), tmp$group)
     mytable <- table(factor(predict(mod, newdata = tmp), u), factor(tmp$group, u))
-    cm <- as.matrix(caret::confusionMatrix(mytable)$table)
+    cm <- t(as.matrix(caret::confusionMatrix(mytable)$table)) # Transpose as {caret} has reversed format
     
     if(use_balanced_accuracy){
       
