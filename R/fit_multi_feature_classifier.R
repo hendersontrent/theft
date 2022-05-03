@@ -48,7 +48,7 @@ calculate_accuracy <- function(x, seed, use_balanced_accuracy, pb){
   y <- sample(x, replace = FALSE)
   u <- dplyr::union(y, x)
   mytable <- table(factor(y, u), factor(x, u))
-  cm <- as.matrix(caret::confusionMatrix(mytable)$table)
+  cm <- t(as.matrix(caret::confusionMatrix(mytable)$table)) # Transpose as {caret} has reversed format
   
   if(use_balanced_accuracy){
     
@@ -155,7 +155,7 @@ fit_empirical_null_models <- function(data, s, test_method, theControl, pb = NUL
     
     u <- dplyr::union(predict(modNull, newdata = shuffledtest), shuffledtest$group)
     mytable <- table(factor(stats::predict(modNull, newdata = shuffledtest), u), factor(shuffledtest$group, u))
-    cm <- as.matrix(caret::confusionMatrix(mytable)$table)
+    cm <- t(as.matrix(caret::confusionMatrix(mytable)$table)) # Transpose as {caret} has reversed format
     
     if(use_balanced_accuracy){
       
@@ -195,7 +195,7 @@ calculate_balanced_accuracy <- function(data, lev = NULL, model = NULL) {
   
   # Calculate balanced accuracy from confusion matrix as the average of class recalls as per https://arxiv.org/pdf/2008.05756.pdf
   
-  cm <- as.matrix(caret::confusionMatrix(data$pred, data$obs)$table)
+  cm <- t(as.matrix(caret::confusionMatrix(data$pred, data$obs)$table))
   
   recall <- 1:nrow(cm) %>%
     purrr::map(~ calculate_recall(cm, x = .x)) %>%
@@ -290,7 +290,7 @@ fit_multi_feature_models <- function(data, test_method, use_balanced_accuracy, u
     
     u <- dplyr::union(predict(mod, newdata = tmp), tmp$group)
     mytable <- table(factor(stats::predict(mod, newdata = tmp), u), factor(tmp$group, u))
-    cm <- as.matrix(caret::confusionMatrix(mytable)$table)
+    cm <- t(as.matrix(caret::confusionMatrix(mytable)$table))
     
     if(use_balanced_accuracy){
       
