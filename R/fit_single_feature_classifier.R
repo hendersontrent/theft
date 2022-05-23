@@ -405,6 +405,8 @@ mean_diff_calculator <- function(data, x, method){
 
 clean_by_feature <- function(data, x){
   
+  themethod <- names(data[x])
+  
   tmp_cleaner <- data %>%
     dplyr::select(c(.data$id, .data$group, dplyr::all_of(x)))
   
