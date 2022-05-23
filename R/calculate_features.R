@@ -208,7 +208,7 @@ calc_tsfel <- function(data){
       tibble::as_tibble() %>%
       dplyr::group_by(.data$id, .data$group) %>%
       dplyr::arrange(.data$timepoint) %>%
-      dplyr::summarise(TSFEL_calculator(.data$values)) %>%
+      dplyr::summarise(tsfel_calculator(.data$values)) %>%
       dplyr::ungroup() %>%
       tidyr::gather("names", "values", -c(.data$id, .data$group)) %>%
       dplyr::mutate(method = "TSFEL")
@@ -217,7 +217,7 @@ calc_tsfel <- function(data){
       tibble::as_tibble() %>%
       dplyr::group_by(.data$id) %>%
       dplyr::arrange(.data$timepoint) %>%
-      dplyr::summarise(TSFEL_calculator(.data$values)) %>%
+      dplyr::summarise(tsfel_calculator(.data$values)) %>%
       dplyr::ungroup() %>%
       tidyr::gather("names", "values", -c(.data$id)) %>%
       dplyr::mutate(method = "TSFEL")
@@ -253,7 +253,7 @@ calc_kats <- function(data){
       dplyr::select(-c(.data$timepoint)) %>%
       dplyr::group_by(.data$id, .data$group) %>%
       dplyr::arrange(.data$time) %>%
-      dplyr::summarise(results = list(Kats_calculator(timepoints = .data$time, values = .data$values))) %>%
+      dplyr::summarise(results = list(kats_calculator(timepoints = .data$time, values = .data$values))) %>%
       tidyr::unnest_wider(.data$results) %>%
       dplyr::ungroup() %>%
       tidyr::gather("names", "values", -c(.data$id, .data$group)) %>%
@@ -264,7 +264,7 @@ calc_kats <- function(data){
       dplyr::select(-c(.data$timepoint)) %>%
       dplyr::group_by(.data$id) %>%
       dplyr::arrange(.data$time) %>%
-      dplyr::summarise(results = list(Kats_calculator(timepoints = .data$time, values = .data$values))) %>%
+      dplyr::summarise(results = list(kats_calculator(timepoints = .data$time, values = .data$values))) %>%
       tidyr::unnest_wider(.data$results) %>%
       dplyr::ungroup() %>%
       tidyr::gather("names", "values", -c(.data$id)) %>%
