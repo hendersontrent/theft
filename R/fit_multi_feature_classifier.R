@@ -527,6 +527,66 @@ mywhere <- function(fn) {
   }
 }
 
+#------------------------------
+# Pre-processing by feature set
+#------------------------------
+
+clean_by_set <- function(data, themethod = NULL){
+  
+  if(is.null(themethod)){
+    tmp_cleaner <- data
+    themethod <- "matrix of all features"
+  } else{
+    tmp_cleaner <- data %>%
+      dplyr::filter(.data$method == themethod)
+  }
+  
+  # Widening for model matrix
+  
+  tmp_cleaner <- tmp_cleaner %>%
+    dplyr::mutate(names = paste0(.data$method, "_", .data$names)) %>%
+    dplyr::select(-c(.data$method)) %>%
+    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
+  
+  ncols <- ncol(tmp_cleaner)
+  
+  # Delete features that are all NaNs and features with constant values
+  
+  tmp_cleaner <- tmp_cleaner %>%
+    dplyr::select_if(~sum(!is.na(.)) > 0) %>%
+    dplyr::select(mywhere(~dplyr::n_distinct(.) > 1))
+  
+  if(ncol(tmp_cleaner) < ncols){
+    message(paste0("Dropped ", ncols - ncol(tmp_cleaner), "/", ncol(tmp_cleaner), " features from ", themethod, " due to containing NAs or only a constant."))
+  }
+  
+  # Check NAs
+  
+  nrows <- nrow(tmp_cleaner)
+  
+  tmp_cleaner <- tmp_cleaner %>%
+    tidyr::drop_na()
+  
+  if(nrow(tmp_cleaner) < nrows){
+    message(paste0("Dropped ", nrows - nrow(tmp_cleaner), " unique IDs due to NA values."))
+  }
+  
+  # Clean up column (feature) names so models fit properly (mainly an issue with SVM formula) and re-join set labels
+  # and prep factor levels as names for {caret} if the 3 base two-class options aren't being used
+  
+  tmp_cleaner <- tmp_cleaner %>%
+    janitor::clean_names() %>%
+    tidyr::pivot_longer(cols = 3:ncol(tmp_cleaner), names_to = "names", values_to = "values") %>%
+    dplyr::mutate(method = gsub("_.*", "\\1", .data$names)) %>%
+    dplyr::mutate(group = as.factor(.data$group)) %>%
+    dplyr::mutate(group = as.integer(group),
+                  group = paste0("Group_", group),
+                  group = make.names(.data$group),
+                  group = as.factor(.data$group))
+  
+  return(tmp_cleaner)
+}
+
 #---------------- Main function ----------------
 
 #' Fit a classifier to feature matrix using all features or all features by set
@@ -710,45 +770,18 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
   
   #------------- Preprocess data --------------
   
-  # Widening for model matrix
+  # NOTE: This performs NA checking and filtering by feature set to maximise features and IDs for each if `by_set = TRUE`
   
-  data_id <- data_id %>%
-    dplyr::mutate(names = paste0(.data$method, "_", .data$names)) %>%
-    dplyr::select(-c(.data$method)) %>%
-    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
-  
-  ncols <- ncol(data_id)
-  
-  # Delete features that are all NaNs and features with constant values
-  
-  data_id <- data_id %>%
-    dplyr::select_if(~sum(!is.na(.)) > 0) %>%
-    dplyr::select(mywhere(~dplyr::n_distinct(.) > 1))
-  
-  if(ncol(data_id) < ncols){
-    message(paste0("Dropped ", ncols - ncol(data_id), " features due to containing NAs or only a constant."))
+  if(by_set){
+    
+    message("Assessing feature values and unique IDs for NAs by individual set.")
+    
+    data_id <- unique(data_id$method) %>%
+      purrr::map_df(~ clean_by_set(data = data_id, themethod = .x))
+  } else{
+    message("Assessing feature values and unique IDs for NAs using matrix of all features.")
+    data_id <- clean_by_set(data = data_id, themethod = NULL)
   }
-  
-  # Check NAs
-  
-  nrows <- nrow(data_id)
-  
-  data_id <- data_id %>%
-    tidyr::drop_na()
-  
-  if(nrow(data_id) < nrows){
-    message(paste0("Dropped ", nrows - nrow(data_id), " unique IDs due to NA values."))
-  }
-  
-  # Clean up column (feature) names so models fit properly (mainly an issue with SVM formula) and re-join set labels
-  # and prep factor levels as names for {caret} if the 3 base two-class options aren't being used
-  
-  data_id <- data_id %>%
-    janitor::clean_names() %>%
-    tidyr::pivot_longer(cols = 3:ncol(data_id), names_to = "names", values_to = "values") %>%
-    dplyr::mutate(method = gsub("_.*", "\\1", .data$names)) %>%
-    dplyr::mutate(group = make.names(.data$group),
-                  group = as.factor(.data$group))
   
   #------------- Fit models -------------------
   

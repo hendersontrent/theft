@@ -10,10 +10,10 @@ fit_single_feature_models <- function(data, test_method, use_balanced_accuracy, 
   
   pb$tick()$print()
   
-  tmp <- data %>%
-    dplyr::select(c(.data$group, dplyr::all_of(feature)))
-  
   set.seed(seed)
+  
+  tmp <- clean_by_feature(data = data, x = feature) %>%
+    dplyr::select(-c(id))
   
   if(use_k_fold){
     
@@ -97,12 +97,12 @@ fit_single_feature_models <- function(data, test_method, use_balanced_accuracy, 
       
       nullOuts <- 1:num_permutations %>%
         purrr::map_df( ~ fit_empirical_null_models(data = tmp, 
-                                                s = .x,
-                                                test_method = test_method,
-                                                theControl = fitControl,
-                                                pb = NULL,
-                                                univariable = TRUE,
-                                                use_balanced_accuracy = use_balanced_accuracy)) %>%
+                                                   s = .x,
+                                                   test_method = test_method,
+                                                   theControl = fitControl,
+                                                   pb = NULL,
+                                                   univariable = TRUE,
+                                                   use_balanced_accuracy = use_balanced_accuracy)) %>%
         dplyr::mutate(category = "Null")
       
       finalOuts <- dplyr::bind_rows(mainOuts, nullOuts)
@@ -368,7 +368,9 @@ calculate_unpooled_null <- function(main_matrix, main_matrix_balanced = NULL, x,
 
 gather_binomial_info <- function(data, x){
   
-  mod <- stats::glm(formula = stats::formula(paste0("group ~ ", colnames(data[x]))), data = data, family = stats::binomial())
+  tmp <- clean_by_feature(data = data, x = x)
+  
+  mod <- stats::glm(formula = stats::formula(paste0("group ~ ", colnames(tmp[3]))), data = tmp, family = stats::binomial())
   
   tmp <- data.frame(feature = as.character(mod$terms[[3]]),
                     statistic_value = as.numeric(summary(mod)$coefficients[,3][2]),
@@ -377,22 +379,59 @@ gather_binomial_info <- function(data, x){
   return(tmp)
 }
 
-#-----------------------------
-# t-test and wilcox extraction
-#-----------------------------
+#------------------------------
+# t-test and wilcox comparisons
+#------------------------------
 
 mean_diff_calculator <- function(data, x, method){
   
+  tmp <- clean_by_feature(data = data, x = x)
+  
   if(method == "t-test"){
-    results <- stats::t.test(formula = stats::formula(paste0(colnames(data[x]), " ~ group")), data = data)
+    results <- stats::t.test(formula = stats::formula(paste0(colnames(tmp[3]), " ~ group")), data = tmp)
   } else{
-    results <- stats::wilcox.test(formula = stats::formula(paste0(colnames(data[x]), " ~ group")), data = data)
+    results <- stats::wilcox.test(formula = stats::formula(paste0(colnames(tmp[3]), " ~ group")), data = tmp)
   }
   
   results <- data.frame(feature = results$data.name, 
                         statistic_value = results$statistic, 
                         p_value = results$p.value)
   return(results)
+}
+
+#--------------------
+# Cleaning by feature
+#--------------------
+
+clean_by_feature <- function(data, x){
+  
+  tmp_cleaner <- data %>%
+    dplyr::select(c(id, group, dplyr::all_of(x)))
+  
+  ncols <- ncol(tmp_cleaner)
+  
+  # Delete features that are all NaNs and features with constant values
+  
+  tmp_cleaner <- tmp_cleaner %>%
+    dplyr::select_if(~sum(!is.na(.)) > 0) %>%
+    dplyr::select(mywhere(~dplyr::n_distinct(.) > 1))
+  
+  if(ncol(tmp_cleaner) < ncols){
+    message(paste0("Dropped ", ncols - ncol(tmp_cleaner), "/", ncol(tmp_cleaner), " features from ", themethod, " due to containing NAs or only a constant."))
+  }
+  
+  # Check NAs
+  
+  nrows <- nrow(tmp_cleaner)
+  
+  tmp_cleaner <- tmp_cleaner %>%
+    tidyr::drop_na()
+  
+  if(nrow(tmp_cleaner) < nrows){
+    message(paste0("Dropped ", nrows - nrow(tmp_cleaner), " unique IDs due to NA values."))
+  }
+  
+  return(tmp_cleaner)
 }
 
 #-------------- Main exported function ---------------
@@ -592,34 +631,7 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
   data_id <- data_id %>%
     dplyr::mutate(names = paste0(.data$method, "_", .data$names)) %>%
     dplyr::select(-c(.data$method)) %>%
-    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values")
-  
-  ncols <- ncol(data_id)
-  
-  # Delete features that are all NaNs and features with constant values
-  
-  data_id <- data_id %>%
-    dplyr::select_if(~sum(!is.na(.)) > 0) %>%
-    dplyr::select(mywhere(~dplyr::n_distinct(.) > 1))
-  
-  if(ncol(data_id) < ncols){
-    message(paste0("Dropped ", ncols - ncol(data_id), " features due to containing all NAs or only a constant."))
-  }
-  
-  # Check NAs
-  
-  nrows <- nrow(data_id)
-  
-  data_id <- data_id %>%
-    tidyr::drop_na()
-  
-  if(nrow(data_id) < nrows){
-    message(paste0("Dropped ", nrows - nrow(data_id), " unique IDs due to NA values."))
-  }
-  
-  # Clean up column (feature) names so models fit properly (mainly an issue with SVM formula)
-  
-  data_id <- data_id %>%
+    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
     janitor::clean_names()
   
   #------------- Fit classifiers -------------
@@ -657,8 +669,10 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
   
   if(test_method == "t-test"){
     
+    mean_diff_calculator_safe <- purrr::possibly(mean_diff_calculator, otherwise = NULL)
+    
     output <- 3:ncol(data_id) %>%
-      purrr::map_df(~ mean_diff_calculator(data = data_id, x = .x, method = test_method)) %>%
+      purrr::map_df(~ mean_diff_calculator_safe(data = data_id, x = .x, method = test_method)) %>%
       dplyr::distinct() %>%
       dplyr::mutate(feature = gsub(" .*", "\\1", .data$feature),
                     classifier_name = classifier_name,
@@ -668,8 +682,10 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
     
   } else if (test_method == "wilcox"){
     
+    mean_diff_calculator_safe <- purrr::possibly(mean_diff_calculator, otherwise = NULL)
+    
     output <- 3:ncol(data_id) %>%
-      purrr::map_df(~ mean_diff_calculator(data = data_id, x = .x, method = test_method)) %>%
+      purrr::map_df(~ mean_diff_calculator_safe(data = data_id, x = .x, method = test_method)) %>%
       dplyr::distinct() %>%
       dplyr::mutate(feature = gsub(" .*", "\\1", .data$feature),
                     classifier_name = classifier_name,
@@ -679,11 +695,13 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
     
   } else if (test_method == "binomial logistic"){
     
+    gather_binomial_info_safe <- purrr::possibly(gather_binomial_info, otherwise = NULL)
+    
     data_id <- data_id %>%
       dplyr::mutate(group = as.factor(.data$group))
     
     output <- 3:ncol(data_id) %>%
-      purrr::map_df(~ gather_binomial_info(data_id, .x)) %>%
+      purrr::map_df(~ gather_binomial_info_safe(data_id, .x)) %>%
       dplyr::mutate(classifier_name = classifier_name,
                     statistic_name = statistic_name)
     
@@ -720,6 +738,11 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
     
     output <- output[!sapply(output, is.null)]
     output <- do.call(rbind, output)
+    
+    if(nrow(output) < (ncol(data_id) - 2)){
+      difference <- (ncol(data_id) - 2) - nrow(output)
+      message(paste0(difference, " features failed due to NAs or other errors."))
+    }
     
     # Run nulls if random shuffles are to be used
     

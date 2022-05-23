@@ -208,7 +208,7 @@ calc_tsfel <- function(data){
       tibble::as_tibble() %>%
       dplyr::group_by(.data$id, .data$group) %>%
       dplyr::arrange(.data$timepoint) %>%
-      dplyr::summarise(tsfel_calculator(.data$values)) %>%
+      dplyr::summarise(TSFEL_calculator(.data$values)) %>%
       dplyr::ungroup() %>%
       tidyr::gather("names", "values", -c(.data$id, .data$group)) %>%
       dplyr::mutate(method = "TSFEL")
@@ -217,7 +217,7 @@ calc_tsfel <- function(data){
       tibble::as_tibble() %>%
       dplyr::group_by(.data$id) %>%
       dplyr::arrange(.data$timepoint) %>%
-      dplyr::summarise(tsfel_calculator(.data$values)) %>%
+      dplyr::summarise(TSFEL_calculator(.data$values)) %>%
       dplyr::ungroup() %>%
       tidyr::gather("names", "values", -c(.data$id)) %>%
       dplyr::mutate(method = "TSFEL")
@@ -253,7 +253,7 @@ calc_kats <- function(data){
       dplyr::select(-c(.data$timepoint)) %>%
       dplyr::group_by(.data$id, .data$group) %>%
       dplyr::arrange(.data$time) %>%
-      dplyr::summarise(results = list(kats_calculator(timepoints = .data$time, values = .data$values))) %>%
+      dplyr::summarise(results = list(Kats_calculator(timepoints = .data$time, values = .data$values))) %>%
       tidyr::unnest_wider(.data$results) %>%
       dplyr::ungroup() %>%
       tidyr::gather("names", "values", -c(.data$id, .data$group)) %>%
@@ -264,7 +264,7 @@ calc_kats <- function(data){
       dplyr::select(-c(.data$timepoint)) %>%
       dplyr::group_by(.data$id) %>%
       dplyr::arrange(.data$time) %>%
-      dplyr::summarise(results = list(kats_calculator(timepoints = .data$time, values = .data$values))) %>%
+      dplyr::summarise(results = list(Kats_calculator(timepoints = .data$time, values = .data$values))) %>%
       tidyr::unnest_wider(.data$results) %>%
       dplyr::ungroup() %>%
       tidyr::gather("names", "values", -c(.data$id)) %>%
@@ -314,7 +314,7 @@ calc_kats <- function(data){
 #'
 
 calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var = NULL, group_var = NULL,
-                               feature_set = c("catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel"), 
+                               feature_set = c("catch22", "feasts", "tsfeatures", "Kats", "tsfresh", "TSFEL"), 
                                catch24 = FALSE, tsfresh_cleanup = FALSE, seed = 123){
   
   if(is.null(id_var) || is.null(time_var) || is.null(values_var)){
@@ -346,13 +346,18 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   # Method selection
   #-----------------
   
+  # Recode deprecated lower case from v0.3.5
+  
+  feature_set <- replace(feature_set, feature_set == "kats", "Kats")
+  feature_set <- replace(feature_set, feature_set == "tsfel", "TSFEL")
+  
   # Check incorrect specifications
   
-  the_sets <- c("catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel")
+  the_sets <- c("catch22", "feasts", "tsfeatures", "Kats", "tsfresh", "TSFEL")
   '%ni%' <- Negate('%in%')
   
   if(length(base::setdiff(feature_set, the_sets)) != 0){
-    stop("feature_set should be a single string specification or vector of 'catch22', 'feasts', 'tsfeatures', 'kats', 'tsfresh' or 'tsfel'.")
+    stop("feature_set should be a single string specification or vector of 'all', 'catch22', 'feasts', 'tsfeatures', 'Kats', 'tsfresh' or 'TSFEL'.")
   }
   
   if(!is.null(group_var) && !is.character(group_var)){
@@ -438,17 +443,17 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     tmp_tsfresh <- calc_tsfresh(data = data_re, column_id = "id", column_sort = "timepoint", cleanup = cleanuper)
   }
   
-  if("tsfel" %in% feature_set){
+  if("TSFEL" %in% feature_set){
     
-    message("'tsfel' requires a Python installation and the 'tsfel' Python package to also be installed. Please ensure you have this working (see https://tsfel.readthedocs.io/en/latest/ for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(path_to_python) where path_to_python is a string specifying the location of Python with the installed libraries on your machine.")
-    message("\nRunning computations for tsfel...")
+    message("'TSFEL' requires a Python installation and the 'TSFEL' Python package to also be installed. Please ensure you have this working (see https://TSFEL.readthedocs.io/en/latest/ for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(path_to_python) where path_to_python is a string specifying the location of Python with the installed libraries on your machine.")
+    message("\nRunning computations for TSFEL...")
     tmp_tsfel <- calc_tsfel(data = data_re)
   }
   
-  if("kats" %in% feature_set){
+  if("Kats" %in% feature_set){
     
-    message("'kats' requires a Python installation and the 'kats' Python package to also be installed. Please ensure you have this working (see https://facebookresearch.github.io/Kats/ for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(path_to_python) where path_to_python is a string specifying the location of Python with the installed libraries on your machine.")
-    message("\nRunning computations for kats...")
+    message("'Kats' requires a Python installation and the 'Kats' Python package to also be installed. Please ensure you have this working (see https://facebookresearch.github.io/Kats/ for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(path_to_python) where path_to_python is a string specifying the location of Python with the installed libraries on your machine.")
+    message("\nRunning computations for Kats...")
     tmp_kats <- calc_kats(data = data_re)
   }
   
