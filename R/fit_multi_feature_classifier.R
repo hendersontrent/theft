@@ -579,8 +579,8 @@ clean_by_set <- function(data, themethod = NULL){
     tidyr::pivot_longer(cols = 3:ncol(tmp_cleaner), names_to = "names", values_to = "values") %>%
     dplyr::mutate(method = gsub("_.*", "\\1", .data$names)) %>%
     dplyr::mutate(group = as.factor(.data$group)) %>%
-    dplyr::mutate(group = as.integer(group),
-                  group = paste0("Group_", group),
+    dplyr::mutate(group = as.integer(.data$group),
+                  group = paste0("Group_", .data$group),
                   group = make.names(.data$group),
                   group = as.factor(.data$group))
   
