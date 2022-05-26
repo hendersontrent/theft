@@ -12,6 +12,8 @@ plot_feature_correlations(
   values_var = "values",
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
   cor_method = c("pearson", "spearman"),
+  clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty",
+    "median", "centroid"),
   interactive = FALSE
 )
 }
@@ -29,6 +31,8 @@ plot_feature_correlations(
 \item{method}{a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}}
 
 \item{cor_method}{the correlation method to use. Defaults to \code{"pearson"}}
+
+\item{clust_method}{the hierarchical clustering method to use for the pairwise correlation plot. Defaults to \code{"average"}}
 
 \item{interactive}{a Boolean as to whether to plot an interactive \code{plotly} graphic. Defaults to \code{FALSE}}
 }
@@ -53,6 +57,8 @@ plot_feature_correlations(data = featMat,
   names_var = "names", 
   values_var = "values",
   method = "RobustSigmoid",
+  cor_method = "pearson",
+  clust_method = "average",
   interactive = FALSE)
 
 }

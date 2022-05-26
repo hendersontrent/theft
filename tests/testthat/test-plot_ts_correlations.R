@@ -9,5 +9,6 @@ test_that("time series correlations", {
                                          values_var = "values", 
                                          method = "RobustSigmoid", 
                                          cor_method = "pearson", 
+                                         clust_method = "average",
                                          interactive = FALSE)$data))
 })

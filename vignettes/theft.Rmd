@@ -135,7 +135,9 @@ The function `plot_feature_matrix` takes the calculated features and produces a 
 * `"median"`
 * `"centroid"`
 
-See the [`hclust` documentation](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/hclust) and [this overview](https://www.r-bloggers.com/2017/12/how-to-perform-hierarchical-clustering-using-r/) for more information.
+See the [`hclust` documentation](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/hclust) for more information.
+
+Note that the legend for this plot (and other matrix visualisations in `theft`) have been discretised for visual clarity as continuous legends can be difficult to interpret meaningful value differences easily.
 
 ```{r, message = FALSE, warning = FALSE}
 plot_feature_matrix(feature_matrix, 
@@ -192,7 +194,7 @@ plot_low_dimension(feature_matrix,
 
 #### Time-series correlations
 
-The function `plot_ts_correlations` automates the calculation of correlations between values of each unique time series, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the `cor_method` argument to `spearman`.
+The function `plot_ts_correlations` automates the calculation of correlations between values of each unique time series, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the `cor_method` argument to `spearman`. This visualisation might not always be highly informative, but it can be useful to take a quick glance regardless.
 
 ```{r, message = FALSE, warning = FALSE}
 plot_ts_correlations(simData, 

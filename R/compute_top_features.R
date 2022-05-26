@@ -17,9 +17,9 @@ draw_top_feature_plot <- function(data, method, cor_method, clust_method, num_fe
     tidyr::pivot_wider(id_cols = .data$id, names_from = .data$names, values_from = .data$values) %>%
     dplyr::select(-c(.data$id))
   
-  # Calculate correlations
+  # Calculate correlations and take absolute
   
-  result <- stats::cor(cor_dat, method = cor_method)
+  result <- abs(stats::cor(cor_dat, method = cor_method))
   
   # Perform clustering
   
@@ -27,6 +27,10 @@ draw_top_feature_plot <- function(data, method, cor_method, clust_method, num_fe
   col.order <- stats::hclust(stats::dist(t(result), method = "euclidean"), method = clust_method)$order # Hierarchical cluster on columns
   dat_new <- result[row.order, col.order] # Re-order matrix by cluster outputs
   cluster_out <- reshape2::melt(as.matrix(dat_new)) # Turn into dataframe
+  
+  # Define a nice colour palette consistent with RColorBrewer in other functions
+  
+  mypalette <- c("#B2182B", "#D6604D", "#F4A582", "#FDDBC7", "#D1E5F0", "#92C5DE", "#4393C3", "#2166AC")
   
   # Draw plot
   
@@ -36,8 +40,9 @@ draw_top_feature_plot <- function(data, method, cor_method, clust_method, num_fe
     ggplot2::labs(title = paste0("Pairwise correlation matrix of top ", num_features, " features"),
                   x = NULL,
                   y = NULL,
-                  fill = "Correlation coefficient") +
-    ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1, 1)) +
+                  fill = "Absolute correlation coefficient") +
+    ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
+                               show.limits = TRUE) +
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
                    legend.position = "bottom",

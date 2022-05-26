@@ -11,6 +11,8 @@ plot_ts_correlations(
   time_var = "timepoint",
   values_var = "values",
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+  clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty",
+    "median", "centroid"),
   cor_method = c("pearson", "spearman"),
   interactive = FALSE
 )
@@ -27,6 +29,8 @@ plot_ts_correlations(
 \item{values_var}{a string denoting the name of the variable/column that holds the numerical feature values. Defaults to \code{"values"}}
 
 \item{method}{a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}}
+
+\item{clust_method}{the hierarchical clustering method to use for the pairwise correlation plot. Defaults to \code{"average"}}
 
 \item{cor_method}{the correlation method to use. Defaults to \code{"pearson"}}
 
@@ -46,6 +50,7 @@ plot_ts_correlations(data = simData,
   values_var = "values",
   method = "RobustSigmoid",
   cor_method = "pearson",
+  clust_method = "average",
   interactive = FALSE)
 
 }

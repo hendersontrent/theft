@@ -13,6 +13,7 @@ test_that("single feature plots", {
                                                   method = "RobustSigmoid",
                                                   cor_method = "pearson",
                                                   test_method = "gaussprRadial",
+                                                  clust_method = "average",
                                                   use_balanced_accuracy = FALSE,
                                                   use_k_fold = FALSE,
                                                   num_folds = 10,
@@ -35,6 +36,7 @@ test_that("single feature null method", {
                                          method = "RobustSigmoid",
                                          cor_method = "pearson",
                                          test_method = "gaussprRadial",
+                                         clust_method = "average",
                                          use_balanced_accuracy = FALSE,
                                          use_k_fold = FALSE,
                                          num_folds = 10,
@@ -51,6 +53,7 @@ test_that("single feature null method", {
                                          method = "RobustSigmoid",
                                          cor_method = "pearson",
                                          test_method = "gaussprRadial",
+                                         clust_method = "average",
                                          use_balanced_accuracy = FALSE,
                                          use_k_fold = FALSE,
                                          num_folds = 10,
@@ -74,6 +77,7 @@ test_that("single feature balanced accuracy", {
                                          method = "RobustSigmoid",
                                          cor_method = "pearson",
                                          test_method = "gaussprRadial",
+                                         clust_method = "average",
                                          use_balanced_accuracy = TRUE,
                                          use_k_fold = FALSE,
                                          num_folds = 10,
@@ -92,6 +96,7 @@ test_that("single feature balanced accuracy", {
                                          method = "RobustSigmoid",
                                          cor_method = "pearson",
                                          test_method = "gaussprRadial",
+                                         clust_method = "average",
                                          use_balanced_accuracy = FALSE,
                                          use_k_fold = FALSE,
                                          num_folds = 10,
@@ -112,6 +117,7 @@ test_that("single feature binary options", {
                                      method = "RobustSigmoid",
                                      cor_method = "pearson",
                                      test_method = "t-test",
+                                     clust_method = "average",
                                      pool_empirical_null = FALSE)
   
   expect_equal(length(unique(t_test_ref$ResultsTable$feature)),
@@ -123,6 +129,7 @@ test_that("single feature binary options", {
                                                   method = "RobustSigmoid",
                                                   cor_method = "pearson",
                                                   test_method = "wilcox",
+                                                  clust_method = "average",
                                                   pool_empirical_null = FALSE)$ResultsTable$feature)))
   
   expect_equal(length(unique(t_test_ref$ResultsTable$feature)),
@@ -134,5 +141,6 @@ test_that("single feature binary options", {
                                                   method = "RobustSigmoid",
                                                   cor_method = "pearson",
                                                   test_method = "binomial logistic",
+                                                  clust_method = "average",
                                                   pool_empirical_null = FALSE)$ResultsTable$feature)))
 })

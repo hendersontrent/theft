@@ -134,7 +134,9 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
   
   #--------- Correlation ----------
   
-  result <- stats::cor(cor_dat, method = cor_method)
+  # Calculate correlations and take absolute
+  
+  result <- abs(stats::cor(cor_dat, method = cor_method))
   
   #--------- Clustering -----------
   
@@ -151,12 +153,16 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
   
   #--------- Graphic --------------
   
+  # Define a nice colour palette consistent with RColorBrewer in other functions
+  
+  mypalette <- c("#B2182B", "#D6604D", "#F4A582", "#FDDBC7", "#D1E5F0", "#92C5DE", "#4393C3", "#2166AC")
+  
   if(interactive){
     p <- cluster_out %>%
       ggplot2::ggplot(ggplot2::aes(x = .data$Var1, y = .data$Var2,
                                    text = paste('<br><b>ID 1:</b>', .data$Var1,
                                                 '<br><b>ID 2:</b>', .data$Var2,
-                                                '<br><b>Correlation:</b>', round(.data$value, digits = 3))))
+                                                '<br><b>Absolute correlation:</b>', round(.data$value, digits = 3))))
   } else{
     p <- cluster_out %>%
       ggplot2::ggplot(ggplot2::aes(x = .data$Var1, y = .data$Var2)) 
@@ -168,7 +174,8 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
                   x = "Time series",
                   y = "Time series",
                   fill = "Correlation coefficient") +
-    ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1, 1)) +
+    ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
+                               show.limits = TRUE) +
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
                    legend.position = "bottom")

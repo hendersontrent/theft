@@ -60,6 +60,8 @@
   method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"z-score"</span>, <span class="st">"Sigmoid"</span>, <span class="st">"RobustSigmoid"</span>, <span class="st">"MinMax"</span><span class="op">)</span>,
   cor_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pearson"</span>, <span class="st">"spearman"</span><span class="op">)</span>,
   test_method <span class="op">=</span> <span class="st">"gaussprRadial"</span>,
+  clust_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"average"</span>, <span class="st">"ward.D"</span>, <span class="st">"ward.D2"</span>, <span class="st">"single"</span>, <span class="st">"complete"</span>, <span class="st">"mcquitty"</span>,
+    <span class="st">"median"</span>, <span class="st">"centroid"</span><span class="op">)</span>,
   use_balanced_accuracy <span class="op">=</span> <span class="cn">FALSE</span>,
   use_k_fold <span class="op">=</span> <span class="cn">FALSE</span>,
   num_folds <span class="op">=</span> <span class="fl">10</span>,
@@ -90,6 +92,8 @@
 <dd><p>the correlation method to use. Defaults to <code>"pearson"</code></p></dd>
 <dt>test_method</dt>
 <dd><p>the algorithm to use for quantifying class separation. Defaults to <code>"gaussprRadial"</code></p></dd>
+<dt>clust_method</dt>
+<dd><p>the hierarchical clustering method to use for the pairwise correlation plot. Defaults to <code>"average"</code></p></dd>
 <dt>use_balanced_accuracy</dt>
 <dd><p>a Boolean specifying whether to use balanced accuracy as the summary metric for caret model training. Defaults to <code>FALSE</code></p></dd>
 <dt>use_k_fold</dt>
@@ -141,6 +145,7 @@
 <span class="r-in">  method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,</span>
 <span class="r-in">  cor_method <span class="op">=</span> <span class="st">"pearson"</span>,</span>
 <span class="r-in">  test_method <span class="op">=</span> <span class="st">"gaussprRadial"</span>,</span>
+<span class="r-in">  clust_method <span class="op">=</span> <span class="st">"average"</span>,</span>
 <span class="r-in">  use_balanced_accuracy <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span class="r-in">  use_k_fold <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span class="r-in">  num_folds <span class="op">=</span> <span class="fl">10</span>,</span>
