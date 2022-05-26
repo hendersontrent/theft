@@ -124,13 +124,27 @@ The package also comes with a built-in plotting engine for calculating and visua
 
 ### Feature matrices
 
-The function `plot_feature_matrix` takes the calculated features and produces a `ggplot` object heatmap showing the feature vectors across the `x` axis and each time series down the `y` axis. Prior to plotting, the function hierarchically clusters the data across both rows and columns to visually highlight the empirical structure.
+The function `plot_feature_matrix` takes the calculated features and produces a `ggplot` object heatmap showing the feature vectors across the `x` axis and each time series down the `y` axis. Prior to plotting, the function hierarchically clusters the data across both rows and columns to visually highlight the empirical structure. Note that you have several options for the hierarchical clustering linkage algorithm to use:
+
+* `"average"` (default)
+* `"ward.D"`
+* `"ward.D2"`
+* `"single"`
+* `"complete"`
+* `"mcquitty"`
+* `"median"`
+* `"centroid"`
+
+See the [`hclust` documentation](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/hclust) for more information.
+
+Note that the legend for this plot (and other matrix visualisations in `theft`) have been discretised for visual clarity as continuous legends can be difficult to interpret meaningful value differences easily.
 
 ```{r, message = FALSE, warning = FALSE}
 plot_feature_matrix(feature_matrix, 
                     is_normalised = FALSE, 
                     id_var = "id", 
                     method = "RobustSigmoid",
+                    clust_method = "average",
                     interactive = FALSE)
 ```
 
@@ -141,6 +155,7 @@ plot_feature_matrix(feature_matrix,
                     is_normalised = FALSE, 
                     id_var = "id", 
                     method = "RobustSigmoid",
+                    clust_method = "average",
                     interactive = TRUE)
 ```
 
@@ -179,7 +194,7 @@ plot_low_dimension(feature_matrix,
 
 #### Time-series correlations
 
-The function `plot_ts_correlations` automates the calculation of correlations between values of each unique time series, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the `cor_method` argument to `spearman`.
+The function `plot_ts_correlations` automates the calculation of correlations between values of each unique time series, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the `cor_method` argument to `spearman`. This visualisation might not always be highly informative, but it can be useful to take a quick glance regardless.
 
 ```{r, message = FALSE, warning = FALSE}
 plot_ts_correlations(simData, 
@@ -189,6 +204,7 @@ plot_ts_correlations(simData,
                      values_var = "values",
                      method = "RobustSigmoid",
                      cor_method = "pearson",
+                     clust_method = "average",
                      interactive = FALSE)
 ```
 
@@ -202,6 +218,7 @@ plot_ts_correlations(simData,
                      values_var = "values",
                      method = "RobustSigmoid",
                      cor_method = "spearman",
+                     clust_method = "average",
                      interactive = TRUE)
 ```
 
@@ -217,6 +234,7 @@ plot_feature_correlations(feature_matrix,
                           values_var = "values",
                           method = "RobustSigmoid",
                           cor_method = "pearson",
+                          clust_method = "average",
                           interactive = FALSE)
 ```
 
@@ -270,6 +288,7 @@ outputs <- compute_top_features(feature_matrix,
                                 method = "RobustSigmoid",
                                 cor_method = "pearson",
                                 test_method = "gaussprRadial",
+                                clust_method = "average",
                                 use_balanced_accuracy = FALSE,
                                 use_k_fold = TRUE,
                                 num_folds = 10,

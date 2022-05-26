@@ -14,6 +14,7 @@
 #' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}
 #' @param id_var a string specifying the ID variable to identify each time series. Defaults to \code{"id"}
 #' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
+#' @param clust_method the hierarchical clustering method to use for the pairwise correlation plot. Defaults to \code{"average"}
 #' @param interactive a Boolean as to whether to plot an interactive \code{plotly} graphic. Defaults to \code{FALSE}
 #' @return an object of class \code{ggplot} that contains the heatmap graphic
 #' @author Trent Henderson
@@ -31,12 +32,14 @@
 #'   is_normalised = FALSE, 
 #'   id_var = "id", 
 #'   method = "MinMax",
+#'   clust_method = "average",
 #'   interactive = FALSE)
 #'
 
 plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id", 
-                                 method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
-                                 interactive = FALSE){
+                                method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+                                clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid"),
+                                interactive = FALSE){
 
   # Make RobustSigmoid the default
 
@@ -77,6 +80,23 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
 
   if(length(method) > 1){
     stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
+  }
+  
+  # Clustering method selection
+  
+  the_clust_methods <-c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid")
+  
+  if(clust_method %ni% the_clust_methods){
+    stop("clust_method should be a single selection of 'average', 'ward.D', 'ward.D2', 'single', 'complete', 'mcquitty', 'median', or 'centroid'.")
+  }
+  
+  if(length(clust_method) > 1){
+    stop("clust_method should be a single selection of 'average', 'ward.D', 'ward.D2', 'single', 'complete', 'mcquitty', 'median', or 'centroid'.")
+  }
+  
+  if(missing(clust_method) || is.null(clust_method)){
+    clust_method <- "average"
+    message("No argument supplied to clust_method Using 'average' as default.")
   }
 
   #------------- Assign ID variable ---------------
@@ -128,22 +148,22 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
     message("Dropped rows with NAs to enable clustering.")
   }
 
-  row.order <- stats::hclust(stats::dist(dat_filtered))$order # Hierarchical cluster on rows
-  col.order <- stats::hclust(stats::dist(t(dat_filtered)))$order # Hierarchical cluster on columns
+  row.order <- stats::hclust(stats::dist(dat_filtered, method = "euclidean"), method = clust_method)$order # Hierarchical cluster on rows
+  col.order <- stats::hclust(stats::dist(t(dat_filtered), method = "euclidean"), method = clust_method)$order # Hierarchical cluster on columns
   dat_new <- dat_filtered[row.order, col.order] # Re-order matrix by cluster outputs
+  
   cluster_out <- reshape2::melt(as.matrix(dat_new)) %>% # Turn into dataframe
     dplyr::rename(id = .data$Var1,
                   names = .data$Var2)
 
   #------------- Draw graphic ---------------------
   
-  # Define a nice colour palette consistent with RColorBrewer in other functions to reduce dependency
+  # Define a nice colour palette consistent with RColorBrewer in other functions
   
-  mypalette <- c("#D73027", "#FC8D59", "#FEE090", "#E0F3F8", "#91BFDB", "#4575B4")
+  mypalette <- c("#B2182B", "#D6604D", "#F4A582", "#FDDBC7", "#D1E5F0", "#92C5DE", "#4393C3", "#2166AC")
   
   if(interactive){
-    if(method %in% c("Sigmoid", "RobustSigmoid", "MinMax")){
-      p <- cluster_out %>%
+    p <- cluster_out %>%
         ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value,
                                      text = paste('<br><b>ID:</b>', .data$id,
                                                   '<br><b>Feature:</b>', .data$names,
@@ -151,29 +171,13 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
         ggplot2::geom_tile() +
         ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
                                    show.limits = TRUE)
-    } else{
-      p <- cluster_out %>%
-        ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value,
-                                     text = paste('<br><b>ID:</b>', .data$id,
-                                                  '<br><b>Feature:</b>', .data$names,
-                                                  '<br><b>Scaled Value:</b>', round(.data$value, digits = 3)))) +
-        ggplot2::geom_tile() +
-        ggplot2::scale_fill_distiller(palette = "RdYlBu")
-    } 
     
   } else{
-    if(method %in% c("Sigmoid", "RobustSigmoid", "MinMax")){
-      p <- cluster_out %>%
+    p <- cluster_out %>%
         ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value))  +
         ggplot2::geom_tile() +
         ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
                                    show.limits = TRUE)
-    } else{
-      p <- cluster_out %>%
-        ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value)) +
-        ggplot2::geom_tile() +
-        ggplot2::scale_fill_distiller(palette = "RdYlBu")
-    }
   }
 
   p <- p +

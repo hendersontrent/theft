@@ -15,6 +15,7 @@
 #' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to \code{"values"}
 #' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
 #' @param cor_method the correlation method to use. Defaults to \code{"pearson"}
+#' @param clust_method the hierarchical clustering method to use for the pairwise correlation plot. Defaults to \code{"average"}
 #' @param interactive a Boolean as to whether to plot an interactive \code{plotly} graphic. Defaults to \code{FALSE}
 #' @return an object of class \code{ggplot}
 #' @author Trent Henderson
@@ -27,12 +28,14 @@
 #'   values_var = "values",
 #'   method = "RobustSigmoid",
 #'   cor_method = "pearson",
+#'   clust_method = "average",
 #'   interactive = FALSE)
 #'
 
 plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id", 
                                  time_var = "timepoint", values_var = "values",
                                  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+                                 clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid"),
                                  cor_method = c("pearson", "spearman"),
                                  interactive = FALSE){
   
@@ -81,6 +84,23 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
     stop("cor_method should be a single selection of 'pearson' or 'spearman'")
   }
   
+  # Clustering method selection
+  
+  the_clust_methods <-c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid")
+  
+  if(clust_method %ni% the_clust_methods){
+    stop("clust_method should be a single selection of 'average', 'ward.D', 'ward.D2', 'single', 'complete', 'mcquitty', 'median', or 'centroid'.")
+  }
+  
+  if(length(clust_method) > 1){
+    stop("clust_method should be a single selection of 'average', 'ward.D', 'ward.D2', 'single', 'complete', 'mcquitty', 'median', or 'centroid'.")
+  }
+  
+  if(missing(clust_method) || is.null(clust_method)){
+    clust_method <- "average"
+    message("No argument supplied to clust_method Using 'average' as default.")
+  }
+  
   # Dataframe length checks and tidy format wrangling
   
   data_re <- data %>%
@@ -114,7 +134,9 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
   
   #--------- Correlation ----------
   
-  result <- stats::cor(cor_dat, method = cor_method)
+  # Calculate correlations and take absolute
+  
+  result <- abs(stats::cor(cor_dat, method = cor_method))
   
   #--------- Clustering -----------
   
@@ -124,19 +146,23 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
   
   # Perform clustering
   
-  row.order <- stats::hclust(stats::dist(result))$order # Hierarchical cluster on rows
-  col.order <- stats::hclust(stats::dist(t(result)))$order # Hierarchical cluster on columns
+  row.order <- stats::hclust(stats::dist(result, method = "euclidean"), method = clust_method)$order # Hierarchical cluster on rows
+  col.order <- stats::hclust(stats::dist(t(result), method = "euclidean"), method = clust_method)$order # Hierarchical cluster on columns
   dat_new <- result[row.order, col.order] # Re-order matrix by cluster outputs
   cluster_out <- reshape2::melt(as.matrix(dat_new)) # Turn into dataframe
   
   #--------- Graphic --------------
+  
+  # Define a nice colour palette consistent with RColorBrewer in other functions
+  
+  mypalette <- c("#B2182B", "#D6604D", "#F4A582", "#FDDBC7", "#D1E5F0", "#92C5DE", "#4393C3", "#2166AC")
   
   if(interactive){
     p <- cluster_out %>%
       ggplot2::ggplot(ggplot2::aes(x = .data$Var1, y = .data$Var2,
                                    text = paste('<br><b>ID 1:</b>', .data$Var1,
                                                 '<br><b>ID 2:</b>', .data$Var2,
-                                                '<br><b>Correlation:</b>', round(.data$value, digits = 3))))
+                                                '<br><b>Absolute correlation:</b>', round(.data$value, digits = 3))))
   } else{
     p <- cluster_out %>%
       ggplot2::ggplot(ggplot2::aes(x = .data$Var1, y = .data$Var2)) 
@@ -148,7 +174,8 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
                   x = "Time series",
                   y = "Time series",
                   fill = "Correlation coefficient") +
-    ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1, 1)) +
+    ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
+                               show.limits = TRUE) +
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
                    legend.position = "bottom")

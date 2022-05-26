@@ -75,7 +75,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Introduction to theft</h1>
                         <h4 data-toc-skip class="author">Trent Henderson</h4>
             
-            <h4 data-toc-skip class="date">2022-05-23</h4>
+            <h4 data-toc-skip class="date">2022-05-26</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/HEAD/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -183,12 +183,26 @@
 <div class="section level3">
 <h3 id="feature-matrices">Feature matrices<a class="anchor" aria-label="anchor" href="#feature-matrices"></a>
 </h3>
-<p>The function <code>plot_feature_matrix</code> takes the calculated features and produces a <code>ggplot</code> object heatmap showing the feature vectors across the <code>x</code> axis and each time series down the <code>y</code> axis. Prior to plotting, the function hierarchically clusters the data across both rows and columns to visually highlight the empirical structure.</p>
+<p>The function <code>plot_feature_matrix</code> takes the calculated features and produces a <code>ggplot</code> object heatmap showing the feature vectors across the <code>x</code> axis and each time series down the <code>y</code> axis. Prior to plotting, the function hierarchically clusters the data across both rows and columns to visually highlight the empirical structure. Note that you have several options for the hierarchical clustering linkage algorithm to use:</p>
+<ul>
+<li>
+<code>"average"</code> (default)</li>
+<li><code>"ward.D"</code></li>
+<li><code>"ward.D2"</code></li>
+<li><code>"single"</code></li>
+<li><code>"complete"</code></li>
+<li><code>"mcquitty"</code></li>
+<li><code>"median"</code></li>
+<li><code>"centroid"</code></li>
+</ul>
+<p>See the <a href="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/hclust" class="external-link"><code>hclust</code> documentation</a> for more information.</p>
+<p>Note that the legend for this plot (and other matrix visualisations in <code>theft</code>) have been discretised for visual clarity as continuous legends can be difficult to interpret meaningful value differences easily.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_feature_matrix.html">plot_feature_matrix</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
                     is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, 
                     id_var <span class="op">=</span> <span class="st">"id"</span>, 
                     method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,
+                    clust_method <span class="op">=</span> <span class="st">"average"</span>,
                     interactive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <p><img src="theft_files/figure-html/unnamed-chunk-10-1.png" width="768" style="display: block; margin: auto;"></p>
 <p>If you set <code>interactive = TRUE</code> the function will return an interactive plot using <code>plotly</code> which lets you hover over entries in the matrix to better understand which is which. This is especially useful if your dataset is large.</p>
@@ -197,6 +211,7 @@
                     is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, 
                     id_var <span class="op">=</span> <span class="st">"id"</span>, 
                     method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,
+                    clust_method <span class="op">=</span> <span class="st">"average"</span>,
                     interactive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 </div>
 <div class="section level3">
@@ -234,7 +249,7 @@
 <div class="section level4">
 <h4 id="time-series-correlations">Time-series correlations<a class="anchor" aria-label="anchor" href="#time-series-correlations"></a>
 </h4>
-<p>The function <code>plot_ts_correlations</code> automates the calculation of correlations between values of each unique time series, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the <code>cor_method</code> argument to <code>spearman</code>.</p>
+<p>The function <code>plot_ts_correlations</code> automates the calculation of correlations between values of each unique time series, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the <code>cor_method</code> argument to <code>spearman</code>. This visualisation might not always be highly informative, but it can be useful to take a quick glance regardless.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_ts_correlations.html">plot_ts_correlations</a></span><span class="op">(</span><span class="va">simData</span>, 
                      is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, 
@@ -243,6 +258,7 @@
                      values_var <span class="op">=</span> <span class="st">"values"</span>,
                      method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,
                      cor_method <span class="op">=</span> <span class="st">"pearson"</span>,
+                     clust_method <span class="op">=</span> <span class="st">"average"</span>,
                      interactive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <p><img src="theft_files/figure-html/unnamed-chunk-14-1.png" width="768" style="display: block; margin: auto;"></p>
 <p>Again, if you set <code>interactive = TRUE</code> the function will return an interactive plot using <code>plotly</code> which lets you hover over entries in the matrix to better understand which is which.</p>
@@ -254,6 +270,7 @@
                      values_var <span class="op">=</span> <span class="st">"values"</span>,
                      method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,
                      cor_method <span class="op">=</span> <span class="st">"spearman"</span>,
+                     clust_method <span class="op">=</span> <span class="st">"average"</span>,
                      interactive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 </div>
 <div class="section level4">
@@ -268,6 +285,7 @@
                           values_var <span class="op">=</span> <span class="st">"values"</span>,
                           method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,
                           cor_method <span class="op">=</span> <span class="st">"pearson"</span>,
+                          clust_method <span class="op">=</span> <span class="st">"average"</span>,
                           interactive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <p><img src="theft_files/figure-html/unnamed-chunk-16-1.png" width="768" style="display: block; margin: auto;"></p>
 </div>
@@ -326,6 +344,7 @@
                                 method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,
                                 cor_method <span class="op">=</span> <span class="st">"pearson"</span>,
                                 test_method <span class="op">=</span> <span class="st">"gaussprRadial"</span>,
+                                clust_method <span class="op">=</span> <span class="st">"average"</span>,
                                 use_balanced_accuracy <span class="op">=</span> <span class="cn">FALSE</span>,
                                 use_k_fold <span class="op">=</span> <span class="cn">TRUE</span>,
                                 num_folds <span class="op">=</span> <span class="fl">10</span>,

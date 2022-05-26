@@ -13,6 +13,8 @@ compute_top_features(
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
   cor_method = c("pearson", "spearman"),
   test_method = "gaussprRadial",
+  clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty",
+    "median", "centroid"),
   use_balanced_accuracy = FALSE,
   use_k_fold = FALSE,
   num_folds = 10,
@@ -40,6 +42,8 @@ compute_top_features(
 \item{cor_method}{the correlation method to use. Defaults to \code{"pearson"}}
 
 \item{test_method}{the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}}
+
+\item{clust_method}{the hierarchical clustering method to use for the pairwise correlation plot. Defaults to \code{"average"}}
 
 \item{use_balanced_accuracy}{a Boolean specifying whether to use balanced accuracy as the summary metric for caret model training. Defaults to \code{FALSE}}
 
@@ -83,6 +87,7 @@ compute_top_features(featMat,
   method = "RobustSigmoid",
   cor_method = "pearson",
   test_method = "gaussprRadial",
+  clust_method = "average",
   use_balanced_accuracy = FALSE,
   use_k_fold = FALSE,
   num_folds = 10,

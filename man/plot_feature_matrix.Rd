@@ -9,6 +9,8 @@ plot_feature_matrix(
   is_normalised = FALSE,
   id_var = "id",
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+  clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty",
+    "median", "centroid"),
   interactive = FALSE
 )
 }
@@ -20,6 +22,8 @@ plot_feature_matrix(
 \item{id_var}{a string specifying the ID variable to identify each time series. Defaults to \code{"id"}}
 
 \item{method}{a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}}
+
+\item{clust_method}{the hierarchical clustering method to use for the pairwise correlation plot. Defaults to \code{"average"}}
 
 \item{interactive}{a Boolean as to whether to plot an interactive \code{plotly} graphic. Defaults to \code{FALSE}}
 }
@@ -42,6 +46,7 @@ plot_feature_matrix(featMat,
   is_normalised = FALSE, 
   id_var = "id", 
   method = "MinMax",
+  clust_method = "average",
   interactive = FALSE)
 
 }
