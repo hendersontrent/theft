@@ -18,6 +18,7 @@ test_that("feature matrix plot", {
                                         is_normalised = TRUE, 
                                         id_var = "id", 
                                         method = "RobustSigmoid", 
+                                        clust_method = "average",
                                         interactive = FALSE)$data),
                nrow(plot_feature_matrix(feature_matrix, 
                                         is_normalised = FALSE, 
