@@ -4,7 +4,7 @@
 # Pairwise correlation plot
 #--------------------------
 
-draw_top_feature_plot <- function(data, method, cor_method, num_features){
+draw_top_feature_plot <- function(data, method, cor_method, clust_method, num_features){
   
   # Wrangle dataframe
   
@@ -23,8 +23,8 @@ draw_top_feature_plot <- function(data, method, cor_method, num_features){
   
   # Perform clustering
   
-  row.order <- stats::hclust(stats::dist(result))$order # Hierarchical cluster on rows
-  col.order <- stats::hclust(stats::dist(t(result)))$order # Hierarchical cluster on columns
+  row.order <- stats::hclust(stats::dist(result, method = "euclidean"), method = clust_method)$order # Hierarchical cluster on rows
+  col.order <- stats::hclust(stats::dist(t(result), method = "euclidean"), method = clust_method)$order # Hierarchical cluster on columns
   dat_new <- result[row.order, col.order] # Re-order matrix by cluster outputs
   cluster_out <- reshape2::melt(as.matrix(dat_new)) # Turn into dataframe
   
@@ -140,6 +140,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
 #' @param cor_method the correlation method to use. Defaults to \code{"pearson"}
 #' @param test_method the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}
+#' @param clust_method the hierarchical clustering method to use for the pairwise correlation plot. Defaults to \code{"average"}
 #' @param use_balanced_accuracy a Boolean specifying whether to use balanced accuracy as the summary metric for caret model training. Defaults to \code{FALSE}
 #' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates if a \code{caret} model is specified for \code{test_method}. Defaults to \code{ FALSE}
 #' @param num_folds an integer specifying the number of k-folds to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}
@@ -170,6 +171,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #'   method = "RobustSigmoid",
 #'   cor_method = "pearson",
 #'   test_method = "gaussprRadial",
+#'   clust_method = "average",
 #'   use_balanced_accuracy = FALSE,
 #'   use_k_fold = FALSE,
 #'   num_folds = 10,
@@ -187,7 +189,9 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                  normalise_violin_plots = FALSE,
                                  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                  cor_method = c("pearson", "spearman"),
-                                 test_method = "gaussprRadial", use_balanced_accuracy = FALSE,
+                                 test_method = "gaussprRadial", 
+                                 clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid"),
+                                 use_balanced_accuracy = FALSE,
                                  use_k_fold = FALSE, num_folds = 10, 
                                  use_empirical_null = FALSE, null_testing_method = c("model free shuffles", "null model fits"),
                                  p_value_method = c("empirical", "gaussian"), num_permutations = 50,
@@ -263,6 +267,23 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   if(length(cor_method) > 1){
     stop("cor_method should be a single selection of 'pearson' or 'spearman'")
+  }
+  
+  # Clustering method selection
+  
+  the_clust_methods <-c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid")
+  
+  if(clust_method %ni% the_clust_methods){
+    stop("clust_method should be a single selection of 'average', 'ward.D', 'ward.D2', 'single', 'complete', 'mcquitty', 'median', or 'centroid'.")
+  }
+  
+  if(length(clust_method) > 1){
+    stop("clust_method should be a single selection of 'average', 'ward.D', 'ward.D2', 'single', 'complete', 'mcquitty', 'median', or 'centroid'.")
+  }
+  
+  if(missing(clust_method) || is.null(clust_method)){
+    clust_method <- "average"
+    message("No argument supplied to clust_method Using 'average' as default.")
   }
   
   # Null testing options
@@ -505,6 +526,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   FeatureFeatureCorrelationPlot <- try(draw_top_feature_plot(data = dataFiltered,
                                                              method = method,
                                                              cor_method = cor_method,
+                                                             clust_method = clust_method,
                                                              num_features = num_features))
   
   if("try-error" %in% class(FeatureFeatureCorrelationPlot)){
@@ -514,6 +536,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     FeatureFeatureCorrelationPlot <- try(draw_top_feature_plot(data = dataFiltered,
                                                                method = "z-score",
                                                                cor_method = cor_method,
+                                                               clust_method = clust_method,
                                                                num_features = num_features))
   }
   
