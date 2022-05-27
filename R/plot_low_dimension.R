@@ -58,15 +58,20 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
 
   expected_cols_1 <- "names"
   expected_cols_2 <- "values"
+  expected_cols_3 <- "method"
   the_cols <- colnames(data)
   '%ni%' <- Negate('%in%')
 
   if(expected_cols_1 %ni% the_cols){
-    stop("data should contain at least two columns called 'names' and 'values'. These are automatically produced by theft::calculate_features. Please run this first and then pass the resultant dataframe to this function.")
+    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by theft::calculate_features. Please run this first and then pass the resultant dataframe to this function.")
   }
 
   if(expected_cols_2 %ni% the_cols){
-    stop("data should contain at least two columns called 'names' and 'values'. These are automatically produced by theft::calculate_features. Please run this first and then pass the resultant dataframe to this function.")
+    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by theft::calculate_features. Please run this first and then pass the resultant dataframe to this function.")
+  }
+  
+  if(expected_cols_3 %ni% the_cols){
+    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by theft::calculate_features. Please run this first and then pass the resultant dataframe to this function.")
   }
 
   if(!is.numeric(data$values)){
@@ -134,12 +139,15 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
   } else{
     
     normed <- data_id %>%
-      dplyr::select(c(.data$id, .data$names, .data$values)) %>%
+      dplyr::rename(feature_set = .data$method) %>% # Avoids issues with method arg later
+      dplyr::select(c(.data$id, .data$names, .data$values, .data$feature_set)) %>%
       tidyr::drop_na() %>%
       dplyr::group_by(.data$names) %>%
       dplyr::mutate(values = normalise_feature_vector(.data$values, method = method)) %>%
       dplyr::ungroup() %>%
-      tidyr::drop_na()
+      tidyr::drop_na() %>%
+      dplyr::mutate(names = paste0(.data$feature_set, "_", .data$names)) %>% # Catches errors when using all features across sets (i.e., there's duplicates)
+      dplyr::select(-c(feature_set))
 
     if(nrow(normed) != nrow(data_id)){
       message("Filtered out rows containing NaNs.")
@@ -226,6 +234,8 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
         fits <- fits %>%
           dplyr::mutate(id = as.factor(.data$id))
       }
+      
+      data_id <- as.data.frame(lapply(data_id, unlist)) # Catch weird cases where it's a list...
       
       groups <- data_id %>%
         dplyr::rename(group_id = dplyr::all_of(group_var)) %>%
