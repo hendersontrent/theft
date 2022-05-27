@@ -67,9 +67,16 @@ plot_feature_correlations <- function(data, is_normalised = FALSE, id_var = "id"
     stop("An id, names (feature name identification), and values variable must all be specified.")
   }
   
+  '%ni%' <- Negate('%in%')
+  expected_cols_1 <- "method"
+  the_cols <- colnames(data)
+  
+  if(expected_cols_1 %ni% the_cols){
+    stop("data should contain at least one columns called 'method' containing feature set names. This is automatically produced by theft::calculate_features. Please run this first and then pass the resultant dataframe to this function.")
+  }
+  
   # Method selection
   
-  '%ni%' <- Negate('%in%')
   the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
   
   if(method %ni% the_methods){
@@ -123,12 +130,15 @@ plot_feature_correlations <- function(data, is_normalised = FALSE, id_var = "id"
   } else{
     
     normed <- data_re %>%
-      dplyr::select(c(.data$id, .data$names, .data$values)) %>%
+      dplyr::rename(feature_set = .data$method) %>% # Avoids issues with method arg later
+      dplyr::select(c(.data$id, .data$names, .data$values, .data$feature_set)) %>%
       tidyr::drop_na() %>%
       dplyr::group_by(.data$names) %>%
       dplyr::mutate(values = normalise_feature_vector(.data$values, method = method)) %>%
       dplyr::ungroup() %>%
-      tidyr::drop_na()
+      tidyr::drop_na() %>%
+      dplyr::mutate(names = paste0(.data$feature_set, "_", .data$names)) %>% # Catches errors when using all features across sets (i.e., there's duplicates)
+      dplyr::select(-c(feature_set))
     
     if(nrow(normed) != nrow(data_re)){
       message("Filtered out rows containing NaNs.")
