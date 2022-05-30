@@ -199,11 +199,11 @@
 <p>Note that the legend for this plot (and other matrix visualisations in <code>theft</code>) have been discretised for visual clarity as continuous legends can be difficult to interpret meaningful value differences easily.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_all_features.html">plot_all_features</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
-                    is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, 
-                    id_var <span class="op">=</span> <span class="st">"id"</span>, 
-                    method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,
-                    clust_method <span class="op">=</span> <span class="st">"average"</span>,
-                    interactive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+                  is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, 
+                  id_var <span class="op">=</span> <span class="st">"id"</span>, 
+                  method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,
+                  clust_method <span class="op">=</span> <span class="st">"average"</span>,
+                  interactive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <p><img src="theft_files/figure-html/unnamed-chunk-10-1.png" width="768" style="display: block; margin: auto;"></p>
 <p>If you set <code>interactive = TRUE</code> the function will return an interactive plot using <code>plotly</code> which lets you hover over entries in the matrix to better understand which is which. This is especially useful if your dataset is large.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
