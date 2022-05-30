@@ -28,7 +28,7 @@
 #'   feature_set = "catch22",
 #'   seed = 123)
 #'
-#' plot_feature_matrix(featMat, 
+#' plot_all_features(featMat, 
 #'   is_normalised = FALSE, 
 #'   id_var = "id", 
 #'   method = "RobustSigmoid",
@@ -36,27 +36,25 @@
 #'   interactive = FALSE)
 #'
 
-plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id", 
-                                method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
-                                clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid"),
-                                interactive = FALSE){
+plot_all_features <- function(data, is_normalised = FALSE, id_var = "id", 
+                              method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+                              clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid"),
+                              interactive = FALSE){
   
-  message("plot_feature_matrix is deprecated as of v0.3.6. Please use 'plot_al_features' instead.")
-
   # Make RobustSigmoid the default
-
+  
   if(missing(method)){
     method <- "RobustSigmoid"
   } else{
     method <- match.arg(method)
   }
-
+  
   expected_cols_1 <- "names"
   expected_cols_2 <- "values"
   expected_cols_3 <- "method"
   the_cols <- colnames(data)
   '%ni%' <- Negate('%in%')
-
+  
   if(expected_cols_1 %ni% the_cols){
     stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by theft::calculate_features. Please run this first and then pass the resultant dataframe to this function.")
   }
@@ -68,23 +66,23 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   if(expected_cols_3 %ni% the_cols){
     stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by theft::calculate_features. Please run this first and then pass the resultant dataframe to this function.")
   }
-
+  
   if(!is.numeric(data$values)){
     stop("'values' column in data should be a numerical vector.")
   }
-
+  
   if(!is.null(id_var) && !is.character(id_var)){
     stop("id_var should be a string specifying a variable in the input data that uniquely identifies each observation.")
   }
-
+  
   # Method selection
-
+  
   the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
-
+  
   if(method %ni% the_methods){
     stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
-
+  
   if(length(method) > 1){
     stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
@@ -105,20 +103,20 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
     clust_method <- "average"
     message("No argument supplied to clust_method Using 'average' as default.")
   }
-
+  
   #------------- Assign ID variable ---------------
-
+  
   if (is.null(id_var)){
     stop("Data is not uniquely identifiable. Please add a unique identifier variable.")
   }
-
+  
   if(!is.null(id_var)){
     data_id <- data %>%
       dplyr::rename(id = dplyr::all_of(id_var))
   }
-
+  
   #------------- Normalise data -------------------
-
+  
   if(is_normalised){
     normed <- data_id
   } else{
@@ -138,9 +136,9 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
       message("Filtered out rows containing NaNs.")
     }
   }
-
+  
   #------------- Hierarchical clustering ----------
-
+  
   dat <- normed %>%
     tidyr::pivot_wider(id_cols = "id", names_from = "names", values_from = "values") %>%
     tibble::column_to_rownames(var = "id")
@@ -150,14 +148,14 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   dat_filtered <- dat[, which(colMeans(!is.na(dat)) > 0.5)]
   
   # Drop any remaining rows with NAs
-
+  
   dat_filtered <- dat_filtered %>%
     tidyr::drop_na()
-
+  
   if(nrow(dat_filtered) != nrow(dat)){
     message("Dropped rows with NAs to enable clustering.")
   }
-
+  
   row.order <- stats::hclust(stats::dist(dat_filtered, method = "euclidean"), method = clust_method)$order # Hierarchical cluster on rows
   col.order <- stats::hclust(stats::dist(t(dat_filtered), method = "euclidean"), method = clust_method)$order # Hierarchical cluster on columns
   dat_new <- dat_filtered[row.order, col.order] # Re-order matrix by cluster outputs
@@ -165,7 +163,7 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   cluster_out <- reshape2::melt(as.matrix(dat_new)) %>% # Turn into dataframe
     dplyr::rename(id = .data$Var1,
                   names = .data$Var2)
-
+  
   #------------- Draw graphic ---------------------
   
   # Define a nice colour palette consistent with RColorBrewer in other functions
@@ -174,22 +172,22 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   
   if(interactive){
     p <- cluster_out %>%
-        ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value,
-                                     text = paste('<br><b>ID:</b>', .data$id,
-                                                  '<br><b>Feature:</b>', .data$names,
-                                                  '<br><b>Scaled Value:</b>', round(.data$value, digits = 3)))) +
-        ggplot2::geom_tile() +
-        ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
-                                   show.limits = TRUE)
+      ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value,
+                                   text = paste('<br><b>ID:</b>', .data$id,
+                                                '<br><b>Feature:</b>', .data$names,
+                                                '<br><b>Scaled Value:</b>', round(.data$value, digits = 3)))) +
+      ggplot2::geom_tile() +
+      ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
+                                 show.limits = TRUE)
     
   } else{
     p <- cluster_out %>%
-        ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value))  +
-        ggplot2::geom_tile() +
-        ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
-                                   show.limits = TRUE)
+      ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value))  +
+      ggplot2::geom_tile() +
+      ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
+                                 show.limits = TRUE)
   }
-
+  
   p <- p +
     ggplot2::labs(title = "Data matrix",
                   x = "Feature",
@@ -197,7 +195,7 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
     ggplot2::theme_bw() + 
     ggplot2::theme(axis.text.y = ggplot2::element_blank(),
                    panel.grid = ggplot2::element_blank()) +
-      ggplot2::labs(fill = "Scaled value")
+    ggplot2::labs(fill = "Scaled value")
   
   if(length(unique(cluster_out$names)) <= 22){
     p <- p +
@@ -217,6 +215,6 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
     p <- p +
       ggplot2::theme(legend.position = "bottom")
   }
-
+  
   return(p)
 }
