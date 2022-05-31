@@ -75,7 +75,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Introduction to theft</h1>
                         <h4 data-toc-skip class="author">Trent Henderson</h4>
             
-            <h4 data-toc-skip class="date">2022-05-30</h4>
+            <h4 data-toc-skip class="date">2022-05-31</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/HEAD/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -105,7 +105,7 @@
 <h3 id="calculating-feature-summary-statistics">Calculating feature summary statistics<a class="anchor" aria-label="anchor" href="#calculating-feature-summary-statistics"></a>
 </h3>
 <p>The core function that automates the calculation of the feature statistics at once is <code>calculate_features</code>. You can choose which subset of features to calculate with the <code>feature_set</code> argument. The choices are currently <code>"catch22"</code>, <code>"feasts"</code>, <code>"Kats"</code>, <code>"tsfeatures"</code>, <code>"tsfresh"</code>, and/or <code>"TSFEL"</code>.</p>
-<p>Note that <code>Kats</code>, <code>tsfresh</code> and <code>TSFEL</code> are Python packages. The R package <code>reticulate</code> is used to call Python code that uses these packages and applies it within the broader <em>tidy</em> data philosophy embodied by <code>theft</code>. At present, depending on the input time-series, <code>theft</code> provides access to ~1200 features. Prior to using <code>theft</code> (only if you want to use the <code>Kats</code>, <code>tsfresh</code> or <code>TSFEL</code> feature sets - the R-based sets will run fine) you should have a working Python installation and download <code>Kats</code> using the instructions located <a href="https://facebookresearch.github.io/kats/" class="external-link">here</a>, <code>tsfresh</code> <a href="https://tsfresh.com" class="external-link">here</a> or <code>TSFEL</code> <a href="https://github.com/fraunhoferportugal/tsfel" class="external-link">here</a>.</p>
+<p>Note that <code>Kats</code>, <code>tsfresh</code> and <code>TSFEL</code> are Python packages. The R package <code>reticulate</code> is used to call Python code that uses these packages and applies it within the broader <em>tidy</em> data philosophy embodied by <code>theft</code>. At present, depending on the input time-series, <code>theft</code> provides access to ~1200 features. Prior to using <code>theft</code> (only if you want to use the <code>Kats</code>, <code>tsfresh</code> or <code>TSFEL</code> feature sets - the R-based sets will run fine) you should have a working Python installation and download <code>Kats</code> using the instructions located <a href="https://facebookresearch.github.io/Kats/" class="external-link">here</a>, <code>tsfresh</code> <a href="https://tsfresh.com" class="external-link">here</a> or <code>TSFEL</code> <a href="https://github.com/fraunhoferportugal/tsfel" class="external-link">here</a>.</p>
 <p>Here is an example with the <code>catch22</code> set:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">feature_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, 
