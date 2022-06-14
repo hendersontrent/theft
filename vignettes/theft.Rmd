@@ -29,7 +29,7 @@ library(theft)
 
 ## Purpose
 
-`theft` facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. An example of this structured workflow is demonstrated in the graphic below:
+`theft` facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. This structured workflow is presented in the graphic below (note that `theft` has many more functions than displayed in this graphic --- keep reading for more):
 
 <img src="workflow-graphic2.png" width="700" alt="Structured workflow of the theft package for R" />
 
