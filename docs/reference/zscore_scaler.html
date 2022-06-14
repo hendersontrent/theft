@@ -51,13 +51,15 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">zscore_scaler</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">zscore_scaler</span><span class="op">(</span><span class="va">x</span>, unitInt <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>x</dt>
 <dd><p>a numeric vector, preferably of feature values computed by other <code>theft</code> package functions</p></dd>
+<dt>unitInt</dt>
+<dd><p>Booelan whether to rescale outputs into unit interval <code>[0,1]</code>. Defaults to <code>TRUE</code></p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -71,8 +73,8 @@
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu">zscore_scaler</span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.6910813  0.2219402 -0.6461534 -0.3269546 -0.2153829 -1.3559540</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  1.3561812  0.6208920 -0.7666212  1.8031341</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.2104635 0.4994777 0.2246853 0.3257267 0.3610444 0.0000000 0.8585184</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 0.6257648 0.1865516 1.0000000</span>
 <span class="r-in"></span>
 </code></pre></div>
     </div>

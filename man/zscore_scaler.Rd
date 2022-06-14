@@ -4,10 +4,12 @@
 \alias{zscore_scaler}
 \title{This function rescales a vector of numerical values into z-scores}
 \usage{
-zscore_scaler(x)
+zscore_scaler(x, unitInt = TRUE)
 }
 \arguments{
 \item{x}{a numeric vector, preferably of feature values computed by other \code{theft} package functions}
+
+\item{unitInt}{Booelan whether to rescale outputs into unit interval \code{[0,1]}. Defaults to \code{TRUE}}
 }
 \value{
 x a numeric vector, rescaled into z-scores
