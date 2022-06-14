@@ -18,7 +18,7 @@ test_that("single feature plots", {
                                                   use_k_fold = FALSE,
                                                   num_folds = 10,
                                                   use_empirical_null =  TRUE,
-                                                  null_testing_method = "model free shuffles",
+                                                  null_testing_method = "ModelFreeShuffles",
                                                   num_permutations = 10,
                                                   p_value_method = "empirical",
                                                   pool_empirical_null = FALSE)$ViolinPlots$data$names)))
@@ -41,7 +41,7 @@ test_that("single feature null method", {
                                          use_k_fold = FALSE,
                                          num_folds = 10,
                                          use_empirical_null =  TRUE,
-                                         null_testing_method = "model free shuffles",
+                                         null_testing_method = "ModelFreeShuffles",
                                          num_permutations = 10,
                                          p_value_method = "empirical",
                                          pool_empirical_null = FALSE)$ResultsTable),
@@ -82,7 +82,7 @@ test_that("single feature balanced accuracy", {
                                          use_k_fold = FALSE,
                                          num_folds = 10,
                                          use_empirical_null =  TRUE,
-                                         null_testing_method = "model free shuffles",
+                                         null_testing_method = "ModelFreeShuffles",
                                          num_permutations = 10,
                                          p_value_method = "gaussian",
                                          pool_empirical_null = FALSE)$ResultsTable))
@@ -101,7 +101,7 @@ test_that("single feature balanced accuracy", {
                                          use_k_fold = FALSE,
                                          num_folds = 10,
                                          use_empirical_null =  TRUE,
-                                         null_testing_method = "model free shuffles",
+                                         null_testing_method = "ModelFreeShuffles",
                                          num_permutations = 10,
                                          p_value_method = "gaussian",
                                          pool_empirical_null = FALSE)$ResultsTable))

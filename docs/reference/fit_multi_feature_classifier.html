@@ -61,7 +61,7 @@
   use_k_fold <span class="op">=</span> <span class="cn">TRUE</span>,
   num_folds <span class="op">=</span> <span class="fl">10</span>,
   use_empirical_null <span class="op">=</span> <span class="cn">FALSE</span>,
-  null_testing_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"model free shuffles"</span>, <span class="st">"null model fits"</span><span class="op">)</span>,
+  null_testing_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ModelFreeShuffles"</span>, <span class="st">"NullModelFits"</span><span class="op">)</span>,
   p_value_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"empirical"</span>, <span class="st">"gaussian"</span><span class="op">)</span>,
   num_permutations <span class="op">=</span> <span class="fl">100</span>,
   seed <span class="op">=</span> <span class="fl">123</span>
@@ -130,11 +130,11 @@
 <span class="r-in">  use_k_fold <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span class="r-in">  num_folds <span class="op">=</span> <span class="fl">10</span>,</span>
 <span class="r-in">  use_empirical_null <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span class="r-in">  null_testing_method <span class="op">=</span> <span class="st">"model free shuffles"</span>,</span>
+<span class="r-in">  null_testing_method <span class="op">=</span> <span class="st">"ModelFreeShuffles"</span>,</span>
 <span class="r-in">  p_value_method <span class="op">=</span> <span class="st">"gaussian"</span>,</span>
 <span class="r-in">  num_permutations <span class="op">=</span> <span class="fl">50</span>,</span>
 <span class="r-in">  seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Null testing method 'model free shuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Null testing method 'ModelFreeShuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Assessing feature values and unique IDs for NAs using matrix of all features.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: lattice</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: ggplot2</span>
@@ -143,58 +143,58 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.8611111    1.721254e-113   gaussprRadial Mean classification accuracy</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $RawClassificationResults</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     accuracy accuracy_sd category              method num_features_used</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.8611111   0.0539903     Main                &lt;NA&gt;                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.1222222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.2277778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.1444444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.1444444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0.1444444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  0.1777778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  0.1888889          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  0.1777778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 0.1611111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11 0.1277778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12 0.1722222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13 0.1611111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14 0.1555556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15 0.1555556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16 0.2055556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17 0.1944444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18 0.1500000          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19 0.1777778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20 0.1444444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21 0.1500000          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22 0.1611111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23 0.1277778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24 0.1722222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25 0.2333333          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26 0.2222222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27 0.1777778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28 0.2222222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29 0.1611111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30 0.2222222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31 0.2111111          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 32 0.1388889          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 33 0.1388889          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34 0.1666667          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 35 0.1833333          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 36 0.1444444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 37 0.1500000          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 38 0.1722222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 39 0.1888889          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 40 0.1888889          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 41 0.1722222          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 42 0.1555556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43 0.1555556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 44 0.1944444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 45 0.1555556          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 46 0.1277778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 47 0.1444444          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 48 0.1777778          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 49 0.1833333          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 50 0.2000000          NA     Null model free shuffles                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 51 0.2555556          NA     Null model free shuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     accuracy accuracy_sd category            method num_features_used</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.8611111   0.0539903     Main              &lt;NA&gt;                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.1222222          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.2277778          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.1444444          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.1444444          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0.1444444          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  0.1777778          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  0.1888889          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  0.1777778          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 0.1611111          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 0.1277778          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 0.1722222          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 0.1611111          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 0.1555556          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 0.1555556          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16 0.2055556          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17 0.1944444          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 0.1500000          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 0.1777778          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 0.1444444          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21 0.1500000          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22 0.1611111          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23 0.1277778          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24 0.1722222          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25 0.2333333          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26 0.2222222          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27 0.1777778          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28 0.2222222          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29 0.1611111          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30 0.2222222          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31 0.2111111          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32 0.1388889          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33 0.1388889          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34 0.1666667          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35 0.1833333          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36 0.1444444          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37 0.1500000          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38 0.1722222          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39 0.1888889          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40 0.1888889          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 41 0.1722222          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 42 0.1555556          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43 0.1555556          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 44 0.1944444          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 45 0.1555556          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 46 0.1277778          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 47 0.1444444          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 48 0.1777778          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 49 0.1833333          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 50 0.2000000          NA     Null ModelFreeShuffles                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 51 0.2555556          NA     Null ModelFreeShuffles                NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    classifier_name               statistic_name</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1    gaussprRadial Mean classification accuracy</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2    gaussprRadial Mean classification accuracy</span>

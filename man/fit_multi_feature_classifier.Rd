@@ -14,7 +14,7 @@ fit_multi_feature_classifier(
   use_k_fold = TRUE,
   num_folds = 10,
   use_empirical_null = FALSE,
-  null_testing_method = c("model free shuffles", "null model fits"),
+  null_testing_method = c("ModelFreeShuffles", "NullModelFits"),
   p_value_method = c("empirical", "gaussian"),
   num_permutations = 100,
   seed = 123
@@ -72,7 +72,7 @@ fit_multi_feature_classifier(featMat,
   use_k_fold = TRUE,
   num_folds = 10,
   use_empirical_null = TRUE,
-  null_testing_method = "model free shuffles",
+  null_testing_method = "ModelFreeShuffles",
   p_value_method = "gaussian",
   num_permutations = 50,
   seed = 123)

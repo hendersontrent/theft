@@ -153,7 +153,7 @@
 <div class="section level2">
 <h2 id="normalisingscaling-functions">Normalising/scaling functions<a class="anchor" aria-label="anchor" href="#normalisingscaling-functions"></a>
 </h2>
-<p>Putting calculated feature vectors on an equal scale is crucial for any statistical or machine learning model as variables with high variance can adversely impact the model’s capacity to fit the data appropriately, learn appropriate weight values, or minimise a loss function. <code>theft</code> includes the functions <code>normalise_feature_vector</code> to rescale a vector of values (e.g. vector of values for all participants in a study on the <code>SB_BinaryStats_mean_longstretch1</code> feature), and <code>normalise_feature_frame</code> to rescale a vector within a dataframe into a variety of different ranges for ease-of-use. Current transformations available in the package include:</p>
+<p>Putting calculated feature vectors on an equal scale is crucial for any statistical or machine learning model as variables with high variance can adversely impact the model’s capacity to fit the data appropriately, learn appropriate weight values, or minimise a loss function. <code>theft</code> includes the functions <code>normalise_feature_vector</code> to rescale a vector of values (e.g. vector of values for all participants in a study on the <code>SB_BinaryStats_mean_longstretch1</code> feature), and <code>normalise_feature_frame</code> to rescale a vector within a dataframe into a variety of different ranges for ease-of-use. Current transformations available in the package include (note that all apply a linear rescaling to the unit interval at the end):</p>
 <ul>
 <li>z-score - <code>"z-score"</code>
 </li>
@@ -223,7 +223,7 @@
                    is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, 
                    id_var <span class="op">=</span> <span class="st">"id"</span>, 
                    group_var <span class="op">=</span> <span class="st">"group"</span>, 
-                   method <span class="op">=</span> <span class="st">"z-score"</span>, 
+                   method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>, 
                    low_dim_method <span class="op">=</span> <span class="st">"PCA"</span>, 
                    plot <span class="op">=</span> <span class="cn">TRUE</span>,
                    show_covariance <span class="op">=</span> <span class="cn">TRUE</span>,
@@ -235,7 +235,7 @@
                    is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, 
                    id_var <span class="op">=</span> <span class="st">"id"</span>, 
                    group_var <span class="op">=</span> <span class="st">"group"</span>, 
-                   method <span class="op">=</span> <span class="st">"z-score"</span>, 
+                   method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>, 
                    low_dim_method <span class="op">=</span> <span class="st">"t-SNE"</span>, 
                    perplexity <span class="op">=</span> <span class="fl">10</span>, 
                    plot <span class="op">=</span> <span class="cn">TRUE</span>,
@@ -320,11 +320,11 @@
 <p>Importantly, the argument <code>null_testing_method</code> has two choices:</p>
 <ol style="list-style-type: decimal">
 <li>
-<code>model free shuffles</code> – Generates <code>num_permutations</code> number of random shuffles of group labels and computes the proportion that match, returning a distribution of “accuracies”. This model is extremely fast as it involves no null model fitting</li>
+<code>ModelFreeShuffles</code> – Generates <code>num_permutations</code> number of random shuffles of group labels and computes the proportion that match, returning a distribution of “accuracies”. This model is extremely fast as it involves no null model fitting</li>
 <li>
-<code>null model fits</code> – Generates <code>num_permutations</code> number of models that are trained and tested on data where the class label is shuffled. This method is slow but fits separate null models for each <code>num_permutations</code> shuffle</li>
+<code>NullModelFits</code> – Generates <code>num_permutations</code> number of models that are trained and tested on data where the class label is shuffled. This method is slow but fits separate null models for each <code>num_permutations</code> shuffle</li>
 </ol>
-<p>We we only use <code>model free shuffles</code> throughout this tutorial to reduce computation time.</p>
+<p>We we only use <code>ModelFreeShuffles</code> throughout this tutorial to reduce computation time.</p>
 <p><code>p_value_method</code> also has two choices:</p>
 <ol style="list-style-type: decimal">
 <li>
@@ -332,7 +332,7 @@
 <li>
 <code>gaussian</code> – calculates mean and standard deviation of the null distribution to analytically calculate <em>p</em>-value for main model against. Initial package testing indicated that the null distributions (especially for increasing <code>num_permutations</code>) were approximately Gaussian, meaning this approach can be feasibly used</li>
 </ol>
-<p>Note that <code>model free shuffles</code> is incompatible with <code>pool_empirical_null = TRUE</code> as the null distributions would be exactly the same. Further, if you set <code>pool_empirical_null = TRUE</code> this will compute statistical analysis for each feature against the entire pooled empirical null classification results of all features. Setting it to <code>FALSE</code> will compute a <em>p</em>-value for each feature against only its empirical null distribution.</p>
+<p>Note that <code>ModelFreeShuffles</code> is incompatible with <code>pool_empirical_null = TRUE</code> as the null distributions would be exactly the same. Further, if you set <code>pool_empirical_null = TRUE</code> this will compute statistical analysis for each feature against the entire pooled empirical null classification results of all features. Setting it to <code>FALSE</code> will compute a <em>p</em>-value for each feature against only its empirical null distribution.</p>
 <p><strong>IMPORTANT NOTE:</strong> <code>theft</code> currently does not label any results as “statistically significant”. If you intend to in your work, please adjust for multiple comparisons when considering numerous results against a threshold (e.g., <span class="math inline">\(\alpha = 0.05\)</span>) and ensure any decisions you make are grounded in careful thought.</p>
 <p>The <code>seed</code> argument allows you to specify a number to fix R’s random number generator for reproducible results. It defaults to <code>123</code> if nothing is provided.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
@@ -349,7 +349,7 @@
                                 use_k_fold <span class="op">=</span> <span class="cn">TRUE</span>,
                                 num_folds <span class="op">=</span> <span class="fl">10</span>,
                                 use_empirical_null <span class="op">=</span>  <span class="cn">TRUE</span>,
-                                null_testing_method <span class="op">=</span> <span class="st">"model free shuffles"</span>,
+                                null_testing_method <span class="op">=</span> <span class="st">"ModelFreeShuffles"</span>,
                                 p_value_method <span class="op">=</span> <span class="st">"gaussian"</span>,
                                 num_permutations <span class="op">=</span> <span class="fl">10</span>,
                                 pool_empirical_null <span class="op">=</span> <span class="cn">FALSE</span>,
@@ -399,7 +399,7 @@
                                               use_k_fold <span class="op">=</span> <span class="cn">TRUE</span>,
                                               num_folds <span class="op">=</span> <span class="fl">10</span>,
                                               use_empirical_null <span class="op">=</span>  <span class="cn">TRUE</span>,
-                                              null_testing_method <span class="op">=</span> <span class="st">"model free shuffles"</span>,
+                                              null_testing_method <span class="op">=</span> <span class="st">"ModelFreeShuffles"</span>,
                                               p_value_method <span class="op">=</span> <span class="st">"gaussian"</span>,
                                               num_permutations <span class="op">=</span> <span class="fl">10</span>,
                                               seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
@@ -412,11 +412,10 @@
 <li>
 <code>RawClassificationResults</code> – a dataframe containing classification accuracies results from each main and null prediction</li>
 </ol>
-<p>Here’s the feature set comparison plot:</p>
+<p>Here’s the feature set comparison plot (note that because we have balanced classes, in this case, accuracy <span class="math inline">\(=\)</span> balanced accuracy.):</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">FeatureSetResultsPlot</span><span class="op">)</span></code></pre></div>
 <p><img src="theft_files/figure-html/unnamed-chunk-23-1.png" width="768" style="display: block; margin: auto;"></p>
-<p>Note that because we have balanced classes, in this case, accuracy <span class="math inline">\(=\)</span> balanced accuracy.</p>
 <p>Here’s the test statistics summary:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">TestStatistics</span><span class="op">)</span>
@@ -436,13 +435,13 @@
 <span class="co">#&gt; 4 0.1444444          NA         0.1444444                   NA     Null</span>
 <span class="co">#&gt; 5 0.1444444          NA         0.1444444                   NA     Null</span>
 <span class="co">#&gt; 6 0.1444444          NA         0.1444444                   NA     Null</span>
-<span class="co">#&gt;                method num_features_used classifier_name</span>
-<span class="co">#&gt; 1             catch22                22       svmLinear</span>
-<span class="co">#&gt; 2 model free shuffles                NA       svmLinear</span>
-<span class="co">#&gt; 3 model free shuffles                NA       svmLinear</span>
-<span class="co">#&gt; 4 model free shuffles                NA       svmLinear</span>
-<span class="co">#&gt; 5 model free shuffles                NA       svmLinear</span>
-<span class="co">#&gt; 6 model free shuffles                NA       svmLinear</span>
+<span class="co">#&gt;              method num_features_used classifier_name</span>
+<span class="co">#&gt; 1           catch22                22       svmLinear</span>
+<span class="co">#&gt; 2 ModelFreeShuffles                NA       svmLinear</span>
+<span class="co">#&gt; 3 ModelFreeShuffles                NA       svmLinear</span>
+<span class="co">#&gt; 4 ModelFreeShuffles                NA       svmLinear</span>
+<span class="co">#&gt; 5 ModelFreeShuffles                NA       svmLinear</span>
+<span class="co">#&gt; 6 ModelFreeShuffles                NA       svmLinear</span>
 <span class="co">#&gt;                                                      statistic_name</span>
 <span class="co">#&gt; 1 Mean classification accuracy and balanced classification accuracy</span>
 <span class="co">#&gt; 2 Mean classification accuracy and balanced classification accuracy</span>
