@@ -577,7 +577,11 @@ clean_by_set <- function(data, themethod = NULL){
   tmp_cleaner <- tmp_cleaner %>%
     janitor::clean_names() %>%
     tidyr::pivot_longer(cols = 3:ncol(tmp_cleaner), names_to = "names", values_to = "values") %>%
-    dplyr::mutate(method = gsub("_.*", "\\1", .data$names)) %>%
+    dplyr::mutate(method = gsub("_.*", "\\1", .data$names),
+                  method = dplyr::case_when(
+                    .data$method == "tsfel" ~ "TSFEL",
+                    .data$method == "kats"  ~ "Kats",
+                    TRUE                    ~ method)) %>%
     dplyr::mutate(group = as.factor(.data$group)) %>%
     dplyr::mutate(group = as.integer(.data$group),
                   group = paste0("Group_", .data$group),
