@@ -27,9 +27,15 @@ knitr::opts_chunk$set(
 library(theft)
 ```
 
+## Purpose
+
+`theft` facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. An example of this structured workflow is demonstrated in the graphic below:
+
+<img src="workflow-graphic2.png" width="700" alt="Structured workflow of the theft package for R" />
+
 ## Core calculation functions
 
-We are going to use a dataset that comes standard with `theft` called `simData`. This dataset contains a collection of randomly generated time series for six different types of processes. The dataset can be accessed via:
+To explore package functionality, we are going to use a dataset that comes standard with `theft` called `simData`. This dataset contains a collection of randomly generated time series for six different types of processes. The dataset can be accessed via:
   
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 theft::simData
@@ -45,7 +51,7 @@ head(simData)
 
 The core function that automates the calculation of the feature statistics at once is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `"catch22"`, `"feasts"`, `"Kats"`, `"tsfeatures"`, `"tsfresh"`, and/or `"TSFEL"`.
 
-Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, depending on the input time-series, `theft` provides access to ~1200 features. Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets - the R-based sets will run fine) you should have a working Python installation and download `Kats` using the instructions located [here](https://facebookresearch.github.io/Kats/), `tsfresh` [here](https://tsfresh.com) or `TSFEL` [here](https://github.com/fraunhoferportugal/tsfel).
+Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, depending on the input time-series, `theft` provides access to $>1200$ features. Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets - the R-based sets will run fine) you should have a working Python installation and download `Kats` using the instructions located [here](https://facebookresearch.github.io/Kats/), `tsfresh` [here](https://tsfresh.com) or `TSFEL` [here](https://github.com/fraunhoferportugal/tsfel).
 
 Here is an example with the `catch22` set:
   

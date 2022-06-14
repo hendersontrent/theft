@@ -86,9 +86,15 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hendersontrent.github.io/theft/">theft</a></span><span class="op">)</span></code></pre></div>
 <div class="section level2">
+<h2 id="purpose">Purpose<a class="anchor" aria-label="anchor" href="#purpose"></a>
+</h2>
+<p><code>theft</code> facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. An example of this structured workflow is demonstrated in the graphic below:</p>
+<p><img src="workflow-graphic2.png" width="700" alt="Structured workflow of the theft package for R"></p>
+</div>
+<div class="section level2">
 <h2 id="core-calculation-functions">Core calculation functions<a class="anchor" aria-label="anchor" href="#core-calculation-functions"></a>
 </h2>
-<p>We are going to use a dataset that comes standard with <code>theft</code> called <code>simData</code>. This dataset contains a collection of randomly generated time series for six different types of processes. The dataset can be accessed via:</p>
+<p>To explore package functionality, we are going to use a dataset that comes standard with <code>theft</code> called <code>simData</code>. This dataset contains a collection of randomly generated time series for six different types of processes. The dataset can be accessed via:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">theft</span><span class="fu">::</span><span class="va"><a href="../reference/simData.html">simData</a></span></code></pre></div>
 <p>The data follows the following structure:</p>
@@ -105,7 +111,7 @@
 <h3 id="calculating-feature-summary-statistics">Calculating feature summary statistics<a class="anchor" aria-label="anchor" href="#calculating-feature-summary-statistics"></a>
 </h3>
 <p>The core function that automates the calculation of the feature statistics at once is <code>calculate_features</code>. You can choose which subset of features to calculate with the <code>feature_set</code> argument. The choices are currently <code>"catch22"</code>, <code>"feasts"</code>, <code>"Kats"</code>, <code>"tsfeatures"</code>, <code>"tsfresh"</code>, and/or <code>"TSFEL"</code>.</p>
-<p>Note that <code>Kats</code>, <code>tsfresh</code> and <code>TSFEL</code> are Python packages. The R package <code>reticulate</code> is used to call Python code that uses these packages and applies it within the broader <em>tidy</em> data philosophy embodied by <code>theft</code>. At present, depending on the input time-series, <code>theft</code> provides access to ~1200 features. Prior to using <code>theft</code> (only if you want to use the <code>Kats</code>, <code>tsfresh</code> or <code>TSFEL</code> feature sets - the R-based sets will run fine) you should have a working Python installation and download <code>Kats</code> using the instructions located <a href="https://facebookresearch.github.io/Kats/" class="external-link">here</a>, <code>tsfresh</code> <a href="https://tsfresh.com" class="external-link">here</a> or <code>TSFEL</code> <a href="https://github.com/fraunhoferportugal/tsfel" class="external-link">here</a>.</p>
+<p>Note that <code>Kats</code>, <code>tsfresh</code> and <code>TSFEL</code> are Python packages. The R package <code>reticulate</code> is used to call Python code that uses these packages and applies it within the broader <em>tidy</em> data philosophy embodied by <code>theft</code>. At present, depending on the input time-series, <code>theft</code> provides access to <span class="math inline">\(&gt;1200\)</span> features. Prior to using <code>theft</code> (only if you want to use the <code>Kats</code>, <code>tsfresh</code> or <code>TSFEL</code> feature sets - the R-based sets will run fine) you should have a working Python installation and download <code>Kats</code> using the instructions located <a href="https://facebookresearch.github.io/Kats/" class="external-link">here</a>, <code>tsfresh</code> <a href="https://tsfresh.com" class="external-link">here</a> or <code>TSFEL</code> <a href="https://github.com/fraunhoferportugal/tsfel" class="external-link">here</a>.</p>
 <p>Here is an example with the <code>catch22</code> set:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">feature_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, 
