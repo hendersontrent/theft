@@ -27,9 +27,15 @@ knitr::opts_chunk$set(
 library(theft)
 ```
 
+## Purpose
+
+`theft` facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. This structured workflow is presented in the graphic below (note that `theft` has many more functions than displayed in this graphic --- keep reading for more):
+
+<img src="workflow-graphic2.png" width="700" alt="Structured workflow of the theft package for R" />
+
 ## Core calculation functions
 
-We are going to use a dataset that comes standard with `theft` called `simData`. This dataset contains a collection of randomly generated time series for six different types of processes. The dataset can be accessed via:
+To explore package functionality, we are going to use a dataset that comes standard with `theft` called `simData`. This dataset contains a collection of randomly generated time series for six different types of processes. The dataset can be accessed via:
   
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 theft::simData
@@ -45,7 +51,7 @@ head(simData)
 
 The core function that automates the calculation of the feature statistics at once is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `"catch22"`, `"feasts"`, `"Kats"`, `"tsfeatures"`, `"tsfresh"`, and/or `"TSFEL"`.
 
-Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, depending on the input time-series, `theft` provides access to ~1200 features. Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets - the R-based sets will run fine) you should have a working Python installation and download `Kats` using the instructions located [here](https://facebookresearch.github.io/Kats/), `tsfresh` [here](https://tsfresh.com) or `TSFEL` [here](https://github.com/fraunhoferportugal/tsfel).
+Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, depending on the input time-series, `theft` provides access to $>1200$ features. Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets - the R-based sets will run fine) you should have a working Python installation and download `Kats` using the instructions located [here](https://facebookresearch.github.io/Kats/), `tsfresh` [here](https://tsfresh.com) or `TSFEL` [here](https://github.com/fraunhoferportugal/tsfel).
 
 Here is an example with the `catch22` set:
   
@@ -98,7 +104,7 @@ plot_quality_matrix(feature_matrix)
 
 ## Normalising/scaling functions
 
-Putting calculated feature vectors on an equal scale is crucial for any statistical or machine learning model as variables with high variance can adversely impact the model's capacity to fit the data appropriately, learn appropriate weight values, or minimise a loss function. `theft` includes the functions `normalise_feature_vector` to rescale a vector of values (e.g. vector of values for all participants in a study on the `SB_BinaryStats_mean_longstretch1` feature), and `normalise_feature_frame` to rescale a vector within a dataframe into a variety of different ranges for ease-of-use. Current transformations available in the package include:
+Putting calculated feature vectors on an equal scale is crucial for any statistical or machine learning model as variables with high variance can adversely impact the model's capacity to fit the data appropriately, learn appropriate weight values, or minimise a loss function. `theft` includes the functions `normalise_feature_vector` to rescale a vector of values (e.g. vector of values for all participants in a study on the `SB_BinaryStats_mean_longstretch1` feature), and `normalise_feature_frame` to rescale a vector within a dataframe into a variety of different ranges for ease-of-use. Current transformations available in the package include (note that all apply a linear rescaling to the unit interval at the end):
 
 * z-score - `"z-score"`
 * Sigmoid - `"Sigmoid"`
@@ -168,7 +174,7 @@ plot_low_dimension(feature_matrix,
                    is_normalised = FALSE, 
                    id_var = "id", 
                    group_var = "group", 
-                   method = "z-score", 
+                   method = "RobustSigmoid", 
                    low_dim_method = "PCA", 
                    plot = TRUE,
                    show_covariance = TRUE,
@@ -182,7 +188,7 @@ plot_low_dimension(feature_matrix,
                    is_normalised = FALSE, 
                    id_var = "id", 
                    group_var = "group", 
-                   method = "z-score", 
+                   method = "RobustSigmoid", 
                    low_dim_method = "t-SNE", 
                    perplexity = 10, 
                    plot = TRUE,
@@ -263,17 +269,17 @@ The code below produces analysis for a multiclass problem using a Gaussian proce
 
 Importantly, the argument `null_testing_method` has two choices:
   
-  1. `model free shuffles` -- Generates `num_permutations` number of random shuffles of group labels and computes the proportion that match, returning a distribution of "accuracies". This model is extremely fast as it involves no null model fitting
-2. `null model fits` -- Generates `num_permutations` number of models that are trained and tested on data where the class label is shuffled. This method is slow but fits separate null models for each `num_permutations` shuffle
+  1. `ModelFreeShuffles` -- Generates `num_permutations` number of random shuffles of group labels and computes the proportion that match, returning a distribution of "accuracies". This model is extremely fast as it involves no null model fitting
+2. `NullModelFits` -- Generates `num_permutations` number of models that are trained and tested on data where the class label is shuffled. This method is slow but fits separate null models for each `num_permutations` shuffle
 
-We we only use `model free shuffles` throughout this tutorial to reduce computation time.
+We we only use `ModelFreeShuffles` throughout this tutorial to reduce computation time.
 
 `p_value_method` also has two choices:
   
 1. `empirical` -- calculates the proportion of null classification accuracies that are equal to or greater than the main model accuracy
 2. `gaussian` -- calculates mean and standard deviation of the null distribution to analytically calculate *p*-value for main model against. Initial package testing indicated that the null distributions (especially for increasing `num_permutations`) were approximately Gaussian, meaning this approach can be feasibly used
 
-Note that `model free shuffles` is incompatible with `pool_empirical_null = TRUE` as the null distributions would be exactly the same. Further, if you set `pool_empirical_null = TRUE` this will compute statistical analysis for each feature against the entire pooled empirical null classification results of all features. Setting it to `FALSE` will compute a *p*-value for each feature against only its empirical null distribution.
+Note that `ModelFreeShuffles` is incompatible with `pool_empirical_null = TRUE` as the null distributions would be exactly the same. Further, if you set `pool_empirical_null = TRUE` this will compute statistical analysis for each feature against the entire pooled empirical null classification results of all features. Setting it to `FALSE` will compute a *p*-value for each feature against only its empirical null distribution.
 
 **IMPORTANT NOTE:** `theft` currently does not label any results as "statistically significant". If you intend to in your work, please adjust for multiple comparisons when considering numerous results against a threshold (e.g., $\alpha = 0.05$) and ensure any decisions you make are grounded in careful thought.
 
@@ -293,7 +299,7 @@ outputs <- compute_top_features(feature_matrix,
                                 use_k_fold = TRUE,
                                 num_folds = 10,
                                 use_empirical_null =  TRUE,
-                                null_testing_method = "model free shuffles",
+                                null_testing_method = "ModelFreeShuffles",
                                 p_value_method = "gaussian",
                                 num_permutations = 10,
                                 pool_empirical_null = FALSE,
@@ -342,7 +348,7 @@ multi_outputs <- fit_multi_feature_classifier(feature_matrix,
                                               use_k_fold = TRUE,
                                               num_folds = 10,
                                               use_empirical_null =  TRUE,
-                                              null_testing_method = "model free shuffles",
+                                              null_testing_method = "ModelFreeShuffles",
                                               p_value_method = "gaussian",
                                               num_permutations = 10,
                                               seed = 123)
@@ -350,17 +356,15 @@ multi_outputs <- fit_multi_feature_classifier(feature_matrix,
 
 We can now access the various named objects returned by this function, which include:
 
-1. `FeatureSetResultsPlot` (only if `by_set` is set to `TRUE`) -- a `ggplot` displaying mean classification accuracy (or balanced classification accuracy if `use_balanced_accuracy` is set to `TRUE`) by feature set
+1. `FeatureSetResultsPlot` (only if `by_set` is set to `TRUE`) -- a `ggplot` displaying classification accuracy (or balanced classification accuracy if `use_balanced_accuracy` is set to `TRUE`) by feature set
 2. `TestStatistics` -- a dataframe containing a summary of test statistics (and *p*-values if `use_empirical_null` is set to `TRUE`)
 3. `RawClassificationResults` -- a dataframe containing classification accuracies results from each main and null prediction
 
-Here's the feature set comparison plot:
+Here's the feature set comparison plot (note that because we have balanced classes, in this case, accuracy $=$ balanced accuracy.):
   
 ```{r, message = FALSE, warning = FALSE}
 print(multi_outputs$FeatureSetResultsPlot)
 ```
-
-Note that because we have balanced classes, in this case, accuracy $=$ balanced accuracy.
 
 Here's the test statistics summary:
 

@@ -181,7 +181,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #'   use_k_fold = FALSE,
 #'   num_folds = 10,
 #'   use_empirical_null = TRUE,
-#'   null_testing_method = "model free shuffles",
+#'   null_testing_method = "ModelFreeShuffles",
 #'   p_value_method = "gaussian",
 #'   num_permutations = 100,
 #'   pool_empirical_null = FALSE,
@@ -198,7 +198,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                  clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid"),
                                  use_balanced_accuracy = FALSE,
                                  use_k_fold = FALSE, num_folds = 10, 
-                                 use_empirical_null = FALSE, null_testing_method = c("model free shuffles", "null model fits"),
+                                 use_empirical_null = FALSE, null_testing_method = c("ModelFreeShuffles", "NullModelFits"),
                                  p_value_method = c("empirical", "gaussian"), num_permutations = 50,
                                  pool_empirical_null = FALSE, seed = 123){
   
@@ -293,23 +293,33 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Null testing options
   
-  theoptions <- c("model free shuffles", "null model fits")
-  
-  if(is.null(null_testing_method) || missing(null_testing_method)){
-    null_testing_method <- "model free shuffles"
-    message("No argument supplied to null_testing_method. Using 'model free shuffles' as default.")
+  if(length(null_testing_method) != 1 && test_method %ni% c("t-test", "wilcox", "binomial logistic")){
+    stop("null_testing_method should be a single string of either 'ModelFreeShuffles' or 'NullModelFits'.")
   }
   
-  if(length(null_testing_method) != 1){
-    stop("null_testing_method should be a single string of either 'model free shuffles' or 'null model fits'.")
+  if((is.null(null_testing_method) || missing(null_testing_method)) && test_method %ni% c("t-test", "wilcox", "binomial logistic")){
+    null_testing_method <- "ModelFreeShuffles"
+    message("No argument supplied to null_testing_method. Using 'ModelFreeShuffles' as default.")
   }
   
-  if(null_testing_method %ni% theoptions){
-    stop("null_testing_method should be a single string of either 'model free shuffles' or 'null model fits'.")
+  if(test_method %ni% c("t-test", "wilcox", "binomial logistic") && null_testing_method == "model free shuffles"){
+    message("'model free shuffles' is deprecated, please use 'ModelFreeShuffles' instead.")
+    null_testing_method <- "ModelFreeShuffles"
   }
   
-  if(null_testing_method == "model free shuffles" && pool_empirical_null){
-    stop("'model free shuffles' and pooled empirical null are incompatible (pooled null combines each feature's null into a grand null and features don'tt get a null if 'model free shuffles' is used). Please respecify.")
+  if(test_method %ni% c("t-test", "wilcox", "binomial logistic") && null_testing_method == "null model fits"){
+    message("'null model fits' is deprecated, please use 'NullModelFits' instead.")
+    null_testing_method <- "NullModelFits"
+  }
+  
+  theoptions <- c("ModelFreeShuffles", "NullModelFits")
+  
+  if(test_method %ni% c("t-test", "wilcox", "binomial logistic") && null_testing_method %ni% theoptions){
+    stop("null_testing_method should be a single string of either 'ModelFreeShuffles' or 'NullModelFits'.")
+  }
+  
+  if(test_method %ni% c("t-test", "wilcox", "binomial logistic") && null_testing_method == "ModelFreeShuffles" && num_permutations < 1000){
+    message("Null testing method 'ModelFreeShuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.")
   }
   
   # p-value options

@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9.7</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,7 +75,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Introduction to theft</h1>
                         <h4 data-toc-skip class="author">Trent Henderson</h4>
             
-            <h4 data-toc-skip class="date">2022-05-31</h4>
+            <h4 data-toc-skip class="date">2022-06-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/HEAD/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -86,9 +86,15 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hendersontrent.github.io/theft/">theft</a></span><span class="op">)</span></code></pre></div>
 <div class="section level2">
+<h2 id="purpose">Purpose<a class="anchor" aria-label="anchor" href="#purpose"></a>
+</h2>
+<p><code>theft</code> facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. This structured workflow is presented in the graphic below (note that <code>theft</code> has many more functions than displayed in this graphic — keep reading for more):</p>
+<p><img src="workflow-graphic2.png" width="700" alt="Structured workflow of the theft package for R"></p>
+</div>
+<div class="section level2">
 <h2 id="core-calculation-functions">Core calculation functions<a class="anchor" aria-label="anchor" href="#core-calculation-functions"></a>
 </h2>
-<p>We are going to use a dataset that comes standard with <code>theft</code> called <code>simData</code>. This dataset contains a collection of randomly generated time series for six different types of processes. The dataset can be accessed via:</p>
+<p>To explore package functionality, we are going to use a dataset that comes standard with <code>theft</code> called <code>simData</code>. This dataset contains a collection of randomly generated time series for six different types of processes. The dataset can be accessed via:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">theft</span><span class="fu">::</span><span class="va"><a href="../reference/simData.html">simData</a></span></code></pre></div>
 <p>The data follows the following structure:</p>
@@ -105,7 +111,7 @@
 <h3 id="calculating-feature-summary-statistics">Calculating feature summary statistics<a class="anchor" aria-label="anchor" href="#calculating-feature-summary-statistics"></a>
 </h3>
 <p>The core function that automates the calculation of the feature statistics at once is <code>calculate_features</code>. You can choose which subset of features to calculate with the <code>feature_set</code> argument. The choices are currently <code>"catch22"</code>, <code>"feasts"</code>, <code>"Kats"</code>, <code>"tsfeatures"</code>, <code>"tsfresh"</code>, and/or <code>"TSFEL"</code>.</p>
-<p>Note that <code>Kats</code>, <code>tsfresh</code> and <code>TSFEL</code> are Python packages. The R package <code>reticulate</code> is used to call Python code that uses these packages and applies it within the broader <em>tidy</em> data philosophy embodied by <code>theft</code>. At present, depending on the input time-series, <code>theft</code> provides access to ~1200 features. Prior to using <code>theft</code> (only if you want to use the <code>Kats</code>, <code>tsfresh</code> or <code>TSFEL</code> feature sets - the R-based sets will run fine) you should have a working Python installation and download <code>Kats</code> using the instructions located <a href="https://facebookresearch.github.io/Kats/" class="external-link">here</a>, <code>tsfresh</code> <a href="https://tsfresh.com" class="external-link">here</a> or <code>TSFEL</code> <a href="https://github.com/fraunhoferportugal/tsfel" class="external-link">here</a>.</p>
+<p>Note that <code>Kats</code>, <code>tsfresh</code> and <code>TSFEL</code> are Python packages. The R package <code>reticulate</code> is used to call Python code that uses these packages and applies it within the broader <em>tidy</em> data philosophy embodied by <code>theft</code>. At present, depending on the input time-series, <code>theft</code> provides access to <span class="math inline">\(&gt;1200\)</span> features. Prior to using <code>theft</code> (only if you want to use the <code>Kats</code>, <code>tsfresh</code> or <code>TSFEL</code> feature sets - the R-based sets will run fine) you should have a working Python installation and download <code>Kats</code> using the instructions located <a href="https://facebookresearch.github.io/Kats/" class="external-link">here</a>, <code>tsfresh</code> <a href="https://tsfresh.com" class="external-link">here</a> or <code>TSFEL</code> <a href="https://github.com/fraunhoferportugal/tsfel" class="external-link">here</a>.</p>
 <p>Here is an example with the <code>catch22</code> set:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">feature_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, 
@@ -153,7 +159,7 @@
 <div class="section level2">
 <h2 id="normalisingscaling-functions">Normalising/scaling functions<a class="anchor" aria-label="anchor" href="#normalisingscaling-functions"></a>
 </h2>
-<p>Putting calculated feature vectors on an equal scale is crucial for any statistical or machine learning model as variables with high variance can adversely impact the model’s capacity to fit the data appropriately, learn appropriate weight values, or minimise a loss function. <code>theft</code> includes the functions <code>normalise_feature_vector</code> to rescale a vector of values (e.g. vector of values for all participants in a study on the <code>SB_BinaryStats_mean_longstretch1</code> feature), and <code>normalise_feature_frame</code> to rescale a vector within a dataframe into a variety of different ranges for ease-of-use. Current transformations available in the package include:</p>
+<p>Putting calculated feature vectors on an equal scale is crucial for any statistical or machine learning model as variables with high variance can adversely impact the model’s capacity to fit the data appropriately, learn appropriate weight values, or minimise a loss function. <code>theft</code> includes the functions <code>normalise_feature_vector</code> to rescale a vector of values (e.g. vector of values for all participants in a study on the <code>SB_BinaryStats_mean_longstretch1</code> feature), and <code>normalise_feature_frame</code> to rescale a vector within a dataframe into a variety of different ranges for ease-of-use. Current transformations available in the package include (note that all apply a linear rescaling to the unit interval at the end):</p>
 <ul>
 <li>z-score - <code>"z-score"</code>
 </li>
@@ -223,7 +229,7 @@
                    is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, 
                    id_var <span class="op">=</span> <span class="st">"id"</span>, 
                    group_var <span class="op">=</span> <span class="st">"group"</span>, 
-                   method <span class="op">=</span> <span class="st">"z-score"</span>, 
+                   method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>, 
                    low_dim_method <span class="op">=</span> <span class="st">"PCA"</span>, 
                    plot <span class="op">=</span> <span class="cn">TRUE</span>,
                    show_covariance <span class="op">=</span> <span class="cn">TRUE</span>,
@@ -235,7 +241,7 @@
                    is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, 
                    id_var <span class="op">=</span> <span class="st">"id"</span>, 
                    group_var <span class="op">=</span> <span class="st">"group"</span>, 
-                   method <span class="op">=</span> <span class="st">"z-score"</span>, 
+                   method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>, 
                    low_dim_method <span class="op">=</span> <span class="st">"t-SNE"</span>, 
                    perplexity <span class="op">=</span> <span class="fl">10</span>, 
                    plot <span class="op">=</span> <span class="cn">TRUE</span>,
@@ -320,11 +326,11 @@
 <p>Importantly, the argument <code>null_testing_method</code> has two choices:</p>
 <ol style="list-style-type: decimal">
 <li>
-<code>model free shuffles</code> – Generates <code>num_permutations</code> number of random shuffles of group labels and computes the proportion that match, returning a distribution of “accuracies”. This model is extremely fast as it involves no null model fitting</li>
+<code>ModelFreeShuffles</code> – Generates <code>num_permutations</code> number of random shuffles of group labels and computes the proportion that match, returning a distribution of “accuracies”. This model is extremely fast as it involves no null model fitting</li>
 <li>
-<code>null model fits</code> – Generates <code>num_permutations</code> number of models that are trained and tested on data where the class label is shuffled. This method is slow but fits separate null models for each <code>num_permutations</code> shuffle</li>
+<code>NullModelFits</code> – Generates <code>num_permutations</code> number of models that are trained and tested on data where the class label is shuffled. This method is slow but fits separate null models for each <code>num_permutations</code> shuffle</li>
 </ol>
-<p>We we only use <code>model free shuffles</code> throughout this tutorial to reduce computation time.</p>
+<p>We we only use <code>ModelFreeShuffles</code> throughout this tutorial to reduce computation time.</p>
 <p><code>p_value_method</code> also has two choices:</p>
 <ol style="list-style-type: decimal">
 <li>
@@ -332,7 +338,7 @@
 <li>
 <code>gaussian</code> – calculates mean and standard deviation of the null distribution to analytically calculate <em>p</em>-value for main model against. Initial package testing indicated that the null distributions (especially for increasing <code>num_permutations</code>) were approximately Gaussian, meaning this approach can be feasibly used</li>
 </ol>
-<p>Note that <code>model free shuffles</code> is incompatible with <code>pool_empirical_null = TRUE</code> as the null distributions would be exactly the same. Further, if you set <code>pool_empirical_null = TRUE</code> this will compute statistical analysis for each feature against the entire pooled empirical null classification results of all features. Setting it to <code>FALSE</code> will compute a <em>p</em>-value for each feature against only its empirical null distribution.</p>
+<p>Note that <code>ModelFreeShuffles</code> is incompatible with <code>pool_empirical_null = TRUE</code> as the null distributions would be exactly the same. Further, if you set <code>pool_empirical_null = TRUE</code> this will compute statistical analysis for each feature against the entire pooled empirical null classification results of all features. Setting it to <code>FALSE</code> will compute a <em>p</em>-value for each feature against only its empirical null distribution.</p>
 <p><strong>IMPORTANT NOTE:</strong> <code>theft</code> currently does not label any results as “statistically significant”. If you intend to in your work, please adjust for multiple comparisons when considering numerous results against a threshold (e.g., <span class="math inline">\(\alpha = 0.05\)</span>) and ensure any decisions you make are grounded in careful thought.</p>
 <p>The <code>seed</code> argument allows you to specify a number to fix R’s random number generator for reproducible results. It defaults to <code>123</code> if nothing is provided.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
@@ -349,7 +355,7 @@
                                 use_k_fold <span class="op">=</span> <span class="cn">TRUE</span>,
                                 num_folds <span class="op">=</span> <span class="fl">10</span>,
                                 use_empirical_null <span class="op">=</span>  <span class="cn">TRUE</span>,
-                                null_testing_method <span class="op">=</span> <span class="st">"model free shuffles"</span>,
+                                null_testing_method <span class="op">=</span> <span class="st">"ModelFreeShuffles"</span>,
                                 p_value_method <span class="op">=</span> <span class="st">"gaussian"</span>,
                                 num_permutations <span class="op">=</span> <span class="fl">10</span>,
                                 pool_empirical_null <span class="op">=</span> <span class="cn">FALSE</span>,
@@ -361,9 +367,9 @@
 <span class="co">#&gt; 1     catch22_sp_summaries_welch_rect_area_5_1 0.9500000    3.583919e-134</span>
 <span class="co">#&gt; 2     catch22_sp_summaries_welch_rect_centroid 0.8722222    1.977506e-109</span>
 <span class="co">#&gt; 3         catch22_fc_local_simple_mean3_stderr 0.8222222     7.091601e-95</span>
-<span class="co">#&gt; 4           catch22_sb_motif_three_quantile_hh 0.7777778     7.962008e-83</span>
-<span class="co">#&gt; 5 catch22_co_embed2_dist_tau_d_expfit_meandiff 0.6944444     1.761311e-62</span>
-<span class="co">#&gt; 6            catch22_co_histogram_ami_even_2_5 0.6722222     1.499138e-57</span>
+<span class="co">#&gt; 4                            catch22_co_f1ecac 0.7888889     9.262259e-86</span>
+<span class="co">#&gt; 5           catch22_sb_motif_three_quantile_hh 0.7777778     7.962008e-83</span>
+<span class="co">#&gt; 6 catch22_co_embed2_dist_tau_d_expfit_meandiff 0.6944444     1.761311e-62</span>
 <span class="co">#&gt;   classifier_name               statistic_name</span>
 <span class="co">#&gt; 1   gaussprRadial Mean classification accuracy</span>
 <span class="co">#&gt; 2   gaussprRadial Mean classification accuracy</span>
@@ -399,24 +405,23 @@
                                               use_k_fold <span class="op">=</span> <span class="cn">TRUE</span>,
                                               num_folds <span class="op">=</span> <span class="fl">10</span>,
                                               use_empirical_null <span class="op">=</span>  <span class="cn">TRUE</span>,
-                                              null_testing_method <span class="op">=</span> <span class="st">"model free shuffles"</span>,
+                                              null_testing_method <span class="op">=</span> <span class="st">"ModelFreeShuffles"</span>,
                                               p_value_method <span class="op">=</span> <span class="st">"gaussian"</span>,
                                               num_permutations <span class="op">=</span> <span class="fl">10</span>,
                                               seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
 <p>We can now access the various named objects returned by this function, which include:</p>
 <ol style="list-style-type: decimal">
 <li>
-<code>FeatureSetResultsPlot</code> (only if <code>by_set</code> is set to <code>TRUE</code>) – a <code>ggplot</code> displaying mean classification accuracy (or balanced classification accuracy if <code>use_balanced_accuracy</code> is set to <code>TRUE</code>) by feature set</li>
+<code>FeatureSetResultsPlot</code> (only if <code>by_set</code> is set to <code>TRUE</code>) – a <code>ggplot</code> displaying classification accuracy (or balanced classification accuracy if <code>use_balanced_accuracy</code> is set to <code>TRUE</code>) by feature set</li>
 <li>
 <code>TestStatistics</code> – a dataframe containing a summary of test statistics (and <em>p</em>-values if <code>use_empirical_null</code> is set to <code>TRUE</code>)</li>
 <li>
 <code>RawClassificationResults</code> – a dataframe containing classification accuracies results from each main and null prediction</li>
 </ol>
-<p>Here’s the feature set comparison plot:</p>
+<p>Here’s the feature set comparison plot (note that because we have balanced classes, in this case, accuracy <span class="math inline">\(=\)</span> balanced accuracy.):</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">FeatureSetResultsPlot</span><span class="op">)</span></code></pre></div>
 <p><img src="theft_files/figure-html/unnamed-chunk-23-1.png" width="768" style="display: block; margin: auto;"></p>
-<p>Note that because we have balanced classes, in this case, accuracy <span class="math inline">\(=\)</span> balanced accuracy.</p>
 <p>Here’s the test statistics summary:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">TestStatistics</span><span class="op">)</span>
@@ -436,13 +441,13 @@
 <span class="co">#&gt; 4 0.1444444          NA         0.1444444                   NA     Null</span>
 <span class="co">#&gt; 5 0.1444444          NA         0.1444444                   NA     Null</span>
 <span class="co">#&gt; 6 0.1444444          NA         0.1444444                   NA     Null</span>
-<span class="co">#&gt;                method num_features_used classifier_name</span>
-<span class="co">#&gt; 1             catch22                22       svmLinear</span>
-<span class="co">#&gt; 2 model free shuffles                NA       svmLinear</span>
-<span class="co">#&gt; 3 model free shuffles                NA       svmLinear</span>
-<span class="co">#&gt; 4 model free shuffles                NA       svmLinear</span>
-<span class="co">#&gt; 5 model free shuffles                NA       svmLinear</span>
-<span class="co">#&gt; 6 model free shuffles                NA       svmLinear</span>
+<span class="co">#&gt;              method num_features_used classifier_name</span>
+<span class="co">#&gt; 1           catch22                22       svmLinear</span>
+<span class="co">#&gt; 2 ModelFreeShuffles                NA       svmLinear</span>
+<span class="co">#&gt; 3 ModelFreeShuffles                NA       svmLinear</span>
+<span class="co">#&gt; 4 ModelFreeShuffles                NA       svmLinear</span>
+<span class="co">#&gt; 5 ModelFreeShuffles                NA       svmLinear</span>
+<span class="co">#&gt; 6 ModelFreeShuffles                NA       svmLinear</span>
 <span class="co">#&gt;                                                      statistic_name</span>
 <span class="co">#&gt; 1 Mean classification accuracy and balanced classification accuracy</span>
 <span class="co">#&gt; 2 Mean classification accuracy and balanced classification accuracy</span>

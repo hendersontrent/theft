@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9.7</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,7 @@
   use_k_fold <span class="op">=</span> <span class="cn">FALSE</span>,
   num_folds <span class="op">=</span> <span class="fl">10</span>,
   use_empirical_null <span class="op">=</span> <span class="cn">FALSE</span>,
-  null_testing_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"model free shuffles"</span>, <span class="st">"null model fits"</span><span class="op">)</span>,
+  null_testing_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ModelFreeShuffles"</span>, <span class="st">"NullModelFits"</span><span class="op">)</span>,
   p_value_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"empirical"</span>, <span class="st">"gaussian"</span><span class="op">)</span>,
   num_permutations <span class="op">=</span> <span class="fl">50</span>,
   pool_empirical_null <span class="op">=</span> <span class="cn">FALSE</span>,
@@ -150,26 +150,28 @@
 <span class="r-in">  use_k_fold <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span class="r-in">  num_folds <span class="op">=</span> <span class="fl">10</span>,</span>
 <span class="r-in">  use_empirical_null <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span class="r-in">  null_testing_method <span class="op">=</span> <span class="st">"model free shuffles"</span>,</span>
+<span class="r-in">  null_testing_method <span class="op">=</span> <span class="st">"ModelFreeShuffles"</span>,</span>
 <span class="r-in">  p_value_method <span class="op">=</span> <span class="st">"gaussian"</span>,</span>
 <span class="r-in">  num_permutations <span class="op">=</span> <span class="fl">100</span>,</span>
 <span class="r-in">  pool_empirical_null <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span class="r-in">  seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Null testing method 'model free shuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Null testing method 'ModelFreeShuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Null testing method 'ModelFreeShuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> This will take a while. Great reason to go grab a coffee and relax ^_^</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Selecting top features using p-value.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ResultsTable</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                         feature  accuracy p_value_accuracy</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1      catch22_sp_summaries_welch_rect_area_5_1 0.9666667    2.837940e-170</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2      catch22_sp_summaries_welch_rect_centroid 0.8888889    3.530057e-139</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3          catch22_fc_local_simple_mean3_stderr 0.8277778    5.685461e-117</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4            catch22_sb_motif_three_quantile_hh 0.8000000    1.591674e-107</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  catch22_co_embed2_dist_tau_d_expfit_meandiff 0.7444444     7.643036e-90</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6             catch22_co_histogram_ami_even_2_5 0.7055556     1.988011e-78</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7                       catch22_co_first_min_ac 0.7000000     7.320026e-77</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8     catch22_sb_binary_stats_mean_longstretch1 0.6555556     6.481323e-65</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9   catch22_sb_transition_matrix_3ac_sumdiagcov 0.6333333     2.498169e-59</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10      catch22_fc_local_simple_mean1_tauresrat 0.6277778     5.672155e-58</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                             catch22_co_f1ecac 0.8777778    5.382803e-135</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4          catch22_fc_local_simple_mean3_stderr 0.8277778    5.685461e-117</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5            catch22_sb_motif_three_quantile_hh 0.8000000    1.591674e-107</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  catch22_co_embed2_dist_tau_d_expfit_meandiff 0.7444444     7.643036e-90</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7             catch22_co_histogram_ami_even_2_5 0.7055556     1.988011e-78</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8                       catch22_co_first_min_ac 0.7000000     7.320026e-77</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9     catch22_sb_binary_stats_mean_longstretch1 0.6555556     6.481323e-65</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10  catch22_sb_transition_matrix_3ac_sumdiagcov 0.6333333     2.498169e-59</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    classifier_name               statistic_name</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1    gaussprRadial Mean classification accuracy</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2    gaussprRadial Mean classification accuracy</span>

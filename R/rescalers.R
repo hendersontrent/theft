@@ -11,7 +11,6 @@
 minmax_scaler <- function(x){
   
   x1 <- as.vector(x) # Catches class "ts" cases
-  
   x_new <- scales::rescale(x1, to = c(0, 1))
   return(x_new)
 }
@@ -19,6 +18,7 @@ minmax_scaler <- function(x){
 #' This function rescales a vector of numerical values into z-scores
 #' @importFrom stats sd
 #' @param x a numeric vector, preferably of feature values computed by other \code{theft} package functions
+#' @param unitInt Booelan whether to rescale outputs into unit interval \code{[0,1]}. Defaults to \code{TRUE}
 #' @return x a numeric vector, rescaled into z-scores
 #' @author Trent Henderson
 #' @export
@@ -26,11 +26,15 @@ minmax_scaler <- function(x){
 #' zscore_scaler(stats::rnorm(10))
 #'
 
-zscore_scaler <- function(x){
+zscore_scaler <- function(x, unitInt = TRUE){
   
   x1 <- as.vector(x) # Catches class "ts" cases
-  
   x_new <- (x1 - mean(x1, na.rm = TRUE)) / stats::sd(x1, na.rm = TRUE)
+  
+  if(unitInt){
+    x_new <- scales::rescale(x_new, to = c(0, 1))
+  }
+  
   return(x_new)
 }
 
@@ -49,13 +53,10 @@ zscore_scaler <- function(x){
 sigmoid_scaler <- function(x, unitInt = TRUE){
   
   x1 <- as.vector(x) # Catches class "ts" cases
-  
   x_new <- 1 / (1 + exp(-((x1 - mean(x1, na.rm = TRUE)) / stats::sd(x1, na.rm = TRUE))))
   
   if(unitInt){
     x_new <- scales::rescale(x_new, to = c(0, 1))
-  } else{
-    x_new
   }
   
   return(x_new)
@@ -77,13 +78,10 @@ sigmoid_scaler <- function(x, unitInt = TRUE){
 robustsigmoid_scaler <- function(x, unitInt = TRUE){
   
   x1 <- as.vector(x) # Catches class "ts" cases
-  
   x_new <- 1 / (1 + exp(-((x1 - stats::median(x1, na.rm = TRUE)) / (stats::IQR(x1, na.rm = TRUE) / 1.35))))
   
   if(unitInt){
     x_new <- scales::rescale(x_new, to = c(0, 1))
-  } else{
-    x_new
   }
   
   return(x_new)
