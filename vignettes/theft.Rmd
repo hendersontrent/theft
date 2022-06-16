@@ -356,7 +356,7 @@ multi_outputs <- fit_multi_feature_classifier(feature_matrix,
 
 We can now access the various named objects returned by this function, which include:
 
-1. `FeatureSetResultsPlot` (only if `by_set` is set to `TRUE`) -- a `ggplot` displaying mean classification accuracy (or balanced classification accuracy if `use_balanced_accuracy` is set to `TRUE`) by feature set
+1. `FeatureSetResultsPlot` (only if `by_set` is set to `TRUE`) -- a `ggplot` displaying classification accuracy (or balanced classification accuracy if `use_balanced_accuracy` is set to `TRUE`) by feature set
 2. `TestStatistics` -- a dataframe containing a summary of test statistics (and *p*-values if `use_empirical_null` is set to `TRUE`)
 3. `RawClassificationResults` -- a dataframe containing classification accuracies results from each main and null prediction
 
