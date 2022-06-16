@@ -293,28 +293,28 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Null testing options
   
-  theoptions <- c("ModelFreeShuffles", "NullModelFits")
-  
-  if(null_testing_method == "model free shuffles"){
-    message("'model free shuffles' is deprecated, please use 'ModelFreeShuffles' instead.")
-    null_testing_method <- "ModelFreeShuffles"
+  if(length(null_testing_method) != 1 && test_method %ni% c("t-test", "wilcox", "binomial logistic")){
+    stop("null_testing_method should be a single string of either 'ModelFreeShuffles' or 'NullModelFits'.")
   }
   
-  if(null_testing_method == "null model fits"){
-    message("'null model fits' is deprecated, please use 'NullModelFits' instead.")
-    null_testing_method <- "NullModelFits"
-  }
-  
-  if(is.null(null_testing_method) || missing(null_testing_method)){
+  if((is.null(null_testing_method) || missing(null_testing_method)) && test_method %ni% c("t-test", "wilcox", "binomial logistic")){
     null_testing_method <- "ModelFreeShuffles"
     message("No argument supplied to null_testing_method. Using 'ModelFreeShuffles' as default.")
   }
   
-  if(length(null_testing_method) != 1){
-    stop("null_testing_method should be a single string of either 'ModelFreeShuffles' or 'NullModelFits'.")
+  if(length(null_testing_method) == 1 && null_testing_method == "model free shuffles"){
+    message("'model free shuffles' is deprecated, please use 'ModelFreeShuffles' instead.")
+    null_testing_method <- "ModelFreeShuffles"
   }
   
-  if(null_testing_method %ni% theoptions){
+  if(length(null_testing_method) == 1 && null_testing_method == "null model fits"){
+    message("'null model fits' is deprecated, please use 'NullModelFits' instead.")
+    null_testing_method <- "NullModelFits"
+  }
+  
+  theoptions <- c("ModelFreeShuffles", "NullModelFits")
+  
+  if(null_testing_method %ni% theoptions && test_method %ni% c("t-test", "wilcox", "binomial logistic")){
     stop("null_testing_method should be a single string of either 'ModelFreeShuffles' or 'NullModelFits'.")
   }
   

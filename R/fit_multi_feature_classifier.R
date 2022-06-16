@@ -974,7 +974,7 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
       }
       
       FeatureSetResultsPlot <- FeatureSetResultsPlot +
-        ggplot2::labs(subtitle = "Number of features is indicated in parentheses. Error bars are +/- 2 times SD")
+        ggplot2::labs(subtitle = "Number of features is indicated in parentheses. Error bars are +/- 2 times SD. Dashed line = chance")
       
     } else{
       
