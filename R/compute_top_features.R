@@ -302,23 +302,23 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     message("No argument supplied to null_testing_method. Using 'ModelFreeShuffles' as default.")
   }
   
-  if(length(null_testing_method) == 1 && null_testing_method == "model free shuffles"){
+  if(test_method %ni% c("t-test", "wilcox", "binomial logistic") && null_testing_method == "model free shuffles"){
     message("'model free shuffles' is deprecated, please use 'ModelFreeShuffles' instead.")
     null_testing_method <- "ModelFreeShuffles"
   }
   
-  if(length(null_testing_method) == 1 && null_testing_method == "null model fits"){
+  if(test_method %ni% c("t-test", "wilcox", "binomial logistic") && null_testing_method == "null model fits"){
     message("'null model fits' is deprecated, please use 'NullModelFits' instead.")
     null_testing_method <- "NullModelFits"
   }
   
   theoptions <- c("ModelFreeShuffles", "NullModelFits")
   
-  if(null_testing_method %ni% theoptions && test_method %ni% c("t-test", "wilcox", "binomial logistic")){
+  if(test_method %ni% c("t-test", "wilcox", "binomial logistic") && null_testing_method %ni% theoptions){
     stop("null_testing_method should be a single string of either 'ModelFreeShuffles' or 'NullModelFits'.")
   }
   
-  if(null_testing_method == "ModelFreeShuffles" && num_permutations < 1000){
+  if(test_method %ni% c("t-test", "wilcox", "binomial logistic") && null_testing_method == "ModelFreeShuffles" && num_permutations < 1000){
     message("Null testing method 'ModelFreeShuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.")
   }
   
