@@ -369,7 +369,6 @@ calculate_unpooled_null <- function(main_matrix, main_matrix_balanced = NULL, x,
 gather_binomial_info <- function(data, x){
   
   tmp <- clean_by_feature(data = data, x = x)
-  
   mod <- stats::glm(formula = stats::formula(paste0("group ~ ", colnames(tmp[3]))), data = tmp, family = stats::binomial())
   
   tmp <- data.frame(feature = as.character(mod$terms[[3]]),
@@ -534,34 +533,41 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
     stop("id_var should be a string specifying a variable in the input data that uniquely identifies each observation.")
   }
   
+  # Upstream correction for deprecated 'binomial logistic' specification
+  
+  if(length(test_method) == 1 && test_method == "binomial logistic"){
+    test_method <- "BinomialLogistic"
+    message("'binomial logistic' is deprecated. Please specify 'BinomialLogistic' instead. Performing this conversion automatically.")
+  }
+  
   # Null testing options
   
-  if(length(null_testing_method) != 1 && test_method %ni% c("t-test", "wilcox", "binomial logistic")){
+  if(length(null_testing_method) != 1 && test_method %ni% c("t-test", "wilcox", "BinomialLogistic")){
     stop("null_testing_method should be a single string of either 'ModelFreeShuffles' or 'NullModelFits'.")
   }
   
-  if((is.null(null_testing_method) || missing(null_testing_method)) && test_method %ni% c("t-test", "wilcox", "binomial logistic")){
+  if((is.null(null_testing_method) || missing(null_testing_method)) && test_method %ni% c("t-test", "wilcox", "BinomialLogistic")){
     null_testing_method <- "ModelFreeShuffles"
     message("No argument supplied to null_testing_method. Using 'ModelFreeShuffles' as default.")
   }
   
-  if(test_method %ni% c("t-test", "wilcox", "binomial logistic") && null_testing_method == "model free shuffles"){
+  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic") && null_testing_method == "model free shuffles"){
     message("'model free shuffles' is deprecated, please use 'ModelFreeShuffles' instead.")
     null_testing_method <- "ModelFreeShuffles"
   }
   
-  if(test_method %ni% c("t-test", "wilcox", "binomial logistic") && null_testing_method == "null model fits"){
+  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic") && null_testing_method == "null model fits"){
     message("'null model fits' is deprecated, please use 'NullModelFits' instead.")
     null_testing_method <- "NullModelFits"
   }
   
   theoptions <- c("ModelFreeShuffles", "NullModelFits")
   
-  if(test_method %ni% c("t-test", "wilcox", "binomial logistic") && null_testing_method %ni% theoptions){
+  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic") && null_testing_method %ni% theoptions){
     stop("null_testing_method should be a single string of either 'ModelFreeShuffles' or 'NullModelFits'.")
   }
   
-  if(test_method %ni% c("t-test", "wilcox", "binomial logistic") && null_testing_method == "ModelFreeShuffles" && num_permutations < 1000){
+  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic") && null_testing_method == "ModelFreeShuffles" && num_permutations < 1000){
     message("Null testing method 'ModelFreeShuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.")
   }
   
@@ -601,9 +607,13 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
     stop("Your data only has one class label. At least two are required to performed analysis.")
   }
   
+  if(num_classes == 2 && test_method %ni% c("t-test", "wilcox", "BinomialLogistic")){
+    message("Your data has two classes. Setting test_method to one of 't-test', 'wilcox', or 'BinomialLogistic' is recommended.")
+  }
+  
   if(((missing(test_method) || is.null(test_method))) && num_classes == 2){
     test_method <- "t-test"
-    message("test_method is NULL or missing. Running t-test for 2-class problem.")
+    message("test_method is NULL or missing. Running t-test as default for 2-class problem.")
   }
   
   if(((missing(test_method) || is.null(test_method))) && num_classes > 2){
@@ -611,7 +621,7 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
     message("test_method is NULL or missing, fitting 'gaussprRadial' by default.")
   }
   
-  if(test_method %in% c("t-test", "wilcox", "binomial logistic") && num_classes > 2){
+  if(test_method %in% c("t-test", "wilcox", "BinomialLogistic") && num_classes > 2){
     stop("t-test, Mann-Whitney-Wilcoxon Test and binomial logistic regression can only be run for 2-class problems.")
   }
   
@@ -660,7 +670,7 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
     classifier_name <- "Mann-Whitney-Wilcoxon Test"
     statistic_name <- "Mann-Whitney-Wilcoxon Test statistic"
     
-  } else if(test_method == "binomial logistic") {
+  } else if(test_method == "BinomialLogistic") {
     
     classifier_name <- "Binomial logistic regression"
     statistic_name <- "Binomial logistic coefficient z-test"
@@ -702,7 +712,7 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
     
     return(output)
     
-  } else if (test_method == "binomial logistic"){
+  } else if (test_method == "BinomialLogistic"){
     
     gather_binomial_info_safe <- purrr::possibly(gather_binomial_info, otherwise = NULL)
     

@@ -75,7 +75,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Introduction to theft</h1>
                         <h4 data-toc-skip class="author">Trent Henderson</h4>
             
-            <h4 data-toc-skip class="date">2022-06-17</h4>
+            <h4 data-toc-skip class="date">2022-06-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/HEAD/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -388,7 +388,7 @@
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">$</span><span class="va">ViolinPlots</span><span class="op">)</span></code></pre></div>
 <p><img src="theft_files/figure-html/unnamed-chunk-21-1.png" width="768" style="display: block; margin: auto;"></p>
-<p>For two-class problems, users can fit statistical models to directly compute <em>p</em>-values by specifying one of the following models as the string argument to <code>test_method</code>: <code>"t-test"</code>, <code>"wilcox"</code> or <code>"binomial logistic"</code>. <code>theft</code> has special procedures for these three options if a two-class problem is registered and thus none of the function arguments pertaining to empirical null testing or classification model parameters are used. For multiclass problems (and binary), users can specify any model name string that is a valid <code>method</code> name in the popular <a href="https://topepo.github.io/caret/train-models-by-tag.html" class="external-link"><code>caret</code></a> package and <code>theft</code> will pass this through to the relevant sub-procedures which will make use of the arguments relating to <em>k</em>-fold cross-validation, permutation testing, and <em>p</em>-value calculation.</p>
+<p>For two-class problems, users can fit statistical models to directly compute <em>p</em>-values by specifying one of the following models as the string argument to <code>test_method</code>: <code>"t-test"</code>, <code>"wilcox"</code> or <code>"BinomialLogistic"</code>. <code>theft</code> has special procedures for these three options if a two-class problem is registered and thus none of the function arguments pertaining to empirical null testing or classification model parameters are used. For multiclass problems (and binary), users can specify any model name string that is a valid <code>method</code> name in the popular <a href="https://topepo.github.io/caret/train-models-by-tag.html" class="external-link"><code>caret</code></a> package and <code>theft</code> will pass this through to the relevant sub-procedures which will make use of the arguments relating to <em>k</em>-fold cross-validation, permutation testing, and <em>p</em>-value calculation.</p>
 </div>
 <div class="section level3">
 <h3 id="multi-feature">Multi-feature<a class="anchor" aria-label="anchor" href="#multi-feature"></a>
