@@ -291,34 +291,41 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     message("No argument supplied to clust_method Using 'average' as default.")
   }
   
+  # Upstream correction for deprecated 'binomial logistic' specification
+  
+  if(length(test_method) == 1 && test_method == "binomial logistic"){
+    test_method <- "BinomialLogistic"
+    message("'binomial logistic' is deprecated. Please specify 'BinomialLogistic' instead. Performing this conversion automatically.")
+  }
+  
   # Null testing options
   
-  if(length(null_testing_method) != 1 && test_method %ni% c("t-test", "wilcox", "binomial logistic")){
+  if(length(null_testing_method) != 1 && test_method %ni% c("t-test", "wilcox", "BinomialLogistic")){
     stop("null_testing_method should be a single string of either 'ModelFreeShuffles' or 'NullModelFits'.")
   }
   
-  if((is.null(null_testing_method) || missing(null_testing_method)) && test_method %ni% c("t-test", "wilcox", "binomial logistic")){
+  if((is.null(null_testing_method) || missing(null_testing_method)) && test_method %ni% c("t-test", "wilcox", "BinomialLogistic")){
     null_testing_method <- "ModelFreeShuffles"
     message("No argument supplied to null_testing_method. Using 'ModelFreeShuffles' as default.")
   }
   
-  if(test_method %ni% c("t-test", "wilcox", "binomial logistic") && null_testing_method == "model free shuffles"){
+  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic") && null_testing_method == "model free shuffles"){
     message("'model free shuffles' is deprecated, please use 'ModelFreeShuffles' instead.")
     null_testing_method <- "ModelFreeShuffles"
   }
   
-  if(test_method %ni% c("t-test", "wilcox", "binomial logistic") && null_testing_method == "null model fits"){
+  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic") && null_testing_method == "null model fits"){
     message("'null model fits' is deprecated, please use 'NullModelFits' instead.")
     null_testing_method <- "NullModelFits"
   }
   
   theoptions <- c("ModelFreeShuffles", "NullModelFits")
   
-  if(test_method %ni% c("t-test", "wilcox", "binomial logistic") && null_testing_method %ni% theoptions){
+  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic") && null_testing_method %ni% theoptions){
     stop("null_testing_method should be a single string of either 'ModelFreeShuffles' or 'NullModelFits'.")
   }
   
-  if(test_method %ni% c("t-test", "wilcox", "binomial logistic") && null_testing_method == "ModelFreeShuffles" && num_permutations < 1000){
+  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic") && null_testing_method == "ModelFreeShuffles" && num_permutations < 1000){
     message("Null testing method 'ModelFreeShuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.")
   }
   
@@ -366,13 +373,13 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     stop("Your data only has one class label. At least two are required to performed analysis.")
   }
   
-  if(num_classes == 2){
-    message("Your data has two classes. Setting test_method to one of 't-test', 'wilcox', or 'binomial logistic' is recommended.")
+  if(num_classes == 2 && test_method %ni% c("t-test", "wilcox", "BinomialLogistic")){
+    message("Your data has two classes. Setting test_method to one of 't-test', 'wilcox', or 'BinomialLogistic' is recommended.")
   }
   
   if(((missing(test_method) || is.null(test_method))) && num_classes == 2){
     test_method <- "t-test"
-    message("test_method is NULL or missing. Running t-test for 2-class problem.")
+    message("test_method is NULL or missing. Running t-test as default for 2-class problem.")
   }
   
   if(((missing(test_method) || is.null(test_method))) && num_classes > 2){
@@ -380,7 +387,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     message("test_method is NULL or missing, fitting 'gaussprRadial' by default.")
   }
   
-  if(test_method %in% c("t-test", "wilcox", "binomial logistic") && num_classes > 2){
+  if(test_method %in% c("t-test", "wilcox", "BinomialLogistic") && num_classes > 2){
     stop("t-test, Mann-Whitney-Wilcoxon Test and binomial logistic regression can only be run for 2-class problems.")
   }
   
@@ -418,7 +425,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Prep factor levels as names for {caret} if the 3 base two-class options aren't being used
   
-  if(test_method %ni% c("t-test", "wilcox", "binomial logistic")){
+  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic")){
     data_id <- data_id %>%
       dplyr::mutate(group = make.names(.data$group),
                     group = as.factor(.data$group))
@@ -452,7 +459,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Filter results to get list of top features
   
-  if(test_method %in% c("t-test", "wilcox", "binomial logistic")){
+  if(test_method %in% c("t-test", "wilcox", "BinomialLogistic")){
     
     message("\nSelecting top features using p-values.")
     

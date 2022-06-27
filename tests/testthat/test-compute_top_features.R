@@ -140,7 +140,7 @@ test_that("single feature binary options", {
                                                   normalise_violin_plots = FALSE,
                                                   method = "RobustSigmoid",
                                                   cor_method = "pearson",
-                                                  test_method = "binomial logistic",
+                                                  test_method = "BinomialLogistic",
                                                   clust_method = "average",
                                                   pool_empirical_null = FALSE)$ResultsTable$feature)))
 })
