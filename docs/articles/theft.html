@@ -154,7 +154,7 @@
 <p>The package comes with a function to visualise the data types of the calculated feature vectors. This is useful for inspecting which features might need to be dropped due to large proportions of undesirable (e.g., <code>NA</code>, <code>NaN</code> etc.) values.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_quality_matrix.html">plot_quality_matrix</a></span><span class="op">(</span><span class="va">feature_matrix</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="theft_files/figure-html/unnamed-chunk-8-1.png" width="768" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
 <h2 id="normalisingscaling-functions">Normalising/scaling functions<a class="anchor" aria-label="anchor" href="#normalisingscaling-functions"></a>
@@ -210,7 +210,7 @@
                   method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,
                   clust_method <span class="op">=</span> <span class="st">"average"</span>,
                   interactive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="theft_files/figure-html/unnamed-chunk-10-1.png" width="768" style="display: block; margin: auto;"></p>
 <p>If you set <code>interactive = TRUE</code> the function will return an interactive plot using <code>plotly</code> which lets you hover over entries in the matrix to better understand which is which. This is especially useful if your dataset is large.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_feature_matrix.html">plot_feature_matrix</a></span><span class="op">(</span><span class="va">feature_matrix</span>,
@@ -234,7 +234,7 @@
                    plot <span class="op">=</span> <span class="cn">TRUE</span>,
                    show_covariance <span class="op">=</span> <span class="cn">TRUE</span>,
                    seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="theft_files/figure-html/unnamed-chunk-12-1.png" width="768" style="display: block; margin: auto;"></p>
 <p>Alternatively, a <em>t</em>-SNE version can be specified in a similar fashion, with the <code>perplexity</code> hyperparameter able to be controlled by the user. Typical values for this range between 5 and 50, depending on the size of the data. At lower levels of <code>perplexity</code>, local variations tend to dominate, while at very high levels of <code>perplexity</code>, results can be uninterpretable as clusters can merge. See <a href="https://distill.pub/2016/misread-tsne/" class="external-link">this interactive article</a> for a detailed review.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_low_dimension.html">plot_low_dimension</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
@@ -247,7 +247,7 @@
                    plot <span class="op">=</span> <span class="cn">TRUE</span>,
                    show_covariance <span class="op">=</span> <span class="cn">FALSE</span>,
                    seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="theft_files/figure-html/unnamed-chunk-13-1.png" width="768" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="pairwise-correlations">Pairwise correlations<a class="anchor" aria-label="anchor" href="#pairwise-correlations"></a>
@@ -264,7 +264,7 @@
                      cor_method <span class="op">=</span> <span class="st">"pearson"</span>,
                      clust_method <span class="op">=</span> <span class="st">"average"</span>,
                      interactive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="theft_files/figure-html/unnamed-chunk-14-1.png" width="768" style="display: block; margin: auto;"></p>
 <p>Again, if you set <code>interactive = TRUE</code> the function will return an interactive plot using <code>plotly</code> which lets you hover over entries in the matrix to better understand which is which.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_ts_correlations.html">plot_ts_correlations</a></span><span class="op">(</span><span class="va">simData</span>, 
@@ -287,7 +287,7 @@
                           cor_method <span class="op">=</span> <span class="st">"pearson"</span>,
                           clust_method <span class="op">=</span> <span class="st">"average"</span>,
                           interactive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="theft_files/figure-html/unnamed-chunk-16-1.png" width="768" style="display: block; margin: auto;"></p>
 </div>
 </div>
 </div>
@@ -377,11 +377,11 @@
 <p>The feature-feature correlation plots are accessed as the second object:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">$</span><span class="va">FeatureFeatureCorrelationPlot</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="theft_files/figure-html/unnamed-chunk-20-1.png" width="768" style="display: block; margin: auto;"></p>
 <p>The violin plots are accessed as the third object:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">$</span><span class="va">ViolinPlots</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-21-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="theft_files/figure-html/unnamed-chunk-21-1.png" width="768" style="display: block; margin: auto;"></p>
 <p>For two-class problems, users can fit statistical models to directly compute <em>p</em>-values by specifying one of the following models as the string argument to <code>test_method</code>: <code>"t-test"</code>, <code>"wilcox"</code> or <code>"BinomialLogistic"</code>. <code>theft</code> has special procedures for these three options if a two-class problem is registered and thus none of the function arguments pertaining to empirical null testing or classification model parameters are used. For multiclass problems (and binary), users can specify any model name string that is a valid <code>method</code> name in the popular <a href="https://topepo.github.io/caret/train-models-by-tag.html" class="external-link"><code>caret</code></a> package and <code>theft</code> will pass this through to the relevant sub-procedures which will make use of the arguments relating to <em>k</em>-fold cross-validation, permutation testing, and <em>p</em>-value calculation.</p>
 </div>
 <div class="section level3">
@@ -412,10 +412,10 @@
 <li>
 <code>RawClassificationResults</code> – a dataframe containing classification accuracies results from each main and null prediction</li>
 </ol>
-<p>Here’s the feature set comparison plot (note that because we have balanced classes, in this case, accuracy <span class="math inline">\(=\)</span> balanced accuracy.):</p>
+<p>Here’s the feature set comparison plot (note that because we have balanced classes, in this case, accuracy <span class="math inline">\(=\)</span> balanced accuracy; and because we only calculated features for <code>catch22</code>, the accuracy for <code>"All features"</code> <span class="math inline">\(=\)</span> accuracy for <code>catch22</code>):</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">FeatureSetResultsPlot</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-23-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="theft_files/figure-html/unnamed-chunk-23-1.png" width="768" style="display: block; margin: auto;"></p>
 <p>Here’s the test statistics summary:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">TestStatistics</span><span class="op">)</span>
@@ -430,14 +430,14 @@
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">RawClassificationResults</span><span class="op">)</span>
 <span class="co">#&gt;    accuracy accuracy_sd balanced_accuracy balanced_accuracy_sd category</span>
 <span class="co">#&gt; 1 0.6555556  0.04382281         0.6555556           0.04382281     Main</span>
-<span class="co">#&gt; 2 0.1222222          NA         0.1222222                   NA     Null</span>
-<span class="co">#&gt; 3 0.2277778          NA         0.2277778                   NA     Null</span>
-<span class="co">#&gt; 4 0.1444444          NA         0.1444444                   NA     Null</span>
+<span class="co">#&gt; 2 0.6555556  0.04382281         0.6555556           0.04382281     Main</span>
+<span class="co">#&gt; 3 0.1222222          NA         0.1222222                   NA     Null</span>
+<span class="co">#&gt; 4 0.2277778          NA         0.2277778                   NA     Null</span>
 <span class="co">#&gt; 5 0.1444444          NA         0.1444444                   NA     Null</span>
 <span class="co">#&gt; 6 0.1444444          NA         0.1444444                   NA     Null</span>
 <span class="co">#&gt;              method num_features_used classifier_name</span>
 <span class="co">#&gt; 1           catch22                22       svmLinear</span>
-<span class="co">#&gt; 2 ModelFreeShuffles                NA       svmLinear</span>
+<span class="co">#&gt; 2      All features                22       svmLinear</span>
 <span class="co">#&gt; 3 ModelFreeShuffles                NA       svmLinear</span>
 <span class="co">#&gt; 4 ModelFreeShuffles                NA       svmLinear</span>
 <span class="co">#&gt; 5 ModelFreeShuffles                NA       svmLinear</span>

@@ -16,8 +16,8 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.height = 7,
-  fig.width = 7,
+  fig.height = 8,
+  fig.width = 8,
   warning = FALSE,
   fig.align = "center"
 )
@@ -354,7 +354,7 @@ We can now access the various named objects returned by this function, which inc
 2. `TestStatistics` -- a dataframe containing a summary of test statistics (and *p*-values if `use_empirical_null` is set to `TRUE`)
 3. `RawClassificationResults` -- a dataframe containing classification accuracies results from each main and null prediction
 
-Here's the feature set comparison plot (note that because we have balanced classes, in this case, accuracy $=$ balanced accuracy.):
+Here's the feature set comparison plot (note that because we have balanced classes, in this case, accuracy $=$ balanced accuracy; and because we only calculated features for `catch22`, the accuracy for `"All features"` $=$ accuracy for `catch22`):
   
 ```{r, message = FALSE, warning = FALSE}
 print(multi_outputs$FeatureSetResultsPlot)
