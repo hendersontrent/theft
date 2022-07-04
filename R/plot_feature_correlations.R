@@ -100,7 +100,7 @@ plot_feature_correlations <- function(data, is_normalised = NULL, id_var = "id",
   
   # Dataframe length checks and tidy format wrangling
   
-  data_re <- data %>%
+  data_id <- data %>%
     dplyr::rename(id = dplyr::all_of(id_var),
                   names = dplyr::all_of(names_var),
                   values = dplyr::all_of(values_var))
@@ -112,7 +112,7 @@ plot_feature_correlations <- function(data, is_normalised = NULL, id_var = "id",
     dplyr::select(c(.data$id, .data$names, .data$values, .data$feature_set)) %>%
     tidyr::drop_na() %>%
     dplyr::mutate(names = paste0(.data$feature_set, "_", .data$names)) %>% # Catches errors when using all features across sets (i.e., there's duplicates)
-    dplyr::select(-c(feature_set))
+    dplyr::select(-c(.data$feature_set))
   
   if(nrow(data_id) < nrow(data)){
     message("Filtered out rows containing NaNs.")

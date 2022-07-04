@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,11 +53,11 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">plot_feature_correlations</span><span class="op">(</span>
   <span class="va">data</span>,
-  is_normalised <span class="op">=</span> <span class="cn">FALSE</span>,
+  is_normalised <span class="op">=</span> <span class="cn">NULL</span>,
   id_var <span class="op">=</span> <span class="st">"id"</span>,
   names_var <span class="op">=</span> <span class="st">"names"</span>,
   values_var <span class="op">=</span> <span class="st">"values"</span>,
-  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"z-score"</span>, <span class="st">"Sigmoid"</span>, <span class="st">"RobustSigmoid"</span>, <span class="st">"MinMax"</span><span class="op">)</span>,
+  method <span class="op">=</span> <span class="cn">NULL</span>,
   cor_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pearson"</span>, <span class="st">"spearman"</span><span class="op">)</span>,
   clust_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"average"</span>, <span class="st">"ward.D"</span>, <span class="st">"ward.D2"</span>, <span class="st">"single"</span>, <span class="st">"complete"</span>, <span class="st">"mcquitty"</span>,
     <span class="st">"median"</span>, <span class="st">"centroid"</span><span class="op">)</span>,
@@ -70,7 +70,7 @@
     <dl><dt>data</dt>
 <dd><p>a dataframe with at least 3 columns for <code>'id'</code>, <code>'names'</code> and <code>'values'</code></p></dd>
 <dt>is_normalised</dt>
-<dd><p>a Boolean as to whether the input feature values have already been scaled. Defaults to <code>FALSE</code></p></dd>
+<dd><p>deprecated as of 0.4.0; do not use</p></dd>
 <dt>id_var</dt>
 <dd><p>a string specifying the ID variable to compute pairwise correlations between. Defaults to <code>"id"</code></p></dd>
 <dt>names_var</dt>
@@ -78,7 +78,7 @@
 <dt>values_var</dt>
 <dd><p>a string denoting the name of the variable/column that holds the numerical feature values. Defaults to <code>"values"</code></p></dd>
 <dt>method</dt>
-<dd><p>a rescaling/normalising method to apply. Defaults to <code>"RobustSigmoid"</code></p></dd>
+<dd><p>deprecated as of 0.4.0; do not use</p></dd>
 <dt>cor_method</dt>
 <dd><p>the correlation method to use. Defaults to <code>"pearson"</code></p></dd>
 <dt>clust_method</dt>
@@ -110,11 +110,9 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculations completed for catch22.</span>
 <span class="r-in">  </span>
 <span class="r-in"><span class="fu">plot_feature_correlations</span><span class="op">(</span>data <span class="op">=</span> <span class="va">featMat</span>, </span>
-<span class="r-in">  is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span class="r-in">  id_var <span class="op">=</span> <span class="st">"id"</span>, </span>
 <span class="r-in">  names_var <span class="op">=</span> <span class="st">"names"</span>, </span>
 <span class="r-in">  values_var <span class="op">=</span> <span class="st">"values"</span>,</span>
-<span class="r-in">  method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,</span>
 <span class="r-in">  cor_method <span class="op">=</span> <span class="st">"pearson"</span>,</span>
 <span class="r-in">  clust_method <span class="op">=</span> <span class="st">"average"</span>,</span>
 <span class="r-in">  interactive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>

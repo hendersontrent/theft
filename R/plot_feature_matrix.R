@@ -108,7 +108,9 @@ plot_feature_matrix <- function(data, is_normalised = NULL, id_var = "id", metho
     tidyr::drop_na() %>%
     dplyr::mutate(names = paste0(.data$feature_set, "_", .data$names)) %>% # Catches errors when using all features across sets (i.e., there's duplicates)
     dplyr::select(-c(feature_set)) %>%
-    dplyr::mutate(values = normalise_feature_vector(.data$values, method = "MinMax"))
+    dplyr::group_by(.data$names) %>%
+    dplyr::mutate(values = normalise_feature_vector(.data$values, method = "MinMax")) %>%
+    dplyr::ungroup()
   
   message("Applying linear rescaling of values to make plot legend cleaner.")
   

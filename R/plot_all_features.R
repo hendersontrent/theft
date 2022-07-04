@@ -104,8 +104,10 @@ plot_all_features <- function(data, is_normalised = NULL, id_var = "id", method 
     dplyr::select(c(.data$id, .data$names, .data$values, .data$feature_set)) %>%
     tidyr::drop_na() %>%
     dplyr::mutate(names = paste0(.data$feature_set, "_", .data$names)) %>% # Catches errors when using all features across sets (i.e., there's duplicates)
-    dplyr::select(-c(feature_set)) %>%
-    dplyr::mutate(values = normalise_feature_vector(.data$values, method = "MinMax"))
+    dplyr::select(-c(.data$feature_set)) %>%
+    dplyr::group_by(.data$names) %>%
+    dplyr::mutate(values = normalise_feature_vector(.data$values, method = "MinMax")) %>%
+    dplyr::ungroup()
   
   message("Applying linear rescaling of values to make plot legend cleaner.")
     

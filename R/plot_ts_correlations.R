@@ -87,11 +87,11 @@ plot_ts_correlations <- function(data, is_normalised = NULL, id_var = "id",
   
   # Dataframe length checks and tidy format wrangling
   
-  data_re <- data %>%
+  data_id <- data %>%
     dplyr::rename(id = dplyr::all_of(id_var),
                   timepoint = dplyr::all_of(time_var),
                   values = dplyr::all_of(values_var)) %>%
-    dplyr::select(c(.data$id, .data$names, .data$timepoint, .data$values)) %>%
+    dplyr::select(c(.data$id, .data$timepoint, .data$values)) %>%
     tidyr::drop_na()
   
   if(nrow(data_id) < nrow(data)){
