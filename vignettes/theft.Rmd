@@ -16,8 +16,8 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.height = 8,
-  fig.width = 8,
+  fig.height = 7,
+  fig.width = 7,
   warning = FALSE,
   fig.align = "center"
 )
@@ -147,7 +147,9 @@ Note that the legend for this plot (and other matrix visualisations in `theft`) 
 
 ```{r, message = FALSE, warning = FALSE}
 plot_all_features(feature_matrix, 
+                  is_normalised = FALSE,
                   id_var = "id", 
+                  method = "RobustSigmoid",
                   clust_method = "average",
                   interactive = FALSE)
 ```
@@ -155,8 +157,10 @@ plot_all_features(feature_matrix,
 If you set `interactive = TRUE` the function will return an interactive plot using `plotly` which lets you hover over entries in the matrix to better understand which is which. This is especially useful if your dataset is large.
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
-plot_feature_matrix(feature_matrix, 
+plot_feature_matrix(feature_matrix,
+                    is_normalised = FALSE,
                     id_var = "id", 
+                    method = "RobustSigmoid",
                     clust_method = "average",
                     interactive = TRUE)
 ```

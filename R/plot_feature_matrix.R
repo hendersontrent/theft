@@ -11,9 +11,9 @@
 #' @importFrom stats dist
 #' @importFrom plotly ggplotly config layout
 #' @param data a dataframe with at least 2 columns called \code{"names"} and \code{"values"}
-#' @param is_normalised deprecated as of 0.4.0; do not use
+#' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}
 #' @param id_var a string specifying the ID variable to identify each time series. Defaults to \code{"id"}
-#' @param method deprecated as of 0.4.0; do not use
+#' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
 #' @param clust_method the hierarchical clustering method to use for the pairwise correlation plot. Defaults to \code{"average"}
 #' @param interactive a Boolean as to whether to plot an interactive \code{plotly} graphic. Defaults to \code{FALSE}
 #' @return an object of class \code{ggplot} that contains the heatmap graphic
@@ -29,21 +29,27 @@
 #'   seed = 123)
 #'
 #' plot_feature_matrix(featMat, 
+#'   is_normalised = FALSE,
 #'   id_var = "id", 
+#'   method = "RobustSigmoid",
 #'   clust_method = "average",
 #'   interactive = FALSE)
 #'
 
-plot_feature_matrix <- function(data, is_normalised = NULL, id_var = "id", method = NULL,
+plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id", 
+                                method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                 clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid"),
                                 interactive = FALSE){
   
   rlang::warn("As of 0.3.6 plot_feature_matrix is deprecated. Please use 'plot_all_features' instead",
-              .frequency = "once", .frequency_id = "plot_feature_matrix_dep")
+              .frequency = "once", .frequency_id = "plot_feature_matrix")
   
-  if(!is.null(is_normalised) || !is.null(method)){
-    rlang::warn("As of 0.4.0 'is_normalised' and 'method' are no longer arguments to plot_feature_matrix",
-                .frequency = "once", .frequency_id = "plot_feature_matrix")
+  # Make RobustSigmoid the default
+  
+  if(missing(method)){
+    method <- "RobustSigmoid"
+  } else{
+    method <- match.arg(method)
   }
 
   expected_cols_1 <- "names"
@@ -70,6 +76,18 @@ plot_feature_matrix <- function(data, is_normalised = NULL, id_var = "id", metho
 
   if(!is.null(id_var) && !is.character(id_var)){
     stop("id_var should be a string specifying a variable in the input data that uniquely identifies each observation.")
+  }
+  
+  # Method selection
+  
+  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
+  
+  if(method %ni% the_methods){
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
+  }
+  
+  if(length(method) > 1){
+    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
   }
   
   # Clustering method selection
@@ -100,22 +118,27 @@ plot_feature_matrix <- function(data, is_normalised = NULL, id_var = "id", metho
       dplyr::rename(id = dplyr::all_of(id_var))
   }
 
-  #------------- Clean up structure --------------
+  #------------- Apply normalisation -------------
   
-  data_id <- data_id %>%
-    dplyr::rename(feature_set = .data$method) %>% # Avoids issues with method arg later
-    dplyr::select(c(.data$id, .data$names, .data$values, .data$feature_set)) %>%
-    tidyr::drop_na() %>%
-    dplyr::mutate(names = paste0(.data$feature_set, "_", .data$names)) %>% # Catches errors when using all features across sets (i.e., there's duplicates)
-    dplyr::select(-c(feature_set)) %>%
-    dplyr::group_by(.data$names) %>%
-    dplyr::mutate(values = normalise_feature_vector(.data$values, method = "MinMax")) %>%
-    dplyr::ungroup()
-  
-  message("Applying linear rescaling of values to make plot legend cleaner.")
-  
-  if(nrow(data_id) < nrow(data)){
-    message("Filtered out rows containing NaNs.")
+  if(is_normalised){
+    
+  } else{
+    
+    data_id <- data_id %>%
+      dplyr::rename(feature_set = .data$method) %>% # Avoids issues with method arg later
+      dplyr::select(c(.data$id, .data$names, .data$values, .data$feature_set)) %>%
+      tidyr::drop_na() %>%
+      dplyr::mutate(names = paste0(.data$feature_set, "_", .data$names)) %>% # Catches errors when using all features across sets (i.e., there's duplicates)
+      dplyr::select(-c(.data$feature_set)) %>%
+      dplyr::group_by(.data$names) %>%
+      dplyr::mutate(values = normalise_feature_vector(.data$values, method = method)) %>%
+      dplyr::ungroup()
+    
+    message("Applying linear rescaling of values to make plot legend cleaner.")
+    
+    if(nrow(data_id) < nrow(data)){
+      message("Filtered out rows containing NaNs.")
+    }
   }
 
   #------------- Hierarchical clustering ----------
