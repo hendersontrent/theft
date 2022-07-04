@@ -947,8 +947,8 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
       
       accuracies <- accuracies %>%
         mutate(statistic_sd = .data$statistic_sd * 100) %>%
-        dplyr::mutate(lower = .data$statistic - (2 * .data$statistic_sd),
-                      upper = .data$statistic + (2 * .data$statistic_sd))
+        dplyr::mutate(lower = .data$statistic - (1 * .data$statistic_sd),
+                      upper = .data$statistic + (1 * .data$statistic_sd))
       
       FeatureSetResultsPlot <- accuracies %>%
         ggplot2::ggplot(ggplot2::aes(x = reorder(.data$method, -.data$statistic), y = .data$statistic, colour = .data$method)) +
@@ -956,7 +956,7 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
         ggplot2::geom_point(size = 5) +
         ggplot2::geom_errorbar(ggplot2::aes(ymin = .data$lower, ymax = .data$upper), size = 1)
       
-      # Expand y-axis if max (mean + (2*SD)) is > 100%
+      # Expand y-axis if max (mean + (1*SD)) is > 100%
       
       if(max(accuracies$upper, na.rm = TRUE) >= 100){
         
@@ -974,7 +974,7 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
       }
       
       FeatureSetResultsPlot <- FeatureSetResultsPlot +
-        ggplot2::labs(subtitle = "Number of features is indicated in parentheses. Error bars are +/- 2 times SD. Dashed line = chance")
+        ggplot2::labs(subtitle = "Number of features is indicated in parentheses. Error bars are +/- 1 times SD. Dashed line = chance")
       
     } else{
       

@@ -147,9 +147,7 @@ Note that the legend for this plot (and other matrix visualisations in `theft`) 
 
 ```{r, message = FALSE, warning = FALSE}
 plot_all_features(feature_matrix, 
-                  is_normalised = FALSE, 
                   id_var = "id", 
-                  method = "RobustSigmoid",
                   clust_method = "average",
                   interactive = FALSE)
 ```
@@ -158,9 +156,7 @@ If you set `interactive = TRUE` the function will return an interactive plot usi
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 plot_feature_matrix(feature_matrix, 
-                    is_normalised = FALSE, 
                     id_var = "id", 
-                    method = "RobustSigmoid",
                     clust_method = "average",
                     interactive = TRUE)
 ```
@@ -204,11 +200,9 @@ The function `plot_ts_correlations` automates the calculation of correlations be
 
 ```{r, message = FALSE, warning = FALSE}
 plot_ts_correlations(simData, 
-                     is_normalised = FALSE, 
                      id_var = "id", 
                      time_var = "timepoint",
                      values_var = "values",
-                     method = "RobustSigmoid",
                      cor_method = "pearson",
                      clust_method = "average",
                      interactive = FALSE)
@@ -218,11 +212,9 @@ Again, if you set `interactive = TRUE` the function will return an interactive p
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 plot_ts_correlations(simData, 
-                     is_normalised = FALSE, 
                      id_var = "id", 
                      time_var = "timepoint",
                      values_var = "values",
-                     method = "RobustSigmoid",
                      cor_method = "spearman",
                      clust_method = "average",
                      interactive = TRUE)
@@ -234,11 +226,9 @@ Similarly, one can also plot correlations between feature vectors using `plot_fe
 
 ```{r, message = FALSE, warning = FALSE}
 plot_feature_correlations(feature_matrix, 
-                          is_normalised = FALSE, 
                           id_var = "id", 
                           names_var = "names",
                           values_var = "values",
-                          method = "RobustSigmoid",
                           cor_method = "pearson",
                           clust_method = "average",
                           interactive = FALSE)

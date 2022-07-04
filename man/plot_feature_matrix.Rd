@@ -6,9 +6,9 @@
 \usage{
 plot_feature_matrix(
   data,
-  is_normalised = FALSE,
+  is_normalised = NULL,
   id_var = "id",
-  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+  method = NULL,
   clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty",
     "median", "centroid"),
   interactive = FALSE
@@ -17,11 +17,11 @@ plot_feature_matrix(
 \arguments{
 \item{data}{a dataframe with at least 2 columns called \code{"names"} and \code{"values"}}
 
-\item{is_normalised}{a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}}
+\item{is_normalised}{deprecated as of 0.4.0; do not use}
 
 \item{id_var}{a string specifying the ID variable to identify each time series. Defaults to \code{"id"}}
 
-\item{method}{a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}}
+\item{method}{deprecated as of 0.4.0; do not use}
 
 \item{clust_method}{the hierarchical clustering method to use for the pairwise correlation plot. Defaults to \code{"average"}}
 
@@ -43,9 +43,7 @@ featMat <- calculate_features(data = simData,
   seed = 123)
 
 plot_feature_matrix(featMat, 
-  is_normalised = FALSE, 
   id_var = "id", 
-  method = "RobustSigmoid",
   clust_method = "average",
   interactive = FALSE)
 

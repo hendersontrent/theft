@@ -9,11 +9,11 @@
 #' @importFrom stats cor
 #' @importFrom plotly ggplotly config layout
 #' @param data a dataframewith at least 2 columns for \code{"id"} and \code{"values"} variables
-#' @param is_normalised a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}
+#' @param is_normalised deprecated as of 0.4.0; do not use
 #' @param id_var a string specifying the ID variable to compute pairwise correlations between. Defaults to \code{"id"}
 #' @param time_var a string specifying the time index variable. Defaults to \code{NULL}
 #' @param values_var a string denoting the name of the variable/column that holds the numerical feature values. Defaults to \code{"values"}
-#' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
+#' @param method deprecated as of 0.4.0; do not use
 #' @param cor_method the correlation method to use. Defaults to \code{"pearson"}
 #' @param clust_method the hierarchical clustering method to use for the pairwise correlation plot. Defaults to \code{"average"}
 #' @param interactive a Boolean as to whether to plot an interactive \code{plotly} graphic. Defaults to \code{FALSE}
@@ -22,7 +22,6 @@
 #' @export
 #' @examples
 #' plot_ts_correlations(data = simData, 
-#'   is_normalised = FALSE, 
 #'   id_var = "id", 
 #'   time_var = "timepoint",
 #'   values_var = "values",
@@ -32,19 +31,15 @@
 #'   interactive = FALSE)
 #'
 
-plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id", 
-                                 time_var = "timepoint", values_var = "values",
-                                 method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+plot_ts_correlations <- function(data, is_normalised = NULL, id_var = "id", 
+                                 time_var = "timepoint", values_var = "values", method = NULL,
                                  clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid"),
                                  cor_method = c("pearson", "spearman"),
                                  interactive = FALSE){
   
-  # Make RobustSigmoid and pearson the default
-  
-  if(missing(method)){
-    method <- "RobustSigmoid"
-  } else{
-    method <- match.arg(method)
+  if(!is.null(is_normalised) || !is.null(method)){
+    rlang::warn("As of 0.4.0 'is_normalised' and 'method' are no longer arguments to plot_ts_correlations",
+                .frequency = "once", .frequency_id = "plot_ts_correlations")
   }
   
   if(missing(cor_method)){
@@ -59,18 +54,7 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
     stop("An id variable, time variable, and values variable from your dataframe must be specified.")
   }
   
-  # Method selection
-  
   '%ni%' <- Negate('%in%')
-  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
-  
-  if(method %ni% the_methods){
-    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
-  }
-  
-  if(length(method) > 1){
-    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
-  }
   
   # Correlation method selection
   
@@ -106,28 +90,16 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
   data_re <- data %>%
     dplyr::rename(id = dplyr::all_of(id_var),
                   timepoint = dplyr::all_of(time_var),
-                  values = dplyr::all_of(values_var))
+                  values = dplyr::all_of(values_var)) %>%
+    dplyr::select(c(.data$id, .data$names, .data$timepoint, .data$values)) %>%
+    tidyr::drop_na()
   
-  #------------- Normalise data -------------------
-  
-  if(is_normalised){
-    normed <- data_re
-  } else{
-    
-    normed <- data_re %>%
-      dplyr::select(c(.data$id, .data$timepoint, .data$values)) %>%
-      tidyr::drop_na() %>%
-      dplyr::mutate(values = normalise_feature_vector(.data$values, method = method)) %>%
-      tidyr::drop_na()
-    
-    if(nrow(normed) != nrow(data_re)){
-      message("Filtered out rows containing NaNs.")
-    }
+  if(nrow(data_id) < nrow(data)){
+    message("Filtered out rows containing NaNs.")
   }
-  
   #------------- Data reshaping -------------
   
-  cor_dat <- normed %>%
+  cor_dat <- data_id %>%
     tidyr::pivot_wider(id_cols = "timepoint", names_from = "id", values_from = "values") %>%
     dplyr::select(-c(.data$timepoint)) %>%
     tidyr::drop_na()
@@ -173,7 +145,7 @@ plot_ts_correlations <- function(data, is_normalised = FALSE, id_var = "id",
     ggplot2::labs(title = "Pairwise correlation matrix",
                   x = "Time series",
                   y = "Time series",
-                  fill = "Correlation coefficient") +
+                  fill = "Absolute correlation coefficient") +
     ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
                                show.limits = TRUE) +
     ggplot2::theme_bw() +
