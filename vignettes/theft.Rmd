@@ -147,7 +147,7 @@ Note that the legend for this plot (and other matrix visualisations in `theft`) 
 
 ```{r, message = FALSE, warning = FALSE}
 plot_all_features(feature_matrix, 
-                  is_normalised = FALSE, 
+                  is_normalised = FALSE,
                   id_var = "id", 
                   method = "RobustSigmoid",
                   clust_method = "average",
@@ -157,8 +157,8 @@ plot_all_features(feature_matrix,
 If you set `interactive = TRUE` the function will return an interactive plot using `plotly` which lets you hover over entries in the matrix to better understand which is which. This is especially useful if your dataset is large.
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
-plot_feature_matrix(feature_matrix, 
-                    is_normalised = FALSE, 
+plot_feature_matrix(feature_matrix,
+                    is_normalised = FALSE,
                     id_var = "id", 
                     method = "RobustSigmoid",
                     clust_method = "average",
@@ -204,11 +204,9 @@ The function `plot_ts_correlations` automates the calculation of correlations be
 
 ```{r, message = FALSE, warning = FALSE}
 plot_ts_correlations(simData, 
-                     is_normalised = FALSE, 
                      id_var = "id", 
                      time_var = "timepoint",
                      values_var = "values",
-                     method = "RobustSigmoid",
                      cor_method = "pearson",
                      clust_method = "average",
                      interactive = FALSE)
@@ -218,11 +216,9 @@ Again, if you set `interactive = TRUE` the function will return an interactive p
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 plot_ts_correlations(simData, 
-                     is_normalised = FALSE, 
                      id_var = "id", 
                      time_var = "timepoint",
                      values_var = "values",
-                     method = "RobustSigmoid",
                      cor_method = "spearman",
                      clust_method = "average",
                      interactive = TRUE)
@@ -234,11 +230,9 @@ Similarly, one can also plot correlations between feature vectors using `plot_fe
 
 ```{r, message = FALSE, warning = FALSE}
 plot_feature_correlations(feature_matrix, 
-                          is_normalised = FALSE, 
                           id_var = "id", 
                           names_var = "names",
                           values_var = "values",
-                          method = "RobustSigmoid",
                           cor_method = "pearson",
                           clust_method = "average",
                           interactive = FALSE)
@@ -360,7 +354,7 @@ We can now access the various named objects returned by this function, which inc
 2. `TestStatistics` -- a dataframe containing a summary of test statistics (and *p*-values if `use_empirical_null` is set to `TRUE`)
 3. `RawClassificationResults` -- a dataframe containing classification accuracies results from each main and null prediction
 
-Here's the feature set comparison plot (note that because we have balanced classes, in this case, accuracy $=$ balanced accuracy.):
+Here's the feature set comparison plot (note that because we have balanced classes, in this case, accuracy $=$ balanced accuracy; and because we only calculated features for `catch22`, the accuracy for `"All features"` $=$ accuracy for `catch22`):
   
 ```{r, message = FALSE, warning = FALSE}
 print(multi_outputs$FeatureSetResultsPlot)

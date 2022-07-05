@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,7 +75,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Introduction to theft</h1>
                         <h4 data-toc-skip class="author">Trent Henderson</h4>
             
-            <h4 data-toc-skip class="date">2022-06-27</h4>
+            <h4 data-toc-skip class="date">2022-07-04</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/HEAD/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -205,7 +205,7 @@
 <p>Note that the legend for this plot (and other matrix visualisations in <code>theft</code>) have been discretised for visual clarity as continuous legends can be difficult to interpret meaningful value differences easily.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_all_features.html">plot_all_features</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
-                  is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, 
+                  is_normalised <span class="op">=</span> <span class="cn">FALSE</span>,
                   id_var <span class="op">=</span> <span class="st">"id"</span>, 
                   method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,
                   clust_method <span class="op">=</span> <span class="st">"average"</span>,
@@ -213,8 +213,8 @@
 <p><img src="theft_files/figure-html/unnamed-chunk-10-1.png" width="768" style="display: block; margin: auto;"></p>
 <p>If you set <code>interactive = TRUE</code> the function will return an interactive plot using <code>plotly</code> which lets you hover over entries in the matrix to better understand which is which. This is especially useful if your dataset is large.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot_feature_matrix.html">plot_feature_matrix</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
-                    is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, 
+<code class="sourceCode R"><span class="fu"><a href="../reference/plot_feature_matrix.html">plot_feature_matrix</a></span><span class="op">(</span><span class="va">feature_matrix</span>,
+                    is_normalised <span class="op">=</span> <span class="cn">FALSE</span>,
                     id_var <span class="op">=</span> <span class="st">"id"</span>, 
                     method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,
                     clust_method <span class="op">=</span> <span class="st">"average"</span>,
@@ -258,11 +258,9 @@
 <p>The function <code>plot_ts_correlations</code> automates the calculation of correlations between values of each unique time series, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the <code>cor_method</code> argument to <code>spearman</code>. This visualisation might not always be highly informative, but it can be useful to take a quick glance regardless.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_ts_correlations.html">plot_ts_correlations</a></span><span class="op">(</span><span class="va">simData</span>, 
-                     is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, 
                      id_var <span class="op">=</span> <span class="st">"id"</span>, 
                      time_var <span class="op">=</span> <span class="st">"timepoint"</span>,
                      values_var <span class="op">=</span> <span class="st">"values"</span>,
-                     method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,
                      cor_method <span class="op">=</span> <span class="st">"pearson"</span>,
                      clust_method <span class="op">=</span> <span class="st">"average"</span>,
                      interactive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
@@ -270,11 +268,9 @@
 <p>Again, if you set <code>interactive = TRUE</code> the function will return an interactive plot using <code>plotly</code> which lets you hover over entries in the matrix to better understand which is which.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_ts_correlations.html">plot_ts_correlations</a></span><span class="op">(</span><span class="va">simData</span>, 
-                     is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, 
                      id_var <span class="op">=</span> <span class="st">"id"</span>, 
                      time_var <span class="op">=</span> <span class="st">"timepoint"</span>,
                      values_var <span class="op">=</span> <span class="st">"values"</span>,
-                     method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,
                      cor_method <span class="op">=</span> <span class="st">"spearman"</span>,
                      clust_method <span class="op">=</span> <span class="st">"average"</span>,
                      interactive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
@@ -285,11 +281,9 @@
 <p>Similarly, one can also plot correlations between feature vectors using <code>plot_feature_correlations</code>. The general argument structure is the same as <code>plot_ts_correlations</code>.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_feature_correlations.html">plot_feature_correlations</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
-                          is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, 
                           id_var <span class="op">=</span> <span class="st">"id"</span>, 
                           names_var <span class="op">=</span> <span class="st">"names"</span>,
                           values_var <span class="op">=</span> <span class="st">"values"</span>,
-                          method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,
                           cor_method <span class="op">=</span> <span class="st">"pearson"</span>,
                           clust_method <span class="op">=</span> <span class="st">"average"</span>,
                           interactive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
@@ -418,7 +412,7 @@
 <li>
 <code>RawClassificationResults</code> – a dataframe containing classification accuracies results from each main and null prediction</li>
 </ol>
-<p>Here’s the feature set comparison plot (note that because we have balanced classes, in this case, accuracy <span class="math inline">\(=\)</span> balanced accuracy.):</p>
+<p>Here’s the feature set comparison plot (note that because we have balanced classes, in this case, accuracy <span class="math inline">\(=\)</span> balanced accuracy; and because we only calculated features for <code>catch22</code>, the accuracy for <code>"All features"</code> <span class="math inline">\(=\)</span> accuracy for <code>catch22</code>):</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">FeatureSetResultsPlot</span><span class="op">)</span></code></pre></div>
 <p><img src="theft_files/figure-html/unnamed-chunk-23-1.png" width="768" style="display: block; margin: auto;"></p>
@@ -436,14 +430,14 @@
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">RawClassificationResults</span><span class="op">)</span>
 <span class="co">#&gt;    accuracy accuracy_sd balanced_accuracy balanced_accuracy_sd category</span>
 <span class="co">#&gt; 1 0.6555556  0.04382281         0.6555556           0.04382281     Main</span>
-<span class="co">#&gt; 2 0.1222222          NA         0.1222222                   NA     Null</span>
-<span class="co">#&gt; 3 0.2277778          NA         0.2277778                   NA     Null</span>
-<span class="co">#&gt; 4 0.1444444          NA         0.1444444                   NA     Null</span>
+<span class="co">#&gt; 2 0.6555556  0.04382281         0.6555556           0.04382281     Main</span>
+<span class="co">#&gt; 3 0.1222222          NA         0.1222222                   NA     Null</span>
+<span class="co">#&gt; 4 0.2277778          NA         0.2277778                   NA     Null</span>
 <span class="co">#&gt; 5 0.1444444          NA         0.1444444                   NA     Null</span>
 <span class="co">#&gt; 6 0.1444444          NA         0.1444444                   NA     Null</span>
 <span class="co">#&gt;              method num_features_used classifier_name</span>
 <span class="co">#&gt; 1           catch22                22       svmLinear</span>
-<span class="co">#&gt; 2 ModelFreeShuffles                NA       svmLinear</span>
+<span class="co">#&gt; 2      All features                22       svmLinear</span>
 <span class="co">#&gt; 3 ModelFreeShuffles                NA       svmLinear</span>
 <span class="co">#&gt; 4 ModelFreeShuffles                NA       svmLinear</span>
 <span class="co">#&gt; 5 ModelFreeShuffles                NA       svmLinear</span>

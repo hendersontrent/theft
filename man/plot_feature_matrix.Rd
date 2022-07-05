@@ -43,7 +43,7 @@ featMat <- calculate_features(data = simData,
   seed = 123)
 
 plot_feature_matrix(featMat, 
-  is_normalised = FALSE, 
+  is_normalised = FALSE,
   id_var = "id", 
   method = "RobustSigmoid",
   clust_method = "average",

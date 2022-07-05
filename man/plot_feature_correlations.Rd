@@ -6,11 +6,11 @@
 \usage{
 plot_feature_correlations(
   data,
-  is_normalised = FALSE,
+  is_normalised = NULL,
   id_var = "id",
   names_var = "names",
   values_var = "values",
-  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+  method = NULL,
   cor_method = c("pearson", "spearman"),
   clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty",
     "median", "centroid"),
@@ -20,7 +20,7 @@ plot_feature_correlations(
 \arguments{
 \item{data}{a dataframe with at least 3 columns for \code{'id'}, \code{'names'} and \code{'values'}}
 
-\item{is_normalised}{a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}}
+\item{is_normalised}{deprecated as of 0.4.0; do not use}
 
 \item{id_var}{a string specifying the ID variable to compute pairwise correlations between. Defaults to \code{"id"}}
 
@@ -28,7 +28,7 @@ plot_feature_correlations(
 
 \item{values_var}{a string denoting the name of the variable/column that holds the numerical feature values. Defaults to \code{"values"}}
 
-\item{method}{a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}}
+\item{method}{deprecated as of 0.4.0; do not use}
 
 \item{cor_method}{the correlation method to use. Defaults to \code{"pearson"}}
 
@@ -52,11 +52,9 @@ featMat <- calculate_features(data = simData,
   seed = 123)
   
 plot_feature_correlations(data = featMat, 
-  is_normalised = FALSE, 
   id_var = "id", 
   names_var = "names", 
   values_var = "values",
-  method = "RobustSigmoid",
   cor_method = "pearson",
   clust_method = "average",
   interactive = FALSE)

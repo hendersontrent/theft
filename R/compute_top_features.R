@@ -4,15 +4,12 @@
 # Pairwise correlation plot
 #--------------------------
 
-draw_top_feature_plot <- function(data, method, cor_method, clust_method, num_features){
+draw_top_feature_plot <- function(data, cor_method, clust_method, num_features){
   
   # Wrangle dataframe
   
   cor_dat <- data %>%
     dplyr::select(c(.data$id, .data$names, .data$values)) %>%
-    tidyr::drop_na() %>%
-    dplyr::group_by(.data$names) %>%
-    dplyr::mutate(values = normalise_feature_vector(.data$values, method = method)) %>%
     tidyr::drop_na() %>%
     tidyr::pivot_wider(id_cols = .data$id, names_from = .data$names, values_from = .data$values) %>%
     dplyr::select(-c(.data$id))
@@ -142,7 +139,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}
 #' @param num_features the number of top features to retain and explore. Defaults to \code{40}
 #' @param normalise_violin_plots a Boolean of whether to normalise features before plotting. Defaults to \code{FALSE}
-#' @param method a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}
+#' @param method a rescaling/normalising method to apply to violin plots. Defaults to \code{"RobustSigmoid"}
 #' @param cor_method the correlation method to use. Defaults to \code{"pearson"}
 #' @param test_method the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}
 #' @param clust_method the hierarchical clustering method to use for the pairwise correlation plot. Defaults to \code{"average"}
@@ -543,24 +540,10 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   # Feature x feature plot
   #-----------------------
   
-  # Wrap in a try because sometimes normalisation methods create issues that error out the whole function
-  
   FeatureFeatureCorrelationPlot <- try(draw_top_feature_plot(data = dataFiltered,
-                                                             method = method,
                                                              cor_method = cor_method,
                                                              clust_method = clust_method,
                                                              num_features = num_features))
-  
-  if("try-error" %in% class(FeatureFeatureCorrelationPlot)){
-    
-    message("An error occured producing the summary plot. Re-running with z-score normalisation to see if error is corrected.")
-    
-    FeatureFeatureCorrelationPlot <- try(draw_top_feature_plot(data = dataFiltered,
-                                                               method = "z-score",
-                                                               cor_method = cor_method,
-                                                               clust_method = clust_method,
-                                                               num_features = num_features))
-  }
   
   #---------------
   # Violin plot
@@ -579,7 +562,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   if("try-error" %in% class(FeatureFeatureCorrelationPlot)){
     
-    message("An error occured in producing the second attempted graphic with different normalisation. Only returning numerical results and violin plots instead.")
+    message("An error occured in producing the pairwise correlation plot. Only returning numerical results and violin plots instead.")
     myList <- list(ResultsTable, ViolinPlots)
     names(myList) <- c("ResultsTable", "ViolinPlots")
     

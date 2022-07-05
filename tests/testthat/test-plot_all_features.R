@@ -27,4 +27,3 @@ test_that("feature matrix plot", {
                                       clust_method = "average",
                                       interactive = FALSE)$data))
 })
-

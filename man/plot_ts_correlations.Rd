@@ -6,11 +6,11 @@
 \usage{
 plot_ts_correlations(
   data,
-  is_normalised = FALSE,
+  is_normalised = NULL,
   id_var = "id",
   time_var = "timepoint",
   values_var = "values",
-  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+  method = NULL,
   clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty",
     "median", "centroid"),
   cor_method = c("pearson", "spearman"),
@@ -20,7 +20,7 @@ plot_ts_correlations(
 \arguments{
 \item{data}{a dataframewith at least 2 columns for \code{"id"} and \code{"values"} variables}
 
-\item{is_normalised}{a Boolean as to whether the input feature values have already been scaled. Defaults to \code{FALSE}}
+\item{is_normalised}{deprecated as of 0.4.0; do not use}
 
 \item{id_var}{a string specifying the ID variable to compute pairwise correlations between. Defaults to \code{"id"}}
 
@@ -28,7 +28,7 @@ plot_ts_correlations(
 
 \item{values_var}{a string denoting the name of the variable/column that holds the numerical feature values. Defaults to \code{"values"}}
 
-\item{method}{a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}}
+\item{method}{deprecated as of 0.4.0; do not use}
 
 \item{clust_method}{the hierarchical clustering method to use for the pairwise correlation plot. Defaults to \code{"average"}}
 
@@ -44,7 +44,6 @@ Produce a correlation matrix plot showing pairwise correlations of time series w
 }
 \examples{
 plot_ts_correlations(data = simData, 
-  is_normalised = FALSE, 
   id_var = "id", 
   time_var = "timepoint",
   values_var = "values",

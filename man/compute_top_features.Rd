@@ -37,7 +37,7 @@ compute_top_features(
 
 \item{normalise_violin_plots}{a Boolean of whether to normalise features before plotting. Defaults to \code{FALSE}}
 
-\item{method}{a rescaling/normalising method to apply. Defaults to \code{"RobustSigmoid"}}
+\item{method}{a rescaling/normalising method to apply to violin plots. Defaults to \code{"RobustSigmoid"}}
 
 \item{cor_method}{the correlation method to use. Defaults to \code{"pearson"}}
 

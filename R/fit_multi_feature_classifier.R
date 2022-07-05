@@ -792,6 +792,11 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
     
     data_id <- unique(data_id$method) %>%
       purrr::map_df(~ clean_by_set(data = data_id, themethod = .x))
+    
+    # Create reference set for all feature aggregation option
+    
+    data_id_all <- clean_by_set(data = data_id, themethod = NULL)
+    
   } else{
     message("Assessing feature values and unique IDs for NAs using matrix of all features.")
     data_id <- clean_by_set(data = data_id, themethod = NULL)
@@ -830,6 +835,21 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
                                                num_permutations = num_permutations,
                                                set = .x,
                                                seed = seed))
+    
+    output_all <- fit_multi_feature_models(data = data_id_all,
+                                           test_method = test_method,
+                                           use_balanced_accuracy = use_balanced_accuracy,
+                                           use_k_fold = use_k_fold,
+                                           num_folds = num_folds,
+                                           use_empirical_null = use_empirical_null,
+                                           null_testing_method = null_testing_method,
+                                           num_permutations = num_permutations,
+                                           set = NULL,
+                                           seed = seed) %>%
+      dplyr::mutate(method = "All features") %>%
+      dplyr::mutate(num_features_used = length(unique(data_id_all$names)))
+    
+    output <- dplyr::bind_rows(output, output_all)
     
   } else{
     
@@ -881,6 +901,16 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
     # Get chance probability
     
     chance <- round((1 / length(unique(data_id$group)) * 100), digits = 2)
+    
+    # Define colour palette
+    
+    mypal <- c("catch22" = "#1B9E77",
+               "feasts" = "#D95F02",
+               "Kats" = "#7570B3",
+               "tsfeatures" = "#E7298A",
+               "TSFEL" = "#66A61E",
+               "tsfresh" = "#E6AB02",
+               "All features" = "grey50")
     
     #--------------
     # Draw bar plot
@@ -941,22 +971,23 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
     # Draw plot
     
     accuracies <- accuracies %>%
-      dplyr::mutate(statistic = .data$statistic * 100)
+      dplyr::mutate(statistic = .data$statistic * 100) %>%
+      dplyr::mutate(method_short = gsub(" .*", "\\1", .data$method))
     
     if(use_k_fold){
       
       accuracies <- accuracies %>%
         mutate(statistic_sd = .data$statistic_sd * 100) %>%
-        dplyr::mutate(lower = .data$statistic - (2 * .data$statistic_sd),
-                      upper = .data$statistic + (2 * .data$statistic_sd))
+        dplyr::mutate(lower = .data$statistic - (1 * .data$statistic_sd),
+                      upper = .data$statistic + (1 * .data$statistic_sd))
       
       FeatureSetResultsPlot <- accuracies %>%
-        ggplot2::ggplot(ggplot2::aes(x = reorder(.data$method, -.data$statistic), y = .data$statistic, colour = .data$method)) +
+        ggplot2::ggplot(ggplot2::aes(x = reorder(.data$method, -.data$statistic), y = .data$statistic, colour = .data$method_short)) +
         ggplot2::geom_hline(yintercept = chance, colour = "black", lty = "dashed", size = 1) +
         ggplot2::geom_point(size = 5) +
         ggplot2::geom_errorbar(ggplot2::aes(ymin = .data$lower, ymax = .data$upper), size = 1)
       
-      # Expand y-axis if max (mean + (2*SD)) is > 100%
+      # Expand y-axis if max (mean + (1*SD)) is > 100%
       
       if(max(accuracies$upper, na.rm = TRUE) >= 100){
         
@@ -974,12 +1005,12 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
       }
       
       FeatureSetResultsPlot <- FeatureSetResultsPlot +
-        ggplot2::labs(subtitle = "Number of features is indicated in parentheses. Error bars are +/- 2 times SD. Dashed line = chance")
+        ggplot2::labs(subtitle = "Number of features is indicated in parentheses. Error bars are +/- 1 times SD. Dashed line = chance")
       
     } else{
       
       FeatureSetResultsPlot <- accuracies %>%
-        ggplot2::ggplot(ggplot2::aes(x = stats::reorder(.data$method, -.data$statistic), colour = .data$method)) +
+        ggplot2::ggplot(ggplot2::aes(x = stats::reorder(.data$method, -.data$statistic), colour = .data$method_short)) +
         ggplot2::geom_hline(yintercept = chance, colour = "black", lty = "dashed", size = 1) +
         ggplot2::geom_point(size = 5) +
         ggplot2::labs(subtitle = "Number of features is indicated in parentheses. Dashed line = chance") +
@@ -994,7 +1025,7 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
                     x = "Feature set",
                     fill = NULL,
                     colour = NULL) +
-      ggplot2::scale_colour_brewer(palette = "Dark2") +
+      ggplot2::scale_colour_manual(values = mypal) +
       ggplot2::theme_bw() +
       ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
                      legend.position = "none",
