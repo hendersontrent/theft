@@ -191,14 +191,14 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
                                      text = paste('<br><b>ID:</b>', .data$id,
                                                   '<br><b>Feature:</b>', .data$names,
                                                   '<br><b>Scaled Value:</b>', round(.data$value, digits = 3)))) +
-        ggplot2::geom_tile() +
+        ggplot2::geom_raster() +
         ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
                                    show.limits = TRUE)
     
   } else{
     p <- cluster_out %>%
         ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value))  +
-        ggplot2::geom_tile() +
+        ggplot2::geom_raster() +
         ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
                                    show.limits = TRUE)
   }

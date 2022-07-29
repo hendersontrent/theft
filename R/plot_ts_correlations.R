@@ -164,7 +164,7 @@ plot_ts_correlations <- function(data, is_normalised = NULL, id_var = "id",
   }
   
   p <- p +
-    ggplot2::geom_tile(ggplot2::aes(fill = .data$value)) +
+    ggplot2::geom_raster(ggplot2::aes(fill = .data$value)) +
     ggplot2::labs(title = "Pairwise correlation matrix",
                   x = "Time series",
                   y = "Time series",

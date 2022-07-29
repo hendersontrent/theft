@@ -33,7 +33,7 @@ draw_top_feature_plot <- function(data, cor_method, clust_method, num_features){
   
   FeatureFeatureCorrelationPlot <- cluster_out %>%
     ggplot2::ggplot(ggplot2::aes(x = .data$Var1, y = .data$Var2)) +
-    ggplot2::geom_tile(ggplot2::aes(fill = .data$value)) +
+    ggplot2::geom_raster(ggplot2::aes(fill = .data$value)) +
     ggplot2::labs(title = paste0("Pairwise correlation matrix of top ", num_features, " features"),
                   x = NULL,
                   y = NULL,
@@ -464,8 +464,7 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                                      p_value_method = p_value_method,
                                                      num_permutations = num_permutations,
                                                      pool_empirical_null = pool_empirical_null,
-                                                     seed = seed,
-                                                     return_raw_estimates = FALSE)
+                                                     seed = seed)
   
   # Filter results to get list of top features
   
