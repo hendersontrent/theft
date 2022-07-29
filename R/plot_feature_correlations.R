@@ -39,20 +39,43 @@
 #'
 
 plot_feature_correlations <- function(data, is_normalised = NULL, id_var = "id", 
-                                    names_var = "names", values_var = "values", method = NULL,
-                                    cor_method = c("pearson", "spearman"),
-                                    clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid"),
-                                    interactive = FALSE){
+                                      names_var = "names", values_var = "values", method = NULL,
+                                      cor_method = c("pearson", "spearman"),
+                                      clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid"),
+                                      interactive = FALSE){
   
   if(!is.null(is_normalised) || !is.null(method)){
     rlang::warn("As of 0.4.0 'is_normalised' and 'method' are no longer arguments to plot_feature_correlations",
                 .frequency = "once", .frequency_id = "plot_feature_correlations")
   }
   
+  # Set defaults
+  
+  if(missing(id_var)){
+    id_var <- "id"
+    message("No id_var specified. Specifying 'id' as default as returned in theft::calculate_features")
+  }
+  
+  if(missing(names_var)){
+    names_var <- "names"
+    message("No names_var specified. Specifying 'names' as default as returned in theft::calculate_features")
+  }
+  
+  if(missing(values_var)){
+    values_var <- "values"
+    message("No values_var specified. Specifying 'values' as default as returned in theft::calculate_features")
+  }
+  
   if(missing(cor_method)){
     cor_method <- "pearson"
   } else{
     cor_method <- match.arg(cor_method)
+  }
+  
+  if(missing(clust_method)){
+    clust_method <- "average"
+  } else{
+    clust_method <- match.arg(clust_method)
   }
   
   #------------ Checks ---------------

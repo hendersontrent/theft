@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,9 +73,10 @@
 <div class="row">
   <main id="main"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Introduction to theft</h1>
-                        <h4 data-toc-skip class="author">Trent Henderson</h4>
+                        <h4 data-toc-skip class="author">Trent
+Henderson</h4>
             
-            <h4 data-toc-skip class="date">2022-07-04</h4>
+            <h4 data-toc-skip class="date">2022-07-29</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/HEAD/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -88,13 +89,20 @@
 <div class="section level2">
 <h2 id="purpose">Purpose<a class="anchor" aria-label="anchor" href="#purpose"></a>
 </h2>
-<p><code>theft</code> facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. This structured workflow is presented in the graphic below (note that <code>theft</code> has many more functions than displayed in this graphic — keep reading for more):</p>
+<p><code>theft</code> facilitates user-friendly access to a structured
+analytical workflow for the extraction, analysis, and visualisation of
+time-series features. This structured workflow is presented in the
+graphic below (note that <code>theft</code> has many more functions than
+displayed in this graphic — keep reading for more):</p>
 <p><img src="workflow-graphic2.png" width="700" alt="Structured workflow of the theft package for R"></p>
 </div>
 <div class="section level2">
 <h2 id="core-calculation-functions">Core calculation functions<a class="anchor" aria-label="anchor" href="#core-calculation-functions"></a>
 </h2>
-<p>To explore package functionality, we are going to use a dataset that comes standard with <code>theft</code> called <code>simData</code>. This dataset contains a collection of randomly generated time series for six different types of processes. The dataset can be accessed via:</p>
+<p>To explore package functionality, we are going to use a dataset that
+comes standard with <code>theft</code> called <code>simData</code>. This
+dataset contains a collection of randomly generated time series for six
+different types of processes. The dataset can be accessed via:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">theft</span><span class="fu">::</span><span class="va"><a href="../reference/simData.html">simData</a></span></code></pre></div>
 <p>The data follows the following structure:</p>
@@ -110,8 +118,24 @@
 <div class="section level3">
 <h3 id="calculating-feature-summary-statistics">Calculating feature summary statistics<a class="anchor" aria-label="anchor" href="#calculating-feature-summary-statistics"></a>
 </h3>
-<p>The core function that automates the calculation of the feature statistics at once is <code>calculate_features</code>. You can choose which subset of features to calculate with the <code>feature_set</code> argument. The choices are currently <code>"catch22"</code>, <code>"feasts"</code>, <code>"Kats"</code>, <code>"tsfeatures"</code>, <code>"tsfresh"</code>, and/or <code>"TSFEL"</code>.</p>
-<p>Note that <code>Kats</code>, <code>tsfresh</code> and <code>TSFEL</code> are Python packages. The R package <code>reticulate</code> is used to call Python code that uses these packages and applies it within the broader <em>tidy</em> data philosophy embodied by <code>theft</code>. At present, depending on the input time-series, <code>theft</code> provides access to <span class="math inline">\(&gt;1200\)</span> features. Prior to using <code>theft</code> (only if you want to use the <code>Kats</code>, <code>tsfresh</code> or <code>TSFEL</code> feature sets - the R-based sets will run fine) you should have a working Python installation and download <code>Kats</code> using the instructions located <a href="https://facebookresearch.github.io/Kats/" class="external-link">here</a>, <code>tsfresh</code> <a href="https://tsfresh.com" class="external-link">here</a> or <code>TSFEL</code> <a href="https://github.com/fraunhoferportugal/tsfel" class="external-link">here</a>.</p>
+<p>The core function that automates the calculation of the feature
+statistics at once is <code>calculate_features</code>. You can choose
+which subset of features to calculate with the <code>feature_set</code>
+argument. The choices are currently <code>"catch22"</code>,
+<code>"feasts"</code>, <code>"Kats"</code>, <code>"tsfeatures"</code>,
+<code>"tsfresh"</code>, and/or <code>"TSFEL"</code>.</p>
+<p>Note that <code>Kats</code>, <code>tsfresh</code> and
+<code>TSFEL</code> are Python packages. The R package
+<code>reticulate</code> is used to call Python code that uses these
+packages and applies it within the broader <em>tidy</em> data philosophy
+embodied by <code>theft</code>. At present, depending on the input
+time-series, <code>theft</code> provides access to <span class="math inline">\(&gt;1200\)</span> features. Prior to using
+<code>theft</code> (only if you want to use the <code>Kats</code>,
+<code>tsfresh</code> or <code>TSFEL</code> feature sets - the R-based
+sets will run fine) you should have a working Python installation and
+download <code>Kats</code> using the instructions located <a href="https://facebookresearch.github.io/Kats/" class="external-link">here</a>,
+<code>tsfresh</code> <a href="https://tsfresh.com" class="external-link">here</a> or
+<code>TSFEL</code> <a href="https://github.com/fraunhoferportugal/tsfel" class="external-link">here</a>.</p>
 <p>Here is an example with the <code>catch22</code> set:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">feature_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, 
@@ -121,7 +145,9 @@
                                      group_var <span class="op">=</span> <span class="st">"process"</span>, 
                                      feature_set <span class="op">=</span> <span class="st">"catch22"</span>,
                                      seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
-<p>Note that for the <code>catch22</code> set you can set the additional <code>catch24</code> argument to calculate the mean and standard deviation in addition to the standard 22 features:</p>
+<p>Note that for the <code>catch22</code> set you can set the additional
+<code>catch24</code> argument to calculate the mean and standard
+deviation in addition to the standard 22 features:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">feature_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, 
                                      id_var <span class="op">=</span> <span class="st">"id"</span>, 
@@ -131,10 +157,20 @@
                                      feature_set <span class="op">=</span> <span class="st">"catch22"</span>,
                                      catch24 <span class="op">=</span> <span class="cn">TRUE</span>,
                                      seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
-<p>Note that if you want to use any of the Python-based packages, you must first tell R (prior to running <code>calculate_features</code>) which Python location on your computer contains the installed libraries. This can be done via the <code>init_theft</code> function, where <code>path_to_python</code> is a string specifying the filepath location. For example, for me (Trent), the filepath to the correct Python is <code>"~/opt/anaconda3/bin/python"</code> which is what I would enter for the <code>path_to_python</code> argument. You only need to call <code>init_theft</code> once per R session.</p>
+<p>Note that if you want to use any of the Python-based packages, you
+must first tell R (prior to running <code>calculate_features</code>)
+which Python location on your computer contains the installed libraries.
+This can be done via the <code>init_theft</code> function, where
+<code>path_to_python</code> is a string specifying the filepath
+location. For example, for me (Trent), the filepath to the correct
+Python is <code>"~/opt/anaconda3/bin/python"</code> which is what I
+would enter for the <code>path_to_python</code> argument. You only need
+to call <code>init_theft</code> once per R session.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/init_theft.html">init_theft</a></span><span class="op">(</span><span class="va">path_to_python</span><span class="op">)</span></code></pre></div>
-<p>A tidy dataframe of most of the included features and the set they correspond to is available in the dataframe <code>feature_list</code>:</p>
+<p>A tidy dataframe of most of the included features and the set they
+correspond to is available in the dataframe
+<code>feature_list</code>:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">feature_list</span><span class="op">)</span>
 <span class="co">#&gt;   feature_set                  feature</span>
@@ -144,34 +180,64 @@
 <span class="co">#&gt; 4     catch22           CO_FirstMin_ac</span>
 <span class="co">#&gt; 5     catch22 CO_HistogramAMI_even_2_5</span>
 <span class="co">#&gt; 6     catch22            CO_trev_1_num</span></code></pre></div>
-<p>NOTE: If using the <code>tsfresh</code> feature set, you might want to consider the <code>tsfresh_cleanup</code> argument to <code>calculate_features</code>. This argument defaults to <code>FALSE</code> and specifies whether to use the in-built <code>tsfresh</code> relevant feature filter or not.</p>
-<p>For a detailed comparison of the six feature sets, see <a href="https://ieeexplore.ieee.org/document/9679937" class="external-link">this paper</a> for a detailed review<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;T. Henderson and B. D. Fulcher, “An Empirical Evaluation of Time-Series Feature Sets,” 2021 International Conference on Data Mining Workshops (ICDMW), 2021, pp. 1032-1038, doi: 10.1109/ICDMW53433.2021.00134.&lt;/p&gt;"><sup>1</sup></a>.</p>
+<p>NOTE: If using the <code>tsfresh</code> feature set, you might want
+to consider the <code>tsfresh_cleanup</code> argument to
+<code>calculate_features</code>. This argument defaults to
+<code>FALSE</code> and specifies whether to use the in-built
+<code>tsfresh</code> relevant feature filter or not.</p>
+<p>For a detailed comparison of the six feature sets, see <a href="https://ieeexplore.ieee.org/document/9679937" class="external-link">this paper</a> for a
+detailed review<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="data-quality-checks">Data quality checks<a class="anchor" aria-label="anchor" href="#data-quality-checks"></a>
 </h2>
-<p>The package comes with a function to visualise the data types of the calculated feature vectors. This is useful for inspecting which features might need to be dropped due to large proportions of undesirable (e.g., <code>NA</code>, <code>NaN</code> etc.) values.</p>
+<p>The package comes with a function to visualise the data types of the
+calculated feature vectors. This is useful for inspecting which features
+might need to be dropped due to large proportions of undesirable (e.g.,
+<code>NA</code>, <code>NaN</code> etc.) values.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_quality_matrix.html">plot_quality_matrix</a></span><span class="op">(</span><span class="va">feature_matrix</span><span class="op">)</span></code></pre></div>
 <p><img src="theft_files/figure-html/unnamed-chunk-8-1.png" width="768" style="display: block; margin: auto;"></p>
+<p>For cases where you have lots of features (i.e., when you calculate
+from multiple feature sets), you may want to adjust the optional
+argument <code>ignore_good_features</code> from its default of
+<code>FALSE</code> to <code>TRUE</code> to focus the plot only on the
+features that did not extract successfully for all cases. Code for this
+would look like the following:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plot_quality_matrix.html">plot_quality_matrix</a></span><span class="op">(</span><span class="va">feature_matrix</span>, ignore_good_features <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="normalisingscaling-functions">Normalising/scaling functions<a class="anchor" aria-label="anchor" href="#normalisingscaling-functions"></a>
 </h2>
-<p>Putting calculated feature vectors on an equal scale is crucial for any statistical or machine learning model as variables with high variance can adversely impact the model’s capacity to fit the data appropriately, learn appropriate weight values, or minimise a loss function. <code>theft</code> includes the functions <code>normalise_feature_vector</code> to rescale a vector of values (e.g. vector of values for all participants in a study on the <code>SB_BinaryStats_mean_longstretch1</code> feature), and <code>normalise_feature_frame</code> to rescale a vector within a dataframe into a variety of different ranges for ease-of-use. Current transformations available in the package include (note that all apply a linear rescaling to the unit interval at the end):</p>
+<p>Putting calculated feature vectors on an equal scale is crucial for
+any statistical or machine learning model as variables with high
+variance can adversely impact the model’s capacity to fit the data
+appropriately, learn appropriate weight values, or minimise a loss
+function. <code>theft</code> includes the functions
+<code>normalise_feature_vector</code> to rescale a vector of values
+(e.g. vector of values for all participants in a study on the
+<code>SB_BinaryStats_mean_longstretch1</code> feature), and
+<code>normalise_feature_frame</code> to rescale a vector within a
+dataframe into a variety of different ranges for ease-of-use. Current
+transformations available in the package include (note that all apply a
+linear rescaling to the unit interval at the end):</p>
 <ul>
 <li>z-score - <code>"z-score"</code>
 </li>
 <li>Sigmoid - <code>"Sigmoid"</code>
 </li>
-<li>Outlier-robust Sigmoid (credit to Ben Fulcher for creating the original <a href="https://github.com/benfulcher/hctsa" class="external-link">MATLAB version</a>) - <code>"RobustSigmoid"</code>
+<li>Outlier-robust Sigmoid (credit to Ben Fulcher for creating the
+original <a href="https://github.com/benfulcher/hctsa" class="external-link">MATLAB
+version</a>) - <code>"RobustSigmoid"</code>
 </li>
 <li>Min-max - <code>"MinMax"</code>
 </li>
 </ul>
-<p>Dataframe-based normalisation can be performed using the following:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<p>Dataframe-based normalisation can be performed using the
+following:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">normed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/normalise_feature_frame.html">normalise_feature_frame</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
                                   names_var <span class="op">=</span> <span class="st">"names"</span>, 
                                   values_var <span class="op">=</span> <span class="st">"values"</span>, 
@@ -180,16 +246,25 @@
 <div class="section level2">
 <h2 id="data-visualisation-and-low-dimensional-project-functions">Data visualisation and low-dimensional project functions<a class="anchor" aria-label="anchor" href="#data-visualisation-and-low-dimensional-project-functions"></a>
 </h2>
-<p>The package also comes with a built-in plotting engine for calculating and visualising many types of statistical graphics:</p>
+<p>The package also comes with a built-in plotting engine for
+calculating and visualising many types of statistical graphics:</p>
 <ul>
 <li>Feature by time-series matrix as a heatmap</li>
-<li>Low dimensional projections of the feature space as a scatterplot (along with numerical results)</li>
+<li>Low dimensional projections of the feature space as a scatterplot
+(along with numerical results)</li>
 <li>Pairwise correlation matrix as a heatmap</li>
 </ul>
 <div class="section level3">
 <h3 id="feature-matrices">Feature matrices<a class="anchor" aria-label="anchor" href="#feature-matrices"></a>
 </h3>
-<p>The function <code>plot_all_features</code> (deprecated version: <code>plot_feature_matrix</code>) takes the calculated features and produces a <code>ggplot</code> object heatmap showing the feature vectors across the <code>x</code> axis and each time series down the <code>y</code> axis. Prior to plotting, the function hierarchically clusters the data across both rows and columns to visually highlight the empirical structure. Note that you have several options for the hierarchical clustering linkage algorithm to use:</p>
+<p>The function <code>plot_all_features</code> (deprecated version:
+<code>plot_feature_matrix</code>) takes the calculated features and
+produces a <code>ggplot</code> object heatmap showing the feature
+vectors across the <code>x</code> axis and each time series down the
+<code>y</code> axis. Prior to plotting, the function hierarchically
+clusters the data across both rows and columns to visually highlight the
+empirical structure. Note that you have several options for the
+hierarchical clustering linkage algorithm to use:</p>
 <ul>
 <li>
 <code>"average"</code> (default)</li>
@@ -201,18 +276,25 @@
 <li><code>"median"</code></li>
 <li><code>"centroid"</code></li>
 </ul>
-<p>See the <a href="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/hclust" class="external-link"><code>hclust</code> documentation</a> for more information.</p>
-<p>Note that the legend for this plot (and other matrix visualisations in <code>theft</code>) have been discretised for visual clarity as continuous legends can be difficult to interpret meaningful value differences easily.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<p>See the <a href="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/hclust" class="external-link"><code>hclust</code>
+documentation</a> for more information.</p>
+<p>Note that the legend for this plot (and other matrix visualisations
+in <code>theft</code>) have been discretised for visual clarity as
+continuous legends can be difficult to interpret meaningful value
+differences easily.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_all_features.html">plot_all_features</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
                   is_normalised <span class="op">=</span> <span class="cn">FALSE</span>,
                   id_var <span class="op">=</span> <span class="st">"id"</span>, 
                   method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,
                   clust_method <span class="op">=</span> <span class="st">"average"</span>,
                   interactive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-10-1.png" width="768" style="display: block; margin: auto;"></p>
-<p>If you set <code>interactive = TRUE</code> the function will return an interactive plot using <code>plotly</code> which lets you hover over entries in the matrix to better understand which is which. This is especially useful if your dataset is large.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<p><img src="theft_files/figure-html/unnamed-chunk-11-1.png" width="768" style="display: block; margin: auto;"></p>
+<p>If you set <code>interactive = TRUE</code> the function will return
+an interactive plot using <code>plotly</code> which lets you hover over
+entries in the matrix to better understand which is which. This is
+especially useful if your dataset is large.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_feature_matrix.html">plot_feature_matrix</a></span><span class="op">(</span><span class="va">feature_matrix</span>,
                     is_normalised <span class="op">=</span> <span class="cn">FALSE</span>,
                     id_var <span class="op">=</span> <span class="st">"id"</span>, 
@@ -223,8 +305,17 @@
 <div class="section level3">
 <h3 id="low-dimensional-projections">Low dimensional projections<a class="anchor" aria-label="anchor" href="#low-dimensional-projections"></a>
 </h3>
-<p>The function <code>plot_low_dimension</code> takes the calculated features, calculates a principal components analysis (PCA) or <em>t</em>-distributed stochastic neighbour embedding (<em>t</em>-SNE), and produces a <code>ggplot</code> object scatterplot showing the first and second principal components on the <code>x</code> and <code>y</code> axis respectively, their individual explained variance (if PCA is selected), and each time series as a point. If <code>plot = FALSE</code> the function returns a dataframe of results. If a variable is specified in the <code>group_var</code> argument, the scatterplot points will be automatically coloured by group.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<p>The function <code>plot_low_dimension</code> takes the calculated
+features, calculates a principal components analysis (PCA) or
+<em>t</em>-distributed stochastic neighbour embedding (<em>t</em>-SNE),
+and produces a <code>ggplot</code> object scatterplot showing the first
+and second principal components on the <code>x</code> and <code>y</code>
+axis respectively, their individual explained variance (if PCA is
+selected), and each time series as a point. If <code>plot = FALSE</code>
+the function returns a dataframe of results. If a variable is specified
+in the <code>group_var</code> argument, the scatterplot points will be
+automatically coloured by group.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_low_dimension.html">plot_low_dimension</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
                    is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, 
                    id_var <span class="op">=</span> <span class="st">"id"</span>, 
@@ -234,9 +325,16 @@
                    plot <span class="op">=</span> <span class="cn">TRUE</span>,
                    show_covariance <span class="op">=</span> <span class="cn">TRUE</span>,
                    seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-12-1.png" width="768" style="display: block; margin: auto;"></p>
-<p>Alternatively, a <em>t</em>-SNE version can be specified in a similar fashion, with the <code>perplexity</code> hyperparameter able to be controlled by the user. Typical values for this range between 5 and 50, depending on the size of the data. At lower levels of <code>perplexity</code>, local variations tend to dominate, while at very high levels of <code>perplexity</code>, results can be uninterpretable as clusters can merge. See <a href="https://distill.pub/2016/misread-tsne/" class="external-link">this interactive article</a> for a detailed review.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<p><img src="theft_files/figure-html/unnamed-chunk-13-1.png" width="768" style="display: block; margin: auto;"></p>
+<p>Alternatively, a <em>t</em>-SNE version can be specified in a similar
+fashion, with the <code>perplexity</code> hyperparameter able to be
+controlled by the user. Typical values for this range between 5 and 50,
+depending on the size of the data. At lower levels of
+<code>perplexity</code>, local variations tend to dominate, while at
+very high levels of <code>perplexity</code>, results can be
+uninterpretable as clusters can merge. See <a href="https://distill.pub/2016/misread-tsne/" class="external-link">this interactive
+article</a> for a detailed review.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_low_dimension.html">plot_low_dimension</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
                    is_normalised <span class="op">=</span> <span class="cn">FALSE</span>, 
                    id_var <span class="op">=</span> <span class="st">"id"</span>, 
@@ -247,7 +345,7 @@
                    plot <span class="op">=</span> <span class="cn">TRUE</span>,
                    show_covariance <span class="op">=</span> <span class="cn">FALSE</span>,
                    seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-13-1.png" width="768" style="display: block; margin: auto;"></p>
+<p><img src="theft_files/figure-html/unnamed-chunk-14-1.png" width="768" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="pairwise-correlations">Pairwise correlations<a class="anchor" aria-label="anchor" href="#pairwise-correlations"></a>
@@ -255,8 +353,15 @@
 <div class="section level4">
 <h4 id="time-series-correlations">Time-series correlations<a class="anchor" aria-label="anchor" href="#time-series-correlations"></a>
 </h4>
-<p>The function <code>plot_ts_correlations</code> automates the calculation of correlations between values of each unique time series, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the <code>cor_method</code> argument to <code>spearman</code>. This visualisation might not always be highly informative, but it can be useful to take a quick glance regardless.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<p>The function <code>plot_ts_correlations</code> automates the
+calculation of correlations between values of each unique time series,
+the hierarchical clustering of rows and columns of these correlations,
+and the production of a final heatmap graphic. You can switch the
+default Pearson correlation to a Spearman rank correlation by changing
+the <code>cor_method</code> argument to <code>spearman</code>. This
+visualisation might not always be highly informative, but it can be
+useful to take a quick glance regardless.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_ts_correlations.html">plot_ts_correlations</a></span><span class="op">(</span><span class="va">simData</span>, 
                      id_var <span class="op">=</span> <span class="st">"id"</span>, 
                      time_var <span class="op">=</span> <span class="st">"timepoint"</span>,
@@ -264,9 +369,12 @@
                      cor_method <span class="op">=</span> <span class="st">"pearson"</span>,
                      clust_method <span class="op">=</span> <span class="st">"average"</span>,
                      interactive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-14-1.png" width="768" style="display: block; margin: auto;"></p>
-<p>Again, if you set <code>interactive = TRUE</code> the function will return an interactive plot using <code>plotly</code> which lets you hover over entries in the matrix to better understand which is which.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<p><img src="theft_files/figure-html/unnamed-chunk-15-1.png" width="768" style="display: block; margin: auto;"></p>
+<p>Again, if you set <code>interactive = TRUE</code> the function will
+return an interactive plot using <code>plotly</code> which lets you
+hover over entries in the matrix to better understand which is
+which.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_ts_correlations.html">plot_ts_correlations</a></span><span class="op">(</span><span class="va">simData</span>, 
                      id_var <span class="op">=</span> <span class="st">"id"</span>, 
                      time_var <span class="op">=</span> <span class="st">"timepoint"</span>,
@@ -278,8 +386,10 @@
 <div class="section level4">
 <h4 id="feature-vector-correlations">Feature vector correlations<a class="anchor" aria-label="anchor" href="#feature-vector-correlations"></a>
 </h4>
-<p>Similarly, one can also plot correlations between feature vectors using <code>plot_feature_correlations</code>. The general argument structure is the same as <code>plot_ts_correlations</code>.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<p>Similarly, one can also plot correlations between feature vectors
+using <code>plot_feature_correlations</code>. The general argument
+structure is the same as <code>plot_ts_correlations</code>.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_feature_correlations.html">plot_feature_correlations</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
                           id_var <span class="op">=</span> <span class="st">"id"</span>, 
                           names_var <span class="op">=</span> <span class="st">"names"</span>,
@@ -287,7 +397,7 @@
                           cor_method <span class="op">=</span> <span class="st">"pearson"</span>,
                           clust_method <span class="op">=</span> <span class="st">"average"</span>,
                           interactive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-16-1.png" width="768" style="display: block; margin: auto;"></p>
+<p><img src="theft_files/figure-html/unnamed-chunk-17-1.png" width="768" style="display: block; margin: auto;"></p>
 </div>
 </div>
 </div>
@@ -297,45 +407,115 @@
 <div class="section level3">
 <h3 id="feature-by-feature">Feature-by-feature<a class="anchor" aria-label="anchor" href="#feature-by-feature"></a>
 </h3>
-<p>Since feature-based time-series analysis has shown particular promise for classification problems, <code>theft</code> includes functionality for exploring group separation in addition to the low dimensional representation. The <code>compute_top_features</code> function takes the computed features and performs the following:</p>
+<p>Since feature-based time-series analysis has shown particular promise
+for classification problems, <code>theft</code> includes functionality
+for exploring group separation in addition to the low dimensional
+representation. The <code>compute_top_features</code> function takes the
+computed features and performs the following:</p>
 <ol style="list-style-type: decimal">
 <li>Processes the data ready for analysis</li>
-<li>Computes a classification algorithm or statistical model on the entire input dataframe</li>
-<li>Extracts individual feature performance from the classification algorithm using a designated performance metric</li>
-<li>Filters the feature data to the top <code>n</code> performing features (where <code>n</code> is specified by the user)</li>
-<li>Plots a feature <span class="math inline">\(\times\)</span> feature correlation matrix as a heatmap for the top performing features</li>
-<li>Plots a group of violin plots coloured by class label for the top performing features</li>
+<li>Computes a classification algorithm or statistical model on the
+entire input dataframe</li>
+<li>Extracts individual feature performance from the classification
+algorithm using a designated performance metric</li>
+<li>Filters the feature data to the top <code>n</code> performing
+features (where <code>n</code> is specified by the user)</li>
+<li>Plots a feature <span class="math inline">\(\times\)</span> feature
+correlation matrix as a heatmap for the top performing features</li>
+<li>Plots a group of violin plots coloured by class label for the top
+performing features</li>
 </ol>
-<p>This analysis is useful because it can help guide researchers toward more efficient and appropriate interpretation of high-performing features (if any exist) and helps protect against over-interpretation of feature values.</p>
-<p>This function returns an object with three components to summarise the above steps:</p>
+<p>This analysis is useful because it can help guide researchers toward
+more efficient and appropriate interpretation of high-performing
+features (if any exist) and helps protect against over-interpretation of
+feature values.</p>
+<p>This function returns an object with three components to summarise
+the above steps:</p>
 <ol style="list-style-type: decimal">
 <li>
-<code>ResultsTable</code> – a dataframe containing feature names, feature set membership, and performance statistics for the top performing features</li>
+<code>ResultsTable</code> – a dataframe containing feature names,
+feature set membership, and performance statistics for the top
+performing features</li>
 <li>
-<code>FeatureFeatureCorrelationPlot</code> – a <code>ggplot</code> containing the pairwise correlations between top performing features represented as a heatmap</li>
+<code>FeatureFeatureCorrelationPlot</code> – a <code>ggplot</code>
+containing the pairwise correlations between top performing features
+represented as a heatmap</li>
 <li>
-<code>ViolinPlots</code> – a <code>ggplot</code> containing a matrix of violin plots showing class discrimination by feature</li>
+<code>ViolinPlots</code> – a <code>ggplot</code> containing a matrix
+of violin plots showing class discrimination by feature</li>
 </ol>
-<p>The code below produces analysis for a multiclass problem using a Gaussian process classifier with a radial basis function kernel. It implements a custom “empirical null” procedure for estimating a <em>p</em>-value based on classification accuracy of the real data compared to a distribution of null samples built from classification accuracies of the same data but with random class label shuffles. This is also known as permutation testing (see <a href="https://faculty.washington.edu/kenrice/sisg/SISG-08-06.pdf" class="external-link">this document</a><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Rice, Ken &amp;amp; Lumley, Thomas. (2008) “Permutation tests”&lt;/p&gt;"><sup>2</sup></a> for a good overview). Note that higher numbers of permutation samples means that a better empirical null distribution can be generated. It is recommended to run 100-1000 permutations, though this comes with considerable computation time. We’ll enable a <a href="https://en.wikipedia.org/wiki/Cross-validation_(statistics)" class="external-link">k-fold cross-validation</a> procedure too for good measure. Note that using these procedures increases the computation time. Electing to not use an empirical null will be faster, but top features will be determined based off classification accuracy of features and not <em>p</em>-values. Further, when <code>use_k_fold = FALSE</code>, the model will instead be fit on all data and predict classes based off the same data (in <code>caret</code> language, this is equivalent to <code>caret::trainControl(method = "none")</code> and then calling <code>predict</code> on the input data and getting accuracy from the confusion matrix between the two). This will very likely lead to overfitting, but will return results orders of magnitude faster than if <code>use_k_fold = TRUE</code>.</p>
-<p>Importantly, the argument <code>null_testing_method</code> has two choices:</p>
+<p>The code below produces analysis for a multiclass problem using a
+Gaussian process classifier with a radial basis function kernel. It
+implements a custom “empirical null” procedure for estimating a
+<em>p</em>-value based on classification accuracy of the real data
+compared to a distribution of null samples built from classification
+accuracies of the same data but with random class label shuffles. This
+is also known as permutation testing (see <a href="https://faculty.washington.edu/kenrice/sisg/SISG-08-06.pdf" class="external-link">this
+document</a><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> for a good overview). Note that higher
+numbers of permutation samples means that a better empirical null
+distribution can be generated. It is recommended to run 100-1000
+permutations, though this comes with considerable computation time.
+We’ll enable a <a href="https://en.wikipedia.org/wiki/Cross-validation_(statistics)" class="external-link">k-fold
+cross-validation</a> procedure too for good measure. Note that using
+these procedures increases the computation time. Electing to not use an
+empirical null will be faster, but top features will be determined based
+off classification accuracy of features and not <em>p</em>-values.
+Further, when <code>use_k_fold = FALSE</code>, the model will instead be
+fit on all data and predict classes based off the same data (in
+<code>caret</code> language, this is equivalent to
+<code>caret::trainControl(method = "none")</code> and then calling
+<code>predict</code> on the input data and getting accuracy from the
+confusion matrix between the two). This will very likely lead to
+overfitting, but will return results orders of magnitude faster than if
+<code>use_k_fold = TRUE</code>.</p>
+<p>Importantly, the argument <code>null_testing_method</code> has two
+choices:</p>
 <ol style="list-style-type: decimal">
 <li>
-<code>ModelFreeShuffles</code> – Generates <code>num_permutations</code> number of random shuffles of group labels and computes the proportion that match, returning a distribution of “accuracies”. This model is extremely fast as it involves no null model fitting</li>
+<code>ModelFreeShuffles</code> – Generates
+<code>num_permutations</code> number of random shuffles of group labels
+and computes the proportion that match, returning a distribution of
+“accuracies”. This model is extremely fast as it involves no null model
+fitting</li>
 <li>
-<code>NullModelFits</code> – Generates <code>num_permutations</code> number of models that are trained and tested on data where the class label is shuffled. This method is slow but fits separate null models for each <code>num_permutations</code> shuffle</li>
+<code>NullModelFits</code> – Generates <code>num_permutations</code>
+number of models that are trained and tested on data where the class
+label is shuffled. This method is slow but fits separate null models for
+each <code>num_permutations</code> shuffle</li>
 </ol>
-<p>We we only use <code>ModelFreeShuffles</code> throughout this tutorial to reduce computation time.</p>
+<p>We we only use <code>ModelFreeShuffles</code> throughout this
+tutorial to reduce computation time.</p>
 <p><code>p_value_method</code> also has two choices:</p>
 <ol style="list-style-type: decimal">
 <li>
-<code>empirical</code> – calculates the proportion of null classification accuracies that are equal to or greater than the main model accuracy</li>
+<code>empirical</code> – calculates the proportion of null
+classification accuracies that are equal to or greater than the main
+model accuracy</li>
 <li>
-<code>gaussian</code> – calculates mean and standard deviation of the null distribution to analytically calculate <em>p</em>-value for main model against. Initial package testing indicated that the null distributions (especially for increasing <code>num_permutations</code>) were approximately Gaussian, meaning this approach can be feasibly used</li>
+<code>gaussian</code> – calculates mean and standard deviation of
+the null distribution to analytically calculate <em>p</em>-value for
+main model against. Initial package testing indicated that the null
+distributions (especially for increasing <code>num_permutations</code>)
+were approximately Gaussian, meaning this approach can be feasibly
+used</li>
 </ol>
-<p>Note that <code>ModelFreeShuffles</code> is incompatible with <code>pool_empirical_null = TRUE</code> as the null distributions would be exactly the same. Further, if you set <code>pool_empirical_null = TRUE</code> this will compute statistical analysis for each feature against the entire pooled empirical null classification results of all features. Setting it to <code>FALSE</code> will compute a <em>p</em>-value for each feature against only its empirical null distribution.</p>
-<p><strong>IMPORTANT NOTE:</strong> <code>theft</code> currently does not label any results as “statistically significant”. If you intend to in your work, please adjust for multiple comparisons when considering numerous results against a threshold (e.g., <span class="math inline">\(\alpha = 0.05\)</span>) and ensure any decisions you make are grounded in careful thought.</p>
-<p>The <code>seed</code> argument allows you to specify a number to fix R’s random number generator for reproducible results. It defaults to <code>123</code> if nothing is provided.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<p>Note that <code>ModelFreeShuffles</code> is incompatible with
+<code>pool_empirical_null = TRUE</code> as the null distributions would
+be exactly the same. Further, if you set
+<code>pool_empirical_null = TRUE</code> this will compute statistical
+analysis for each feature against the entire pooled empirical null
+classification results of all features. Setting it to <code>FALSE</code>
+will compute a <em>p</em>-value for each feature against only its
+empirical null distribution.</p>
+<p><strong>IMPORTANT NOTE:</strong> <code>theft</code> currently does
+not label any results as “statistically significant”. If you intend to
+in your work, please adjust for multiple comparisons when considering
+numerous results against a threshold (e.g., <span class="math inline">\(\alpha = 0.05\)</span>) and ensure any decisions
+you make are grounded in careful thought.</p>
+<p>The <code>seed</code> argument allows you to specify a number to fix
+R’s random number generator for reproducible results. It defaults to
+<code>123</code> if nothing is provided.</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">outputs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compute_top_features.html">compute_top_features</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
                                 id_var <span class="op">=</span> <span class="st">"id"</span>, 
                                 group_var <span class="op">=</span> <span class="st">"group"</span>,
@@ -354,8 +534,10 @@
                                 num_permutations <span class="op">=</span> <span class="fl">10</span>,
                                 pool_empirical_null <span class="op">=</span> <span class="cn">FALSE</span>,
                                 seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
-<p>Each component is named and can be accessed through regular use of the <code>$</code> operator or through list indexing (both return the same object). Here’s the top few rows:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<p>Each component is named and can be accessed through regular use of
+the <code>$</code> operator or through list indexing (both return the
+same object). Here’s the top few rows:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">$</span><span class="va">ResultsTable</span><span class="op">)</span>
 <span class="co">#&gt;                                        feature  accuracy p_value_accuracy</span>
 <span class="co">#&gt; 1     catch22_sp_summaries_welch_rect_area_5_1 0.9500000    3.583919e-134</span>
@@ -372,24 +554,48 @@
 <span class="co">#&gt; 5   gaussprRadial Mean classification accuracy</span>
 <span class="co">#&gt; 6   gaussprRadial Mean classification accuracy</span></code></pre></div>
 <p>We could equivalently achieve the same with:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
-<p>The feature-feature correlation plots are accessed as the second object:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">$</span><span class="va">FeatureFeatureCorrelationPlot</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-20-1.png" width="768" style="display: block; margin: auto;"></p>
-<p>The violin plots are accessed as the third object:</p>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
+<p>The feature-feature correlation plots are accessed as the second
+object:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">$</span><span class="va">ViolinPlots</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">$</span><span class="va">FeatureFeatureCorrelationPlot</span><span class="op">)</span></code></pre></div>
 <p><img src="theft_files/figure-html/unnamed-chunk-21-1.png" width="768" style="display: block; margin: auto;"></p>
-<p>For two-class problems, users can fit statistical models to directly compute <em>p</em>-values by specifying one of the following models as the string argument to <code>test_method</code>: <code>"t-test"</code>, <code>"wilcox"</code> or <code>"BinomialLogistic"</code>. <code>theft</code> has special procedures for these three options if a two-class problem is registered and thus none of the function arguments pertaining to empirical null testing or classification model parameters are used. For multiclass problems (and binary), users can specify any model name string that is a valid <code>method</code> name in the popular <a href="https://topepo.github.io/caret/train-models-by-tag.html" class="external-link"><code>caret</code></a> package and <code>theft</code> will pass this through to the relevant sub-procedures which will make use of the arguments relating to <em>k</em>-fold cross-validation, permutation testing, and <em>p</em>-value calculation.</p>
+<p>The violin plots are accessed as the third object:</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">$</span><span class="va">ViolinPlots</span><span class="op">)</span></code></pre></div>
+<p><img src="theft_files/figure-html/unnamed-chunk-22-1.png" width="768" style="display: block; margin: auto;"></p>
+<p>For two-class problems, users can fit statistical models to directly
+compute <em>p</em>-values by specifying one of the following models as
+the string argument to <code>test_method</code>: <code>"t-test"</code>,
+<code>"wilcox"</code> or <code>"BinomialLogistic"</code>.
+<code>theft</code> has special procedures for these three options if a
+two-class problem is registered and thus none of the function arguments
+pertaining to empirical null testing or classification model parameters
+are used. For multiclass problems (and binary), users can specify any
+model name string that is a valid <code>method</code> name in the
+popular <a href="https://topepo.github.io/caret/train-models-by-tag.html" class="external-link"><code>caret</code></a>
+package and <code>theft</code> will pass this through to the relevant
+sub-procedures which will make use of the arguments relating to
+<em>k</em>-fold cross-validation, permutation testing, and
+<em>p</em>-value calculation.</p>
 </div>
 <div class="section level3">
 <h3 id="multi-feature">Multi-feature<a class="anchor" aria-label="anchor" href="#multi-feature"></a>
 </h3>
-<p>A multi-feature option is also available. The <code>fit_multivariable_classifier</code> function fits all features at once instead of by individual features to estimate classification accuracy. This can be split by feature set (if the <code>by_set</code> argument is set to <code>TRUE</code>) to enable systematic comparisons between those made available in <code>theft</code>. To save computation time in this tutorial, we will only analyse <code>catch22</code> (with <code>by_set = TRUE</code> to demonstrate automated plotting functionality), but comparing multiple calculated feature sets is recommended in practice.</p>
-<p>Now we can use our multi-feature functionality (note the similarity in options to the single feature version we specified above):</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<p>A multi-feature option is also available. The
+<code>fit_multivariable_classifier</code> function fits all features at
+once instead of by individual features to estimate classification
+accuracy. This can be split by feature set (if the <code>by_set</code>
+argument is set to <code>TRUE</code>) to enable systematic comparisons
+between those made available in <code>theft</code>. To save computation
+time in this tutorial, we will only analyse <code>catch22</code> (with
+<code>by_set = TRUE</code> to demonstrate automated plotting
+functionality), but comparing multiple calculated feature sets is
+recommended in practice.</p>
+<p>Now we can use our multi-feature functionality (note the similarity
+in options to the single feature version we specified above):</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">multi_outputs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_multi_feature_classifier.html">fit_multi_feature_classifier</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
                                               id_var <span class="op">=</span> <span class="st">"id"</span>, 
                                               group_var <span class="op">=</span> <span class="st">"group"</span>, 
@@ -403,21 +609,34 @@
                                               p_value_method <span class="op">=</span> <span class="st">"gaussian"</span>,
                                               num_permutations <span class="op">=</span> <span class="fl">10</span>,
                                               seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
-<p>We can now access the various named objects returned by this function, which include:</p>
+<p>We can now access the various named objects returned by this
+function, which include:</p>
 <ol style="list-style-type: decimal">
 <li>
-<code>FeatureSetResultsPlot</code> (only if <code>by_set</code> is set to <code>TRUE</code>) – a <code>ggplot</code> displaying classification accuracy (or balanced classification accuracy if <code>use_balanced_accuracy</code> is set to <code>TRUE</code>) by feature set</li>
+<code>FeatureSetResultsPlot</code> (only if <code>by_set</code> is
+set to <code>TRUE</code>) – a <code>ggplot</code> displaying
+classification accuracy (or balanced classification accuracy if
+<code>use_balanced_accuracy</code> is set to <code>TRUE</code>) by
+feature set</li>
 <li>
-<code>TestStatistics</code> – a dataframe containing a summary of test statistics (and <em>p</em>-values if <code>use_empirical_null</code> is set to <code>TRUE</code>)</li>
+<code>TestStatistics</code> – a dataframe containing a summary of
+test statistics (and <em>p</em>-values if
+<code>use_empirical_null</code> is set to <code>TRUE</code>)</li>
 <li>
-<code>RawClassificationResults</code> – a dataframe containing classification accuracies results from each main and null prediction</li>
+<code>RawClassificationResults</code> – a dataframe containing
+classification accuracies results from each main and null
+prediction</li>
 </ol>
-<p>Here’s the feature set comparison plot (note that because we have balanced classes, in this case, accuracy <span class="math inline">\(=\)</span> balanced accuracy; and because we only calculated features for <code>catch22</code>, the accuracy for <code>"All features"</code> <span class="math inline">\(=\)</span> accuracy for <code>catch22</code>):</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">FeatureSetResultsPlot</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-23-1.png" width="768" style="display: block; margin: auto;"></p>
-<p>Here’s the test statistics summary:</p>
+<p>Here’s the feature set comparison plot (note that because we have
+balanced classes, in this case, accuracy <span class="math inline">\(=\)</span> balanced accuracy; and because we only
+calculated features for <code>catch22</code>, the accuracy for
+<code>"All features"</code> <span class="math inline">\(=\)</span>
+accuracy for <code>catch22</code>):</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">FeatureSetResultsPlot</span><span class="op">)</span></code></pre></div>
+<p><img src="theft_files/figure-html/unnamed-chunk-24-1.png" width="768" style="display: block; margin: auto;"></p>
+<p>Here’s the test statistics summary:</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">TestStatistics</span><span class="op">)</span>
 <span class="co">#&gt;    method  accuracy p_value_accuracy balanced_accuracy</span>
 <span class="co">#&gt; 1 catch22 0.6555556     5.452103e-54         0.6555556</span>
@@ -426,7 +645,7 @@
 <span class="co">#&gt;                                                      statistic_name</span>
 <span class="co">#&gt; 1 Mean classification accuracy and balanced classification accuracy</span></code></pre></div>
 <p>And here’s the raw classifier results:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">RawClassificationResults</span><span class="op">)</span>
 <span class="co">#&gt;    accuracy accuracy_sd balanced_accuracy balanced_accuracy_sd category</span>
 <span class="co">#&gt; 1 0.6555556  0.04382281         0.6555556           0.04382281     Main</span>
@@ -449,17 +668,44 @@
 <span class="co">#&gt; 4 Mean classification accuracy and balanced classification accuracy</span>
 <span class="co">#&gt; 5 Mean classification accuracy and balanced classification accuracy</span>
 <span class="co">#&gt; 6 Mean classification accuracy and balanced classification accuracy</span></code></pre></div>
-<p>Note that for the multi-feature version, only valid <code>caret</code> method names are able to be used to specify a <code>test_method</code>.</p>
+<p>Note that for the multi-feature version, only valid
+<code>caret</code> method names are able to be used to specify a
+<code>test_method</code>.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="reading-and-processing-hctsa-formatted-files">Reading and processing hctsa-formatted files<a class="anchor" aria-label="anchor" href="#reading-and-processing-hctsa-formatted-files"></a>
 </h2>
-<p>As <code>theft</code> is based on the foundations laid by <a href="https://github.com/benfulcher/hctsa" class="external-link"><code>hctsa</code></a>, there is also functionality for reading in <code>hctsa</code>-formatted Matlab files and automatically processing them into tidy dataframes ready for feature extraction in <code>theft</code>. The <code>process_hctsa_file</code> function takes a string filepath to the Matlab file and does all the work for you, returning a dataframe with naming conventions consistent with other <code>theft</code> functionality. As per <code>hctsa</code> specifications for <a href="https://hctsa-users.gitbook.io/hctsa-manual/calculating/input_files" class="external-link">Input File Format 1</a>, this file should have 3 variables with the following exact names: <code>timeSeriesData</code>, <code>labels</code>, and <code>keywords</code>. Here is an example using the <a href="https://journals.aps.org/pre/abstract/10.1103/PhysRevE.64.061907" class="external-link">Bonn University EEG dataset</a><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Andrzejak, Ralph G., et al. (2001) “Indications of nonlinear deterministic and finite-dimensional structures in time series of brain electrical activity: Dependence on recording region and brain state.” Physical Review E 64(6): 061907&lt;/p&gt;"><sup>3</sup></a>.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<p>As <code>theft</code> is based on the foundations laid by <a href="https://github.com/benfulcher/hctsa" class="external-link"><code>hctsa</code></a>, there
+is also functionality for reading in <code>hctsa</code>-formatted Matlab
+files and automatically processing them into tidy dataframes ready for
+feature extraction in <code>theft</code>. The
+<code>process_hctsa_file</code> function takes a string filepath to the
+Matlab file and does all the work for you, returning a dataframe with
+naming conventions consistent with other <code>theft</code>
+functionality. As per <code>hctsa</code> specifications for <a href="https://hctsa-users.gitbook.io/hctsa-manual/calculating/input_files" class="external-link">Input
+File Format 1</a>, this file should have 3 variables with the following
+exact names: <code>timeSeriesData</code>, <code>labels</code>, and
+<code>keywords</code>. Here is an example using the <a href="https://journals.aps.org/pre/abstract/10.1103/PhysRevE.64.061907" class="external-link">Bonn
+University EEG dataset</a><a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>.</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">d2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/process_hctsa_file.html">process_hctsa_file</a></span><span class="op">(</span><span class="st">"https://cloudstor.aarnet.edu.au/plus/s/6sRD6IPMJyZLNlN/download"</span><span class="op">)</span></code></pre></div>
 </div>
-
+<div class="footnotes footnotes-end-of-document">
+<hr>
+<ol>
+<li id="fn1"><p>T. Henderson and B. D. Fulcher, “An Empirical Evaluation
+of Time-Series Feature Sets,” 2021 International Conference on Data
+Mining Workshops (ICDMW), 2021, pp. 1032-1038, doi:
+10.1109/ICDMW53433.2021.00134.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Rice, Ken &amp; Lumley, Thomas. (2008) “Permutation
+tests”<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>Andrzejak, Ralph G., et al. (2001) “Indications of
+nonlinear deterministic and finite-dimensional structures in time series
+of brain electrical activity: Dependence on recording region and brain
+state.” Physical Review E 64(6): 061907<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
 </div>
@@ -473,7 +719,8 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.2.</p>
 </div>
 
     </footer>

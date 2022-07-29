@@ -199,20 +199,33 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
                                  p_value_method = c("empirical", "gaussian"), num_permutations = 50,
                                  pool_empirical_null = FALSE, seed = 123){
   
-  # Make RobustSigmoid the default
+  # Set defaults
   
-  if(missing(method)){
-    method <- "RobustSigmoid"
-  } else{
-    method <- match.arg(method)
+  if(missing(id_var)){
+    id_var <- "id"
+    message("No id_var specified. Specifying 'id' as default as returned in theft::calculate_features")
   }
   
-  # Make pearson the default
+  if(missing(group_var)){
+    group_var <- "group"
+    message("No group_var specified. Specifying 'group' as default as returned in theft::calculate_features")
+  }
+  
+  if(missing(num_features)){
+    num_features <- 40
+    message("No num_features specified. Specifying 40 as default")
+  }
   
   if(missing(cor_method)){
     cor_method <- "pearson"
   } else{
     cor_method <- match.arg(cor_method)
+  }
+  
+  if(missing(clust_method)){
+    clust_method <- "average"
+  } else{
+    clust_method <- match.arg(clust_method)
   }
   
   # Check other arguments

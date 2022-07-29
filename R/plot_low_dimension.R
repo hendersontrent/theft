@@ -48,12 +48,25 @@ plot_low_dimension <- function(data, is_normalised = FALSE, id_var = "id", group
                                low_dim_method = c("PCA", "t-SNE"), perplexity = 30, 
                                plot = TRUE, show_covariance = FALSE, seed = 123){
 
-  # Make z-score the default
+  # Set defaults
 
   if(missing(method)){
     method <- "z-score"
+    message("No method specified. Specifying 'z-score' as default")
   } else{
     method <- match.arg(method)
+  }
+  
+  if(missing(low_dim_method)){
+    low_dim_method <- "PCA"
+    message("No low_dim_method specified. Specifying 'PCA' as default")
+  } else{
+    low_dim_method <- match.arg(low_dim_method)
+  }
+  
+  if(missing(id_var)){
+    id_var <- "id"
+    message("No id_var specified. Specifying 'id' as default as returned in theft::calculate_features")
   }
 
   expected_cols_1 <- "names"

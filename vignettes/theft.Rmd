@@ -102,6 +102,12 @@ The package comes with a function to visualise the data types of the calculated 
 plot_quality_matrix(feature_matrix)
 ```
 
+For cases where you have lots of features (i.e., when you calculate from multiple feature sets), you may want to adjust the optional argument `ignore_good_features` from its default of `FALSE` to `TRUE` to focus the plot only on the features that did not extract successfully for all cases. Code for this would look like the following:
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+plot_quality_matrix(feature_matrix, ignore_good_features = TRUE)
+```
+
 ## Normalising/scaling functions
 
 Putting calculated feature vectors on an equal scale is crucial for any statistical or machine learning model as variables with high variance can adversely impact the model's capacity to fit the data appropriately, learn appropriate weight values, or minimise a loss function. `theft` includes the functions `normalise_feature_vector` to rescale a vector of values (e.g. vector of values for all participants in a study on the `SB_BinaryStats_mean_longstretch1` feature), and `normalise_feature_frame` to rescale a vector within a dataframe into a variety of different ranges for ease-of-use. Current transformations available in the package include (note that all apply a linear rescaling to the unit interval at the end):

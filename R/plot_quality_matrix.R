@@ -4,6 +4,7 @@
 #' @import ggplot2
 #' @importFrom stats reorder
 #' @param data a dataframe with at least 2 columns called \code{"names"} and \code{"values"}
+#' @param ignore_good_features Boolean whether to remove "good" features (i.e., successful numeric values) from the plot. Defaults to \code{FALSE}
 #' @return an object of class \code{ggplot}
 #' @author Trent Henderson
 #' @export
@@ -16,10 +17,11 @@
 #'   feature_set = "catch22",
 #'   seed = 123)
 #'
-#' plot_quality_matrix(data = featMat)
+#' plot_quality_matrix(data = featMat,
+#'   ignore_good_features = FALSE)
 #'
 
-plot_quality_matrix <- function(data){
+plot_quality_matrix <- function(data, ignore_good_features = FALSE){
 
   expected_cols_1 <- "names"
   expected_cols_2 <- "values"
@@ -63,8 +65,20 @@ plot_quality_matrix <- function(data){
 
   # Join back in
 
-  tmp1 <- tmp %>%
+  tmp <- tmp %>%
     dplyr::left_join(ordering, by = c("names" = "names"))
+  
+  if(ignore_good_features){
+    tmp <- tmp %>%
+      dplyr::filter(.data$quality != "Good")
+    
+    if(nrow(tmp) == 0){
+      message("All feature values are good. Exiting without producing plot.")
+      opt <- options(show.error.messages = FALSE)
+      on.exit(options(opt))
+      stop()
+    }
+  }
 
   #--------------- Draw plot ------------------------
 
@@ -76,7 +90,7 @@ plot_quality_matrix <- function(data){
 
   # Plot
 
-  p <- tmp1 %>%
+  p <- tmp %>%
     ggplot2::ggplot(ggplot2::aes(x = stats::reorder(.data$names, -.data$ranker), y = .data$props)) +
     ggplot2::geom_bar(stat = "identity", ggplot2::aes(fill = .data$quality)) +
     ggplot2::labs(title = "Data quality for computed features",
@@ -90,7 +104,7 @@ plot_quality_matrix <- function(data){
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
                    legend.position = "bottom")
   
-  if(length(unique(tmp1$names)) > 22){
+  if(length(unique(tmp$names)) > 22){
     p <- p + 
       ggplot2::theme(axis.text.x = ggplot2::element_blank())
   } else{

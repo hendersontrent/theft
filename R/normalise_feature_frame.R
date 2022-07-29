@@ -70,14 +70,22 @@ mm_function <- function(data){
 normalise_feature_frame <- function(data, names_var = "names", values_var = "values", 
                                     method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")){
   
-  # Make RobustSigmoid the default
+  # Set defaults
+  
+  if(missing(names_var)){
+    names_var <- "names"
+    message("No names_var specified. Specifying 'names' as default as returned in theft::calculate_features")
+  }
+  
+  if(missing(values_var)){
+    values_var <- "values"
+    message("No values_var specified. Specifying 'values' as default as returned in theft::calculate_features")
+  }
   
   if(missing(method)){
     method <- "RobustSigmoid"
-  }
-  
-  if(is.null(method)){
-    method <- "RobustSigmoid"
+  } else{
+    method <- match.arg(method)
   }
   
   #--------- Error catches ---------
@@ -155,14 +163,22 @@ normalise_feature_frame <- function(data, names_var = "names", values_var = "val
 normalize_feature_frame <- function(data, names_var = "names", values_var = "values", 
                                     method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")){
   
-  # Make RobustSigmoid the default
+  # Set defaults
+  
+  if(missing(names_var)){
+    names_var <- "names"
+    message("No names_var specified. Specifying 'names' as default as returned in theft::calculate_features")
+  }
+  
+  if(missing(values_var)){
+    values_var <- "values"
+    message("No values_var specified. Specifying 'values' as default as returned in theft::calculate_features")
+  }
   
   if(missing(method)){
     method <- "RobustSigmoid"
-  }
-  
-  if(is.null(method)){
-    method <- "RobustSigmoid"
+  } else{
+    method <- match.arg(method)
   }
   
   #--------- Error catches ---------

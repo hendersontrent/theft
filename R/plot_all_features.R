@@ -41,12 +41,23 @@ plot_all_features <- function(data, is_normalised = FALSE, id_var = "id",
                               clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid"),
                               interactive = FALSE){
   
-  # Make RobustSigmoid the default
+  # Set defaults
   
   if(missing(method)){
     method <- "RobustSigmoid"
   } else{
     method <- match.arg(method)
+  }
+  
+  if(missing(clust_method)){
+    clust_method <- "average"
+  } else{
+    clust_method <- match.arg(clust_method)
+  }
+  
+  if(missing(id_var)){
+    id_var <- "id"
+    message("No id_var specified. Specifying 'id' as default as returned in theft::calculate_features")
   }
   
   expected_cols_1 <- "names"
