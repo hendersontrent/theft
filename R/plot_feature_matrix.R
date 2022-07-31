@@ -44,12 +44,23 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
   rlang::warn("As of 0.3.6 plot_feature_matrix is deprecated. Please use 'plot_all_features' instead",
               .frequency = "once", .frequency_id = "plot_feature_matrix")
   
-  # Make RobustSigmoid the default
+  # Set defaults
   
   if(missing(method)){
     method <- "RobustSigmoid"
   } else{
     method <- match.arg(method)
+  }
+  
+  if(missing(clust_method)){
+    clust_method <- "average"
+  } else{
+    clust_method <- match.arg(clust_method)
+  }
+  
+  if(missing(id_var)){
+    id_var <- "id"
+    message("No id_var specified. Specifying 'id' as default as returned in theft::calculate_features")
   }
 
   expected_cols_1 <- "names"
@@ -180,14 +191,14 @@ plot_feature_matrix <- function(data, is_normalised = FALSE, id_var = "id",
                                      text = paste('<br><b>ID:</b>', .data$id,
                                                   '<br><b>Feature:</b>', .data$names,
                                                   '<br><b>Scaled Value:</b>', round(.data$value, digits = 3)))) +
-        ggplot2::geom_tile() +
+        ggplot2::geom_raster() +
         ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
                                    show.limits = TRUE)
     
   } else{
     p <- cluster_out %>%
         ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value))  +
-        ggplot2::geom_tile() +
+        ggplot2::geom_raster() +
         ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
                                    show.limits = TRUE)
   }

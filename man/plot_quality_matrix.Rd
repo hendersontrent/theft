@@ -4,10 +4,12 @@
 \alias{plot_quality_matrix}
 \title{Produce a matrix visualisation of data types computed by feature calculation function.}
 \usage{
-plot_quality_matrix(data)
+plot_quality_matrix(data, ignore_good_features = FALSE)
 }
 \arguments{
 \item{data}{a dataframe with at least 2 columns called \code{"names"} and \code{"values"}}
+
+\item{ignore_good_features}{Boolean whether to remove "good" features (i.e., successful numeric values) from the plot. Defaults to \code{FALSE}}
 }
 \value{
 an object of class \code{ggplot}
@@ -24,7 +26,8 @@ featMat <- calculate_features(data = simData,
   feature_set = "catch22",
   seed = 123)
 
-plot_quality_matrix(data = featMat)
+plot_quality_matrix(data = featMat,
+  ignore_good_features = FALSE)
 
 }
 \author{

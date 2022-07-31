@@ -42,10 +42,33 @@ plot_ts_correlations <- function(data, is_normalised = NULL, id_var = "id",
                 .frequency = "once", .frequency_id = "plot_ts_correlations")
   }
   
+  # Set defaults
+  
+  if(missing(id_var)){
+    id_var <- "id"
+    message("No id_var specified. Specifying 'id' as default as returned in theft::calculate_features")
+  }
+  
+  if(missing(time_var)){
+    time_var <- "timepoint"
+    message("No time_var specified. Specifying 'timepoint' as default")
+  }
+  
+  if(missing(values_var)){
+    values_var <- "values"
+    message("No values_var specified. Specifying 'values' as default")
+  }
+  
   if(missing(cor_method)){
     cor_method <- "pearson"
   } else{
     cor_method <- match.arg(cor_method)
+  }
+  
+  if(missing(clust_method)){
+    clust_method <- "average"
+  } else{
+    clust_method <- match.arg(clust_method)
   }
   
   #------------ Checks ---------------
@@ -141,7 +164,7 @@ plot_ts_correlations <- function(data, is_normalised = NULL, id_var = "id",
   }
   
   p <- p +
-    ggplot2::geom_tile(ggplot2::aes(fill = .data$value)) +
+    ggplot2::geom_raster(ggplot2::aes(fill = .data$value)) +
     ggplot2::labs(title = "Pairwise correlation matrix",
                   x = "Time series",
                   y = "Time series",
