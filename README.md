@@ -24,6 +24,13 @@ following:
 devtools::install_github("hendersontrent/theft")
 ```
 
+Please also check out our new paper [Feature-Based Time-Series Analysis
+in R using the theft Package](https://arxiv.org/abs/2208.06146) which
+discusses the motivation and theoretical underpinnings of `theft` and
+walks through all of its functionality using the [Bonn EEG
+dataset](https://journals.aps.org/pre/abstract/10.1103/PhysRevE.64.061907)
+— a well-studied neuroscience dataset.
+
 ## General purpose
 
 `theft` is a software package for R that facilitates user-friendly
@@ -81,6 +88,14 @@ calculations. Note that since `theft` is an active development project,
 not all functionality has been copied across to the webtool yet.
 
 ## Citation
+
+if you use `theft` in your own work, please cite both the paper:
+
+T. Henderson and Ben D. Fulcher. [Feature-Based Time-Series Analysis in
+R using the theft Package](https://arxiv.org/abs/2208.06146). arXiv,
+(2022).
+
+and the software (below):
 
 
     To cite package 'theft' in publications use:
