@@ -4,12 +4,6 @@
     <loc>https://hendersontrent.github.io/theft/404.html</loc>
   </url>
   <url>
-    <loc>https://hendersontrent.github.io/theft/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/LICENSE.html</loc>
-  </url>
-  <url>
     <loc>https://hendersontrent.github.io/theft/articles/index.html</loc>
   </url>
   <url>
@@ -22,6 +16,12 @@
     <loc>https://hendersontrent.github.io/theft/index.html</loc>
   </url>
   <url>
+    <loc>https://hendersontrent.github.io/theft/LICENSE-text.html</loc>
+  </url>
+  <url>
+    <loc>https://hendersontrent.github.io/theft/LICENSE.html</loc>
+  </url>
+  <url>
     <loc>https://hendersontrent.github.io/theft/reference/calculate_features.html</loc>
   </url>
   <url>
@@ -31,13 +31,19 @@
     <loc>https://hendersontrent.github.io/theft/reference/compute_top_features.html</loc>
   </url>
   <url>
+    <loc>https://hendersontrent.github.io/theft/reference/demo_multi_outputs.html</loc>
+  </url>
+  <url>
+    <loc>https://hendersontrent.github.io/theft/reference/demo_outputs.html</loc>
+  </url>
+  <url>
     <loc>https://hendersontrent.github.io/theft/reference/feature_list.html</loc>
   </url>
   <url>
-    <loc>https://hendersontrent.github.io/theft/reference/fit_multi_feature_classifier.html</loc>
+    <loc>https://hendersontrent.github.io/theft/reference/fit_multivariable_classifier.html</loc>
   </url>
   <url>
-    <loc>https://hendersontrent.github.io/theft/reference/fit_multivariable_classifier.html</loc>
+    <loc>https://hendersontrent.github.io/theft/reference/fit_multi_feature_classifier.html</loc>
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/reference/fit_single_feature_classifier.html</loc>

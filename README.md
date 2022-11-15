@@ -41,14 +41,14 @@ of existing R and Python packages and lets the user specify which groups
 (or all) of the these features to calculate. The packages which `theft`
 currently ‘steals’ features from include:
 
--   [catch22](https://link.springer.com/article/10.1007/s10618-019-00647-x)
-    (R; [see `Rcatch22` for the native implementation on
-    CRAN](https://github.com/hendersontrent/Rcatch22))
--   [feasts](https://feasts.tidyverts.org) (R)
--   [tsfeatures](https://github.com/robjhyndman/tsfeatures) (R)
--   [Kats](https://facebookresearch.github.io/Kats/) (Python)
--   [tsfresh](https://tsfresh.com) (Python)
--   [TSFEL](https://tsfel.readthedocs.io/en/latest/) (Python)
+- [catch22](https://link.springer.com/article/10.1007/s10618-019-00647-x)
+  (R; [see `Rcatch22` for the native implementation on
+  CRAN](https://github.com/hendersontrent/Rcatch22))
+- [feasts](https://feasts.tidyverts.org) (R)
+- [tsfeatures](https://github.com/robjhyndman/tsfeatures) (R)
+- [Kats](https://facebookresearch.github.io/Kats/) (Python)
+- [tsfresh](https://tsfresh.com) (Python)
+- [TSFEL](https://tsfel.readthedocs.io/en/latest/) (Python)
 
 Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. The R
 package `reticulate` is used to call Python code that uses these
@@ -100,9 +100,9 @@ and the software (below):
 
     To cite package 'theft' in publications use:
 
-      Trent Henderson (2022). theft: Tools for Handling Extraction of
-      Features from Time Series. R package version 0.4.1.
-      https://hendersontrent.github.io/theft/
+      Henderson T (2022). _theft: Tools for Handling Extraction of Features
+      from Time Series_. R package version 0.4.1.1,
+      <https://hendersontrent.github.io/theft/>.
 
     A BibTeX entry for LaTeX users is
 
@@ -110,6 +110,6 @@ and the software (below):
         title = {theft: Tools for Handling Extraction of Features from Time Series},
         author = {Trent Henderson},
         year = {2022},
-        note = {R package version 0.4.1},
+        note = {R package version 0.4.1.1},
         url = {https://hendersontrent.github.io/theft/},
       }

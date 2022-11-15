@@ -1,8 +1,8 @@
 Package: theft
 Type: Package
 Title: Tools for Handling Extraction of Features from Time Series
-Version: 0.4.1
-Date: 2022-07-29
+Version: 0.4.1.1
+Date: 2022-11-15
 Authors@R: c(
   person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut")),
   person("Annie", "Bryant", role = "ctb", comment = "Balanced classification accuracy")
@@ -50,6 +50,6 @@ Suggests:
     markdown,
     rmarkdown,
     testthat
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.2
 VignetteBuilder: knitr
 URL: https://hendersontrent.github.io/theft/

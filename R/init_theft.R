@@ -4,12 +4,9 @@
 #' @return no return value; called for side effects
 #' @author Trent Henderson
 #' @export
-#' @examples
-#' \donttest{
-#' init_theft("~/opt/anaconda3/bin/python")
-#' }
 #' 
 
 init_theft <- function(path_to_python){
+  stopifnot(is.character(path_to_python))
   reticulate::use_python(path_to_python, required = TRUE)
 }

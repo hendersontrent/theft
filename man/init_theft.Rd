@@ -15,12 +15,6 @@ no return value; called for side effects
 \description{
 Communicate to R the correct Python version containing the relevant libraries for calculating features
 }
-\examples{
-\donttest{
-init_theft("~/opt/anaconda3/bin/python")
-}
-
-}
 \author{
 Trent Henderson
 }
