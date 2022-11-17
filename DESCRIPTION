@@ -46,9 +46,13 @@ Imports:
     caret,
     janitor
 Suggests: 
+    lifecycle,
+    cachem,
+    bslib,
     knitr,
     markdown,
     rmarkdown,
+    pkgdown,
     testthat
 RoxygenNote: 7.2.2
 VignetteBuilder: knitr
