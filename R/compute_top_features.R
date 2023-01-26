@@ -413,14 +413,11 @@ compute_top_features <- function(data, num_features = 40,
   
   # Compile into one object and return
   
-  if("try-error" %in% class(FeatureFeatureCorrelationPlot)){
-    
+  if(inherits(FeatureFeatureCorrelationPlot, "try-error") == TRUE){
     message("An error occured in producing the pairwise correlation plot. Only returning numerical results and violin plots instead.")
     myList <- list(ResultsTable, ViolinPlots)
     names(myList) <- c("ResultsTable", "ViolinPlots")
-    
   } else{
-    
     myList <- list(ResultsTable, FeatureFeatureCorrelationPlot, ViolinPlots)
     names(myList) <- c("ResultsTable", "FeatureFeatureCorrelationPlot", "ViolinPlots")
   }
