@@ -139,7 +139,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}
 #' @param num_features the number of top features to retain and explore. Defaults to \code{40}
 #' @param normalise_violin_plots a Boolean of whether to normalise features before plotting. Defaults to \code{FALSE}
-#' @param method a rescaling/normalising method to apply to violin plots. Defaults to \code{"RobustSigmoid"}
+#' @param method a rescaling/normalising method to apply to violin plots. Defaults to \code{"z-score"}
 #' @param cor_method the correlation method to use. Defaults to \code{"pearson"}
 #' @param test_method the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}
 #' @param clust_method the hierarchical clustering method to use for the pairwise correlation plot. Defaults to \code{"average"}
