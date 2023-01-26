@@ -292,15 +292,15 @@ calc_kats <- function(data){
 #' @importFrom fabletools features
 #' @importFrom fabletools feature_set
 #' @param data a dataframe with at least 4 columns: id variable, group variable, time variable, value variable
-#' @param id_var a string specifying the ID variable to identify each time series. Defaults to \code{NULL}
-#' @param time_var a string specifying the time index variable. Defaults to \code{NULL}
-#' @param values_var a string specifying the values variable. Defaults to \code{NULL}
+#' @param id_var a string specifying the ID variable to identify each time series. Defaults to \code{"id"}
+#' @param time_var a string specifying the time index variable. Defaults to \code{"timepoint"}
+#' @param values_var a string specifying the values variable. Defaults to \code{"values"}
 #' @param group_var a string specifying the grouping variable that each unique series sits under (if one exists). Defaults to \code{NULL}
 #' @param feature_set the set of time-series features to calculate. Defaults to \code{catch22}
 #' @param catch24 a Boolean specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}
 #' @param tsfresh_cleanup a Boolean specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}
 #' @param seed fixed number for R's random number generator to ensure reproducibility
-#' @return object of class dataframe that contains the summary statistics for each feature
+#' @return object of class \code{feature_calculations} that contains the summary statistics for each feature
 #' @author Trent Henderson
 #' @export
 #' @examples
@@ -313,32 +313,9 @@ calc_kats <- function(data){
 #'   seed = 123)
 #'
 
-calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var = NULL, group_var = NULL,
+calculate_features <- function(data, id_var = "id", time_var = "timepoint", values_var = "values", group_var = NULL,
                                feature_set = c("catch22", "feasts", "tsfeatures", "Kats", "tsfresh", "TSFEL"), 
                                catch24 = FALSE, tsfresh_cleanup = FALSE, seed = 123){
-  
-  if(is.null(id_var) || is.null(time_var) || is.null(values_var)){
-    stop("Input must be a dataframe with at least 3 columns: id, timepoint, value")
-  }
-  
-  # Make 'catch22' the default
-  
-  if(missing(feature_set)){
-    feature_set <- "catch22"
-    message("No feature set entered. Running catch22 by default.")
-  }
-  
-  if(is.null(feature_set)){
-    feature_set <- "catch22"
-    message("No feature set entered. Running catch22 by default.")
-  }
-  
-  # Seed
-  
-  if(is.null(seed) || missing(seed)){
-    seed <- 123
-    message("No argument supplied to seed, using 123 as default.")
-  }
   
   #--------- Error catches ---------
   
@@ -357,11 +334,7 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
   '%ni%' <- Negate('%in%')
   
   if(length(base::setdiff(feature_set, the_sets)) != 0){
-    stop("feature_set should be a single string specification or vector of 'all', 'catch22', 'feasts', 'tsfeatures', 'Kats', 'tsfresh' or 'TSFEL'.")
-  }
-  
-  if(!is.null(group_var) && !is.character(group_var)){
-    stop("group_var should be a string specifying the variable name of your grouping variable.")
+    stop("feature_set should be a single string specification or vector of 'catch22', 'feasts', 'tsfeatures', 'Kats', 'tsfresh' or 'TSFEL'.")
   }
   
   #--------- Quality by ID --------
@@ -487,5 +460,6 @@ calculate_features <- function(data, id_var = NULL, time_var = NULL, values_var 
     tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_kats)
   }
   
+  tmp_all_features <- structure(tmp_all_features, class = "feature_calculations")
   return(tmp_all_features)
 }
