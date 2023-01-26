@@ -309,7 +309,7 @@ outputs <- compute_top_features(feature_matrix,
 Each component is named and can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
 
 ```{r, message = FALSE, warning = FALSE, echo = FALSE}
-head(theft::demo_outputs$ResultsTable)
+load("outputs.rda")
 ```
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
@@ -318,19 +318,11 @@ head(outputs$ResultsTable)
 
 The feature-feature correlation plots are accessed as the second object:
 
-```{r, message = FALSE, warning = FALSE, echo = FALSE}
-print(theft::demo_outputs$FeatureFeatureCorrelationPlot)
-```
-
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 print(outputs$FeatureFeatureCorrelationPlot)
 ```
 
 The violin plots are accessed as the third object:
-
-```{r, message = FALSE, warning = FALSE, echo = FALSE}
-print(theft::demo_outputs$ViolinPlots)
-```
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 print(outputs$ViolinPlots)
@@ -369,7 +361,7 @@ We can now access the various named objects returned by this function, which inc
 Here's the feature set comparison plot (note that because we have balanced classes, in this case, accuracy $=$ balanced accuracy; and because we only calculated features for `catch22`, the accuracy for `"All features"` $=$ accuracy for `catch22`):
 
 ```{r, message = FALSE, warning = FALSE, echo = FALSE}
-print(theft::demo_multi_outputs$FeatureSetResultsPlot)
+load("multi_outputs.rda")
 ```
   
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
@@ -378,19 +370,11 @@ print(multi_outputs$FeatureSetResultsPlot)
 
 Here's the test statistics summary:
 
-```{r, message = FALSE, warning = FALSE, echo = FALSE}
-head(theft::demo_multi_outputs$TestStatistics)
-```
-
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 head(multi_outputs$TestStatistics)
 ```
 
 And here's the raw classifier results:
-
-```{r, message = FALSE, warning = FALSE, echo = FALSE}
-head(theft::demo_multi_outputs$RawClassificationResults)
-```
   
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 head(multi_outputs$RawClassificationResults)

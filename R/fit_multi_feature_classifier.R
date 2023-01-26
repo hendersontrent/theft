@@ -603,7 +603,7 @@ clean_by_set <- function(data, themethod = NULL){
 #' @importFrom purrr map map_df
 #' @importFrom janitor clean_names
 #' @importFrom caret preProcess train confusionMatrix
-#' @param data the dataframe containing the raw feature data as calculated by \code{theft::calculate_features}
+#' @param data the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
 #' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}
 #' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}
 #' @param by_set Boolean specifying whether to compute classifiers for each feature set. Defaults to \code{FALSE}
@@ -630,8 +630,6 @@ clean_by_set <- function(data, themethod = NULL){
 #'   seed = 123)
 #'
 #' fit_multi_feature_classifier(featMat,
-#'   id_var = "id",
-#'   group_var = "group",
 #'   by_set = FALSE,
 #'   test_method = "gaussprRadial",
 #'   use_balanced_accuracy = FALSE,
@@ -645,100 +643,17 @@ clean_by_set <- function(data, themethod = NULL){
 #' }
 #'
 
-fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group",
-                                         by_set = FALSE, test_method = "gaussprRadial",
+fit_multi_feature_classifier <- function(data, by_set = FALSE, test_method = "gaussprRadial",
                                          use_balanced_accuracy = FALSE, use_k_fold = TRUE, num_folds = 10,
                                          use_empirical_null = FALSE, null_testing_method = c("ModelFreeShuffles", "NullModelFits"),
                                          p_value_method = c("empirical", "gaussian"), num_permutations = 100, seed = 123){
   
-  #---------- Check arguments ------------
+  stopifnot(inherits(data, "feature_calculations") == TRUE)
+  method <- match.arg(method)
+  null_testing_method <- match.arg(null_testing_method)
+  p_value_method <- match.arg(p_value_method)
   
-  expected_cols_1 <- "names"
-  expected_cols_2 <- "values"
-  expected_cols_3 <- "method"
-  the_cols <- colnames(data)
-  '%ni%' <- Negate('%in%')
-  
-  if(expected_cols_1 %ni% the_cols){
-    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by theft::calculate_features(). Please consider running this first and then passing the resultant dataframe to this function.")
-  }
-  
-  if(expected_cols_2 %ni% the_cols){
-    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by theft::calculate_features(). Please consider running this first and then passing the resultant dataframe to this function.")
-  }
-  
-  if(expected_cols_3 %ni% the_cols){
-    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by theft::calculate_features(). Please consider running this first and then passing the resultant dataframe to this function.")
-  }
-  
-  if(!is.numeric(data$values)){
-    stop("'values' column in data should be a numerical vector.")
-  }
-  
-  if(!is.null(id_var) && !is.character(id_var)){
-    stop("id_var should be a string specifying a variable in the input data that uniquely identifies each observation.")
-  }
-  
-  # Null testing options
-  
-  theoptions <- c("ModelFreeShuffles", "NullModelFits")
-  
-  if(null_testing_method == "model free shuffles"){
-    message("'model free shuffles' is deprecated, please use 'ModelFreeShuffles' instead.")
-    null_testing_method <- "ModelFreeShuffles"
-  }
-  
-  if(null_testing_method == "null model fits"){
-    message("'null model fits' is deprecated, please use 'NullModelFits' instead.")
-    null_testing_method <- "NullModelFits"
-  }
-  
-  if(is.null(null_testing_method) || missing(null_testing_method)){
-    null_testing_method <- "ModelFreeShuffles"
-    message("No argument supplied to null_testing_method. Using 'ModelFreeShuffles' as default.")
-  }
-  
-  if(length(null_testing_method) != 1){
-    stop("null_testing_method should be a single string of either 'ModelFreeShuffles' or 'NullModelFits'.")
-  }
-  
-  if(null_testing_method %ni% theoptions){
-    stop("null_testing_method should be a single string of either 'ModelFreeShuffles' or 'NullModelFits'.")
-  }
-  
-  if(null_testing_method == "ModelFreeShuffles" && num_permutations < 1000){
-    message("Null testing method 'ModelFreeShuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.")
-  }
-  
-  # p-value options
-  
-  theoptions_p <- c("empirical", "gaussian")
-  
-  if(is.null(p_value_method) || missing(p_value_method)){
-    p_value_method <- "gaussian"
-    message("No argument supplied to p_value_method Using 'gaussian' as default.")
-  }
-  
-  if(length(p_value_method) != 1){
-    stop("p_value_method should be a single string of either 'empirical' or 'gaussian'.")
-  }
-  
-  if(p_value_method %ni% theoptions_p){
-    stop("p_value_method should be a single string of either 'empirical' or 'gaussian'.")
-  }
-  
-  # Seed
-  
-  if(is.null(seed) || missing(seed)){
-    seed <- 123
-    message("No argument supplied to seed, using 123 as default.")
-  }
-  
-  #------------- Renaming columns -------------
-  
-  if (is.null(id_var)){
-    stop("Data is not uniquely identifiable. Please add a unique identifier variable.")
-  }
+  #------------- Rename columns -------------
   
   if(!is.null(id_var)){
     data_id <- data %>%
@@ -751,35 +666,6 @@ fit_multi_feature_classifier <- function(data, id_var = "id", group_var = "group
   
   if(num_classes < 2){
     stop("Your data has less than two unique classes. At least two are required to performed classification analysis.")
-  }
-  
-  # Set defaults for classification method
-  
-  if((missing(test_method) || is.null(test_method))){
-    test_method <- "gaussprRadial"
-    message("test_method is NULL or missing, fitting 'gaussprRadial' by default.")
-  }
-  
-  if(length(test_method) != 1){
-    stop("test_method should be a single string specification of a classification model available in the `caret` package. 'svmLinear' or 'gaussprRadial' are recommended as starting points.")
-  }
-  
-  # Splits and shuffles
-  
-  if(use_k_fold == TRUE && !is.numeric(num_folds)){
-    stop("num_folds should be a positive integer. 10 folds is recommended.")
-  }
-  
-  if(use_empirical_null == TRUE && !is.numeric(num_permutations)){
-    stop("num_permutations should be a postive integer. A minimum of 50 permutations is recommended.")
-  }
-  
-  if(use_empirical_null == TRUE && num_permutations < 3){
-    stop("num_permutations should be a positive integer >= 3 for empirical null calculations. A minimum of 50 permutations is recommended.")
-  }
-  
-  if(use_k_fold == TRUE && num_folds < 1){
-    stop("num_folds should be a positive integer. 10 folds is recommended.")
   }
   
   #------------- Preprocess data --------------
