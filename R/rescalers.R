@@ -3,7 +3,6 @@
 #' @param x a numeric vector, preferably of feature values computed by other \code{theft} package functions
 #' @return x a numeric vector, rescaled into the \code{[0,1]} unit interval
 #' @author Trent Henderson
-#' @export
 #' @examples
 #' minmax_scaler(stats::rnorm(10))
 #'
@@ -21,7 +20,6 @@ minmax_scaler <- function(x){
 #' @param unitInt Booelan whether to rescale outputs into unit interval \code{[0,1]}. Defaults to \code{TRUE}
 #' @return x a numeric vector, rescaled into z-scores
 #' @author Trent Henderson
-#' @export
 #' @examples
 #' zscore_scaler(stats::rnorm(10))
 #'
@@ -45,7 +43,6 @@ zscore_scaler <- function(x, unitInt = TRUE){
 #' @param unitInt Booelan whether to rescale Sigmoidal outputs into unit interval \code{[0,1]}. Defaults to \code{TRUE}
 #' @return x a numeric rescaled vector
 #' @author Trent Henderson
-#' @export
 #' @examples
 #' sigmoid_scaler(stats::rnorm(10))
 #'
@@ -70,7 +67,6 @@ sigmoid_scaler <- function(x, unitInt = TRUE){
 #' @param unitInt Booelan whether to rescale Sigmoidal outputs into unit interval \code{[0,1]}. Defaults to \code{TRUE}
 #' @return x a numeric rescaled vector
 #' @author Trent Henderson
-#' @export
 #' @examples
 #' robustsigmoid_scaler(stats::rnorm(10))
 #'
