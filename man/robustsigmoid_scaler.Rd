@@ -19,10 +19,6 @@ robustsigmoid_scaler(x, unitInt = TRUE)
 This function rescales a vector of numerical values with an outlier-robust Sigmoidal transformation and then into the unit interval [0,1]
 \deqn{z_i = \left[1 + \exp\left(-\frac{x_i - \mathrm{median}(\mathbf{x})}{\mathrm{IQR}(\mathbf{x})/{1.35}}\right)\right]^{-1}}
 }
-\examples{
-robustsigmoid_scaler(stats::rnorm(10))
-
-}
 \author{
 Trent Henderson
 }

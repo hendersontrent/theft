@@ -19,10 +19,6 @@ sigmoid_scaler(x, unitInt = TRUE)
 This function rescales a vector of numerical values using a Sigmoidal transformation
 \deqn{z_i = \left[1 + \exp(-\frac{x_i - \mu}{\sigma})\right]^{-1}}
 }
-\examples{
-sigmoid_scaler(stats::rnorm(10))
-
-}
 \author{
 Trent Henderson
 }

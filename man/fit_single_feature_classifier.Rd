@@ -40,10 +40,6 @@ fit_single_feature_classifier(
 \item{pool_empirical_null}{a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if a \code{caret} model is specified for \code{test_method} use_empirical_null is \code{TRUE}. Defaults to \code{FALSE}}
 
 \item{seed}{fixed number for R's random number generator to ensure reproducibility}
-
-\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}}
-
-\item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}}
 }
 \value{
 an object of class dataframe containing results

@@ -19,10 +19,6 @@ zscore_scaler(x, unitInt = TRUE)
 This function rescales a vector of numerical values into z-scores and then into the unit interval [0,1]
 \deqn{z_i = \frac{x_i - \mu}{\sigma}}
 }
-\examples{
-zscore_scaler(stats::rnorm(10))
-
-}
 \author{
 Trent Henderson
 }

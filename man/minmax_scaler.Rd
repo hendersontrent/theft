@@ -17,10 +17,6 @@ minmax_scaler(x)
 This function rescales a vector of numerical values into the unit interval [0,1]
 \deqn{z_i = \frac{x_i - \min(\mathbf{x})}{\max(\mathbf{x}) - \min(\mathbf{x})}}
 }
-\examples{
-minmax_scaler(stats::rnorm(10))
-
-}
 \author{
 Trent Henderson
 }

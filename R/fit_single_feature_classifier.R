@@ -447,8 +447,6 @@ clean_by_feature <- function(data, x){
 #' @importFrom janitor clean_names
 #' @importFrom caret preProcess train confusionMatrix
 #' @param data the dataframe containing the raw feature matrix
-#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}
-#' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}
 #' @param test_method the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}. Should be either \code{"t-test"}, \code{"wilcox"}, or \code{"binomial logistic"} for two-class problems to obtain exact statistics, or a valid \code{caret} classification model for everything else 
 #' @param use_balanced_accuracy a Boolean specifying whether to use balanced accuracy as the summary metric for caret model training. Defaults to \code{FALSE}
 #' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates if a \code{caret} model is specified for \code{test_method}. Defaults to \code{ FALSE}
