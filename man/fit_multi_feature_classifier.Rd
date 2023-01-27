@@ -40,10 +40,6 @@ fit_multi_feature_classifier(
 \item{num_permutations}{an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{100}}
 
 \item{seed}{fixed number for R's random number generator to ensure reproducibility}
-
-\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}}
-
-\item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}}
 }
 \value{
 an object of class list containing dataframe summaries of the classification models and a \code{ggplot} object if \code{by_set} is \code{TRUE}

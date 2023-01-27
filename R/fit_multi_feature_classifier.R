@@ -604,8 +604,6 @@ clean_by_set <- function(data, themethod = NULL){
 #' @importFrom janitor clean_names
 #' @importFrom caret preProcess train confusionMatrix
 #' @param data the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
-#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}
-#' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}
 #' @param by_set Boolean specifying whether to compute classifiers for each feature set. Defaults to \code{FALSE}
 #' @param test_method the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}
 #' @param use_balanced_accuracy a Boolean specifying whether to use balanced accuracy as the summary metric for caret model training. Defaults to \code{FALSE}
