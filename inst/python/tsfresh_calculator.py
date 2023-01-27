@@ -14,7 +14,7 @@ def tsfresh_calculator(timeseries, column_id, column_sort, cleanup, y = None):
     from tsfresh import extract_relevant_features
     
     if cleanup == "Yes":
-        extracted_features = extract_relevant_features(timeseries, column_id = column_id, column_sort = column_sort)
+        extracted_features = extract_relevant_features(timeseries, y, column_id = column_id, column_sort = column_sort)
     else:
         extracted_features = extract_features(timeseries, column_id = column_id, column_sort = column_sort)
     
