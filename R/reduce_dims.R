@@ -21,12 +21,13 @@
 reduce_dims <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                         low_dim_method = c("PCA", "t-SNE"), perplexity = 30, seed = 123){
 
+  stopifnot(inherits(data, "feature_calculations") == TRUE)
   method <- match.arg("method")
   low_dim_method <- match.arg("low_dim_method")
 
   #------------- Normalise data -------------------
 
-  normed <- data_id %>%
+  normed <- data[[1]] %>%
     dplyr::rename(feature_set = .data$method) %>% # Avoids issues with method arg later
     dplyr::select(c(.data$id, .data$names, .data$values, .data$feature_set)) %>%
     tidyr::drop_na() %>%
@@ -41,7 +42,7 @@ reduce_dims <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", 
   
   # Produce matrix
   
-  dat_filtered <- normed %>%
+  wide_data <- normed %>%
     tidyr::pivot_wider(id_cols = "id", names_from = "names", values_from = "values") %>%
     tibble::column_to_rownames(var = "id") %>%
     tidyr::drop_na()
@@ -52,7 +53,7 @@ reduce_dims <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", 
     
     set.seed(seed)
     
-    fits <- dat_filtered %>%
+    fits <- wide_data %>%
       stats::prcomp(scale = FALSE)
     
     # Retrieve eigenvalues and tidy up variance explained for plotting
@@ -76,7 +77,7 @@ reduce_dims <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", 
     
     # Check perplexity
     
-    if(perplexity >= nrow(dat_filtered)){
+    if(perplexity >= nrow(wide_data)){
       stop("perplexity must be < number of unique IDs.")
     }
     
@@ -84,12 +85,12 @@ reduce_dims <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", 
     
     set.seed(seed)
     
-    fits <- Rtsne::Rtsne(as.matrix(dat_filtered), perplexity = perplexity, max_iter = 5000, dims = 2,
+    fits <- Rtsne::Rtsne(as.matrix(wide_data), perplexity = perplexity, max_iter = 5000, dims = 2,
                             check_duplicates = FALSE)
     
     # Retrieve 2-dimensional embedding and add in unique IDs
     
-    id_ref <- dat_filtered %>%
+    id_ref <- wide_data %>%
       tibble::rownames_to_column(var = "id") %>%
       dplyr::select(c(.data$id))
     
@@ -98,7 +99,7 @@ reduce_dims <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", 
       dplyr::mutate(id = id_ref$id)
   }
   
-  low_dim <- list(data, wide_data, fits)
+  low_dim <- list(data[[1]], wide_data, fits)
   low_dim <- structure(low_dim, class = "low_dimension")
   return(low_dim)
 }

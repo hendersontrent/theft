@@ -135,8 +135,6 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #' @importFrom reshape2 melt
 #' @importFrom janitor clean_names
 #' @param data the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
-#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}
-#' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}
 #' @param num_features the number of top features to retain and explore. Defaults to \code{40}
 #' @param normalise_violin_plots a Boolean of whether to normalise features before plotting. Defaults to \code{FALSE}
 #' @param method a rescaling/normalising method to apply to violin plots. Defaults to \code{"z-score"}
@@ -237,7 +235,7 @@ compute_top_features <- function(data, num_features = 40,
   # Classes in the data
   
   if(!is.null(id_var)){
-    data_id <- data %>%
+    data_id <- data[[1]] %>%
       dplyr::rename(id = dplyr::all_of(id_var),
                     group = dplyr::all_of(group_var)) %>%
       dplyr::select(c(.data$id, .data$group, .data$method, .data$names, .data$values))

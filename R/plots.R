@@ -30,7 +30,7 @@ plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor")
     
     #--------------- Calculate proportions ------------
     
-    tmp <- data %>%
+    tmp <- data[[1]] %>%
       dplyr::mutate(quality = dplyr::case_when(
         is.na(.data$values)                               ~ "NaN",
         is.nan(.data$values)                              ~ "NaN",
@@ -103,7 +103,7 @@ plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor")
   
     #------------- Apply normalisation -------------
     
-    data_id <- data_id %>%
+    data_id <- data[[1]] %>%
       dplyr::rename(feature_set = .data$method) %>% # Avoids issues with method arg later
       dplyr::select(c(.data$id, .data$names, .data$values, .data$feature_set)) %>%
       tidyr::drop_na() %>%
@@ -188,16 +188,9 @@ plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor")
     
   } else {
     
-    # Dataframe length checks and tidy format wrangling
-    
-    data_id <- data %>%
-      dplyr::rename(id = dplyr::all_of(id_var),
-                    names = dplyr::all_of(names_var),
-                    values = dplyr::all_of(values_var))
-    
     #------------- Clean up structure --------------
     
-    data_id <- data_id %>%
+    data_id <- data[[1]] %>%
       dplyr::rename(feature_set = .data$method) %>% # Avoids issues with method arg later
       dplyr::select(c(.data$id, .data$names, .data$values, .data$feature_set)) %>%
       tidyr::drop_na() %>%

@@ -6,8 +6,6 @@
 \usage{
 fit_multi_feature_classifier(
   data,
-  id_var = "id",
-  group_var = "group",
   by_set = FALSE,
   test_method = "gaussprRadial",
   use_balanced_accuracy = FALSE,
@@ -21,11 +19,7 @@ fit_multi_feature_classifier(
 )
 }
 \arguments{
-\item{data}{the dataframe containing the raw feature data as calculated by \code{theft::calculate_features}}
-
-\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}}
-
-\item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}}
+\item{data}{the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}}
 
 \item{by_set}{Boolean specifying whether to compute classifiers for each feature set. Defaults to \code{FALSE}}
 
@@ -46,6 +40,10 @@ fit_multi_feature_classifier(
 \item{num_permutations}{an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{100}}
 
 \item{seed}{fixed number for R's random number generator to ensure reproducibility}
+
+\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}}
+
+\item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}}
 }
 \value{
 an object of class list containing dataframe summaries of the classification models and a \code{ggplot} object if \code{by_set} is \code{TRUE}
@@ -64,8 +62,6 @@ featMat <- calculate_features(data = simData,
   seed = 123)
 
 fit_multi_feature_classifier(featMat,
-  id_var = "id",
-  group_var = "group",
   by_set = FALSE,
   test_method = "gaussprRadial",
   use_balanced_accuracy = FALSE,

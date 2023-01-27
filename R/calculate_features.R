@@ -159,7 +159,7 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
       temp1 <- temp1 %>%
         dplyr::mutate(y = temp$group)
       
-      outData <- tsfresh_calculator(timeseries = temp1, y = temp1$y, column_id = column_id, column_sort = column_sort, cleanup = cleanup) 
+      outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup, y = temp1$y) 
     } else{
       outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup) 
     }
@@ -341,17 +341,9 @@ calculate_features <- function(data, id_var = "id", time_var = "timepoint", valu
   
   # Recode deprecated lower case from v0.3.5
   
+  feature_set = match.arg(feature_set)
   feature_set <- replace(feature_set, feature_set == "kats", "Kats")
   feature_set <- replace(feature_set, feature_set == "tsfel", "TSFEL")
-  
-  # Check incorrect specifications
-  
-  the_sets <- c("catch22", "feasts", "tsfeatures", "Kats", "tsfresh", "TSFEL")
-  '%ni%' <- Negate('%in%')
-  
-  if(length(base::setdiff(feature_set, the_sets)) != 0){
-    stop("feature_set should be a single string specification or vector of 'catch22', 'feasts', 'tsfeatures', 'Kats', 'tsfresh' or 'TSFEL'.")
-  }
   
   #--------- Quality by ID --------
   
@@ -420,7 +412,7 @@ calculate_features <- function(data, id_var = "id", time_var = "timepoint", valu
   
   if("tsfresh" %in% feature_set){
     
-    message("'tsfresh' requires a Python installation and the 'tsfresh' Python package to also be installed. Please ensure you have this working (see https://tsfresh.com for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(path_to_python) where path_to_python is a string specifying the location of Python with the installed libraries on your machine.")
+    message("'tsfresh' requires a Python installation and the 'tsfresh' Python package to also be installed. You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(python_path, venv_path) where python_path is a string specifying the location of Python and venv_path is a string specifying the location of the venv where the Python libraries are installed.")
     
     if(tsfresh_cleanup){
       cleanuper <- "Yes"
@@ -434,14 +426,14 @@ calculate_features <- function(data, id_var = "id", time_var = "timepoint", valu
   
   if("TSFEL" %in% feature_set){
     
-    message("'TSFEL' requires a Python installation and the 'TSFEL' Python package to also be installed. Please ensure you have this working (see https://TSFEL.readthedocs.io/en/latest/ for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(path_to_python) where path_to_python is a string specifying the location of Python with the installed libraries on your machine.")
+    message("'TSFEL' requires a Python installation and the 'TSFEL' Python package to also be installed. You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(python_path, venv_path) where python_path is a string specifying the location of Python and venv_path is a string specifying the location of the venv where the Python libraries are installed.")
     message("\nRunning computations for TSFEL...")
     tmp_tsfel <- calc_tsfel(data = data_re)
   }
   
   if("Kats" %in% feature_set){
     
-    message("'Kats' requires a Python installation and the 'Kats' Python package to also be installed. Please ensure you have this working (see https://facebookresearch.github.io/Kats/ for more information). You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(path_to_python) where path_to_python is a string specifying the location of Python with the installed libraries on your machine.")
+    message("'Kats' requires a Python installation and the 'Kats' Python package to also be installed. You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(python_path, venv_path) where python_path is a string specifying the location of Python and venv_path is a string specifying the location of the venv where the Python libraries are installed.")
     message("\nRunning computations for Kats...")
     tmp_kats <- calc_kats(data = data_re)
   }
@@ -476,6 +468,6 @@ calculate_features <- function(data, id_var = "id", time_var = "timepoint", valu
     tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_kats)
   }
   
-  tmp_all_features <- structure(tmp_all_features, class = "feature_calculations")
+  tmp_all_features <- structure(list(tmp_all_features), class = "feature_calculations")
   return(tmp_all_features)
 }

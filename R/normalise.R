@@ -14,7 +14,7 @@ normalise <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", "M
   
   if(inherits(data, "feature_calculations")){
     
-    normed <- data %>%
+    normed <- data[[1]] %>%
       dplyr::rename(names = dplyr::all_of(names_var),
                     values = dplyr::all_of(values_var)) %>%
       dplyr::group_by(.data$names) %>%

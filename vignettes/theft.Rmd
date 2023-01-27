@@ -78,13 +78,14 @@ feature_matrix <- calculate_features(data = simData,
                                      seed = 123)
 ```
 
-Note that if you want to use any of the Python-based packages, you must first tell R (prior to running `calculate_features`) which Python location on your computer contains the installed libraries. This can be done via the `init_theft` function, where `path_to_python` is a string specifying the filepath location. For example, for me (Trent), the filepath to the correct Python is `"~/opt/anaconda3/bin/python"` which is what I would enter for the `path_to_python` argument. You only need to call `init_theft` once per R session.
+Note that if you want to use any of the Python-based packages, you must first tell R (prior to running `calculate_features`) which Python and virtual environment on your computer contains the installed libraries. This can be done via the `init_theft` function, which has two arguments:
 
-```{r, message = FALSE, warning = FALSE, eval = FALSE}
-init_theft(path_to_python)
-```
+1. `python_path` --- string specifying the filepath to the version of Python you wish to use
+1. `venv_path` --- string specifying the filepath to the Python virtual environment where `tsfresh`, `TSFEL`, and/or `Kats` are installed
 
-A tidy dataframe of most of the included features and the set they correspond to is available in the dataframe `feature_list`:
+**NOTE: You only need to call ** `init_theft` **once per session.**
+
+A tidy dataframe of *most* of the included features and the set they correspond to is available in the dataframe `feature_list`:
   
 ```{r, message = FALSE, warning = FALSE}
 head(feature_list)
@@ -96,47 +97,40 @@ For a detailed comparison of the six feature sets, see [this paper](https://ieee
 
 ## Data quality checks
 
-The package comes with a function to visualise the data types of the calculated feature vectors. This is useful for inspecting which features might need to be dropped due to large proportions of undesirable (e.g., `NA`, `NaN` etc.) values.
+The `calculate_features` function returns an object of class `feature_calculations`. Objects of this type are purposefully looked-for by other functions in `theft`. Because it is a class, simple methods such as `plot()` can be called on the object to produce a range of statistical graphics. The first is a visualisation of the data types of the calculated feature vectors. This is useful for inspecting which features might need to be dropped due to large proportions of undesirable (e.g., `NA`, `NaN` etc.) values. We can specify the plot `type = "quality` to make this graphic:
 
 ```{r, message = FALSE, warning = FALSE}
-plot_quality_matrix(feature_matrix)
-```
-
-For cases where you have lots of features (i.e., when you calculate from multiple feature sets), you may want to adjust the optional argument `ignore_good_features` from its default of `FALSE` to `TRUE` to focus the plot only on the features that did not extract successfully for all cases. Code for this would look like the following:
-
-```{r, message = FALSE, warning = FALSE, eval = FALSE}
-plot_quality_matrix(feature_matrix, ignore_good_features = TRUE)
+plot(feature_matrix[[1]], type = "quality")
 ```
 
 ## Normalising/scaling functions
 
-Putting calculated feature vectors on an equal scale is crucial for any statistical or machine learning model as variables with high variance can adversely impact the model's capacity to fit the data appropriately, learn appropriate weight values, or minimise a loss function. `theft` includes the functions `normalise_feature_vector` to rescale a vector of values (e.g. vector of values for all participants in a study on the `SB_BinaryStats_mean_longstretch1` feature), and `normalise_feature_frame` to rescale a vector within a dataframe into a variety of different ranges for ease-of-use. Current transformations available in the package include (note that all apply a linear rescaling to the unit interval at the end):
+Putting calculated feature vectors on an equal scale is crucial for any statistical or machine learning model as variables with high variance can adversely impact the model's capacity to fit the data appropriately, learn appropriate weight values, or minimise a loss function. `theft` includes function `normalise` to rescale either the whole `feature_calculations` object, or a single vector of values (e.g. values for all participants on just the `SB_BinaryStats_mean_longstretch1` feature). Four normalisation methods are offered:
 
 * z-score - `"z-score"`
 * Sigmoid - `"Sigmoid"`
 * Outlier-robust Sigmoid (credit to Ben Fulcher for creating the original [MATLAB version](https://github.com/benfulcher/hctsa)) - `"RobustSigmoid"`
 * Min-max - `"MinMax"`
 
-Dataframe-based normalisation can be performed using the following:
+Normalisation on the whole `feature_calculations` object can be performed in one line:
 
 ```{r, message = FALSE, warning = FALSE}
-normed <- normalise_feature_frame(feature_matrix, 
-                                  names_var = "names", 
-                                  values_var = "values", 
-                                  method = "RobustSigmoid")
+normed <- normalise(feature_matrix, method = "z-score")
 ```
+
+For single vector normalisation, all you need to do is pass in a vector as `normalise` checks for object classes.
 
 ## Data visualisation and low-dimensional project functions
 
-The package also comes with a built-in plotting engine for calculating and visualising many types of statistical graphics:
+The package also comes with additional statistical and graphical functionality:
 
 * Feature by time-series matrix as a heatmap
-* Low dimensional projections of the feature space as a scatterplot (along with numerical results)
-* Pairwise correlation matrix as a heatmap
+* Low dimensional projections of the feature space, and plotting as a scatterplot (along with numerical results)
+* Pairwise feature correlation matrix as a heatmap
 
 ### Feature matrices
 
-The function `plot_all_features` (deprecated version: `plot_feature_matrix`) takes the calculated features and produces a `ggplot` object heatmap showing the feature vectors across the `x` axis and each time series down the `y` axis. Prior to plotting, the function hierarchically clusters the data across both rows and columns to visually highlight the empirical structure. Note that you have several options for the hierarchical clustering linkage algorithm to use:
+The function calling `type = "matrix"` in `plot()` on a `feature_calculations` object takes itand produces a `ggplot` object heatmap showing the feature vectors across the `x` axis and each time series down the `y` axis. Prior to plotting, the function hierarchically clusters the data across both rows and columns to visually highlight the empirical structure. Note that you have several options for the hierarchical clustering linkage algorithm to use:
 
 * `"average"` (default)
 * `"ward.D"`
@@ -152,103 +146,55 @@ See the [`hclust` documentation](https://www.rdocumentation.org/packages/stats/v
 Note that the legend for this plot (and other matrix visualisations in `theft`) have been discretised for visual clarity as continuous legends can be difficult to interpret meaningful value differences easily.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_all_features(feature_matrix, 
-                  is_normalised = FALSE,
-                  id_var = "id", 
-                  method = "RobustSigmoid",
-                  clust_method = "average",
-                  interactive = FALSE)
+plot(feature_matrix, type = "matrix")
 ```
 
-If you set `interactive = TRUE` the function will return an interactive plot using `plotly` which lets you hover over entries in the matrix to better understand which is which. This is especially useful if your dataset is large.
-
-```{r, message = FALSE, warning = FALSE, eval = FALSE}
-plot_feature_matrix(feature_matrix,
-                    is_normalised = FALSE,
-                    id_var = "id", 
-                    method = "RobustSigmoid",
-                    clust_method = "average",
-                    interactive = TRUE)
-```
+You can control the normalisation type with the `method` argument and the hierarchical clustering method with the `clust_method` argument (the example above used defaults so manual specification was not needed).
 
 ### Low dimensional projections
 
-The function `plot_low_dimension` takes the calculated features, calculates a principal components analysis (PCA) or *t*-distributed stochastic neighbour embedding (*t*-SNE), and produces a `ggplot` object scatterplot showing the first and second principal components on the `x` and `y` axis respectively, their individual explained variance (if PCA is selected), and each time series as a point. If `plot = FALSE` the function returns a dataframe of results. If a variable is specified in the `group_var` argument, the scatterplot points will be automatically coloured by group.
+The function `reduce_dims` takes the `feature_calculations` object and calculates either a principal components analysis (PCA) or *t*-distributed stochastic neighbour embedding (*t*-SNE) fit on it. This result is stored in a custom object class called `low_dimension`:
 
 ```{r, message = FALSE, warning = FALSE}
-plot_low_dimension(feature_matrix, 
-                   is_normalised = FALSE, 
-                   id_var = "id", 
-                   group_var = "group", 
-                   method = "RobustSigmoid", 
-                   low_dim_method = "PCA", 
-                   plot = TRUE,
-                   show_covariance = TRUE,
-                   seed = 123)
+low_dim <- reduce_dims(feature_matrix, 
+                       method = "RobustSigmoid", 
+                       low_dim_method = "PCA", 
+                       seed = 123)
+```
+
+We can similarly call `plot()` on this object to produce a two-dimensional scatterplot of the results:
+
+```{r, message = FALSE, warning = FALSE}
+plot(low_dim)
 ```
 
 Alternatively, a *t*-SNE version can be specified in a similar fashion, with the `perplexity` hyperparameter able to be controlled by the user. Typical values for this range between 5 and 50, depending on the size of the data. At lower levels of `perplexity`, local variations tend to dominate, while at very high levels of `perplexity`, results can be uninterpretable as clusters can merge. See [this interactive article](https://distill.pub/2016/misread-tsne/) for a detailed review.
 
 ```{r, message = FALSE, warning = FALSE}
-plot_low_dimension(feature_matrix, 
-                   is_normalised = FALSE, 
-                   id_var = "id", 
-                   group_var = "group", 
-                   method = "RobustSigmoid", 
-                   low_dim_method = "t-SNE", 
-                   perplexity = 10, 
-                   plot = TRUE,
-                   show_covariance = FALSE,
-                   seed = 123)
+low_dim2 <- reduce_dims(feature_matrix, 
+                        method = "RobustSigmoid", 
+                        low_dim_method = "t-SNE", 
+                        perplexity = 10,
+                        seed = 123)
+
+plot(low_dim2)
 ```
 
 ### Pairwise correlations
 
-#### Time-series correlations
-
-The function `plot_ts_correlations` automates the calculation of correlations between values of each unique time series, the hierarchical clustering of rows and columns of these correlations, and the production of a final heatmap graphic. You can switch the default Pearson correlation to a Spearman rank correlation by changing the `cor_method` argument to `spearman`. This visualisation might not always be highly informative, but it can be useful to take a quick glance regardless.
+One can also plot correlations between feature vectors using `plot(type = "cor")` on a `feature_calculations` object:
 
 ```{r, message = FALSE, warning = FALSE}
-plot_ts_correlations(simData, 
-                     id_var = "id", 
-                     time_var = "timepoint",
-                     values_var = "values",
-                     cor_method = "pearson",
-                     clust_method = "average",
-                     interactive = FALSE)
+plot(feature_matrix, type = "cor")
 ```
 
-Again, if you set `interactive = TRUE` the function will return an interactive plot using `plotly` which lets you hover over entries in the matrix to better understand which is which.
-
-```{r, message = FALSE, warning = FALSE, eval = FALSE}
-plot_ts_correlations(simData, 
-                     id_var = "id", 
-                     time_var = "timepoint",
-                     values_var = "values",
-                     cor_method = "spearman",
-                     clust_method = "average",
-                     interactive = TRUE)
-```
-
-#### Feature vector correlations
-
-Similarly, one can also plot correlations between feature vectors using `plot_feature_correlations`. The general argument structure is the same as `plot_ts_correlations`.
-
-```{r, message = FALSE, warning = FALSE}
-plot_feature_correlations(feature_matrix, 
-                          id_var = "id", 
-                          names_var = "names",
-                          values_var = "values",
-                          cor_method = "pearson",
-                          clust_method = "average",
-                          interactive = FALSE)
-```
+Similarly, you can control the normalisation type with the `method` argument and the hierarchical clustering method with the `clust_method` argument (the example above used defaults so manual specification was not needed).
 
 ## Time-series classification
 
 ### Feature-by-feature
 
-Since feature-based time-series analysis has shown particular promise for classification problems, `theft` includes functionality for exploring group separation in addition to the low dimensional representation. The `compute_top_features` function takes the computed features and performs the following:
+Since feature-based time-series analysis has shown particular promise for classification problems, `theft` includes functionality for exploring group separation in addition to the low dimensional representation. The `compute_top_features` function takes a `feature_calculations` object and performs the following:
 
 1. Processes the data ready for analysis
 2. Computes a classification algorithm or statistical model on the entire input dataframe
@@ -287,8 +233,6 @@ The `seed` argument allows you to specify a number to fix R's random number gene
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 outputs <- compute_top_features(feature_matrix, 
-                                id_var = "id", 
-                                group_var = "group",
                                 num_features = 10, 
                                 normalise_violin_plots = FALSE,
                                 method = "RobustSigmoid",
@@ -332,7 +276,7 @@ For two-class problems, users can fit statistical models to directly compute *p*
 
 ### Multi-feature
 
-A multi-feature option is also available. The `fit_multivariable_classifier` function fits all features at once instead of by individual features to estimate classification accuracy. This can be split by feature set (if the `by_set` argument is set to `TRUE`) to enable systematic comparisons between those made available in `theft`. To save computation time in this tutorial, we will only analyse `catch22` (with `by_set = TRUE` to demonstrate automated plotting functionality), but comparing multiple calculated feature sets is recommended in practice.
+A multi-feature option is also available. The `fit_multivariable_classifier` function fits all features in the `feature_calculations` object at once instead of by individual features to estimate classification accuracy. This can be split by feature set (if the `by_set` argument is set to `TRUE`) to enable systematic comparisons between those made available in `theft`. To save computation time in this tutorial, we will only analyse `catch22` (with `by_set = TRUE` to demonstrate automated plotting functionality), but comparing multiple calculated feature sets is recommended in practice.
 
 Now we can use our multi-feature functionality (note the similarity in options to the single feature version we specified above):
 

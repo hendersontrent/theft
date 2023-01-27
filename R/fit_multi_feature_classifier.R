@@ -656,7 +656,7 @@ fit_multi_feature_classifier <- function(data, by_set = FALSE, test_method = "ga
   #------------- Rename columns -------------
   
   if(!is.null(id_var)){
-    data_id <- data %>%
+    data_id <- data[[1]] %>%
       dplyr::rename(id = dplyr::all_of(id_var),
                     group = dplyr::all_of(group_var)) %>%
       dplyr::select(c(.data$id, .data$group, .data$method, .data$names, .data$values))
