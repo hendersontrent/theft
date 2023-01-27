@@ -6,8 +6,6 @@
 \usage{
 fit_single_feature_classifier(
   data,
-  id_var = "id",
-  group_var = "group",
   test_method = "gaussprRadial",
   use_balanced_accuracy = FALSE,
   use_k_fold = FALSE,
@@ -22,10 +20,6 @@ fit_single_feature_classifier(
 }
 \arguments{
 \item{data}{the dataframe containing the raw feature matrix}
-
-\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}}
-
-\item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}}
 
 \item{test_method}{the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}. Should be either \code{"t-test"}, \code{"wilcox"}, or \code{"binomial logistic"} for two-class problems to obtain exact statistics, or a valid \code{caret} classification model for everything else}
 
@@ -46,6 +40,10 @@ fit_single_feature_classifier(
 \item{pool_empirical_null}{a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if a \code{caret} model is specified for \code{test_method} use_empirical_null is \code{TRUE}. Defaults to \code{FALSE}}
 
 \item{seed}{fixed number for R's random number generator to ensure reproducibility}
+
+\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}}
+
+\item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}}
 }
 \value{
 an object of class dataframe containing results

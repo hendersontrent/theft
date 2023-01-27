@@ -9,7 +9,8 @@
   type = c("quality", "matrix", "cor"),
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
   clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty",
-    "median", "centroid")
+    "median", "centroid"),
+  cor_method = c("pearson", "spearman")
 )
 }
 \arguments{
@@ -17,9 +18,11 @@
 
 \item{type}{\code{string} specifying the type of plot to draw. Defaults to \code{"quality"}}
 
-\item{method}{a rescaling/normalising method to apply. Defaults to \code{"z-score"}}
+\item{method}{a rescaling/normalising method to apply if if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"z-score"}}
 
-\item{clust_method}{the hierarchical clustering method to use for the pairwise correlation plot. Defaults to \code{"average"}}
+\item{clust_method}{the hierarchical clustering method to use if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"average"}}
+
+\item{cor_method}{the correlation method to use if \code{type = "cor"}. Defaults to \code{"pearson"}}
 }
 \value{
 an object of class \code{ggplot} that contains the heatmap graphic

@@ -203,6 +203,8 @@ compute_top_features <- function(data, num_features = 40,
   null_testing_method <- match.arg(null_testing_method)
   p_value_method <- match.arg(p_value_method)
   
+  '%ni%' <- Negate('%in%')
+  
   # Upstream correction for deprecated 'binomial logistic' specification
   
   if(length(test_method) == 1 && test_method == "binomial logistic"){
@@ -234,14 +236,7 @@ compute_top_features <- function(data, num_features = 40,
   
   # Classes in the data
   
-  if(!is.null(id_var)){
-    data_id <- data[[1]] %>%
-      dplyr::rename(id = dplyr::all_of(id_var),
-                    group = dplyr::all_of(group_var)) %>%
-      dplyr::select(c(.data$id, .data$group, .data$method, .data$names, .data$values))
-  }
-  
-  num_classes <- length(unique(data_id$group)) # Get number of classes in the data
+  num_classes <- length(unique(data[[1]]$group)) # Get number of classes in the data
   
   if(num_classes == 1){
     stop("Your data only has one class label. At least two are required to performed analysis.")
@@ -267,19 +262,19 @@ compute_top_features <- function(data, num_features = 40,
   
   # Number of top features
   
-  if(num_features > length(unique(data_id$names))){
-    num_features <- length(unique(data_id$names))
+  if(num_features > length(unique(data[[1]]$names))){
+    num_features <- length(unique(data[[1]]$names))
     message(paste0("Number of specified features exceeds number of features in your data. Automatically adjusting to ", num_features))
   }
   
   # Prep factor levels as names for {caret} if the 3 base two-class options aren't being used
   
   if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic")){
-    data_id <- data_id %>%
+    data_id <- data[[1]] %>%
       dplyr::mutate(group = make.names(.data$group),
                     group = as.factor(.data$group))
   } else{
-    data_id <- data_id %>%
+    data_id <- data[[1]] %>%
       dplyr::mutate(group = as.factor(.data$group))
   }
   
@@ -292,8 +287,6 @@ compute_top_features <- function(data, num_features = 40,
   # Fit algorithm
   
   classifierOutputs <- fit_single_feature_classifier(data_id, 
-                                                     id_var = "id", 
-                                                     group_var = "group",
                                                      test_method = test_method,
                                                      use_balanced_accuracy = use_balanced_accuracy,
                                                      use_k_fold = use_k_fold,

@@ -496,8 +496,7 @@ clean_by_feature <- function(data, x){
 #' }
 #' 
 
-fit_single_feature_classifier <- function(data, id_var = "id", group_var = "group",
-                                          test_method = "gaussprRadial", use_balanced_accuracy = FALSE,
+fit_single_feature_classifier <- function(data, test_method = "gaussprRadial", use_balanced_accuracy = FALSE,
                                           use_k_fold = FALSE, num_folds = 10, 
                                           use_empirical_null = FALSE, null_testing_method = c("ModelFreeShuffles", "NullModelFits"),
                                           p_value_method = c("empirical", "gaussian"), num_permutations = 50,
@@ -509,26 +508,13 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
   #----------------- JUST A HELPER FUNCTION!!!!!!--------------------------
   #------------------------------------------------------------------------
   
-  #------------- Renaming columns -------------
-  
-  if (is.null(id_var)){
-    stop("Data is not uniquely identifiable. Please add a unique identifier variable.")
-  }
-  
-  if(!is.null(id_var)){
-    data_id <- data %>%
-      dplyr::rename(id = dplyr::all_of(id_var),
-                    group = dplyr::all_of(group_var)) %>%
-      dplyr::select(c(.data$id, .data$group, .data$method, .data$names, .data$values))
-  }
-  
-  num_classes <- length(unique(data_id$group)) # Get number of classes in the data
+  num_classes <- length(unique(data$group)) # Get number of classes in the data
   
   #------------- Preprocess data --------------
   
   # Widening for model matrix
   
-  data_id <- data_id %>%
+  data_id <- data %>%
     dplyr::mutate(names = paste0(.data$method, "_", .data$names)) %>%
     dplyr::select(-c(.data$method)) %>%
     tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%

@@ -653,14 +653,7 @@ fit_multi_feature_classifier <- function(data, by_set = FALSE, test_method = "ga
   
   #------------- Rename columns -------------
   
-  if(!is.null(id_var)){
-    data_id <- data[[1]] %>%
-      dplyr::rename(id = dplyr::all_of(id_var),
-                    group = dplyr::all_of(group_var)) %>%
-      dplyr::select(c(.data$id, .data$group, .data$method, .data$names, .data$values))
-  }
-  
-  num_classes <- length(unique(data_id$group)) # Get number of classes in the data
+  num_classes <- length(unique(data[[1]]$group)) # Get number of classes in the data
   
   if(num_classes < 2){
     stop("Your data has less than two unique classes. At least two are required to performed classification analysis.")
@@ -674,16 +667,16 @@ fit_multi_feature_classifier <- function(data, by_set = FALSE, test_method = "ga
     
     message("Assessing feature values and unique IDs for NAs by individual set.")
     
-    data_id <- unique(data_id$method) %>%
-      purrr::map_df(~ clean_by_set(data = data_id, themethod = .x))
+    data_id <- unique(data[[1]]$method) %>%
+      purrr::map_df(~ clean_by_set(data = data[[1]], themethod = .x))
     
     # Create reference set for all feature aggregation option
     
-    data_id_all <- clean_by_set(data = data_id, themethod = NULL)
+    data_id_all <- clean_by_set(data = data[[1]], themethod = NULL)
     
   } else{
     message("Assessing feature values and unique IDs for NAs using matrix of all features.")
-    data_id <- clean_by_set(data = data_id, themethod = NULL)
+    data_id <- clean_by_set(data = data[[1]], themethod = NULL)
   }
   
   #------------- Fit models -------------------

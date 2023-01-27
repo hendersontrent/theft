@@ -10,8 +10,9 @@
 #' @importFrom stats hclust dist cor
 #' @param data the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
 #' @param type \code{string} specifying the type of plot to draw. Defaults to \code{"quality"}
-#' @param method a rescaling/normalising method to apply. Defaults to \code{"z-score"}
-#' @param clust_method the hierarchical clustering method to use for the pairwise correlation plot. Defaults to \code{"average"}
+#' @param method a rescaling/normalising method to apply if if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"z-score"}
+#' @param clust_method the hierarchical clustering method to use if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"average"}
+#' @param cor_method the correlation method to use if \code{type = "cor"}. Defaults to \code{"pearson"}
 #' @return an object of class \code{ggplot} that contains the heatmap graphic
 #' @author Trent Henderson
 #' @export
@@ -19,12 +20,14 @@
 
 plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor"), 
                                       method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
-                                      clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid")){
+                                      clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid"),
+                                      cor_method = c("pearson", "spearman")){
   
   stopifnot(inherits(data, "feature_calculations") == TRUE)
   type <- match.arg(type)
   method <- match.arg(method)
   clust_method <- match.arg(clust_method)
+  cor_method <- match.arg(cor_method)
   
   if(type == "quality"){
     
@@ -116,10 +119,6 @@ plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor")
     dat_filtered <- dat_filtered %>%
       tidyr::drop_na()
     
-    if(nrow(dat_filtered) != nrow(dat)){
-      message("Dropped rows with NAs to enable clustering.")
-    }
-    
     row.order <- stats::hclust(stats::dist(dat_filtered, method = "euclidean"), method = clust_method)$order # Hierarchical cluster on rows
     col.order <- stats::hclust(stats::dist(t(dat_filtered), method = "euclidean"), method = clust_method)$order # Hierarchical cluster on columns
     dat_new <- dat_filtered[row.order, col.order] # Re-order matrix by cluster outputs
@@ -171,10 +170,6 @@ plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor")
       dplyr::mutate(names = paste0(.data$feature_set, "_", .data$names)) %>% # Catches errors when using all features across sets (i.e., there's duplicates)
       dplyr::select(-c(.data$feature_set))
     
-    if(nrow(data_id) < nrow(data)){
-      message("Filtered out rows containing NaNs.")
-    }
-    
     #------------- Data reshaping -------------------
     
     features <- unique(data_id$names)
@@ -217,18 +212,8 @@ plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor")
     
     mypalette <- c("#B2182B", "#D6604D", "#F4A582", "#FDDBC7", "#D1E5F0", "#92C5DE", "#4393C3", "#2166AC")
     
-    if(interactive){
-      p <- cluster_out %>%
-        ggplot2::ggplot(ggplot2::aes(x = .data$Var1, y = .data$Var2,
-                                     text = paste('<br><b>ID 1:</b>', .data$Var1,
-                                                  '<br><b>ID 2:</b>', .data$Var2,
-                                                  '<br><b>Absolute correlation:</b>', round(.data$value, digits = 3))))
-    } else{
-      p <- cluster_out %>%
-        ggplot2::ggplot(ggplot2::aes(x = .data$Var1, y = .data$Var2)) 
-    }
-    
-    p <- p +
+    p <- cluster_out %>%
+        ggplot2::ggplot(ggplot2::aes(x = .data$Var1, y = .data$Var2)) +
       ggplot2::geom_raster(ggplot2::aes(fill = .data$value)) +
       ggplot2::labs(title = "Pairwise correlation matrix",
                     x = "Feature",
@@ -272,7 +257,7 @@ plot.low_dimension <- function(data, show_covariance = TRUE){
   
   stopifnot(inherits(data, "low_dimension") == TRUE)
   
-  if(inherits(data, "prcomp") == TRUE){
+  if(inherits(data[[3]], "prcomp") == TRUE){
     
     # Retrieve eigenvalues and tidy up variance explained for plotting
     
@@ -291,19 +276,19 @@ plot.low_dimension <- function(data, show_covariance = TRUE){
     eigen_pc1 <- paste0(eigen_pc1$percent,"%")
     eigen_pc2 <- paste0(eigen_pc2$percent,"%")
     
-    fits <- fits %>%
-      broom::augment(dat_filtered) %>%
+    fits <- data[[3]] %>%
+      broom::augment(data[[2]]) %>%
       dplyr::rename(id = 1) %>%
       dplyr::mutate(id = as.factor(.data$id)) %>%
       dplyr::rename(.fitted1 = .data$.fittedPC1,
                     .fitted2 = .data$.fittedPC2)
     
-    if("group" %in% colnames(data$data)){
+    if("group" %in% colnames(data[[1]])){
       
       data_id <- as.data.frame(lapply(data[[1]], unlist)) # Catch weird cases where it's a list...
       
       groups <- data_id %>%
-        dplyr::rename(group_id = dplyr::all_of(group_var)) %>%
+        dplyr::rename(group_id = group) %>%
         dplyr::group_by(.data$id, .data$group_id) %>%
         dplyr::summarise(counter = dplyr::n()) %>%
         dplyr::ungroup() %>%
@@ -371,19 +356,19 @@ plot.low_dimension <- function(data, show_covariance = TRUE){
       tibble::rownames_to_column(var = "id") %>%
       dplyr::select(c(.data$id))
     
-    fits <- data.frame(.fitted1 = data[[3]]$Y[,1],
-                       .fitted2 = data[[3]]$Y[,2]) %>%
+    fits <- data.frame(.fitted1 = data[[3]]$.fitted1,
+                       .fitted2 = data[[3]]$.fitted2) %>%
       dplyr::mutate(id = id_ref$id)
     
     fits <- fits %>%
       dplyr::mutate(id = as.factor(.data$id))
     
-    if("group" %in% colnames(data$data)){
+    if("group" %in% colnames(data[[1]])){
       
       data_id <- as.data.frame(lapply(data[[1]], unlist)) # Catch weird cases where it's a list...
       
       groups <- data_id %>%
-        dplyr::rename(group_id = dplyr::all_of(group_var)) %>%
+        dplyr::rename(group_id = group) %>%
         dplyr::group_by(.data$id, .data$group_id) %>%
         dplyr::summarise(counter = dplyr::n()) %>%
         dplyr::ungroup() %>%
