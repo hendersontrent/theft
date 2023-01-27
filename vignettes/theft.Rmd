@@ -282,8 +282,6 @@ Now we can use our multi-feature functionality (note the similarity in options t
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 multi_outputs <- fit_multi_feature_classifier(feature_matrix, 
-                                              id_var = "id", 
-                                              group_var = "group", 
                                               by_set = TRUE, 
                                               test_method = "svmLinear",
                                               use_balanced_accuracy = TRUE,

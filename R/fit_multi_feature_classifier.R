@@ -647,7 +647,6 @@ fit_multi_feature_classifier <- function(data, by_set = FALSE, test_method = "ga
                                          p_value_method = c("empirical", "gaussian"), num_permutations = 100, seed = 123){
   
   stopifnot(inherits(data, "feature_calculations") == TRUE)
-  method <- match.arg(method)
   null_testing_method <- match.arg(null_testing_method)
   p_value_method <- match.arg(p_value_method)
   
