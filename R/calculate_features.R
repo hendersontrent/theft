@@ -156,12 +156,14 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
                         values = temp$values)
     
     if("group" %in% colnames(data)){
-      temp1 <- temp1 %>%
-        dplyr::mutate(y = temp$group)
       
-      outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup, y = temp1$y) 
+      classes <- groups %>%
+        dplyr::select(c(.data$group)) %>%
+        dplyr::mutate(id = dplyr::row_number())
+      
+      outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup, classes = classes)
     } else{
-      outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup) 
+      outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup)
     }
     
     # Compute features and re-join back correct id labels
@@ -193,7 +195,7 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
     
     # Do calculations
     
-    outData <-outData %>%
+    outData <- outData %>%
       dplyr::mutate(id = ids) %>%
       tidyr::gather("names", "values", -.data$id) %>%
       dplyr::mutate(method = "tsfresh")
