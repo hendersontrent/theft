@@ -185,10 +185,12 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
     ids <- unique(temp1$id)
     
     if("group" %in% colnames(data)){
-      temp1 <- temp1 %>%
-        dplyr::mutate(y = temp$group)
       
-      outData <- tsfresh_calculator(timeseries = temp1, y = temp1$y, column_id = column_id, column_sort = column_sort, cleanup = cleanup) 
+      classes <- groups %>%
+        dplyr::select(c(.data$group)) %>%
+        dplyr::mutate(id = dplyr::row_number())
+      
+      outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup, clases = classes) 
     } else{
       outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup) 
     }
