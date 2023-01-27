@@ -288,7 +288,7 @@ plot.low_dimension <- function(data, show_covariance = TRUE){
       data_id <- as.data.frame(lapply(data[[1]], unlist)) # Catch weird cases where it's a list...
       
       groups <- data_id %>%
-        dplyr::rename(group_id = group) %>%
+        dplyr::rename(group_id = .data$group) %>%
         dplyr::group_by(.data$id, .data$group_id) %>%
         dplyr::summarise(counter = dplyr::n()) %>%
         dplyr::ungroup() %>%
@@ -368,7 +368,7 @@ plot.low_dimension <- function(data, show_covariance = TRUE){
       data_id <- as.data.frame(lapply(data[[1]], unlist)) # Catch weird cases where it's a list...
       
       groups <- data_id %>%
-        dplyr::rename(group_id = group) %>%
+        dplyr::rename(group_id = .data$group) %>%
         dplyr::group_by(.data$id, .data$group_id) %>%
         dplyr::summarise(counter = dplyr::n()) %>%
         dplyr::ungroup() %>%

@@ -65,7 +65,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
       dplyr::select(c(.data$id, .data$names, .data$values, .data$group)) %>%
       tidyr::drop_na() %>%
       dplyr::group_by(.data$names) %>%
-      dplyr::mutate(values = normalise_feature_vector(.data$values, method = method)) %>%
+      dplyr::mutate(values = normalise(.data$values, method = method)) %>%
       dplyr::ungroup() %>%
       tidyr::drop_na()
     
