@@ -22,6 +22,9 @@ normalise <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", "M
       dplyr::ungroup()
     
   } else{
+    
+    stopifnot(class(data) == "numeric")
+    
     if(method == "z-score"){
       normed <- zscore_scaler(x)
     }

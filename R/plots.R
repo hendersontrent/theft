@@ -295,20 +295,189 @@ plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor")
 #' @importFrom tidyr drop_na
 #' @importFrom broom augment tidy
 #' @param data the \code{low_dimension} object containing the raw feature matrix produced by \code{reduce_dims}
-#' @param method a rescaling/normalising method to apply. Defaults to \code{"z-score"}
+#' @param show_covariance a Boolean as to whether covariance ellipses should be shown on the plot. Defaults to \code{FALSE}
 #' @return an object of class \code{ggplot} that contains the heatmap graphic
 #' @author Trent Henderson
 #' @export
 #' 
 
-plot.low_dimension <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")){
+plot.low_dimension <- function(data, show_covariance = TRUE){
   
   stopifnot(inherits(data, "low_dimension") == TRUE)
-  method <- match.arg(method)
   
   if(inherits(data, "prcomp") == TRUE){
-    xx
+    
+    # Retrieve eigenvalues and tidy up variance explained for plotting
+    
+    eigens <- data$fits %>%
+      broom::tidy(matrix = "eigenvalues") %>%
+      dplyr::filter(.data$PC %in% c(1, 2)) %>% # Filter to just the 2 going in the plot
+      dplyr::select(c(.data$PC, .data$percent)) %>%
+      dplyr::mutate(percent = round(.data$percent * 100), digits = 1)
+    
+    eigen_pc1 <- eigens %>%
+      dplyr::filter(.data$PC == 1)
+    
+    eigen_pc2 <- eigens %>%
+      dplyr::filter(.data$PC == 2)
+    
+    eigen_pc1 <- paste0(eigen_pc1$percent,"%")
+    eigen_pc2 <- paste0(eigen_pc2$percent,"%")
+    
+    fits <- fits %>%
+      broom::augment(dat_filtered) %>%
+      dplyr::rename(id = 1) %>%
+      dplyr::mutate(id = as.factor(.data$id)) %>%
+      dplyr::rename(.fitted1 = .data$.fittedPC1,
+                    .fitted2 = .data$.fittedPC2)
+    
+    if("group" %in% colnames(data$data)){
+      
+      data_id <- as.data.frame(lapply(data$data, unlist)) # Catch weird cases where it's a list...
+      
+      groups <- data_id %>%
+        dplyr::rename(group_id = dplyr::all_of(group_var)) %>%
+        dplyr::group_by(.data$id, .data$group_id) %>%
+        dplyr::summarise(counter = dplyr::n()) %>%
+        dplyr::ungroup() %>%
+        dplyr::select(-c(.data$counter)) %>%
+        dplyr::mutate(id = as.factor(.data$id))
+      
+      fits <- fits %>%
+        dplyr::inner_join(groups, by = c("id" = "id"))
+      
+      # Draw plot
+      
+      p <- fits %>%
+        dplyr::mutate(group_id = as.factor(.data$group_id)) %>%
+        ggplot2::ggplot(ggplot2::aes(x = .data$.fitted1, y = .data$.fitted2))
+      
+      if(show_covariance){
+        p <- p +
+          ggplot2::stat_ellipse(ggplot2::aes(x = .data$.fitted1, y = .data$.fitted2, fill = .data$group_id), geom = "polygon", alpha = 0.2) +
+          ggplot2::guides(fill = "none") +
+          ggplot2::scale_fill_brewer(palette = "Dark2")
+      }
+      
+      if(nrow(fits) > 200){
+        p <- p +
+          ggplot2::geom_point(size = 1.5, ggplot2::aes(colour = .data$group_id))
+      } else{
+        p <- p +
+          ggplot2::geom_point(size = 2.25, ggplot2::aes(colour = .data$group_id))
+      }
+      
+      p <- p +
+        ggplot2::labs(title = "Low dimensional projection of time series",
+                      x = paste0("PC 1"," (", eigen_pc1, ")"),
+                      y = paste0("PC 2"," (", eigen_pc2, ")"),
+                      colour = NULL) +
+        ggplot2::scale_colour_brewer(palette = "Dark2") +
+        ggplot2::theme_bw() +
+        ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
+                       legend.position = "bottom")
+    } else{
+      
+      p <- fits %>%
+        ggplot2::ggplot(ggplot2::aes(x = .data$.fitted1, y = .data$.fitted2))
+      
+      if(nrow(fits) > 200){
+        p <- p +
+          ggplot2::geom_point(size = 1.5, colour = "black")
+      } else{
+        p <- p +
+          ggplot2::geom_point(size = 2, colour = "black")
+      }
+      
+      p <- p +
+        ggplot2::labs(title = "Low dimensional projection of time series",
+                      x = paste0("PC 1"," (", eigen_pc1, ")"),
+                      y = paste0("PC 2"," (", eigen_pc2, ")")) +
+        ggplot2::theme_bw() +
+        ggplot2::theme(panel.grid.minor = ggplot2::element_blank())
+    }
   } else{
-    xx
+    
+    # Retrieve 2-dimensional embedding and add in unique IDs
+    
+    id_ref <- data$wide_data %>%
+      tibble::rownames_to_column(var = "id") %>%
+      dplyr::select(c(.data$id))
+    
+    fits <- data.frame(.fitted1 = data$fits$Y[,1],
+                       .fitted2 = data$fits$Y[,2]) %>%
+      dplyr::mutate(id = id_ref$id)
+    
+    fits <- fits %>%
+      dplyr::mutate(id = as.factor(.data$id))
+    
+    if("group" %in% colnames(data$data)){
+      
+      data_id <- as.data.frame(lapply(data$data, unlist)) # Catch weird cases where it's a list...
+      
+      groups <- data_id %>%
+        dplyr::rename(group_id = dplyr::all_of(group_var)) %>%
+        dplyr::group_by(.data$id, .data$group_id) %>%
+        dplyr::summarise(counter = dplyr::n()) %>%
+        dplyr::ungroup() %>%
+        dplyr::select(-c(.data$counter)) %>%
+        dplyr::mutate(id = as.factor(.data$id))
+      
+      fits <- fits %>%
+        dplyr::inner_join(groups, by = c("id" = "id"))
+      
+      # Draw plot
+      
+      p <- fits %>%
+        dplyr::mutate(group_id = as.factor(.data$group_id)) %>%
+        ggplot2::ggplot(ggplot2::aes(x = .data$.fitted1, y = .data$.fitted2))
+      
+      if(show_covariance){
+        p <- p +
+          ggplot2::stat_ellipse(ggplot2::aes(x = .data$.fitted1, y = .data$.fitted2, fill = .data$group_id), geom = "polygon", alpha = 0.2) +
+          ggplot2::guides(fill = "none") +
+          ggplot2::scale_fill_brewer(palette = "Dark2")
+      }
+      
+      if(nrow(fits) > 200){
+        p <- p +
+          ggplot2::geom_point(size = 1.5, ggplot2::aes(colour = .data$group_id))
+      } else{
+        p <- p +
+          ggplot2::geom_point(size = 2.25, ggplot2::aes(colour = .data$group_id))
+      }
+      
+      p <- p +
+        ggplot2::labs(title = "Low dimensional projection of time series",
+                      x = "Dimension 1",
+                      y = "Dimension 2",
+                      colour = NULL) +
+        ggplot2::scale_colour_brewer(palette = "Dark2") +
+        ggplot2::theme_bw() +
+        ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
+                       legend.position = "bottom")
+      
+    } else{
+      
+      p <- fits %>%
+        ggplot2::ggplot(ggplot2::aes(x = .data$.fitted1, y = .data$.fitted2))
+      
+      if(nrow(fits) > 200){
+        p <- p +
+          ggplot2::geom_point(size = 1.5, colour = "black")
+      } else{
+        p <- p +
+          ggplot2::geom_point(size = 2, colour = "black")
+      }
+      
+      p <- p +
+        ggplot2::labs(title = "Low dimensional projection of time series",
+                      x = "Dimension 1",
+                      y = "Dimension 2") +
+        ggplot2::theme_bw() +
+        ggplot2::theme(panel.grid.minor = ggplot2::element_blank())
+    }
   }
+  
+  return(p)
 }
