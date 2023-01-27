@@ -127,7 +127,6 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
     groups <- data %>%
       dplyr::select(c(.data$id, .data$group)) %>%
       dplyr::distinct()
-  } else{
   }
   
   # Load Python function
@@ -156,13 +155,22 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
                         timepoint = temp$timepoint,
                         values = temp$values)
     
+    if("group" %in% colnames(data)){
+      temp1 <- temp1 %>%
+        dplyr::mutate(y = temp$group)
+      
+      outData <- tsfresh_calculator(timeseries = temp1, y = temp1$y, column_id = column_id, column_sort = column_sort, cleanup = cleanup) 
+    } else{
+      outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup) 
+    }
+    
     # Compute features and re-join back correct id labels
     
     ids2 <- ids %>%
       dplyr::select(-c(.data$id)) %>%
       dplyr::rename(id = .data$old_id)
     
-    outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup) %>%
+    outData <- outData %>%
       cbind(ids2) %>%
       tidyr::gather("names", "values", -.data$id) %>%
       dplyr::mutate(method = "tsfresh")
@@ -174,9 +182,18 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
     
     ids <- unique(temp1$id)
     
+    if("group" %in% colnames(data)){
+      temp1 <- temp1 %>%
+        dplyr::mutate(y = temp$group)
+      
+      outData <- tsfresh_calculator(timeseries = temp1, y = temp1$y, column_id = column_id, column_sort = column_sort, cleanup = cleanup) 
+    } else{
+      outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup) 
+    }
+    
     # Do calculations
     
-    outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup) %>%
+    outData <-outData %>%
       dplyr::mutate(id = ids) %>%
       tidyr::gather("names", "values", -.data$id) %>%
       dplyr::mutate(method = "tsfresh")
@@ -185,7 +202,6 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
   if(c("group") %in% colnames(data)){
     outData <- outData %>%
       dplyr::inner_join(groups, by = c("id" = "id"))
-  } else{
   }
   
   message("\nCalculations completed for tsfresh.")
