@@ -4,12 +4,14 @@
 \alias{plot.low_dimension}
 \title{Produce a plot for a low_dimension object}
 \usage{
-\method{plot}{low_dimension}(data, show_covariance = TRUE, ...)
+\method{plot}{low_dimension}(x, show_covariance = TRUE, ...)
 }
 \arguments{
-\item{data}{the \code{low_dimension} object containing the raw feature matrix produced by \code{reduce_dims}}
+\item{x}{the \code{low_dimension} object containing the raw feature matrix produced by \code{reduce_dims}}
 
 \item{show_covariance}{a Boolean as to whether covariance ellipses should be shown on the plot. Defaults to \code{FALSE}}
+
+\item{...}{Arguments to be passed to methods}
 }
 \value{
 an object of class \code{ggplot} that contains the heatmap graphic

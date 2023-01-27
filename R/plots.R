@@ -8,22 +8,23 @@
 #' @importFrom tidyr pivot_wider pivot_longer drop_na
 #' @importFrom reshape2 melt
 #' @importFrom stats hclust dist cor
-#' @param data the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
+#' @param x the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
 #' @param type \code{string} specifying the type of plot to draw. Defaults to \code{"quality"}
 #' @param method a rescaling/normalising method to apply if if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"z-score"}
 #' @param clust_method the hierarchical clustering method to use if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"average"}
 #' @param cor_method the correlation method to use if \code{type = "cor"}. Defaults to \code{"pearson"}
+#' @param ... Arguments to be passed to methods
 #' @return an object of class \code{ggplot} that contains the heatmap graphic
 #' @author Trent Henderson
 #' @export
 #' 
 
-plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor"), 
+plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor"), 
                                       method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                       clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid"),
                                       cor_method = c("pearson", "spearman"), ...){
   
-  stopifnot(inherits(data, "feature_calculations") == TRUE)
+  stopifnot(inherits(x, "feature_calculations") == TRUE)
   type <- match.arg(type)
   method <- match.arg(method)
   clust_method <- match.arg(clust_method)
@@ -33,7 +34,7 @@ plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor")
     
     #--------------- Calculate proportions ------------
     
-    tmp <- data[[1]] %>%
+    tmp <- x[[1]] %>%
       dplyr::mutate(quality = dplyr::case_when(
         is.na(.data$values)                               ~ "NaN",
         is.nan(.data$values)                              ~ "NaN",
@@ -94,7 +95,7 @@ plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor")
   
     #------------- Apply normalisation -------------
     
-    data_id <- data[[1]] %>%
+    data_id <- x[[1]] %>%
       dplyr::rename(feature_set = .data$method) %>% # Avoids issues with method arg later
       dplyr::select(c(.data$id, .data$names, .data$values, .data$feature_set)) %>%
       tidyr::drop_na() %>%
@@ -163,7 +164,7 @@ plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor")
     
     #------------- Clean up structure --------------
     
-    data_id <- data[[1]] %>%
+    data_id <- x[[1]] %>%
       dplyr::rename(feature_set = .data$method) %>% # Avoids issues with method arg later
       dplyr::select(c(.data$id, .data$names, .data$values, .data$feature_set)) %>%
       tidyr::drop_na() %>%
@@ -246,22 +247,23 @@ plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor")
 #' @import tibble
 #' @importFrom tidyr drop_na
 #' @importFrom broom augment tidy
-#' @param data the \code{low_dimension} object containing the raw feature matrix produced by \code{reduce_dims}
+#' @param x the \code{low_dimension} object containing the raw feature matrix produced by \code{reduce_dims}
 #' @param show_covariance a Boolean as to whether covariance ellipses should be shown on the plot. Defaults to \code{FALSE}
+#' @param ... Arguments to be passed to methods
 #' @return an object of class \code{ggplot} that contains the heatmap graphic
 #' @author Trent Henderson
 #' @export
 #' 
 
-plot.low_dimension <- function(data, show_covariance = TRUE, ...){
+plot.low_dimension <- function(x, show_covariance = TRUE, ...){
   
-  stopifnot(inherits(data, "low_dimension") == TRUE)
+  stopifnot(inherits(x, "low_dimension") == TRUE)
   
-  if(inherits(data[[3]], "prcomp") == TRUE){
+  if(inherits(x[[3]], "prcomp") == TRUE){
     
     # Retrieve eigenvalues and tidy up variance explained for plotting
     
-    eigens <- data[[3]] %>%
+    eigens <- x[[3]] %>%
       broom::tidy(matrix = "eigenvalues") %>%
       dplyr::filter(.data$PC %in% c(1, 2)) %>% # Filter to just the 2 going in the plot
       dplyr::select(c(.data$PC, .data$percent)) %>%
@@ -276,16 +278,16 @@ plot.low_dimension <- function(data, show_covariance = TRUE, ...){
     eigen_pc1 <- paste0(eigen_pc1$percent,"%")
     eigen_pc2 <- paste0(eigen_pc2$percent,"%")
     
-    fits <- data[[3]] %>%
-      broom::augment(data[[2]]) %>%
+    fits <- x[[3]] %>%
+      broom::augment(x[[2]]) %>%
       dplyr::rename(id = 1) %>%
       dplyr::mutate(id = as.factor(.data$id)) %>%
       dplyr::rename(.fitted1 = .data$.fittedPC1,
                     .fitted2 = .data$.fittedPC2)
     
-    if("group" %in% colnames(data[[1]])){
+    if("group" %in% colnames(x[[1]])){
       
-      data_id <- as.data.frame(lapply(data[[1]], unlist)) # Catch weird cases where it's a list...
+      data_id <- as.data.frame(lapply(x[[1]], unlist)) # Catch weird cases where it's a list...
       
       groups <- data_id %>%
         dplyr::rename(group_id = .data$group) %>%
@@ -352,20 +354,20 @@ plot.low_dimension <- function(data, show_covariance = TRUE, ...){
     
     # Retrieve 2-dimensional embedding and add in unique IDs
     
-    id_ref <- data[[2]] %>%
+    id_ref <- x[[2]] %>%
       tibble::rownames_to_column(var = "id") %>%
       dplyr::select(c(.data$id))
     
-    fits <- data.frame(.fitted1 = data[[3]]$.fitted1,
-                       .fitted2 = data[[3]]$.fitted2) %>%
+    fits <- data.frame(.fitted1 = x[[3]]$.fitted1,
+                       .fitted2 = x[[3]]$.fitted2) %>%
       dplyr::mutate(id = id_ref$id)
     
     fits <- fits %>%
       dplyr::mutate(id = as.factor(.data$id))
     
-    if("group" %in% colnames(data[[1]])){
+    if("group" %in% colnames(x[[1]])){
       
-      data_id <- as.data.frame(lapply(data[[1]], unlist)) # Catch weird cases where it's a list...
+      data_id <- as.data.frame(lapply(x[[1]], unlist)) # Catch weird cases where it's a list...
       
       groups <- data_id %>%
         dplyr::rename(group_id = .data$group) %>%
