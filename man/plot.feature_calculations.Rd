@@ -10,7 +10,8 @@
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
   clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty",
     "median", "centroid"),
-  cor_method = c("pearson", "spearman")
+  cor_method = c("pearson", "spearman"),
+  ...
 )
 }
 \arguments{

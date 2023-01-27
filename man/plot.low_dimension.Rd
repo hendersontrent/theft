@@ -4,7 +4,7 @@
 \alias{plot.low_dimension}
 \title{Produce a plot for a low_dimension object}
 \usage{
-\method{plot}{low_dimension}(data, show_covariance = TRUE)
+\method{plot}{low_dimension}(data, show_covariance = TRUE, ...)
 }
 \arguments{
 \item{data}{the \code{low_dimension} object containing the raw feature matrix produced by \code{reduce_dims}}

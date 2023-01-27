@@ -21,7 +21,7 @@
 plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor"), 
                                       method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                       clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid"),
-                                      cor_method = c("pearson", "spearman")){
+                                      cor_method = c("pearson", "spearman"), ...){
   
   stopifnot(inherits(data, "feature_calculations") == TRUE)
   type <- match.arg(type)
@@ -253,7 +253,7 @@ plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor")
 #' @export
 #' 
 
-plot.low_dimension <- function(data, show_covariance = TRUE){
+plot.low_dimension <- function(data, show_covariance = TRUE, ...){
   
   stopifnot(inherits(data, "low_dimension") == TRUE)
   

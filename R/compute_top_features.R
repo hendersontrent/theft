@@ -205,35 +205,6 @@ compute_top_features <- function(data, num_features = 40,
   
   '%ni%' <- Negate('%in%')
   
-  # Upstream correction for deprecated 'binomial logistic' specification
-  
-  if(length(test_method) == 1 && test_method == "binomial logistic"){
-    test_method <- "BinomialLogistic"
-    message("'binomial logistic' is deprecated. Please specify 'BinomialLogistic' instead. Performing this conversion automatically.")
-  }
-  
-  # Null testing options
-  
-  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic") && null_testing_method == "model free shuffles"){
-    message("'model free shuffles' is deprecated, please use 'ModelFreeShuffles' instead.")
-    null_testing_method <- "ModelFreeShuffles"
-  }
-  
-  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic") && null_testing_method == "null model fits"){
-    message("'null model fits' is deprecated, please use 'NullModelFits' instead.")
-    null_testing_method <- "NullModelFits"
-  }
-  
-  theoptions <- c("ModelFreeShuffles", "NullModelFits")
-  
-  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic") && null_testing_method %ni% theoptions){
-    stop("null_testing_method should be a single string of either 'ModelFreeShuffles' or 'NullModelFits'.")
-  }
-  
-  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic") && null_testing_method == "ModelFreeShuffles" && num_permutations < 1000){
-    message("Null testing method 'ModelFreeShuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.")
-  }
-  
   # Classes in the data
   
   num_classes <- length(unique(data[[1]]$group)) # Get number of classes in the data
@@ -244,16 +215,6 @@ compute_top_features <- function(data, num_features = 40,
   
   if(num_classes == 2 && test_method %ni% c("t-test", "wilcox", "BinomialLogistic")){
     message("Your data has two classes. Setting test_method to one of 't-test', 'wilcox', or 'BinomialLogistic' is recommended.")
-  }
-  
-  if(((missing(test_method) || is.null(test_method))) && num_classes == 2){
-    test_method <- "t-test"
-    message("test_method is NULL or missing. Running t-test as default for 2-class problem.")
-  }
-  
-  if(((missing(test_method) || is.null(test_method))) && num_classes > 2){
-    test_method <- "gaussprRadial"
-    message("test_method is NULL or missing, fitting 'gaussprRadial' by default.")
   }
   
   if(test_method %in% c("t-test", "wilcox", "BinomialLogistic") && num_classes > 2){
