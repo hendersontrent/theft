@@ -100,7 +100,7 @@ For a detailed comparison of the six feature sets, see [this paper](https://ieee
 The `calculate_features` function returns an object of class `feature_calculations`. Objects of this type are purposefully looked-for by other functions in `theft`. Because it is a class, simple methods such as `plot()` can be called on the object to produce a range of statistical graphics. The first is a visualisation of the data types of the calculated feature vectors. This is useful for inspecting which features might need to be dropped due to large proportions of undesirable (e.g., `NA`, `NaN` etc.) values. We can specify the plot `type = "quality` to make this graphic:
 
 ```{r, message = FALSE, warning = FALSE}
-plot(feature_matrix[[1]], type = "quality")
+plot(feature_matrix, type = "quality")
 ```
 
 ## Normalising/scaling functions
@@ -125,7 +125,7 @@ For single vector normalisation, all you need to do is pass in a vector as `norm
 The package also comes with additional statistical and graphical functionality:
 
 * Feature by time-series matrix as a heatmap
-* Low dimensional projections of the feature space, and plotting as a scatterplot (along with numerical results)
+* Low dimensional projections of the feature space and plotting as a scatterplot
 * Pairwise feature correlation matrix as a heatmap
 
 ### Feature matrices

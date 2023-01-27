@@ -15,10 +15,29 @@ normalise <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", "M
   if(inherits(data, "feature_calculations")){
     
     normed <- data[[1]] %>%
-      dplyr::rename(names = dplyr::all_of(names_var),
-                    values = dplyr::all_of(values_var)) %>%
-      dplyr::group_by(.data$names) %>%
-      dplyr::mutate(values = normalise_feature_vector(.data$values, method = method)) %>%
+      dplyr::group_by(.data$names)
+    
+    if(method == "z-score"){
+      normed <- normed %>%
+        dplyr::mutate(values = zscore_scaler(.data$values))
+    }
+    
+    if(method == "Sigmoid"){
+      normed <- normed %>%
+        dplyr::mutate(values = sigmoid_scaler(.data$values))
+    }
+    
+    if(method == "RobustSigmoid"){
+      normed <- normed %>%
+        dplyr::mutate(values = robustsigmoid_scaler(.data$values))
+    }
+    
+    if(method == "MinMax"){
+      normed <- normed %>%
+        dplyr::mutate(values = minmax_scaler(.data$values))
+    }
+    
+    normed <- normed %>%
       dplyr::ungroup()
     
   } else{
@@ -26,19 +45,19 @@ normalise <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", "M
     stopifnot(class(data) == "numeric")
     
     if(method == "z-score"){
-      normed <- zscore_scaler(x)
+      normed <- zscore_scaler(data)
     }
     
     if(method == "Sigmoid"){
-      normed <- sigmoid_scaler(x)
+      normed <- sigmoid_scaler(data)
     }
     
     if(method == "RobustSigmoid"){
-      normed <- robustsigmoid_scaler(x)
+      normed <- robustsigmoid_scaler(data)
     }
     
     if(method == "MinMax"){
-      normed <- minmax_scaler(x)
+      normed <- minmax_scaler(data)
     }
   }
   

@@ -56,18 +56,6 @@ plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor")
     tmp <- tmp %>%
       dplyr::left_join(ordering, by = c("names" = "names"))
     
-    if(ignore_good_features){
-      tmp <- tmp %>%
-        dplyr::filter(.data$quality != "Good")
-      
-      if(nrow(tmp) == 0){
-        message("All feature values are good. Exiting without producing plot.")
-        opt <- options(show.error.messages = FALSE)
-        on.exit(options(opt))
-        stop()
-      }
-    }
-    
     #--------------- Draw plot ------------------------
     
     # Define a nice colour palette consistent with RColorBrewer in other functions
@@ -146,25 +134,11 @@ plot.feature_calculations <- function(data, type = c("quality", "matrix", "cor")
     
     mypalette <- c("#B2182B", "#D6604D", "#F4A582", "#FDDBC7", "#D1E5F0", "#92C5DE", "#4393C3", "#2166AC")
     
-    if(interactive){
-      p <- cluster_out %>%
-        ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value,
-                                     text = paste('<br><b>ID:</b>', .data$id,
-                                                  '<br><b>Feature:</b>', .data$names,
-                                                  '<br><b>Scaled Value:</b>', round(.data$value, digits = 3)))) +
-        ggplot2::geom_raster() +
-        ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
-                                   show.limits = TRUE)
-      
-    } else{
-      p <- cluster_out %>%
+    p <- cluster_out %>%
         ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value))  +
         ggplot2::geom_raster() +
         ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
-                                   show.limits = TRUE)
-    }
-    
-    p <- p +
+                                   show.limits = TRUE) +
       ggplot2::labs(title = "Data matrix",
                     x = "Feature",
                     y = "Time series") +
@@ -302,7 +276,7 @@ plot.low_dimension <- function(data, show_covariance = TRUE){
     
     # Retrieve eigenvalues and tidy up variance explained for plotting
     
-    eigens <- data$fits %>%
+    eigens <- data[[3]] %>%
       broom::tidy(matrix = "eigenvalues") %>%
       dplyr::filter(.data$PC %in% c(1, 2)) %>% # Filter to just the 2 going in the plot
       dplyr::select(c(.data$PC, .data$percent)) %>%
@@ -326,7 +300,7 @@ plot.low_dimension <- function(data, show_covariance = TRUE){
     
     if("group" %in% colnames(data$data)){
       
-      data_id <- as.data.frame(lapply(data$data, unlist)) # Catch weird cases where it's a list...
+      data_id <- as.data.frame(lapply(data[[1]], unlist)) # Catch weird cases where it's a list...
       
       groups <- data_id %>%
         dplyr::rename(group_id = dplyr::all_of(group_var)) %>%
@@ -393,12 +367,12 @@ plot.low_dimension <- function(data, show_covariance = TRUE){
     
     # Retrieve 2-dimensional embedding and add in unique IDs
     
-    id_ref <- data$wide_data %>%
+    id_ref <- data[[2]] %>%
       tibble::rownames_to_column(var = "id") %>%
       dplyr::select(c(.data$id))
     
-    fits <- data.frame(.fitted1 = data$fits$Y[,1],
-                       .fitted2 = data$fits$Y[,2]) %>%
+    fits <- data.frame(.fitted1 = data[[3]]$Y[,1],
+                       .fitted2 = data[[3]]$Y[,2]) %>%
       dplyr::mutate(id = id_ref$id)
     
     fits <- fits %>%
@@ -406,7 +380,7 @@ plot.low_dimension <- function(data, show_covariance = TRUE){
     
     if("group" %in% colnames(data$data)){
       
-      data_id <- as.data.frame(lapply(data$data, unlist)) # Catch weird cases where it's a list...
+      data_id <- as.data.frame(lapply(data[[1]], unlist)) # Catch weird cases where it's a list...
       
       groups <- data_id %>%
         dplyr::rename(group_id = dplyr::all_of(group_var)) %>%

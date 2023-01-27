@@ -2,7 +2,8 @@
 % Please edit documentation in R/rescalers.R
 \name{robustsigmoid_scaler}
 \alias{robustsigmoid_scaler}
-\title{This function rescales a vector of numerical values with an outlier-robust Sigmoidal transformation}
+\title{This function rescales a vector of numerical values with an outlier-robust Sigmoidal transformation and then into the unit interval [0,1]
+\deqn{z_i = \left[1 + \exp\left(-\frac{x_i - \mathrm{median}(\mathbf{x})}{\mathrm{IQR}(\mathbf{x})/{1.35}}\right)\right]^{-1}}}
 \usage{
 robustsigmoid_scaler(x, unitInt = TRUE)
 }
@@ -12,10 +13,11 @@ robustsigmoid_scaler(x, unitInt = TRUE)
 \item{unitInt}{Booelan whether to rescale Sigmoidal outputs into unit interval \code{[0,1]}. Defaults to \code{TRUE}}
 }
 \value{
-x a numeric rescaled vector
+\code{numeric} vector
 }
 \description{
-This function rescales a vector of numerical values with an outlier-robust Sigmoidal transformation
+This function rescales a vector of numerical values with an outlier-robust Sigmoidal transformation and then into the unit interval [0,1]
+\deqn{z_i = \left[1 + \exp\left(-\frac{x_i - \mathrm{median}(\mathbf{x})}{\mathrm{IQR}(\mathbf{x})/{1.35}}\right)\right]^{-1}}
 }
 \examples{
 robustsigmoid_scaler(stats::rnorm(10))

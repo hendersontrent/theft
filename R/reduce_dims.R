@@ -22,8 +22,8 @@ reduce_dims <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", 
                         low_dim_method = c("PCA", "t-SNE"), perplexity = 30, seed = 123){
 
   stopifnot(inherits(data, "feature_calculations") == TRUE)
-  method <- match.arg("method")
-  low_dim_method <- match.arg("low_dim_method")
+  method <- match.arg(method)
+  low_dim_method <- match.arg(low_dim_method)
 
   #------------- Normalise data -------------------
 
@@ -73,20 +73,14 @@ reduce_dims <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", 
     eigen_pc1 <- paste0(eigen_pc1$percent,"%")
     eigen_pc2 <- paste0(eigen_pc2$percent,"%")
     
-  } else{
-    
-    # Check perplexity
-    
-    if(perplexity >= nrow(wide_data)){
-      stop("perplexity must be < number of unique IDs.")
-    }
+  } else {
     
     # t-SNE calculation
     
     set.seed(seed)
     
     fits <- Rtsne::Rtsne(as.matrix(wide_data), perplexity = perplexity, max_iter = 5000, dims = 2,
-                            check_duplicates = FALSE)
+                         check_duplicates = FALSE)
     
     # Retrieve 2-dimensional embedding and add in unique IDs
     

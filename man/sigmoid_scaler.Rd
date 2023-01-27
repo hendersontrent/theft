@@ -2,7 +2,8 @@
 % Please edit documentation in R/rescalers.R
 \name{sigmoid_scaler}
 \alias{sigmoid_scaler}
-\title{This function rescales a vector of numerical values with a Sigmoidal transformation}
+\title{This function rescales a vector of numerical values using a Sigmoidal transformation
+\deqn{z_i = \left[1 + \exp(-\frac{x_i - \mu}{\sigma})\right]^{-1}}}
 \usage{
 sigmoid_scaler(x, unitInt = TRUE)
 }
@@ -12,10 +13,11 @@ sigmoid_scaler(x, unitInt = TRUE)
 \item{unitInt}{Booelan whether to rescale Sigmoidal outputs into unit interval \code{[0,1]}. Defaults to \code{TRUE}}
 }
 \value{
-x a numeric rescaled vector
+\code{numeric} vector
 }
 \description{
-This function rescales a vector of numerical values with a Sigmoidal transformation
+This function rescales a vector of numerical values using a Sigmoidal transformation
+\deqn{z_i = \left[1 + \exp(-\frac{x_i - \mu}{\sigma})\right]^{-1}}
 }
 \examples{
 sigmoid_scaler(stats::rnorm(10))

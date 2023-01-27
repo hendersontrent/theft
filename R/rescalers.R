@@ -1,7 +1,8 @@
 #' This function rescales a vector of numerical values into the unit interval [0,1]
+#' \deqn{z_i = \frac{x_i - \min(\mathbf{x})}{\max(\mathbf{x}) - \min(\mathbf{x})}}
 #' @importFrom scales rescale
 #' @param x a numeric vector, preferably of feature values computed by other \code{theft} package functions
-#' @return x a numeric vector, rescaled into the \code{[0,1]} unit interval
+#' @return \code{numeric} vector
 #' @author Trent Henderson
 #' @examples
 #' minmax_scaler(stats::rnorm(10))
@@ -14,11 +15,12 @@ minmax_scaler <- function(x){
   return(x_new)
 }
 
-#' This function rescales a vector of numerical values into z-scores
+#' This function rescales a vector of numerical values into z-scores and then into the unit interval [0,1]
+#' \deqn{z_i = \frac{x_i - \mu}{\sigma}}
 #' @importFrom stats sd
 #' @param x a numeric vector, preferably of feature values computed by other \code{theft} package functions
 #' @param unitInt Booelan whether to rescale outputs into unit interval \code{[0,1]}. Defaults to \code{TRUE}
-#' @return x a numeric vector, rescaled into z-scores
+#' @return \code{numeric} vector
 #' @author Trent Henderson
 #' @examples
 #' zscore_scaler(stats::rnorm(10))
@@ -36,12 +38,13 @@ zscore_scaler <- function(x, unitInt = TRUE){
   return(x_new)
 }
 
-#' This function rescales a vector of numerical values with a Sigmoidal transformation
+#' This function rescales a vector of numerical values using a Sigmoidal transformation
+#' \deqn{z_i = \left[1 + \exp(-\frac{x_i - \mu}{\sigma})\right]^{-1}}
 #' @importFrom scales rescale
 #' @importFrom stats sd
 #' @param x a numeric vector, preferably of feature values computed by other \code{theft} package functions
 #' @param unitInt Booelan whether to rescale Sigmoidal outputs into unit interval \code{[0,1]}. Defaults to \code{TRUE}
-#' @return x a numeric rescaled vector
+#' @return \code{numeric} vector
 #' @author Trent Henderson
 #' @examples
 #' sigmoid_scaler(stats::rnorm(10))
@@ -59,13 +62,14 @@ sigmoid_scaler <- function(x, unitInt = TRUE){
   return(x_new)
 }
 
-#' This function rescales a vector of numerical values with an outlier-robust Sigmoidal transformation
+#' This function rescales a vector of numerical values with an outlier-robust Sigmoidal transformation and then into the unit interval [0,1]
+#' \deqn{z_i = \left[1 + \exp\left(-\frac{x_i - \mathrm{median}(\mathbf{x})}{\mathrm{IQR}(\mathbf{x})/{1.35}}\right)\right]^{-1}}
 #' @importFrom scales rescale
 #' @importFrom stats median
 #' @importFrom stats IQR
 #' @param x a numeric vector, preferably of feature values computed by other \code{theft} package functions
 #' @param unitInt Booelan whether to rescale Sigmoidal outputs into unit interval \code{[0,1]}. Defaults to \code{TRUE}
-#' @return x a numeric rescaled vector
+#' @return \code{numeric} vector
 #' @author Trent Henderson
 #' @examples
 #' robustsigmoid_scaler(stats::rnorm(10))
