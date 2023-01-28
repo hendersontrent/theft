@@ -4,6 +4,12 @@
     <loc>https://hendersontrent.github.io/theft/404.html</loc>
   </url>
   <url>
+    <loc>https://hendersontrent.github.io/theft/LICENSE-text.html</loc>
+  </url>
+  <url>
+    <loc>https://hendersontrent.github.io/theft/LICENSE.html</loc>
+  </url>
+  <url>
     <loc>https://hendersontrent.github.io/theft/articles/index.html</loc>
   </url>
   <url>
@@ -14,12 +20,6 @@
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/index.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/LICENSE.html</loc>
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/reference/calculate_features.html</loc>
@@ -40,10 +40,10 @@
     <loc>https://hendersontrent.github.io/theft/reference/feature_list.html</loc>
   </url>
   <url>
-    <loc>https://hendersontrent.github.io/theft/reference/fit_multivariable_classifier.html</loc>
+    <loc>https://hendersontrent.github.io/theft/reference/fit_multi_feature_classifier.html</loc>
   </url>
   <url>
-    <loc>https://hendersontrent.github.io/theft/reference/fit_multi_feature_classifier.html</loc>
+    <loc>https://hendersontrent.github.io/theft/reference/fit_multivariable_classifier.html</loc>
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/reference/fit_single_feature_classifier.html</loc>
@@ -61,6 +61,9 @@
     <loc>https://hendersontrent.github.io/theft/reference/minmax_scaler.html</loc>
   </url>
   <url>
+    <loc>https://hendersontrent.github.io/theft/reference/normalise.html</loc>
+  </url>
+  <url>
     <loc>https://hendersontrent.github.io/theft/reference/normalise_feature_frame.html</loc>
   </url>
   <url>
@@ -71,6 +74,12 @@
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/reference/normalize_feature_vector.html</loc>
+  </url>
+  <url>
+    <loc>https://hendersontrent.github.io/theft/reference/plot.feature_calculations.html</loc>
+  </url>
+  <url>
+    <loc>https://hendersontrent.github.io/theft/reference/plot.low_dimension.html</loc>
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/reference/plot_all_features.html</loc>
@@ -92,6 +101,9 @@
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/reference/process_hctsa_file.html</loc>
+  </url>
+  <url>
+    <loc>https://hendersontrent.github.io/theft/reference/reduce_dims.html</loc>
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/reference/robustsigmoid_scaler.html</loc>

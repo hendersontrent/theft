@@ -6,9 +6,9 @@
 \usage{
 calculate_features(
   data,
-  id_var = NULL,
-  time_var = NULL,
-  values_var = NULL,
+  id_var = "id",
+  time_var = "timepoint",
+  values_var = "values",
   group_var = NULL,
   feature_set = c("catch22", "feasts", "tsfeatures", "Kats", "tsfresh", "TSFEL"),
   catch24 = FALSE,
@@ -19,11 +19,11 @@ calculate_features(
 \arguments{
 \item{data}{a dataframe with at least 4 columns: id variable, group variable, time variable, value variable}
 
-\item{id_var}{a string specifying the ID variable to identify each time series. Defaults to \code{NULL}}
+\item{id_var}{a string specifying the ID variable to identify each time series. Defaults to \code{"id"}}
 
-\item{time_var}{a string specifying the time index variable. Defaults to \code{NULL}}
+\item{time_var}{a string specifying the time index variable. Defaults to \code{"timepoint"}}
 
-\item{values_var}{a string specifying the values variable. Defaults to \code{NULL}}
+\item{values_var}{a string specifying the values variable. Defaults to \code{"values"}}
 
 \item{group_var}{a string specifying the grouping variable that each unique series sits under (if one exists). Defaults to \code{NULL}}
 
@@ -36,7 +36,7 @@ calculate_features(
 \item{seed}{fixed number for R's random number generator to ensure reproducibility}
 }
 \value{
-object of class dataframe that contains the summary statistics for each feature
+object of class \code{feature_calculations} that contains the summary statistics for each feature
 }
 \description{
 Compute features on an input time series dataset

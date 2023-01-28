@@ -6,8 +6,6 @@
 \usage{
 compute_top_features(
   data,
-  id_var = "id",
-  group_var = "group",
   num_features = 40,
   normalise_violin_plots = FALSE,
   method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
@@ -27,17 +25,13 @@ compute_top_features(
 )
 }
 \arguments{
-\item{data}{the dataframe containing the raw feature matrix}
-
-\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}}
-
-\item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}}
+\item{data}{the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}}
 
 \item{num_features}{the number of top features to retain and explore. Defaults to \code{40}}
 
 \item{normalise_violin_plots}{a Boolean of whether to normalise features before plotting. Defaults to \code{FALSE}}
 
-\item{method}{a rescaling/normalising method to apply to violin plots. Defaults to \code{"RobustSigmoid"}}
+\item{method}{a rescaling/normalising method to apply to violin plots. Defaults to \code{"z-score"}}
 
 \item{cor_method}{the correlation method to use. Defaults to \code{"pearson"}}
 
@@ -80,8 +74,6 @@ featMat <- calculate_features(data = simData,
   seed = 123)
   
 compute_top_features(featMat,
-  id_var = "id",
-  group_var = "group",
   num_features = 10,
   normalise_violin_plots = FALSE,
   method = "RobustSigmoid",

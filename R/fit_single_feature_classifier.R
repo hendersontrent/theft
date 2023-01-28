@@ -447,8 +447,6 @@ clean_by_feature <- function(data, x){
 #' @importFrom janitor clean_names
 #' @importFrom caret preProcess train confusionMatrix
 #' @param data the dataframe containing the raw feature matrix
-#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}
-#' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}
 #' @param test_method the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}. Should be either \code{"t-test"}, \code{"wilcox"}, or \code{"binomial logistic"} for two-class problems to obtain exact statistics, or a valid \code{caret} classification model for everything else 
 #' @param use_balanced_accuracy a Boolean specifying whether to use balanced accuracy as the summary metric for caret model training. Defaults to \code{FALSE}
 #' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates if a \code{caret} model is specified for \code{test_method}. Defaults to \code{ FALSE}
@@ -462,42 +460,9 @@ clean_by_feature <- function(data, x){
 #' @return an object of class dataframe containing results
 #' @author Trent Henderson
 #' @export
-#' @examples
-#' \donttest{
-#' featMat <- calculate_features(data = simData, 
-#'   id_var = "id", 
-#'   time_var = "timepoint", 
-#'   values_var = "values", 
-#'   group_var = "process", 
-#'   feature_set = "catch22",
-#'   seed = 123)
-#'   
-#' # Mimic machinery of theft::compute_top_features
-#' # which calls fit_single_feature_classifier and
-#' # does these operations prior
-#'   
-#' featMat$group <- make.names(featMat$group)
-#' featMat$group <- as.factor(featMat$group)
-#' featMat$values <- as.numeric(featMat$values)
-#'   
-#' fit_single_feature_classifier(featMat,
-#'   id_var = "id",
-#'   group_var = "group",
-#'   test_method = "gaussprRadial",
-#'   use_balanced_accuracy = FALSE,
-#'   use_k_fold = TRUE,
-#'   num_folds = 10,
-#'   use_empirical_null = TRUE,
-#'   null_testing_method = "ModelFreeShuffles",
-#'   p_value_method = "gaussian",
-#'   num_permutations = 50,
-#'   pool_empirical_null = FALSE,
-#'   seed = 123) 
-#' }
 #' 
 
-fit_single_feature_classifier <- function(data, id_var = "id", group_var = "group",
-                                          test_method = "gaussprRadial", use_balanced_accuracy = FALSE,
+fit_single_feature_classifier <- function(data, test_method = "gaussprRadial", use_balanced_accuracy = FALSE,
                                           use_k_fold = FALSE, num_folds = 10, 
                                           use_empirical_null = FALSE, null_testing_method = c("ModelFreeShuffles", "NullModelFits"),
                                           p_value_method = c("empirical", "gaussian"), num_permutations = 50,
@@ -509,26 +474,13 @@ fit_single_feature_classifier <- function(data, id_var = "id", group_var = "grou
   #----------------- JUST A HELPER FUNCTION!!!!!!--------------------------
   #------------------------------------------------------------------------
   
-  #------------- Renaming columns -------------
-  
-  if (is.null(id_var)){
-    stop("Data is not uniquely identifiable. Please add a unique identifier variable.")
-  }
-  
-  if(!is.null(id_var)){
-    data_id <- data %>%
-      dplyr::rename(id = dplyr::all_of(id_var),
-                    group = dplyr::all_of(group_var)) %>%
-      dplyr::select(c(.data$id, .data$group, .data$method, .data$names, .data$values))
-  }
-  
-  num_classes <- length(unique(data_id$group)) # Get number of classes in the data
+  num_classes <- length(unique(data$group)) # Get number of classes in the data
   
   #------------- Preprocess data --------------
   
   # Widening for model matrix
   
-  data_id <- data_id %>%
+  data_id <- data %>%
     dplyr::mutate(names = paste0(.data$method, "_", .data$names)) %>%
     dplyr::select(-c(.data$method)) %>%
     tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%

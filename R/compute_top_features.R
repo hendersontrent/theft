@@ -65,7 +65,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
       dplyr::select(c(.data$id, .data$names, .data$values, .data$group)) %>%
       tidyr::drop_na() %>%
       dplyr::group_by(.data$names) %>%
-      dplyr::mutate(values = normalise_feature_vector(.data$values, method = method)) %>%
+      dplyr::mutate(values = normalise(.data$values, method = method)) %>%
       dplyr::ungroup() %>%
       tidyr::drop_na()
     
@@ -134,12 +134,10 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #' @importFrom stats hclust dist cor
 #' @importFrom reshape2 melt
 #' @importFrom janitor clean_names
-#' @param data the dataframe containing the raw feature matrix
-#' @param id_var a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}
-#' @param group_var a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}
+#' @param data the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
 #' @param num_features the number of top features to retain and explore. Defaults to \code{40}
 #' @param normalise_violin_plots a Boolean of whether to normalise features before plotting. Defaults to \code{FALSE}
-#' @param method a rescaling/normalising method to apply to violin plots. Defaults to \code{"RobustSigmoid"}
+#' @param method a rescaling/normalising method to apply to violin plots. Defaults to \code{"z-score"}
 #' @param cor_method the correlation method to use. Defaults to \code{"pearson"}
 #' @param test_method the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}
 #' @param clust_method the hierarchical clustering method to use for the pairwise correlation plot. Defaults to \code{"average"}
@@ -166,8 +164,6 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #'   seed = 123)
 #'   
 #' compute_top_features(featMat,
-#'   id_var = "id",
-#'   group_var = "group",
 #'   num_features = 10,
 #'   normalise_violin_plots = FALSE,
 #'   method = "RobustSigmoid",
@@ -186,8 +182,7 @@ plot_feature_discrimination <- function(data, id_var = "id", group_var = "group"
 #' }
 #' 
 
-compute_top_features <- function(data, id_var = "id", group_var = "group",
-                                 num_features = 40,
+compute_top_features <- function(data, num_features = 40,
                                  normalise_violin_plots = FALSE,
                                  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
                                  cor_method = c("pearson", "spearman"),
@@ -201,183 +196,18 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Set defaults
   
-  if(missing(id_var)){
-    id_var <- "id"
-    message("No id_var specified. Specifying 'id' as default as returned in theft::calculate_features")
-  }
+  stopifnot(inherits(data, "feature_calculations") == TRUE)
+  method <- match.arg(method)
+  cor_method <- match.arg(cor_method)
+  clust_method <- match.arg(clust_method)
+  null_testing_method <- match.arg(null_testing_method)
+  p_value_method <- match.arg(p_value_method)
   
-  if(missing(group_var)){
-    group_var <- "group"
-    message("No group_var specified. Specifying 'group' as default as returned in theft::calculate_features")
-  }
-  
-  if(missing(num_features)){
-    num_features <- 40
-    message("No num_features specified. Specifying 40 as default")
-  }
-  
-  if(missing(cor_method)){
-    cor_method <- "pearson"
-  } else{
-    cor_method <- match.arg(cor_method)
-  }
-  
-  if(missing(clust_method)){
-    clust_method <- "average"
-  } else{
-    clust_method <- match.arg(clust_method)
-  }
-  
-  # Check other arguments
-  
-  expected_cols_1 <- "names"
-  expected_cols_2 <- "values"
-  expected_cols_3 <- "method"
-  the_cols <- colnames(data)
   '%ni%' <- Negate('%in%')
   
-  if(expected_cols_1 %ni% the_cols){
-    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by theft::calculate_features(). Please consider running this first and then passing the resultant dataframe to this function.")
-  }
+  # Classes in the data
   
-  if(expected_cols_2 %ni% the_cols){
-    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by theft::calculate_features(). Please consider running this first and then passing the resultant dataframe to this function.")
-  }
-  
-  if(expected_cols_3 %ni% the_cols){
-    stop("data should contain at least three columns called 'names', 'values', and 'method'. These are automatically produced by theft::calculate_features(). Please consider running this first and then passing the resultant dataframe to this function.")
-  }
-  
-  if(!is.numeric(data$values)){
-    stop("'values' column in data should be a numerical vector.")
-  }
-  
-  if(!is.null(id_var) && !is.character(id_var)){
-    stop("id_var should be a string specifying a variable in the input data that uniquely identifies each observation.")
-  }
-  
-  if(!is.null(group_var) && !is.character(group_var)){
-    stop("group_var should be a string specifying a variable in the input data that identifies an aggregate group each observation relates to.")
-  }
-  
-  # Method selection
-  
-  the_methods <- c("z-score", "Sigmoid", "RobustSigmoid", "MinMax")
-  
-  if(method %ni% the_methods){
-    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
-  }
-  
-  if(length(method) > 1){
-    stop("method should be a single selection of 'z-score', 'Sigmoid', 'RobustSigmoid' or 'MinMax'")
-  }
-  
-  # Correlation method selection
-  
-  the_cor_methods <- c("pearson", "spearman")
-  
-  if(cor_method %ni% the_cor_methods){
-    stop("cor_method should be a single selection of 'pearson' or 'spearman'")
-  }
-  
-  if(length(cor_method) > 1){
-    stop("cor_method should be a single selection of 'pearson' or 'spearman'")
-  }
-  
-  # Clustering method selection
-  
-  the_clust_methods <-c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid")
-  
-  if(clust_method %ni% the_clust_methods){
-    stop("clust_method should be a single selection of 'average', 'ward.D', 'ward.D2', 'single', 'complete', 'mcquitty', 'median', or 'centroid'.")
-  }
-  
-  if(length(clust_method) > 1){
-    stop("clust_method should be a single selection of 'average', 'ward.D', 'ward.D2', 'single', 'complete', 'mcquitty', 'median', or 'centroid'.")
-  }
-  
-  if(missing(clust_method) || is.null(clust_method)){
-    clust_method <- "average"
-    message("No argument supplied to clust_method Using 'average' as default.")
-  }
-  
-  # Upstream correction for deprecated 'binomial logistic' specification
-  
-  if(length(test_method) == 1 && test_method == "binomial logistic"){
-    test_method <- "BinomialLogistic"
-    message("'binomial logistic' is deprecated. Please specify 'BinomialLogistic' instead. Performing this conversion automatically.")
-  }
-  
-  # Null testing options
-  
-  if(length(null_testing_method) != 1 && test_method %ni% c("t-test", "wilcox", "BinomialLogistic")){
-    stop("null_testing_method should be a single string of either 'ModelFreeShuffles' or 'NullModelFits'.")
-  }
-  
-  if((is.null(null_testing_method) || missing(null_testing_method)) && test_method %ni% c("t-test", "wilcox", "BinomialLogistic")){
-    null_testing_method <- "ModelFreeShuffles"
-    message("No argument supplied to null_testing_method. Using 'ModelFreeShuffles' as default.")
-  }
-  
-  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic") && null_testing_method == "model free shuffles"){
-    message("'model free shuffles' is deprecated, please use 'ModelFreeShuffles' instead.")
-    null_testing_method <- "ModelFreeShuffles"
-  }
-  
-  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic") && null_testing_method == "null model fits"){
-    message("'null model fits' is deprecated, please use 'NullModelFits' instead.")
-    null_testing_method <- "NullModelFits"
-  }
-  
-  theoptions <- c("ModelFreeShuffles", "NullModelFits")
-  
-  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic") && null_testing_method %ni% theoptions){
-    stop("null_testing_method should be a single string of either 'ModelFreeShuffles' or 'NullModelFits'.")
-  }
-  
-  if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic") && null_testing_method == "ModelFreeShuffles" && num_permutations < 1000){
-    message("Null testing method 'ModelFreeShuffles' is fast. Consider running more permutations for more reliable results. N = 10000 is recommended.")
-  }
-  
-  # p-value options
-  
-  theoptions_p <- c("empirical", "gaussian")
-  
-  if(is.null(p_value_method) || missing(p_value_method)){
-    p_value_method <- "gaussian"
-    message("No argument supplied to p_value_method Using 'gaussian' as default.")
-  }
-  
-  if(length(p_value_method) != 1){
-    stop("p_value_method should be a single string of either 'empirical' or 'gaussian'.")
-  }
-  
-  if(p_value_method %ni% theoptions_p){
-    stop("p_value_method should be a single string of either 'empirical' or 'gaussian'.")
-  }
-  
-  # Default feature number
-  
-  if(!is.numeric(num_features)){
-    stop("num_features should be a positive integer >= 2 specifying the number of features to produce analysis for.")
-  }
-  
-  if(num_features < 2){
-    stop("num_features should be a positive integer >= 2 specifying the number of features to produce analysis for.")
-  }
-  
-  if(is.null(id_var)){
-    stop("Data is not uniquely identifiable. Please add a unique identifier variable.")
-  }
-  
-  if(!is.null(id_var)){
-    data_id <- data %>%
-      dplyr::rename(id = dplyr::all_of(id_var),
-                    group = dplyr::all_of(group_var)) %>%
-      dplyr::select(c(.data$id, .data$group, .data$method, .data$names, .data$values))
-  }
-  
-  num_classes <- length(unique(data_id$group)) # Get number of classes in the data
+  num_classes <- length(unique(data[[1]]$group)) # Get number of classes in the data
   
   if(num_classes == 1){
     stop("Your data only has one class label. At least two are required to performed analysis.")
@@ -387,60 +217,25 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
     message("Your data has two classes. Setting test_method to one of 't-test', 'wilcox', or 'BinomialLogistic' is recommended.")
   }
   
-  if(((missing(test_method) || is.null(test_method))) && num_classes == 2){
-    test_method <- "t-test"
-    message("test_method is NULL or missing. Running t-test as default for 2-class problem.")
-  }
-  
-  if(((missing(test_method) || is.null(test_method))) && num_classes > 2){
-    test_method <- "gaussprRadial"
-    message("test_method is NULL or missing, fitting 'gaussprRadial' by default.")
-  }
-  
   if(test_method %in% c("t-test", "wilcox", "BinomialLogistic") && num_classes > 2){
     stop("t-test, Mann-Whitney-Wilcoxon Test and binomial logistic regression can only be run for 2-class problems.")
   }
   
-  # Splits and shuffles
-  
-  if(use_k_fold == TRUE && !is.numeric(num_folds)){
-    stop("num_folds should be a positive integer. 10 folds is recommended.")
-  }
-  
-  if(use_empirical_null == TRUE && !is.numeric(num_permutations)){
-    stop("num_permutations should be a postive integer. A minimum of 50 permutations is recommended.")
-  }
-  
-  if(use_empirical_null == TRUE && num_permutations < 3){
-    stop("num_permutations should be a positive integer >= 3 for empirical null calculations. A minimum of 50 permutations is recommended.")
-  }
-  
-  if(use_k_fold == TRUE && num_folds < 1){
-    stop("num_folds should be a positive integer. 10 folds is recommended.")
-  }
-  
   # Number of top features
   
-  if(num_features > length(unique(data_id$names))){
-    num_features <- length(unique(data_id$names))
+  if(num_features > length(unique(data[[1]]$names))){
+    num_features <- length(unique(data[[1]]$names))
     message(paste0("Number of specified features exceeds number of features in your data. Automatically adjusting to ", num_features))
-  }
-  
-  # Seed
-  
-  if(is.null(seed) || missing(seed)){
-    seed <- 123
-    message("No argument supplied to seed, using 123 as default.")
   }
   
   # Prep factor levels as names for {caret} if the 3 base two-class options aren't being used
   
   if(test_method %ni% c("t-test", "wilcox", "BinomialLogistic")){
-    data_id <- data_id %>%
+    data_id <- data[[1]] %>%
       dplyr::mutate(group = make.names(.data$group),
                     group = as.factor(.data$group))
   } else{
-    data_id <- data_id %>%
+    data_id <- data[[1]] %>%
       dplyr::mutate(group = as.factor(.data$group))
   }
   
@@ -453,8 +248,6 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   # Fit algorithm
   
   classifierOutputs <- fit_single_feature_classifier(data_id, 
-                                                     id_var = "id", 
-                                                     group_var = "group",
                                                      test_method = test_method,
                                                      use_balanced_accuracy = use_balanced_accuracy,
                                                      use_k_fold = use_k_fold,
@@ -572,14 +365,11 @@ compute_top_features <- function(data, id_var = "id", group_var = "group",
   
   # Compile into one object and return
   
-  if("try-error" %in% class(FeatureFeatureCorrelationPlot)){
-    
+  if(inherits(FeatureFeatureCorrelationPlot, "try-error") == TRUE){
     message("An error occured in producing the pairwise correlation plot. Only returning numerical results and violin plots instead.")
     myList <- list(ResultsTable, ViolinPlots)
     names(myList) <- c("ResultsTable", "ViolinPlots")
-    
   } else{
-    
     myList <- list(ResultsTable, FeatureFeatureCorrelationPlot, ViolinPlots)
     names(myList) <- c("ResultsTable", "FeatureFeatureCorrelationPlot", "ViolinPlots")
   }

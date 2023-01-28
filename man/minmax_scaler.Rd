@@ -2,7 +2,8 @@
 % Please edit documentation in R/rescalers.R
 \name{minmax_scaler}
 \alias{minmax_scaler}
-\title{This function rescales a vector of numerical values into the unit interval [0,1]}
+\title{This function rescales a vector of numerical values into the unit interval [0,1]
+\deqn{z_i = \frac{x_i - \min(\mathbf{x})}{\max(\mathbf{x}) - \min(\mathbf{x})}}}
 \usage{
 minmax_scaler(x)
 }
@@ -10,14 +11,11 @@ minmax_scaler(x)
 \item{x}{a numeric vector, preferably of feature values computed by other \code{theft} package functions}
 }
 \value{
-x a numeric vector, rescaled into the \code{[0,1]} unit interval
+\code{numeric} vector
 }
 \description{
 This function rescales a vector of numerical values into the unit interval [0,1]
-}
-\examples{
-minmax_scaler(stats::rnorm(10))
-
+\deqn{z_i = \frac{x_i - \min(\mathbf{x})}{\max(\mathbf{x}) - \min(\mathbf{x})}}
 }
 \author{
 Trent Henderson

@@ -20,7 +20,6 @@
 #' @import reticulate
 #' @import dplyr
 #' @import ggplot2
-#' @importFrom plotly ggplotly config layout
 #' @importFrom caret preProcess train confusionMatrix
 #' @importFrom purrr map map_df possibly
 #' @importFrom janitor clean_names

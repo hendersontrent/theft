@@ -6,8 +6,6 @@
 \usage{
 fit_single_feature_classifier(
   data,
-  id_var = "id",
-  group_var = "group",
   test_method = "gaussprRadial",
   use_balanced_accuracy = FALSE,
   use_k_fold = FALSE,
@@ -22,10 +20,6 @@ fit_single_feature_classifier(
 }
 \arguments{
 \item{data}{the dataframe containing the raw feature matrix}
-
-\item{id_var}{a string specifying the ID variable to group data on (if one exists). Defaults to \code{"id"}}
-
-\item{group_var}{a string specifying the grouping variable that the data aggregates to. Defaults to \code{"group"}}
 
 \item{test_method}{the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}. Should be either \code{"t-test"}, \code{"wilcox"}, or \code{"binomial logistic"} for two-class problems to obtain exact statistics, or a valid \code{caret} classification model for everything else}
 
@@ -52,40 +46,6 @@ an object of class dataframe containing results
 }
 \description{
 Fit a classifier to feature matrix to extract top performers
-}
-\examples{
-\donttest{
-featMat <- calculate_features(data = simData, 
-  id_var = "id", 
-  time_var = "timepoint", 
-  values_var = "values", 
-  group_var = "process", 
-  feature_set = "catch22",
-  seed = 123)
-  
-# Mimic machinery of theft::compute_top_features
-# which calls fit_single_feature_classifier and
-# does these operations prior
-  
-featMat$group <- make.names(featMat$group)
-featMat$group <- as.factor(featMat$group)
-featMat$values <- as.numeric(featMat$values)
-  
-fit_single_feature_classifier(featMat,
-  id_var = "id",
-  group_var = "group",
-  test_method = "gaussprRadial",
-  use_balanced_accuracy = FALSE,
-  use_k_fold = TRUE,
-  num_folds = 10,
-  use_empirical_null = TRUE,
-  null_testing_method = "ModelFreeShuffles",
-  p_value_method = "gaussian",
-  num_permutations = 50,
-  pool_empirical_null = FALSE,
-  seed = 123) 
-}
-
 }
 \author{
 Trent Henderson

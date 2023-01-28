@@ -2,7 +2,8 @@
 % Please edit documentation in R/rescalers.R
 \name{zscore_scaler}
 \alias{zscore_scaler}
-\title{This function rescales a vector of numerical values into z-scores}
+\title{This function rescales a vector of numerical values into z-scores and then into the unit interval [0,1]
+\deqn{z_i = \frac{x_i - \mu}{\sigma}}}
 \usage{
 zscore_scaler(x, unitInt = TRUE)
 }
@@ -12,14 +13,11 @@ zscore_scaler(x, unitInt = TRUE)
 \item{unitInt}{Booelan whether to rescale outputs into unit interval \code{[0,1]}. Defaults to \code{TRUE}}
 }
 \value{
-x a numeric vector, rescaled into z-scores
+\code{numeric} vector
 }
 \description{
-This function rescales a vector of numerical values into z-scores
-}
-\examples{
-zscore_scaler(stats::rnorm(10))
-
+This function rescales a vector of numerical values into z-scores and then into the unit interval [0,1]
+\deqn{z_i = \frac{x_i - \mu}{\sigma}}
 }
 \author{
 Trent Henderson
