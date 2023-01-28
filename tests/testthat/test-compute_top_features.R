@@ -41,6 +41,7 @@ test_that("single feature null method", {
                                          num_permutations = 10,
                                          p_value_method = "empirical",
                                          pool_empirical_null = FALSE)$ResultsTable),
+               
                nrow(compute_top_features(feature_matrix, 
                                          num_features = 10, 
                                          normalise_violin_plots = FALSE,
@@ -52,7 +53,7 @@ test_that("single feature null method", {
                                          use_k_fold = FALSE,
                                          num_folds = 10,
                                          use_empirical_null =  TRUE,
-                                         null_testing_method = "null model fits",
+                                         null_testing_method = "NullModelFits",
                                          num_permutations = 10,
                                          p_value_method = "gaussian",
                                          pool_empirical_null = FALSE)$ResultsTable))
