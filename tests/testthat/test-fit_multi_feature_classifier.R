@@ -45,6 +45,6 @@ test_that("multi feature null model fits", {
                                                  p_value_method = "empirical", num_permutations = 10)$RawClassificationResults),
                nrow(fit_multi_feature_classifier(feature_matrix, by_set = FALSE, test_method = "gaussprRadial", use_balanced_accuracy = FALSE,
                                                  use_k_fold = TRUE, num_folds = 10, 
-                                                 use_empirical_null = TRUE, null_testing_method = "null model fits",
+                                                 use_empirical_null = TRUE, null_testing_method = "NullModelFits",
                                                  p_value_method = "empirical", num_permutations = 10)$RawClassificationResults))
 })
