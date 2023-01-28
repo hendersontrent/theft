@@ -11,8 +11,7 @@ test_that("multi feature graphics", {
                                                    p_value_method = "empirical", num_permutations = 10)))
   
   expect_equal(3, 
-               length(fit_multi_feature_classifier(feature_matrix, id_var = "id", group_var = "group",
-                                                   by_set = TRUE, test_method = "gaussprRadial", use_balanced_accuracy = TRUE,
+               length(fit_multi_feature_classifier(feature_matrix, by_set = TRUE, test_method = "gaussprRadial", use_balanced_accuracy = TRUE,
                                                    use_k_fold = FALSE, num_folds = 10, 
                                                    use_empirical_null = TRUE, null_testing_method = "ModelFreeShuffles",
                                                    p_value_method = "empirical", num_permutations = 10)))
@@ -24,9 +23,9 @@ test_that("multi feature balanced accuracy", {
   
   expect_equal(7, 
                ncol(fit_multi_feature_classifier(feature_matrix, by_set = TRUE, test_method = "gaussprRadial", use_balanced_accuracy = TRUE,
-                                                   use_k_fold = FALSE, num_folds = 10, 
-                                                   use_empirical_null = TRUE, null_testing_method = "ModelFreeShuffles",
-                                                   p_value_method = "empirical", num_permutations = 10)$TestStatistics))
+                                                 use_k_fold = FALSE, num_folds = 10, 
+                                                 use_empirical_null = TRUE, null_testing_method = "ModelFreeShuffles",
+                                                 p_value_method = "empirical", num_permutations = 10)$TestStatistics))
   
   expect_equal(5, 
                ncol(fit_multi_feature_classifier(feature_matrix, by_set = TRUE, test_method = "gaussprRadial", use_balanced_accuracy = FALSE,
@@ -43,6 +42,7 @@ test_that("multi feature null model fits", {
                                                  use_k_fold = TRUE, num_folds = 10, 
                                                  use_empirical_null = TRUE, null_testing_method = "ModelFreeShuffles",
                                                  p_value_method = "empirical", num_permutations = 10)$RawClassificationResults),
+               
                nrow(fit_multi_feature_classifier(feature_matrix, by_set = FALSE, test_method = "gaussprRadial", use_balanced_accuracy = FALSE,
                                                  use_k_fold = TRUE, num_folds = 10, 
                                                  use_empirical_null = TRUE, null_testing_method = "NullModelFits",
