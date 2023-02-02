@@ -56,7 +56,7 @@ An [interactive web application](https://dynamicsandneuralsystems.shinyapps.io/t
 
 ## Citation
 
-if you use `theft` in your own work, please cite both the paper:
+If you use `theft` in your own work, please cite both the paper:
 
 T. Henderson and Ben D. Fulcher. [Feature-Based Time-Series Analysis in R using the theft Package](https://arxiv.org/abs/2208.06146). arXiv, (2022).
 
