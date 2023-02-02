@@ -89,7 +89,7 @@ not all functionality has been copied across to the webtool yet.
 
 ## Citation
 
-if you use `theft` in your own work, please cite both the paper:
+If you use `theft` in your own work, please cite both the paper:
 
 T. Henderson and Ben D. Fulcher. [Feature-Based Time-Series Analysis in
 R using the theft Package](https://arxiv.org/abs/2208.06146). arXiv,
@@ -100,9 +100,9 @@ and the software (below):
 
     To cite package 'theft' in publications use:
 
-      Trent Henderson (2023). theft: Tools for Handling Extraction of
-      Features from Time Series. R package version 0.4.2.1.
-      https://hendersontrent.github.io/theft/
+      Henderson T (2023). _theft: Tools for Handling Extraction of Features
+      from Time Series_. R package version 0.4.2.2,
+      <https://hendersontrent.github.io/theft/>.
 
     A BibTeX entry for LaTeX users is
 
@@ -110,6 +110,6 @@ and the software (below):
         title = {theft: Tools for Handling Extraction of Features from Time Series},
         author = {Trent Henderson},
         year = {2023},
-        note = {R package version 0.4.2.1},
+        note = {R package version 0.4.2.2},
         url = {https://hendersontrent.github.io/theft/},
       }

@@ -5,7 +5,7 @@
 \alias{feature_list}
 \title{All features available in theft in tidy format}
 \format{
-A tidy dataframe with 2 variables:
+A tidy data frame with 2 variables:
 \describe{
   \item{feature_set}{Name of the set the feature is from}
   \item{feature}{Name of the feature}

@@ -1,9 +1,9 @@
 pandoc: 2.19.2
-pkgdown: 2.0.2
+pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
   theft: theft.html
-last_built: 2023-01-28T00:08Z
+last_built: 2023-02-02T06:12Z
 urls:
   reference: https://hendersontrent.github.io/theft/reference
   article: https://hendersontrent.github.io/theft/articles
