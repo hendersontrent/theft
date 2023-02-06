@@ -76,7 +76,7 @@
                         <h4 data-toc-skip class="author">Trent
 Henderson</h4>
             
-            <h4 data-toc-skip class="date">2023-02-02</h4>
+            <h4 data-toc-skip class="date">2023-02-06</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/HEAD/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -159,9 +159,9 @@ deviation in addition to the standard 22 features:</p>
 <span>                                     seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></span></code></pre></div>
 <p>Note that if you want to use any of the Python-based packages, you
 must first tell R (prior to running <code>calculate_features</code>)
-which Python and virtual environment on your computer contains the
-installed libraries. This can be done via the <code>init_theft</code>
-function, which has two arguments:</p>
+which Python and/or virtual environment on your computer contains the
+installed libraries. This can be done in <code>theft</code> via the
+<code>init_theft</code> function, which has two arguments:</p>
 <ol style="list-style-type: decimal">
 <li>
 <code>python_path</code> — string specifying the filepath to the
@@ -171,8 +171,12 @@ version of Python you wish to use</li>
 Python virtual environment where <code>tsfresh</code>,
 <code>TSFEL</code>, and/or <code>Kats</code> are installed</li>
 </ol>
+<p>However, you do not necessarily have to use this convenience
+function. If you have another method for pointing R to the correct
+Python (such as <code>reticulate</code> or <code>findpython</code>), you
+can use those in your workflow instead.</p>
 <p><strong>NOTE: You only need to call </strong> <code>init_theft</code>
-<strong>once per session.</strong></p>
+<strong>or your other solution once per session.</strong></p>
 <p>A tidy dataframe of <em>most</em> of the included features and the
 set they correspond to is available in the dataframe
 <code>feature_list</code>:</p>

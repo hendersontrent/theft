@@ -78,12 +78,14 @@ feature_matrix <- calculate_features(data = simData,
                                      seed = 123)
 ```
 
-Note that if you want to use any of the Python-based packages, you must first tell R (prior to running `calculate_features`) which Python and virtual environment on your computer contains the installed libraries. This can be done via the `init_theft` function, which has two arguments:
+Note that if you want to use any of the Python-based packages, you must first tell R (prior to running `calculate_features`) which Python and/or virtual environment on your computer contains the installed libraries. This can be done in `theft` via the `init_theft` function, which has two arguments:
 
 1. `python_path` --- string specifying the filepath to the version of Python you wish to use
-1. `venv_path` --- string specifying the filepath to the Python virtual environment where `tsfresh`, `TSFEL`, and/or `Kats` are installed
+2. `venv_path` --- string specifying the filepath to the Python virtual environment where `tsfresh`, `TSFEL`, and/or `Kats` are installed
 
-**NOTE: You only need to call ** `init_theft` **once per session.**
+However, you do not necessarily have to use this convenience function. If you have another method for pointing R to the correct Python (such as `reticulate` or `findpython`), you can use those in your workflow instead.
+
+**NOTE: You only need to call ** `init_theft` **or your other solution once per session.**
 
 A tidy dataframe of *most* of the included features and the set they correspond to is available in the dataframe `feature_list`:
   
