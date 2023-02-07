@@ -17,23 +17,23 @@ calculate_features(
 )
 }
 \arguments{
-\item{data}{a dataframe with at least 4 columns: id variable, group variable, time variable, value variable}
+\item{data}{\code{data.frame} with at least 4 columns: id variable, group variable, time variable, value variable}
 
-\item{id_var}{a string specifying the ID variable to identify each time series. Defaults to \code{"id"}}
+\item{id_var}{\code{string} specifying the ID variable to identify each time series. Defaults to \code{"id"}}
 
-\item{time_var}{a string specifying the time index variable. Defaults to \code{"timepoint"}}
+\item{time_var}{\code{string} specifying the time index variable. Defaults to \code{"timepoint"}}
 
-\item{values_var}{a string specifying the values variable. Defaults to \code{"values"}}
+\item{values_var}{\code{string} specifying the values variable. Defaults to \code{"values"}}
 
-\item{group_var}{a string specifying the grouping variable that each unique series sits under (if one exists). Defaults to \code{NULL}}
+\item{group_var}{\code{string} specifying the grouping variable that each unique series sits under (if one exists). Defaults to \code{NULL}}
 
-\item{feature_set}{the set of time-series features to calculate. Defaults to \code{catch22}}
+\item{feature_set}{\code{string} or \code{vector} of \code{string}s denoting the set of time-series features to calculate. Defaults to \code{"catch22"}}
 
-\item{catch24}{a Boolean specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}}
+\item{catch24}{\code{Boolean} specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}}
 
-\item{tsfresh_cleanup}{a Boolean specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}}
+\item{tsfresh_cleanup}{\code{Boolean} specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}}
 
-\item{seed}{fixed number for R's random number generator to ensure reproducibility}
+\item{seed}{\code{integer} denoting a fixed number for R's random number generator to ensure reproducibility}
 }
 \value{
 object of class \code{feature_calculations} that contains the summary statistics for each feature

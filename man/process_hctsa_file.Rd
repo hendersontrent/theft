@@ -7,10 +7,10 @@
 process_hctsa_file(data)
 }
 \arguments{
-\item{data}{a string specifying the filepath to the \code{MATLAB} file to parse}
+\item{data}{\code{string} specifying the filepath to the \code{MATLAB} file to parse}
 }
 \value{
-an object of class dataframe in tidy format
+an object of class \code{data.frame} in tidy format
 }
 \description{
 Load in hctsa formatted MATLAB files of time series data into a tidy format ready for feature extraction

@@ -2,20 +2,18 @@
 % Please edit documentation in R/rescalers.R
 \name{minmax_scaler}
 \alias{minmax_scaler}
-\title{This function rescales a vector of numerical values into the unit interval [0,1]
-\deqn{z_i = \frac{x_i - \min(\mathbf{x})}{\max(\mathbf{x}) - \min(\mathbf{x})}}}
+\title{Rescales a numeric vector into the unit interval [0,1]}
 \usage{
 minmax_scaler(x)
 }
 \arguments{
-\item{x}{a numeric vector, preferably of feature values computed by other \code{theft} package functions}
+\item{x}{\code{numeric vector}}
 }
 \value{
-\code{numeric} vector
+\code{numeric vector}
 }
 \description{
-This function rescales a vector of numerical values into the unit interval [0,1]
-\deqn{z_i = \frac{x_i - \min(\mathbf{x})}{\max(\mathbf{x}) - \min(\mathbf{x})}}
+\eqn{z_{i} = \frac{x_{i} - \text{min}(\mathbf{x})}{\text{max}(\mathbf{x}) - \text{min}(\mathbf{x})}}
 }
 \author{
 Trent Henderson

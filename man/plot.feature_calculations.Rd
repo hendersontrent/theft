@@ -19,16 +19,16 @@
 
 \item{type}{\code{string} specifying the type of plot to draw. Defaults to \code{"quality"}}
 
-\item{method}{a rescaling/normalising method to apply if if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"z-score"}}
+\item{method}{\code{string} specifying a rescaling/normalising method to apply if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"z-score"}}
 
-\item{clust_method}{the hierarchical clustering method to use if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"average"}}
+\item{clust_method}{\code{string} specifying the hierarchical clustering method to use if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"average"}}
 
-\item{cor_method}{the correlation method to use if \code{type = "cor"}. Defaults to \code{"pearson"}}
+\item{cor_method}{\code{string} specifying the correlation method to use if \code{type = "cor"}. Defaults to \code{"pearson"}}
 
 \item{...}{Arguments to be passed to methods}
 }
 \value{
-an object of class \code{ggplot} that contains the heatmap graphic
+object of class \code{ggplot} that contains the graphic
 }
 \description{
 Produce a plot for a feature_calculations object

@@ -1,6 +1,7 @@
 #------------------------- feature_calculations object methods -------------------------
 
 #' Produce a plot for a feature_calculations object
+#' 
 #' @importFrom rlang .data
 #' @import dplyr
 #' @import ggplot2
@@ -10,11 +11,11 @@
 #' @importFrom stats hclust dist cor
 #' @param x the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
 #' @param type \code{string} specifying the type of plot to draw. Defaults to \code{"quality"}
-#' @param method a rescaling/normalising method to apply if if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"z-score"}
-#' @param clust_method the hierarchical clustering method to use if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"average"}
-#' @param cor_method the correlation method to use if \code{type = "cor"}. Defaults to \code{"pearson"}
+#' @param method \code{string} specifying a rescaling/normalising method to apply if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"z-score"}
+#' @param clust_method \code{string} specifying the hierarchical clustering method to use if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"average"}
+#' @param cor_method \code{string} specifying the correlation method to use if \code{type = "cor"}. Defaults to \code{"pearson"}
 #' @param ... Arguments to be passed to methods
-#' @return an object of class \code{ggplot} that contains the heatmap graphic
+#' @return object of class \code{ggplot} that contains the graphic
 #' @author Trent Henderson
 #' @export
 #' 
@@ -241,16 +242,17 @@ plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor"),
 #------------------------- low_dimension object methods -------------------------
 
 #' Produce a plot for a low_dimension object
+#' 
 #' @importFrom rlang .data
 #' @import dplyr
 #' @import ggplot2
 #' @import tibble
 #' @importFrom tidyr drop_na
 #' @importFrom broom augment tidy
-#' @param x the \code{low_dimension} object containing the raw feature matrix produced by \code{reduce_dims}
-#' @param show_covariance a Boolean as to whether covariance ellipses should be shown on the plot. Defaults to \code{FALSE}
+#' @param x the \code{low_dimension} object containing the dimensionality reduction projection calculated by \code{reduce_dims}
+#' @param show_covariance \code{Boolean} of whether covariance ellipses should be shown on the plot. Defaults to \code{TRUE}
 #' @param ... Arguments to be passed to methods
-#' @return an object of class \code{ggplot} that contains the heatmap graphic
+#' @return object of class \code{ggplot} that contains the graphic
 #' @author Trent Henderson
 #' @export
 #' 

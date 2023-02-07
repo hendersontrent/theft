@@ -54,9 +54,9 @@ Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. The R
 package `reticulate` is used to call Python code that uses these
 packages and applies it within the broader *tidy* data philosophy
 embodied by `theft`. At present, depending on the input time series,
-`theft` provides access to \>1300 features. Prior to using `theft` (only
-if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets; the
-R-based sets will run fine) you should have a working Python
+`theft` provides access to $>1200$ features. Prior to using `theft`
+(only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets;
+the R-based sets will run fine) you should have a working Python
 installation and download `Kats` using the instructions located
 [here](https://facebookresearch.github.io/Kats/), `tsfresh`
 [here](https://tsfresh.com) and/or `TSFEL`
@@ -101,7 +101,7 @@ and the software (below):
     To cite package 'theft' in publications use:
 
       Henderson T (2023). _theft: Tools for Handling Extraction of Features
-      from Time Series_. R package version 0.4.2.2,
+      from Time Series_. R package version 0.4.2.3,
       <https://hendersontrent.github.io/theft/>.
 
     A BibTeX entry for LaTeX users is
@@ -110,6 +110,6 @@ and the software (below):
         title = {theft: Tools for Handling Extraction of Features from Time Series},
         author = {Trent Henderson},
         year = {2023},
-        note = {R package version 0.4.2.2},
+        note = {R package version 0.4.2.3},
         url = {https://hendersontrent.github.io/theft/},
       }

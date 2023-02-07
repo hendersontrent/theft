@@ -170,7 +170,7 @@ We can similarly call `plot()` on this object to produce a two-dimensional scatt
 plot(low_dim)
 ```
 
-Alternatively, a *t*-SNE version can be specified in a similar fashion, with the `perplexity` hyperparameter able to be controlled by the user. Typical values for this range between 5 and 50, depending on the size of the data. At lower levels of `perplexity`, local variations tend to dominate, while at very high levels of `perplexity`, results can be uninterpretable as clusters can merge. See [this interactive article](https://distill.pub/2016/misread-tsne/) for a detailed review.
+Alternatively, a *t*-SNE version can be specified in a similar fashion, with the `perplexity` hyperparameter able to be controlled by the user. Typical values for this range between 5 and 50, depending on the size of the data. At lower levels of `perplexity`, local variations tend to dominate, while at very high levels of `perplexity`, results can be uninterpretable as clusters can merge. See [this interactive article](https://distill.pub/2016/misread-tsne/) for a detailed review. Shaded covariance ellipses can also be disabled when plotting `low_dimension` objects by setting `show_covariance = FALSE`:
 
 ```{r, message = FALSE, warning = FALSE}
 low_dim2 <- reduce_dims(feature_matrix, 
@@ -179,12 +179,12 @@ low_dim2 <- reduce_dims(feature_matrix,
                         perplexity = 10,
                         seed = 123)
 
-plot(low_dim2)
+plot(low_dim2, show_covariance = FALSE)
 ```
 
 ### Pairwise correlations
 
-One can also plot correlations between feature vectors using `plot(type = "cor")` on a `feature_calculations` object:
+You can plot correlations between feature vectors using `plot(type = "cor")` on a `feature_calculations` object:
 
 ```{r, message = FALSE, warning = FALSE}
 plot(feature_matrix, type = "cor")
@@ -199,7 +199,7 @@ Similarly, you can control the normalisation type with the `method` argument and
 Since feature-based time-series analysis has shown particular promise for classification problems, `theft` includes functionality for exploring group separation in addition to the low dimensional representation. The `compute_top_features` function takes a `feature_calculations` object and performs the following:
 
 1. Processes the data ready for analysis
-2. Computes a classification algorithm or statistical model on the entire input dataframe
+2. Computes a classification algorithm or statistical model on the entire input `feature_calculations` object
 3. Extracts individual feature performance from the classification algorithm using a designated performance metric
 4. Filters the feature data to the top `n` performing features (where `n` is specified by the user)
 5. Plots a feature $\times$ feature correlation matrix as a heatmap for the top performing features
@@ -278,7 +278,7 @@ For two-class problems, users can fit statistical models to directly compute *p*
 
 ### Multi-feature
 
-A multi-feature option is also available. The `fit_multivariable_classifier` function fits all features in the `feature_calculations` object at once instead of by individual features to estimate classification accuracy. This can be split by feature set (if the `by_set` argument is set to `TRUE`) to enable systematic comparisons between those made available in `theft`. To save computation time in this tutorial, we will only analyse `catch22` (with `by_set = TRUE` to demonstrate automated plotting functionality), but comparing multiple calculated feature sets is recommended in practice.
+A multi-feature option is also available. The `fit_multi_feature_classifier` function fits all features in the `feature_calculations` object at once instead of by individual features to estimate classification accuracy. This can be split by feature set (if the `by_set` argument is set to `TRUE`) to enable systematic comparisons between those made available in `theft`. To save computation time in this tutorial, we will only analyse `catch22` (with `by_set = TRUE` to demonstrate automated plotting functionality), but comparing multiple calculated feature sets is recommended in practice.
 
 Now we can use our multi-feature functionality (note the similarity in options to the single feature version we specified above):
 

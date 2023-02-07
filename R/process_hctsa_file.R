@@ -17,12 +17,13 @@ hctsa_iterator <- function(labels, keywords, timeSeriesData, x){
 #---------------- Core function ------------------
 
 #' Load in hctsa formatted MATLAB files of time series data into a tidy format ready for feature extraction
+#' 
 #' @importFrom rlang .data
 #' @importFrom R.matlab readMat
 #' @importFrom purrr map_df
 #' @import dplyr
-#' @param data a string specifying the filepath to the \code{MATLAB} file to parse
-#' @return an object of class dataframe in tidy format
+#' @param data \code{string} specifying the filepath to the \code{MATLAB} file to parse
+#' @return an object of class \code{data.frame} in tidy format
 #' @author Trent Henderson
 #' @export
 #' @examples

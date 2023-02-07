@@ -7,11 +7,14 @@
 check_vector_quality(x)
 }
 \arguments{
-\item{x}{input data vector}
+\item{x}{input \code{vector}}
 }
 \value{
-Boolean of whether the data is good to extract features on or not
+\code{Boolean} of whether the data is good to extract features on or not
 }
 \description{
 Check for presence of NAs and non-numerics in a vector
+}
+\author{
+Trent Henderson
 }
