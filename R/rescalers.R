@@ -72,6 +72,7 @@ sigmoid_scaler <- function(x, unitInt = TRUE){
 #' @param x \code{numeric vector}
 #' @param unitInt \code{Boolean} whether to rescale into unit interval \code{[0,1]}. Defaults to \code{TRUE}
 #' @return \code{numeric vector}
+#' @references Fulcher, Ben D., Little, Max A., and Jones, Nick S. Highly Comparative Time-Series Analysis: The Empirical Structure of Time Series and Their Methods. Journal of The Royal Society Interface 10(83), (2013).
 #' @author Trent Henderson
 #'
 
