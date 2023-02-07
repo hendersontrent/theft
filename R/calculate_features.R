@@ -298,12 +298,11 @@ calc_kats <- function(data){
 #------------------- Main exported calculation function ------------
 
 #' Compute features on an input time series dataset
+#' 
 #' @importFrom rlang .data
 #' @import dplyr
 #' @importFrom tibble as_tibble
-#' @importFrom tidyr gather
-#' @importFrom tidyr pivot_longer
-#' @importFrom tidyr unnest_wider
+#' @importFrom tidyr gather pivot_longer unnest_wider
 #' @import tsibble
 #' @import Rcatch22
 #' @importFrom tsfeatures lumpiness stability max_level_shift max_var_shift max_kl_shift crossing_points flat_spots hurst compengine autocorr_features pred_features station_features dist_features scal_features embed2_incircle firstzero_ac ac_9 firstmin_ac trev_num motiftwo_entro3 binarize_mean walker_propcross localsimple_taures sampen_first sampenc std1st_der spreadrandomlocal_meantaul histogram_mode outlierinclude_mdrmd fluctanal_prop_r1 entropy tsfeatures stl_features acf_features pacf_features holt_parameters hw_parameters heterogeneity nonlinearity arch_stat
@@ -311,15 +310,15 @@ calc_kats <- function(data){
 #' @import reticulate
 #' @importFrom fabletools features
 #' @importFrom fabletools feature_set
-#' @param data a dataframe with at least 4 columns: id variable, group variable, time variable, value variable
-#' @param id_var a string specifying the ID variable to identify each time series. Defaults to \code{"id"}
-#' @param time_var a string specifying the time index variable. Defaults to \code{"timepoint"}
-#' @param values_var a string specifying the values variable. Defaults to \code{"values"}
-#' @param group_var a string specifying the grouping variable that each unique series sits under (if one exists). Defaults to \code{NULL}
-#' @param feature_set the set of time-series features to calculate. Defaults to \code{catch22}
-#' @param catch24 a Boolean specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}
-#' @param tsfresh_cleanup a Boolean specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}
-#' @param seed fixed number for R's random number generator to ensure reproducibility
+#' @param data \code{data.frame} with at least 4 columns: id variable, group variable, time variable, value variable
+#' @param id_var \code{string} specifying the ID variable to identify each time series. Defaults to \code{"id"}
+#' @param time_var \code{string} specifying the time index variable. Defaults to \code{"timepoint"}
+#' @param values_var \code{string} specifying the values variable. Defaults to \code{"values"}
+#' @param group_var \code{string} specifying the grouping variable that each unique series sits under (if one exists). Defaults to \code{NULL}
+#' @param feature_set \code{string} or \code{vector} of \code{string}s denoting the set of time-series features to calculate. Defaults to \code{"catch22"}
+#' @param catch24 \code{Boolean} specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}
+#' @param tsfresh_cleanup \code{Boolean} specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}
+#' @param seed \code{integer} denoting a fixed number for R's random number generator to ensure reproducibility
 #' @return object of class \code{feature_calculations} that contains the summary statistics for each feature
 #' @author Trent Henderson
 #' @export

@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,50 +73,50 @@
 
 
 <dt>by_set</dt>
-<dd><p>Boolean specifying whether to compute classifiers for each feature set. Defaults to <code>FALSE</code></p></dd>
+<dd><p><code>Boolean</code> specifying whether to compute classifiers for each feature set. Defaults to <code>FALSE</code></p></dd>
 
 
 <dt>test_method</dt>
-<dd><p>the algorithm to use for quantifying class separation. Defaults to <code>"gaussprRadial"</code></p></dd>
+<dd><p><code>string</code> specifying the algorithm to use for quantifying class separation. Defaults to <code>"gaussprRadial"</code>. Must be a valid <code>caret</code> classification model</p></dd>
 
 
 <dt>use_balanced_accuracy</dt>
-<dd><p>a Boolean specifying whether to use balanced accuracy as the summary metric for caret model training. Defaults to <code>FALSE</code></p></dd>
+<dd><p><code>Boolean</code> specifying whether to use balanced accuracy as the summary metric for caret model training. Defaults to <code>FALSE</code></p></dd>
 
 
 <dt>use_k_fold</dt>
-<dd><p>a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to <code>TRUE</code></p></dd>
+<dd><p><code>Boolean</code> specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to <code>TRUE</code></p></dd>
 
 
 <dt>num_folds</dt>
-<dd><p>an integer specifying the number of folds (train-test splits) to perform if <code>use_k_fold</code> is set to <code>TRUE</code>. Defaults to <code>10</code></p></dd>
+<dd><p><code>integer</code> specifying the number of folds (train-test splits) to perform if <code>use_k_fold</code> is set to <code>TRUE</code>. Defaults to <code>10</code></p></dd>
 
 
 <dt>use_empirical_null</dt>
-<dd><p>a Boolean specifying whether to use empirical null procedures to compute p-values. Defaults to <code>FALSE</code></p></dd>
+<dd><p><code>Boolean</code> specifying whether to use empirical null procedures to compute p-values. Defaults to <code>FALSE</code></p></dd>
 
 
 <dt>null_testing_method</dt>
-<dd><p>a string specifying the type of statistical method to use to calculate p-values. Defaults to <code>model free shuffles</code></p></dd>
+<dd><p><code>string</code> specifying the type of statistical method to use to calculate p-values. Defaults to <code>model free shuffles</code></p></dd>
 
 
 <dt>p_value_method</dt>
-<dd><p>a string specifying the method of calculating p-values. Defaults to <code>"empirical"</code></p></dd>
+<dd><p><code>string</code> specifying the method of calculating p-values. Defaults to <code>"empirical"</code></p></dd>
 
 
 <dt>num_permutations</dt>
-<dd><p>an integer specifying the number of class label shuffles to perform if <code>use_empirical_null</code> is <code>TRUE</code>. Defaults to <code>100</code></p></dd>
+<dd><p><code>integer</code> specifying the number of class label shuffles to perform if <code>use_empirical_null</code> is <code>TRUE</code>. Defaults to <code>100</code></p></dd>
 
 
 <dt>seed</dt>
-<dd><p>fixed number for R's random number generator to ensure reproducibility</p></dd>
+<dd><p><code>integer</code> denoting a fixed number for R's random number generator to ensure reproducibility</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>an object of class list containing dataframe summaries of the classification models and a <code>ggplot</code> object if <code>by_set</code> is <code>TRUE</code></p>
+<p>an object of class <code>list</code> containing a <code>data.frame</code> summary of raw classification results, a <code>data.frame</code> summary of the test statistics, and a <code>ggplot</code> object if <code>by_set</code> is <code>TRUE</code></p>
 
 
     </div>

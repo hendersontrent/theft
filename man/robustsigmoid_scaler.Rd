@@ -2,22 +2,23 @@
 % Please edit documentation in R/rescalers.R
 \name{robustsigmoid_scaler}
 \alias{robustsigmoid_scaler}
-\title{This function rescales a vector of numerical values with an outlier-robust Sigmoidal transformation and then into the unit interval [0,1]
-\deqn{z_i = \left[1 + \exp\left(-\frac{x_i - \mathrm{median}(\mathbf{x})}{\mathrm{IQR}(\mathbf{x})/{1.35}}\right)\right]^{-1}}}
+\title{Rescales a numeric vector using an outlier-robust Sigmoidal transformation and then into the unit interval [0,1]}
 \usage{
 robustsigmoid_scaler(x, unitInt = TRUE)
 }
 \arguments{
-\item{x}{a numeric vector, preferably of feature values computed by other \code{theft} package functions}
+\item{x}{\code{numeric vector}}
 
-\item{unitInt}{Booelan whether to rescale Sigmoidal outputs into unit interval \code{[0,1]}. Defaults to \code{TRUE}}
+\item{unitInt}{\code{Boolean} whether to rescale into unit interval \code{[0,1]}. Defaults to \code{TRUE}}
 }
 \value{
-\code{numeric} vector
+\code{numeric vector}
 }
 \description{
-This function rescales a vector of numerical values with an outlier-robust Sigmoidal transformation and then into the unit interval [0,1]
-\deqn{z_i = \left[1 + \exp\left(-\frac{x_i - \mathrm{median}(\mathbf{x})}{\mathrm{IQR}(\mathbf{x})/{1.35}}\right)\right]^{-1}}
+\eqn{z_{i} = \left[1 + \exp\left(-\frac{x_{i} - \text{median}(\mathbf{x})}{\text{IQR}(\mathbf{x})/{1.35}}\right)\right]^{-1}}
+}
+\references{
+Fulcher, Ben D., Little, Max A., and Jones, Nick S. Highly Comparative Time-Series Analysis: The Empirical Structure of Time Series and Their Methods. Journal of The Royal Society Interface 10(83), (2013).
 }
 \author{
 Trent Henderson

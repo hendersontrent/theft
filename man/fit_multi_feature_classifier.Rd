@@ -21,28 +21,28 @@ fit_multi_feature_classifier(
 \arguments{
 \item{data}{the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}}
 
-\item{by_set}{Boolean specifying whether to compute classifiers for each feature set. Defaults to \code{FALSE}}
+\item{by_set}{\code{Boolean} specifying whether to compute classifiers for each feature set. Defaults to \code{FALSE}}
 
-\item{test_method}{the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}}
+\item{test_method}{\code{string} specifying the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}. Must be a valid \code{caret} classification model}
 
-\item{use_balanced_accuracy}{a Boolean specifying whether to use balanced accuracy as the summary metric for caret model training. Defaults to \code{FALSE}}
+\item{use_balanced_accuracy}{\code{Boolean} specifying whether to use balanced accuracy as the summary metric for caret model training. Defaults to \code{FALSE}}
 
-\item{use_k_fold}{a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to \code{TRUE}}
+\item{use_k_fold}{\code{Boolean} specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates. Defaults to \code{TRUE}}
 
-\item{num_folds}{an integer specifying the number of folds (train-test splits) to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}}
+\item{num_folds}{\code{integer} specifying the number of folds (train-test splits) to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}}
 
-\item{use_empirical_null}{a Boolean specifying whether to use empirical null procedures to compute p-values. Defaults to \code{FALSE}}
+\item{use_empirical_null}{\code{Boolean} specifying whether to use empirical null procedures to compute p-values. Defaults to \code{FALSE}}
 
-\item{null_testing_method}{a string specifying the type of statistical method to use to calculate p-values. Defaults to \code{model free shuffles}}
+\item{null_testing_method}{\code{string} specifying the type of statistical method to use to calculate p-values. Defaults to \code{model free shuffles}}
 
-\item{p_value_method}{a string specifying the method of calculating p-values. Defaults to \code{"empirical"}}
+\item{p_value_method}{\code{string} specifying the method of calculating p-values. Defaults to \code{"empirical"}}
 
-\item{num_permutations}{an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{100}}
+\item{num_permutations}{\code{integer} specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{100}}
 
-\item{seed}{fixed number for R's random number generator to ensure reproducibility}
+\item{seed}{\code{integer} denoting a fixed number for R's random number generator to ensure reproducibility}
 }
 \value{
-an object of class list containing dataframe summaries of the classification models and a \code{ggplot} object if \code{by_set} is \code{TRUE}
+an object of class \code{list} containing a \code{data.frame} summary of raw classification results, a \code{data.frame} summary of the test statistics, and a \code{ggplot} object if \code{by_set} is \code{TRUE}
 }
 \description{
 Fit a classifier to feature matrix using all features or all features by set

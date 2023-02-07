@@ -2,22 +2,20 @@
 % Please edit documentation in R/rescalers.R
 \name{sigmoid_scaler}
 \alias{sigmoid_scaler}
-\title{This function rescales a vector of numerical values using a Sigmoidal transformation
-\deqn{z_i = \left[1 + \exp(-\frac{x_i - \mu}{\sigma})\right]^{-1}}}
+\title{Rescales a numeric vector using a Sigmoidal transformation}
 \usage{
 sigmoid_scaler(x, unitInt = TRUE)
 }
 \arguments{
-\item{x}{a numeric vector, preferably of feature values computed by other \code{theft} package functions}
+\item{x}{\code{numeric vector}}
 
-\item{unitInt}{Booelan whether to rescale Sigmoidal outputs into unit interval \code{[0,1]}. Defaults to \code{TRUE}}
+\item{unitInt}{\code{Boolean} whether to rescale into unit interval \code{[0,1]}. Defaults to \code{TRUE}}
 }
 \value{
-\code{numeric} vector
+\code{numeric vector}
 }
 \description{
-This function rescales a vector of numerical values using a Sigmoidal transformation
-\deqn{z_i = \left[1 + \exp(-\frac{x_i - \mu}{\sigma})\right]^{-1}}
+\eqn{z_{i} = \left[1 + \exp(-\frac{x_{i} - \mu}{\sigma})\right]^{-1}}
 }
 \author{
 Trent Henderson

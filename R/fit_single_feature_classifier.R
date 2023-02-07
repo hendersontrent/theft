@@ -438,6 +438,7 @@ clean_by_feature <- function(data, x){
 #-------------- Main exported function ---------------
 
 #' Fit a classifier to feature matrix to extract top performers
+#' 
 #' @importFrom rlang .data
 #' @import dplyr
 #' @importFrom tidyr drop_na pivot_wider
@@ -446,18 +447,18 @@ clean_by_feature <- function(data, x){
 #' @importFrom purrr map map_df possibly
 #' @importFrom janitor clean_names
 #' @importFrom caret preProcess train confusionMatrix
-#' @param data the dataframe containing the raw feature matrix
-#' @param test_method the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}. Should be either \code{"t-test"}, \code{"wilcox"}, or \code{"binomial logistic"} for two-class problems to obtain exact statistics, or a valid \code{caret} classification model for everything else 
-#' @param use_balanced_accuracy a Boolean specifying whether to use balanced accuracy as the summary metric for caret model training. Defaults to \code{FALSE}
-#' @param use_k_fold a Boolean specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates if a \code{caret} model is specified for \code{test_method}. Defaults to \code{ FALSE}
-#' @param num_folds an integer specifying the number of k-folds to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}
-#' @param use_empirical_null a Boolean specifying whether to use empirical null procedures to compute p-values if a \code{caret} model is specified for \code{test_method}. Defaults to \code{FALSE}
-#' @param null_testing_method a string specifying the type of statistical method to use to calculate p-values. Defaults to \code{model free shuffles}
-#' @param p_value_method a string specifying the method of calculating p-values. Defaults to \code{"empirical"}
-#' @param num_permutations an integer specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{50}
-#' @param pool_empirical_null a Boolean specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if a \code{caret} model is specified for \code{test_method} use_empirical_null is \code{TRUE}. Defaults to \code{FALSE}
-#' @param seed fixed number for R's random number generator to ensure reproducibility
-#' @return an object of class dataframe containing results
+#' @param data the \code{data.frame} containing the raw feature matrix
+#' @param test_method \code{string} specifying the algorithm to use for quantifying class separation. Defaults to \code{"gaussprRadial"}. Should be either \code{"t-test"}, \code{"wilcox"}, or \code{"binomial logistic"} for two-class problems to obtain exact statistics, or a valid \code{caret} classification model for everything else 
+#' @param use_balanced_accuracy \code{Boolean} specifying whether to use balanced accuracy as the summary metric for caret model training. Defaults to \code{FALSE}
+#' @param use_k_fold \code{Boolean} specifying whether to use k-fold procedures for generating a distribution of classification accuracy estimates if a \code{caret} model is specified for \code{test_method}. Defaults to \code{ FALSE}
+#' @param num_folds \code{integer} specifying the number of k-folds to perform if \code{use_k_fold} is set to \code{TRUE}. Defaults to \code{10}
+#' @param use_empirical_null \code{Boolean} specifying whether to use empirical null procedures to compute p-values if a \code{caret} model is specified for \code{test_method}. Defaults to \code{FALSE}
+#' @param null_testing_method \code{string} specifying the type of statistical method to use to calculate p-values. Defaults to \code{model free shuffles}
+#' @param p_value_method \code{string} specifying the method of calculating p-values. Defaults to \code{"empirical"}
+#' @param num_permutations \code{integer} specifying the number of class label shuffles to perform if \code{use_empirical_null} is \code{TRUE}. Defaults to \code{50}
+#' @param pool_empirical_null \code{Boolean} specifying whether to use the pooled empirical null distribution of all features or each features' individual empirical null distribution if a \code{caret} model is specified for \code{test_method} use_empirical_null is \code{TRUE}. Defaults to \code{FALSE}
+#' @param seed \code{integer} denoting a fixed number for R's random number generator to ensure reproducibility
+#' @return an object of class \code{data.frame}
 #' @author Trent Henderson
 #' @export
 #' 

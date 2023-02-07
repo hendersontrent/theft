@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,7 @@
                         <h4 data-toc-skip class="author">Trent
 Henderson</h4>
             
-            <h4 data-toc-skip class="date">2023-02-06</h4>
+            <h4 data-toc-skip class="date">2023-02-07</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/HEAD/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -321,7 +321,9 @@ depending on the size of the data. At lower levels of
 <code>perplexity</code>, local variations tend to dominate, while at
 very high levels of <code>perplexity</code>, results can be
 uninterpretable as clusters can merge. See <a href="https://distill.pub/2016/misread-tsne/" class="external-link">this interactive
-article</a> for a detailed review.</p>
+article</a> for a detailed review. Shaded covariance ellipses can also
+be disabled when plotting <code>low_dimension</code> objects by setting
+<code>show_covariance = FALSE</code>:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">low_dim2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reduce_dims.html">reduce_dims</a></span><span class="op">(</span><span class="va">feature_matrix</span>, </span>
 <span>                        method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>, </span>
@@ -329,13 +331,13 @@ article</a> for a detailed review.</p>
 <span>                        perplexity <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>                        seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">low_dim2</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">low_dim2</span>, show_covariance <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="theft_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="pairwise-correlations">Pairwise correlations<a class="anchor" aria-label="anchor" href="#pairwise-correlations"></a>
 </h3>
-<p>One can also plot correlations between feature vectors using
+<p>You can plot correlations between feature vectors using
 <code>plot(type = "cor")</code> on a <code>feature_calculations</code>
 object:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
@@ -361,7 +363,7 @@ representation. The <code>compute_top_features</code> function takes a
 <ol style="list-style-type: decimal">
 <li>Processes the data ready for analysis</li>
 <li>Computes a classification algorithm or statistical model on the
-entire input dataframe</li>
+entire input <code>feature_calculations</code> object</li>
 <li>Extracts individual feature performance from the classification
 algorithm using a designated performance metric</li>
 <li>Filters the feature data to the top <code>n</code> performing
@@ -526,7 +528,7 @@ sub-procedures which will make use of the arguments relating to
 <h3 id="multi-feature">Multi-feature<a class="anchor" aria-label="anchor" href="#multi-feature"></a>
 </h3>
 <p>A multi-feature option is also available. The
-<code>fit_multivariable_classifier</code> function fits all features in
+<code>fit_multi_feature_classifier</code> function fits all features in
 the <code>feature_calculations</code> object at once instead of by
 individual features to estimate classification accuracy. This can be
 split by feature set (if the <code>by_set</code> argument is set to

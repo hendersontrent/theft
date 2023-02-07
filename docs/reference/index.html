@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,8 +93,7 @@
           
           <code><a href="minmax_scaler.html">minmax_scaler()</a></code> 
         </dt>
-        <dd>This function rescales a vector of numerical values into the unit interval [0,1]
-$$z_i = \frac{x_i - \min(\mathbf{x})}{\max(\mathbf{x}) - \min(\mathbf{x})}$$</dd>
+        <dd>Rescales a numeric vector into the unit interval [0,1]</dd>
       </dl><dl><dt>
           
           <code><a href="normalise.html">normalise()</a></code> 
@@ -124,14 +123,12 @@ $$z_i = \frac{x_i - \min(\mathbf{x})}{\max(\mathbf{x}) - \min(\mathbf{x})}$$</dd
           
           <code><a href="robustsigmoid_scaler.html">robustsigmoid_scaler()</a></code> 
         </dt>
-        <dd>This function rescales a vector of numerical values with an outlier-robust Sigmoidal transformation and then into the unit interval [0,1]
-$$z_i = \left[1 + \exp\left(-\frac{x_i - \mathrm{median}(\mathbf{x})}{\mathrm{IQR}(\mathbf{x})/{1.35}}\right)\right]^{-1}$$</dd>
+        <dd>Rescales a numeric vector using an outlier-robust Sigmoidal transformation and then into the unit interval [0,1]</dd>
       </dl><dl><dt>
           
           <code><a href="sigmoid_scaler.html">sigmoid_scaler()</a></code> 
         </dt>
-        <dd>This function rescales a vector of numerical values using a Sigmoidal transformation
-$$z_i = \left[1 + \exp(-\frac{x_i - \mu}{\sigma})\right]^{-1}$$</dd>
+        <dd>Rescales a numeric vector using a Sigmoidal transformation</dd>
       </dl><dl><dt>
           
           <code><a href="simData.html">simData</a></code> 
@@ -146,8 +143,7 @@ $$z_i = \left[1 + \exp(-\frac{x_i - \mu}{\sigma})\right]^{-1}$$</dd>
           
           <code><a href="zscore_scaler.html">zscore_scaler()</a></code> 
         </dt>
-        <dd>This function rescales a vector of numerical values into z-scores and then into the unit interval [0,1]
-$$z_i = \frac{x_i - \mu}{\sigma}$$</dd>
+        <dd>Rescales a numeric vector into z-scores and then into the unit interval [0,1]</dd>
       </dl></div>
   </main></div>
 
