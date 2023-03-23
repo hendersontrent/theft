@@ -470,11 +470,11 @@ R’s random number generator for reproducible results. It defaults to
                                 clust_method <span class="op">=</span> <span class="st">"average"</span>,
                                 use_balanced_accuracy <span class="op">=</span> <span class="cn">FALSE</span>,
                                 use_k_fold <span class="op">=</span> <span class="cn">TRUE</span>,
-                                num_folds <span class="op">=</span> <span class="fl">10</span>,
+                                num_folds <span class="op">=</span> <span class="fl">3</span>,
                                 use_empirical_null <span class="op">=</span>  <span class="cn">TRUE</span>,
                                 null_testing_method <span class="op">=</span> <span class="st">"ModelFreeShuffles"</span>,
                                 p_value_method <span class="op">=</span> <span class="st">"gaussian"</span>,
-                                num_permutations <span class="op">=</span> <span class="fl">10</span>,
+                                num_permutations <span class="op">=</span> <span class="fl">3</span>,
                                 pool_empirical_null <span class="op">=</span> <span class="cn">FALSE</span>,
                                 seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
 <p>Each component is named and can be accessed through regular use of
@@ -483,12 +483,12 @@ same object). Here’s the top few rows:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">$</span><span class="va">ResultsTable</span><span class="op">)</span>
 <span class="co">#&gt;                                        feature  accuracy p_value_accuracy</span>
-<span class="co">#&gt; 1                            catch22_co_f1ecac 0.5555556     4.373521e-35</span>
-<span class="co">#&gt; 2     catch22_sp_summaries_welch_rect_centroid 0.5166667     7.160820e-29</span>
-<span class="co">#&gt; 3 catch22_co_embed2_dist_tau_d_expfit_meandiff 0.5055556     3.262943e-27</span>
-<span class="co">#&gt; 4           catch22_sb_motif_three_quantile_hh 0.5000000     2.106094e-26</span>
-<span class="co">#&gt; 5                      catch22_co_first_min_ac 0.4277778     4.714029e-17</span>
-<span class="co">#&gt; 6            catch22_co_histogram_ami_even_2_5 0.3444444     5.684661e-09</span>
+<span class="co">#&gt; 1           catch22_sb_motif_three_quantile_hh 0.5222222     6.696644e-11</span>
+<span class="co">#&gt; 2     catch22_sp_summaries_welch_rect_centroid 0.5055556     4.587549e-10</span>
+<span class="co">#&gt; 3 catch22_co_embed2_dist_tau_d_expfit_meandiff 0.4277778     1.147952e-06</span>
+<span class="co">#&gt; 4                            catch22_co_f1ecac 0.4111111     4.800652e-06</span>
+<span class="co">#&gt; 5                      catch22_co_first_min_ac 0.3833333     4.304280e-05</span>
+<span class="co">#&gt; 6         catch22_fc_local_simple_mean3_stderr 0.3777778     6.486770e-05</span>
 <span class="co">#&gt;   classifier_name               statistic_name</span>
 <span class="co">#&gt; 1       svmLinear Mean classification accuracy</span>
 <span class="co">#&gt; 2       svmLinear Mean classification accuracy</span>
@@ -500,11 +500,11 @@ same object). Here’s the top few rows:</p>
 object:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">$</span><span class="va">FeatureFeatureCorrelationPlot</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="theft_files/figure-html/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>The violin plots are accessed as the third object:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">$</span><span class="va">ViolinPlots</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-18-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="theft_files/figure-html/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>For two-class problems, users can fit statistical models to directly
 compute <em>p</em>-values by specifying one of the following models as
 the string argument to <code>test_method</code>: <code>"t-test"</code>,
@@ -542,11 +542,11 @@ in options to the single feature version we specified above):</p>
                                               test_method <span class="op">=</span> <span class="st">"svmLinear"</span>,
                                               use_balanced_accuracy <span class="op">=</span> <span class="cn">TRUE</span>,
                                               use_k_fold <span class="op">=</span> <span class="cn">TRUE</span>,
-                                              num_folds <span class="op">=</span> <span class="fl">10</span>,
+                                              num_folds <span class="op">=</span> <span class="fl">3</span>,
                                               use_empirical_null <span class="op">=</span>  <span class="cn">TRUE</span>,
                                               null_testing_method <span class="op">=</span> <span class="st">"ModelFreeShuffles"</span>,
                                               p_value_method <span class="op">=</span> <span class="st">"gaussian"</span>,
-                                              num_permutations <span class="op">=</span> <span class="fl">10</span>,
+                                              num_permutations <span class="op">=</span> <span class="fl">3</span>,
                                               seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
 <p>We can now access the various named objects returned by this
 function, which include:</p>
@@ -573,40 +573,37 @@ calculated features for <code>catch22</code>, the accuracy for
 accuracy for <code>catch22</code>):</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">FeatureSetResultsPlot</span><span class="op">)</span></code></pre></div>
-<p><img src="theft_files/figure-html/unnamed-chunk-21-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="theft_files/figure-html/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>Here’s the test statistics summary:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">TestStatistics</span><span class="op">)</span>
 <span class="co">#&gt;    method  accuracy p_value_accuracy balanced_accuracy</span>
-<span class="co">#&gt; 1 catch22 0.4611111     4.263173e-21         0.4611111</span>
+<span class="co">#&gt; 1 catch22 0.4388889      4.21518e-07         0.4388889</span>
 <span class="co">#&gt;   p_value_balanced_accuracy classifier_name</span>
-<span class="co">#&gt; 1              4.263173e-21       svmLinear</span>
+<span class="co">#&gt; 1               4.21518e-07       svmLinear</span>
 <span class="co">#&gt;                                                      statistic_name</span>
 <span class="co">#&gt; 1 Mean classification accuracy and balanced classification accuracy</span></code></pre></div>
 <p>And here’s the raw classifier results:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">RawClassificationResults</span><span class="op">)</span>
 <span class="co">#&gt;    accuracy accuracy_sd balanced_accuracy balanced_accuracy_sd category</span>
-<span class="co">#&gt; 1 0.4611111   0.1049201         0.4611111            0.1049201     Main</span>
-<span class="co">#&gt; 2 0.4611111   0.1049201         0.4611111            0.1049201     Main</span>
+<span class="co">#&gt; 1 0.4388889  0.09477068         0.4388889           0.09477068     Main</span>
+<span class="co">#&gt; 2 0.4388889  0.09477068         0.4388889           0.09477068     Main</span>
 <span class="co">#&gt; 3 0.1222222          NA         0.1222222                   NA     Null</span>
 <span class="co">#&gt; 4 0.2277778          NA         0.2277778                   NA     Null</span>
 <span class="co">#&gt; 5 0.1444444          NA         0.1444444                   NA     Null</span>
-<span class="co">#&gt; 6 0.1444444          NA         0.1444444                   NA     Null</span>
 <span class="co">#&gt;              method num_features_used classifier_name</span>
 <span class="co">#&gt; 1           catch22                22       svmLinear</span>
 <span class="co">#&gt; 2      All features                22       svmLinear</span>
 <span class="co">#&gt; 3 ModelFreeShuffles                NA       svmLinear</span>
 <span class="co">#&gt; 4 ModelFreeShuffles                NA       svmLinear</span>
 <span class="co">#&gt; 5 ModelFreeShuffles                NA       svmLinear</span>
-<span class="co">#&gt; 6 ModelFreeShuffles                NA       svmLinear</span>
 <span class="co">#&gt;                                                      statistic_name</span>
 <span class="co">#&gt; 1 Mean classification accuracy and balanced classification accuracy</span>
 <span class="co">#&gt; 2 Mean classification accuracy and balanced classification accuracy</span>
 <span class="co">#&gt; 3 Mean classification accuracy and balanced classification accuracy</span>
 <span class="co">#&gt; 4 Mean classification accuracy and balanced classification accuracy</span>
-<span class="co">#&gt; 5 Mean classification accuracy and balanced classification accuracy</span>
-<span class="co">#&gt; 6 Mean classification accuracy and balanced classification accuracy</span></code></pre></div>
+<span class="co">#&gt; 5 Mean classification accuracy and balanced classification accuracy</span></code></pre></div>
 <p>Note that for the multi-feature version, only valid
 <code>caret</code> method names are able to be used to specify a
 <code>test_method</code>.</p>
