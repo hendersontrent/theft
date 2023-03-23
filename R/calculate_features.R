@@ -344,7 +344,6 @@ calculate_features <- function(data, id_var = "id", time_var = "timepoint", valu
   
   # Recode deprecated lower case from v0.3.5
   
-  feature_set = match.arg(feature_set)
   feature_set <- replace(feature_set, feature_set == "kats", "Kats")
   feature_set <- replace(feature_set, feature_set == "tsfel", "TSFEL")
   

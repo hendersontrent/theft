@@ -18,6 +18,6 @@ def tsfel_calculator(x):
 
     # Produce calculations
     
-    extracted_features = tsfel.time_series_features_extractor(cfg_file, x)
+    extracted_features = tsfel.time_series_features_extractor(cfg_file, x, verbose=0)
     
     return extracted_features
