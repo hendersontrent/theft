@@ -243,36 +243,30 @@ outputs <- compute_top_features(feature_matrix,
                                 clust_method = "average",
                                 use_balanced_accuracy = FALSE,
                                 use_k_fold = TRUE,
-                                num_folds = 10,
+                                num_folds = 3,
                                 use_empirical_null =  TRUE,
                                 null_testing_method = "ModelFreeShuffles",
                                 p_value_method = "gaussian",
-                                num_permutations = 10,
+                                num_permutations = 3,
                                 pool_empirical_null = FALSE,
                                 seed = 123)
 ```
 
-Each component is named and can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
+Each component is named and can be accessed through regular use of the `$` operator. Here is the feature-feature correlation plot:
 
-```{r, message = FALSE, warning = FALSE, echo = FALSE}
-load("outputs.rda")
-```
-
-```{r, message = FALSE, warning = FALSE}
-head(outputs$ResultsTable)
-```
-
-The feature-feature correlation plots are accessed as the second object:
-
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 print(outputs$FeatureFeatureCorrelationPlot)
 ```
 
-The violin plots are accessed as the third object:
+<img src="FeatureFeatureCorrelationPlot.png" alt="Feature-feature correlation plot" />
 
-```{r, message = FALSE, warning = FALSE}
+And here is the violin plot:
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 print(outputs$ViolinPlots)
 ```
+
+<img src="ViolinPlots.png" alt="Violin plots" />
 
 For two-class problems, users can fit statistical models to directly compute *p*-values by specifying one of the following models as the string argument to `test_method`: `"t-test"`, `"wilcox"` or `"BinomialLogistic"`. `theft` has special procedures for these three options if a two-class problem is registered and thus none of the function arguments pertaining to empirical null testing or classification model parameters are used. For multiclass problems (and binary), users can specify any model name string that is a valid `method` name in the popular [`caret`](https://topepo.github.io/caret/train-models-by-tag.html) package and `theft` will pass this through to the relevant sub-procedures which will make use of the arguments relating to *k*-fold cross-validation, permutation testing, and *p*-value calculation.
 
@@ -288,11 +282,11 @@ multi_outputs <- fit_multi_feature_classifier(feature_matrix,
                                               test_method = "svmLinear",
                                               use_balanced_accuracy = TRUE,
                                               use_k_fold = TRUE,
-                                              num_folds = 10,
+                                              num_folds = 3,
                                               use_empirical_null =  TRUE,
                                               null_testing_method = "ModelFreeShuffles",
                                               p_value_method = "gaussian",
-                                              num_permutations = 10,
+                                              num_permutations = 3,
                                               seed = 123)
 ```
 
@@ -303,26 +297,12 @@ We can now access the various named objects returned by this function, which inc
 3. `RawClassificationResults` -- a dataframe containing classification accuracies results from each main and null prediction
 
 Here's the feature set comparison plot (note that because we have balanced classes, in this case, accuracy $=$ balanced accuracy; and because we only calculated features for `catch22`, the accuracy for `"All features"` $=$ accuracy for `catch22`):
-
-```{r, message = FALSE, warning = FALSE, echo = FALSE}
-load("multi_outputs.rda")
-```
   
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 print(multi_outputs$FeatureSetResultsPlot)
 ```
 
-Here's the test statistics summary:
-
-```{r, message = FALSE, warning = FALSE}
-head(multi_outputs$TestStatistics)
-```
-
-And here's the raw classifier results:
-  
-```{r, message = FALSE, warning = FALSE}
-head(multi_outputs$RawClassificationResults)
-```
+<img src="FeatureSetResultsPlot.png" alt="Comparison of classification and balanced classification accuracy for catch22" />
 
 Note that for the multi-feature version, only valid `caret` method names are able to be used to specify a `test_method`.
 
