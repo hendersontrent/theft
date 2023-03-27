@@ -233,7 +233,7 @@ Note that `ModelFreeShuffles` is incompatible with `pool_empirical_null = TRUE` 
 
 The `seed` argument allows you to specify a number to fix R's random number generator for reproducible results. It defaults to `123` if nothing is provided.
 
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 outputs <- compute_top_features(feature_matrix, 
                                 num_features = 10, 
                                 normalise_violin_plots = FALSE,
@@ -252,23 +252,21 @@ outputs <- compute_top_features(feature_matrix,
                                 seed = 123)
 ```
 
-Each component is named and can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
+Each component is named and can be accessed through regular use of the `$` operator. Here is the feature-feature correlation plot:
 
-```{r, message = FALSE, warning = FALSE}
-head(outputs$ResultsTable)
-```
-
-The feature-feature correlation plots are accessed as the second object:
-
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 print(outputs$FeatureFeatureCorrelationPlot)
 ```
 
-The violin plots are accessed as the third object:
+<img src="FeatureFeatureCorrelationPlot.png" alt="Feature-feature correlation plot" />
 
-```{r, message = FALSE, warning = FALSE}
+And here is the violin plot:
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 print(outputs$ViolinPlots)
 ```
+
+<img src="ViolinPlots.png" alt="Violin plots" />
 
 For two-class problems, users can fit statistical models to directly compute *p*-values by specifying one of the following models as the string argument to `test_method`: `"t-test"`, `"wilcox"` or `"BinomialLogistic"`. `theft` has special procedures for these three options if a two-class problem is registered and thus none of the function arguments pertaining to empirical null testing or classification model parameters are used. For multiclass problems (and binary), users can specify any model name string that is a valid `method` name in the popular [`caret`](https://topepo.github.io/caret/train-models-by-tag.html) package and `theft` will pass this through to the relevant sub-procedures which will make use of the arguments relating to *k*-fold cross-validation, permutation testing, and *p*-value calculation.
 
@@ -278,7 +276,7 @@ A multi-feature option is also available. The `fit_multi_feature_classifier` fun
 
 Now we can use our multi-feature functionality (note the similarity in options to the single feature version we specified above):
 
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 multi_outputs <- fit_multi_feature_classifier(feature_matrix, 
                                               by_set = TRUE, 
                                               test_method = "svmLinear",
@@ -300,21 +298,11 @@ We can now access the various named objects returned by this function, which inc
 
 Here's the feature set comparison plot (note that because we have balanced classes, in this case, accuracy $=$ balanced accuracy; and because we only calculated features for `catch22`, the accuracy for `"All features"` $=$ accuracy for `catch22`):
   
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 print(multi_outputs$FeatureSetResultsPlot)
 ```
 
-Here's the test statistics summary:
-
-```{r, message = FALSE, warning = FALSE}
-head(multi_outputs$TestStatistics)
-```
-
-And here's the raw classifier results:
-  
-```{r, message = FALSE, warning = FALSE}
-head(multi_outputs$RawClassificationResults)
-```
+<img src="FeatureSetResultsPlot.png" alt="Comparison of classification and balanced classification accuracy for catch22" />
 
 Note that for the multi-feature version, only valid `caret` method names are able to be used to specify a `test_method`.
 
