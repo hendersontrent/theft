@@ -1,28 +1,32 @@
-#' Download and install all the relevant Python packages
+#' Download and install all the relevant Python packages into a target location
 #' 
+#' @param path \code{character} denoting the filepath to install the Python libraries and virtual environment to
 #' @author Trent Henderson
 #' @export
 #' 
 
-install_python_pkgs <- function(){
+install_python_pkgs <- function(path){
   
-  message("install_python_pkgs assumed Python 3.9 is installed on your machine.")
+  message("install_python_pkgs assumes Python 3.9 is installed on your machine.")
+  kats_path <- paste0(path, "/Kats.zip")
+  kats_path_short <- gsub(".zip", "\\1", kats_path)
   
-  # Prepare folder structure and download stable version of Kats to avoid errors
+  # Prepare folder structure and download stable version of Kats with modified dependency files to avoid errors
   
-  if(!dir.exists(paste0(system.file(package = "theft"), "/Python"))) dir.create(paste0(system.file(package = "theft"), "/Python"))
-  link <- "https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/hendersontrent/theft-python-libraries/tree/main/Kats"
-  download.file(link, paste0(system.file(package = "theft"), "/Python"))
+  link <- "https://github.com/hendersontrent/theft-python-libraries/raw/main/Kats.zip"
+  download.file(link, kats_path)
+  unzip(kats_path, exdir = path)
   
   # Run bash commands to install all Python side of things -- NOTE: assumes Python 3.9 is already installed
   
-  system(paste0("cd ", paste0(system.file(package = "theft"), "/Python")))
+  system(paste0("cd ", path))
   system("python3.9 -m venv theft")
-  system("sourcetheft/bin/activate")
+  system("source theft/bin/activate")
   system("pip install tsfresh")
   system("pip install tsfel")
   system("pip install pandas==1.5.3")
-  system(paste0("pip install -e ", paste0(system.file(package = "theft"), "/Python/Kats")))
+  system(paste0("pip install -e ", kats_path_short))
   
-  message("All libraries installed. You should be good to go!")
+  message(paste0("All libraries installed. Virtual environment created is called theft at ", path, 
+                 "\nYou should be good to go!"))
 }

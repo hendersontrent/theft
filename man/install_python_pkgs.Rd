@@ -2,12 +2,15 @@
 % Please edit documentation in R/install_python_pkgs.R
 \name{install_python_pkgs}
 \alias{install_python_pkgs}
-\title{Download and install all the relevant Python packages}
+\title{Download and install all the relevant Python packages into a target location}
 \usage{
-install_python_pkgs()
+install_python_pkgs(path)
+}
+\arguments{
+\item{path}{\code{character} denoting the filepath to install the Python libraries and virtual environment to}
 }
 \description{
-Download and install all the relevant Python packages
+Download and install all the relevant Python packages into a target location
 }
 \author{
 Trent Henderson
