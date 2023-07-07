@@ -84,8 +84,8 @@ feature_matrix <- calculate_features(data = simData,
 
 Note that if you want to use any of the Python-based packages, you must first tell R (prior to running `calculate_features`) which Python and/or virtual environment on your computer contains the installed libraries. This can be done in `theft` via the `init_theft` function, which has two arguments:
 
-1. `python_path` --- string specifying the filepath to the version of Python you wish to use
-2. `venv_path` --- string specifying the filepath to the Python virtual environment where `tsfresh`, `TSFEL`, and/or `Kats` are installed
+1. `python_path` -- string specifying the filepath to the version of Python you wish to use
+2. `venv_path` -- string specifying the filepath to the Python virtual environment where `tsfresh`, `TSFEL`, and/or `Kats` are installed
 
 However, you do not necessarily have to use this convenience function. If you have another method for pointing R to the correct Python (such as `reticulate` or `findpython`), you can use those in your workflow instead.
 
@@ -97,7 +97,17 @@ A tidy dataframe of *most* of the included features and the set they correspond 
 head(feature_list)
 ```
 
-NOTE: If using the `tsfresh` feature set, you might want to consider the `tsfresh_cleanup` argument to `calculate_features`. This argument defaults to `FALSE` and specifies whether to use the in-built `tsfresh` relevant feature filter or not.
+NOTE: If using the `tsfresh` feature set, you might want to consider the `tsfresh_cleanup` argument to `calculate_features`. This argument defaults to `FALSE` and specifies whether to use the in-built `tsfresh` relevant feature filter or not. If you are seeking a fast solution to select good features, `theft` has a function `select_best_features` that uses the $F$-statistic from analysis of variance (ANOVA) if a classification setting is detected or the absolute Pearson correlation coefficient if a regression setting is detected. `select_best_features` has 3 arguments:
+
+* `data` -- the `feature_calculations` object containing the extracted features from `calculate_features`
+* `k` -- the number of features you wish to retain. Defaults to half of the number of features identified in `data` (but we are manually specifying 10 in this example)
+* `outputs` -- a data frame containing an ID column (that matches the IDs in `data`) and a column of the output value vector you are interested in. Usually, this would be included as the `group` variable in `calculate_features`, but the `outputs` option here lets you pass in such information if it was omitted during feature calculations
+
+```{r, message = FALSE, warning = FALSE}
+feature_matrix_small <- select_best_features(data = feature_matrix, k = 10)
+```
+
+### Comparison of feature sets
 
 For a detailed comparison of the six feature sets, see [this paper](https://ieeexplore.ieee.org/document/9679937) for a detailed review^[T. Henderson and B. D. Fulcher, "An Empirical Evaluation of Time-Series Feature Sets," 2021 International Conference on Data Mining Workshops (ICDMW), 2021, pp. 1032-1038, doi: 10.1109/ICDMW53433.2021.00134.].
 
@@ -113,10 +123,10 @@ plot(feature_matrix, type = "quality")
 
 Putting calculated feature vectors on an equal scale is crucial for any statistical or machine learning model as variables with high variance can adversely impact the model's capacity to fit the data appropriately, learn appropriate weight values, or minimise a loss function. `theft` includes function `normalise` to rescale either the whole `feature_calculations` object, or a single vector of values (e.g. values for all participants on just the `SB_BinaryStats_mean_longstretch1` feature). Four normalisation methods are offered:
 
-* z-score - `"z-score"`
-* Sigmoid - `"Sigmoid"`
+* z-score -- `"z-score"`
+* Sigmoid -- `"Sigmoid"`
 * Outlier-robust Sigmoid (credit to Ben Fulcher for creating the original [MATLAB version](https://github.com/benfulcher/hctsa)) - `"RobustSigmoid"`
-* Min-max - `"MinMax"`
+* Min-max -- `"MinMax"`
 
 Normalisation on the whole `feature_calculations` object can be performed in one line:
 
