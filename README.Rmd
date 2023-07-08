@@ -42,7 +42,7 @@ Please also check out our new paper [Feature-Based Time-Series Analysis in R usi
 * [tsfresh](https://tsfresh.com) (Python)
 * [TSFEL](https://tsfel.readthedocs.io/en/latest/) (Python)
 
-Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, depending on the input time series, `theft` provides access to $>1200$ features. Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets; the R-based sets will run fine) you should have a working Python 3.9 installation and run the function `install_python_pkgs(path)` after first installing `theft`, where the `path` argument is the location you wish to install the Python libraries to on your machine.
+Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, depending on the input time series, `theft` provides access to $>1200$ features. Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets; the R-based sets will run fine) you should have a working Python 3.9 installation and run the function `install_python_pkgs` after first installing `theft`. Please run `?install_python_pkgs` or consult the vignette for more information.
 
 For a comprehensive comparison of these six feature sets, please refer to the recent paper [An Empirical Evaluation of Time-Series Feature Sets](https://ieeexplore.ieee.org/document/9679937).
 

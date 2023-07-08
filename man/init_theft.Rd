@@ -7,9 +7,9 @@
 init_theft(python_path, venv_path)
 }
 \arguments{
-\item{python_path}{\code{string} specifying the filepath to the version of Python you wish to use}
+\item{python_path}{\code{character} specifying the filepath to the version of Python you wish to use}
 
-\item{venv_path}{\code{string} specifying the filepath to the Python virtual environment where "tsfresh", "tsfel", and/or "kats" are installed}
+\item{venv_path}{\code{character} specifying the filepath to the Python virtual environment where "tsfresh", "tsfel", and/or "kats" are installed}
 }
 \value{
 no return value; called for side effects

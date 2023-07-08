@@ -56,11 +56,10 @@ packages and applies it within the broader *tidy* data philosophy
 embodied by `theft`. At present, depending on the input time series,
 `theft` provides access to $>1200$ features. Prior to using `theft`
 (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets;
-the R-based sets will run fine) you should have a working Python
-installation and download `Kats` using the instructions located
-[here](https://facebookresearch.github.io/Kats/), `tsfresh`
-[here](https://tsfresh.com) and/or `TSFEL`
-[here](https://github.com/fraunhoferportugal/TSFEL).
+the R-based sets will run fine) you should have a working Python 3.9
+installation and run the function `install_python_pkgs` after first
+installing `theft`. Please run `?install_python_pkgs` or consult the
+vignette for more information.
 
 For a comprehensive comparison of these six feature sets, please refer
 to the recent paper [An Empirical Evaluation of Time-Series Feature
@@ -95,14 +94,14 @@ T. Henderson and Ben D. Fulcher. [Feature-Based Time-Series Analysis in
 R using the theft Package](https://arxiv.org/abs/2208.06146). arXiv,
 (2022).
 
-and the software (below):
+and the software:
 
 
     To cite package 'theft' in publications use:
 
-      Henderson T (2023). _theft: Tools for Handling Extraction of Features
-      from Time Series_. R package version 0.4.2.3,
-      <https://hendersontrent.github.io/theft/>.
+      Trent Henderson (2023). theft: Tools for Handling Extraction of
+      Features from Time Series. R package version 0.4.3.
+      https://hendersontrent.github.io/theft/
 
     A BibTeX entry for LaTeX users is
 
@@ -110,6 +109,6 @@ and the software (below):
         title = {theft: Tools for Handling Extraction of Features from Time Series},
         author = {Trent Henderson},
         year = {2023},
-        note = {R package version 0.4.2.3},
+        note = {R package version 0.4.3},
         url = {https://hendersontrent.github.io/theft/},
       }

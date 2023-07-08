@@ -4,9 +4,11 @@
 \alias{install_python_pkgs}
 \title{Download and install all the relevant Python packages into a target location}
 \usage{
-install_python_pkgs(path)
+install_python_pkgs(python_path, path)
 }
 \arguments{
+\item{python_path}{\code{character} specifying the filepath to the location of Python 3.9 on your machine}
+
 \item{path}{\code{character} denoting the filepath to install the Python libraries and virtual environment to}
 }
 \description{

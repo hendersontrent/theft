@@ -51,13 +51,22 @@ head(simData)
 
 The core function that automates the calculation of the feature statistics at once is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `"catch22"`, `"feasts"`, `"Kats"`, `"tsfeatures"`, `"tsfresh"`, and/or `"TSFEL"`.
 
-Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, depending on the input time-series, `theft` provides access to $>1200$ features. Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets; the R-based sets will run fine) you should have a working Python 3.9 installation and run the function `install_python_pkgs(path)` after first installing `theft`, where the `path` argument is the location you wish to install the Python libraries to on your machine. For example, if you wanted to install the Python libraries and the resulting virtual environment in `"C:/Users/User/Desktop/theft"` you would run the following after first having installed `theft`:
+Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, depending on the input time-series, `theft` provides access to $>1200$ features. Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets; the R-based sets will run fine) you should have a working Python 3.9 installation and run the function `install_python_pkgs(python_path, path)` after first installing `theft`, where the `python_path` argument is the filepath to the location of Python 3.9 on your machine and the `path` argument is the location you wish to install the Python libraries and virtual environment to on your machine. For example, if you wanted to install the Python libraries and the resulting virtual environment in `"C:/Users/User/Desktop/theft"` and Python 3.9 is located at `"/usr/bin/python"` on your machine, you would run the following after first having installed `theft`:
 
-```{r}
-install_python_pkgs("C:/Users/User/Desktop/theft")
+```{r, eval = FALSE}
+install_python_pkgs("C:/Users/User/Desktop/theft", "/usr/bin/python")
 ```
 
-You are then read to use the rest of the package's functionality, beginning with the extraction of time-series features. Here is an example with the `catch22` set:
+If you want to use any of the Python-based packages, you must first tell R which Python and/or virtual environment on your computer contains the installed libraries. This can be done in `theft` via the `init_theft` function, which has two arguments:
+
+1. `python_path` -- the filepath to the version of Python you wish to use (i.e., the same as was entered into `install_python_pkgs` if you ran that first)
+2. `venv_path` -- the filepath to the Python virtual environment where `tsfresh`, `TSFEL`, and/or `Kats` are installed (i.e., the path returned in the console message from `install_python_pkgs` if you ran that function first)
+
+However, you do not necessarily have to use this convenience function. If you have another method for pointing R to the correct Python (such as `reticulate` or `findpython`), you can use those in your workflow instead.
+
+**NOTE: You only need to call ** `init_theft` **or your other solution once per session.**
+
+You are then ready to use the rest of the package's functionality, beginning with the extraction of time-series features. Here is an example with the `catch22` set:
   
 ```{r, message = FALSE, warning = FALSE}
 feature_matrix <- calculate_features(data = simData, 
@@ -82,15 +91,6 @@ feature_matrix <- calculate_features(data = simData,
                                      seed = 123)
 ```
 
-If you want to use any of the Python-based packages, you must first tell R (prior to running `calculate_features`) which Python and/or virtual environment on your computer contains the installed libraries. This can be done in `theft` via the `init_theft` function, which has two arguments:
-
-1. `python_path` -- string specifying the filepath to the version of Python you wish to use
-2. `venv_path` -- string specifying the filepath to the Python virtual environment where `tsfresh`, `TSFEL`, and/or `Kats` are installed
-
-However, you do not necessarily have to use this convenience function. If you have another method for pointing R to the correct Python (such as `reticulate` or `findpython`), you can use those in your workflow instead.
-
-**NOTE: You only need to call ** `init_theft` **or your other solution once per session.**
-
 A tidy dataframe of *most* of the included features and the set they correspond to is available in the dataframe `feature_list`:
   
 ```{r, message = FALSE, warning = FALSE}
@@ -101,7 +101,7 @@ NOTE: If using the `tsfresh` feature set, you might want to consider the `tsfres
 
 * `data` -- the `feature_calculations` object containing the extracted features from `calculate_features`
 * `k` -- the number of features you wish to retain. Defaults to half of the number of features identified in `data` (but we are manually specifying 10 in this example)
-* `outputs` -- a data frame containing an ID column (that matches the IDs in `data`) and a column of the output value vector you are interested in. Usually, this would be included as the `group` variable in `calculate_features`, but the `outputs` option here lets you pass in such information if it was omitted during feature calculations
+* `outputs` -- (optional) a data frame containing an ID column (that matches the IDs in `data`) and a column of the output value vector you are interested in. Usually, this would be included as the `group` variable in `calculate_features`, but the `outputs` option here lets you pass in such information if it was omitted during feature calculations
 
 ```{r, message = FALSE, warning = FALSE}
 feature_matrix_small <- select_k_best(data = feature_matrix, k = 10)
