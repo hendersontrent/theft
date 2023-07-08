@@ -58,6 +58,9 @@
     <loc>https://hendersontrent.github.io/theft/reference/init_theft.html</loc>
   </url>
   <url>
+    <loc>https://hendersontrent.github.io/theft/reference/install_python_pkgs.html</loc>
+  </url>
+  <url>
     <loc>https://hendersontrent.github.io/theft/reference/minmax_scaler.html</loc>
   </url>
   <url>
@@ -107,6 +110,9 @@
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/reference/robustsigmoid_scaler.html</loc>
+  </url>
+  <url>
+    <loc>https://hendersontrent.github.io/theft/reference/select_k_best.html</loc>
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/reference/sigmoid_scaler.html</loc>

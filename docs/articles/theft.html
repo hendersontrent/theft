@@ -33,7 +33,11 @@
     
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
+<<<<<<< HEAD
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+=======
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2.4</small>
+>>>>>>> main
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +80,11 @@
                         <h4 data-toc-skip class="author">Trent
 Henderson</h4>
             
+<<<<<<< HEAD
+            <h4 data-toc-skip class="date">2023-07-08</h4>
+=======
             <h4 data-toc-skip class="date">2023-03-27</h4>
+>>>>>>> main
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/HEAD/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -129,15 +137,31 @@ argument. The choices are currently <code>"catch22"</code>,
 <code>reticulate</code> is used to call Python code that uses these
 packages and applies it within the broader <em>tidy</em> data philosophy
 embodied by <code>theft</code>. At present, depending on the input
-time-series, <code>theft</code> provides access to <span class="math inline">\(&gt;1200\)</span> features. Prior to using
-<code>theft</code> (only if you want to use the <code>Kats</code>,
-<code>tsfresh</code> or <code>TSFEL</code> feature sets - the R-based
-sets will run fine) you should have a working Python installation and
-download <code>Kats</code> using the instructions located <a href="https://facebookresearch.github.io/Kats/" class="external-link">here</a>,
-<code>tsfresh</code> <a href="https://tsfresh.com" class="external-link">here</a> or
-<code>TSFEL</code> <a href="https://github.com/fraunhoferportugal/tsfel" class="external-link">here</a>.</p>
-<p>Here is an example with the <code>catch22</code> set:</p>
+time-series, <code>theft</code> provides access to <span class="math inline">\(&gt;1200\)</span> features.</p>
+<div class="section level4">
+<h4 id="installing-python-feature-sets">Installing Python feature sets<a class="anchor" aria-label="anchor" href="#installing-python-feature-sets"></a>
+</h4>
+<p>Prior to using <code>theft</code> (only if you want to use the
+<code>Kats</code>, <code>tsfresh</code> or <code>TSFEL</code> feature
+sets; the R-based sets will run fine) you should have a working Python
+3.9 installation and run the function
+<code>install_python_pkgs(python_path, path)</code> after first
+installing <code>theft</code>, where the <code>python_path</code>
+argument is the filepath to the location of Python 3.9 on your machine
+and the <code>path</code> argument is the location you wish to install
+the Python libraries and virtual environment to on your machine.</p>
+<p>For example, if you wanted to install the Python libraries and the
+resulting virtual environment in
+<code>"C:/Users/User/Desktop/theft"</code> and Python 3.9 is located at
+<code>"/usr/bin/python"</code> on your machine, you would run the
+following after first having installed <code>theft</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<<<<<<< HEAD
+<code class="sourceCode R"><span class="fu"><a href="../reference/install_python_pkgs.html">install_python_pkgs</a></span><span class="op">(</span><span class="st">"C:/Users/User/Desktop/theft"</span>, <span class="st">"/usr/bin/python"</span><span class="op">)</span></code></pre></div>
+<p>If you want to use any of the Python-based packages, you must first
+tell R which Python and/or virtual environment on your computer contains
+the installed libraries. This can be done in <code>theft</code> via the
+=======
 <code class="sourceCode R"><span class="va">feature_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, 
                                      id_var <span class="op">=</span> <span class="st">"id"</span>, 
                                      time_var <span class="op">=</span> <span class="st">"timepoint"</span>, 
@@ -161,15 +185,19 @@ deviation in addition to the standard 22 features:</p>
 must first tell R (prior to running <code>calculate_features</code>)
 which Python and/or virtual environment on your computer contains the
 installed libraries. This can be done in <code>theft</code> via the
+>>>>>>> main
 <code>init_theft</code> function, which has two arguments:</p>
 <ol style="list-style-type: decimal">
 <li>
-<code>python_path</code> — string specifying the filepath to the
-version of Python you wish to use</li>
+<code>python_path</code> – the filepath to the version of Python you
+wish to use (i.e., the same as was entered into
+<code>install_python_pkgs</code> if you ran that first)</li>
 <li>
-<code>venv_path</code> — string specifying the filepath to the
-Python virtual environment where <code>tsfresh</code>,
-<code>TSFEL</code>, and/or <code>Kats</code> are installed</li>
+<code>venv_path</code> – the filepath to the Python virtual
+environment where <code>tsfresh</code>, <code>TSFEL</code>, and/or
+<code>Kats</code> are installed (i.e., the path returned in the console
+message from <code>install_python_pkgs</code> if you ran that function
+first)</li>
 </ol>
 <p>However, you do not necessarily have to use this convenience
 function. If you have another method for pointing R to the correct
@@ -177,10 +205,41 @@ Python (such as <code>reticulate</code> or <code>findpython</code>), you
 can use those in your workflow instead.</p>
 <p><strong>NOTE: You only need to call </strong> <code>init_theft</code>
 <strong>or your other solution once per session.</strong></p>
+</div>
+<div class="section level4">
+<h4 id="calculating-features">Calculating features<a class="anchor" aria-label="anchor" href="#calculating-features"></a>
+</h4>
+<p>You are then ready to use the rest of the package’s functionality,
+beginning with the extraction of time-series features. Here is an
+example with the <code>catch22</code> set:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">feature_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, 
+                                     id_var <span class="op">=</span> <span class="st">"id"</span>, 
+                                     time_var <span class="op">=</span> <span class="st">"timepoint"</span>, 
+                                     values_var <span class="op">=</span> <span class="st">"values"</span>, 
+                                     group_var <span class="op">=</span> <span class="st">"process"</span>, 
+                                     feature_set <span class="op">=</span> <span class="st">"catch22"</span>,
+                                     seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
+<p>Note that for the <code>catch22</code> set you can set the additional
+<code>catch24</code> argument to calculate the mean and standard
+deviation in addition to the standard 22 features:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">feature_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, 
+                                     id_var <span class="op">=</span> <span class="st">"id"</span>, 
+                                     time_var <span class="op">=</span> <span class="st">"timepoint"</span>, 
+                                     values_var <span class="op">=</span> <span class="st">"values"</span>, 
+                                     group_var <span class="op">=</span> <span class="st">"process"</span>, 
+                                     feature_set <span class="op">=</span> <span class="st">"catch22"</span>,
+                                     catch24 <span class="op">=</span> <span class="cn">TRUE</span>,
+                                     seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
 <p>A tidy dataframe of <em>most</em> of the included features and the
 set they correspond to is available in the dataframe
 <code>feature_list</code>:</p>
+<<<<<<< HEAD
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+=======
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+>>>>>>> main
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">feature_list</span><span class="op">)</span>
 <span class="co">#&gt;   feature_set                  feature</span>
 <span class="co">#&gt; 1     catch22       DN_HistogramMode_5</span>
@@ -193,7 +252,39 @@ set they correspond to is available in the dataframe
 to consider the <code>tsfresh_cleanup</code> argument to
 <code>calculate_features</code>. This argument defaults to
 <code>FALSE</code> and specifies whether to use the in-built
-<code>tsfresh</code> relevant feature filter or not.</p>
+<code>tsfresh</code> relevant feature filter or not. If you are seeking
+a fast solution to select good features, <code>theft</code> has a
+function <code>select_k_best</code> that uses the <span class="math inline">\(F\)</span>-statistic from analysis of variance
+(ANOVA) if a classification setting is detected or the absolute Pearson
+correlation coefficient if a regression setting is detected to perform
+fast and simple univariate feature selection. <code>select_k_best</code>
+has 3 arguments:</p>
+<ul>
+<li>
+<code>data</code> – the <code>feature_calculations</code> object
+containing the extracted features from
+<code>calculate_features</code>
+</li>
+<li>
+<code>k</code> – the number of features you wish to retain. Defaults
+to half of the number of features identified in <code>data</code> (but
+we are manually specifying 10 in this example)</li>
+<li>
+<code>outputs</code> – (optional) a data frame containing an ID
+column (that matches the IDs in <code>data</code>) and a column of the
+output value vector you are interested in. Usually, this would be
+included as the <code>group</code> variable in
+<code>calculate_features</code>, but the <code>outputs</code> option
+here lets you pass in such information if it was omitted during feature
+calculations</li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">feature_matrix_small</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/select_k_best.html">select_k_best</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">feature_matrix</span>, k <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></code></pre></div>
+</div>
+</div>
+<div class="section level3">
+<h3 id="comparison-of-feature-sets">Comparison of feature sets<a class="anchor" aria-label="anchor" href="#comparison-of-feature-sets"></a>
+</h3>
 <p>For a detailed comparison of the six feature sets, see <a href="https://ieeexplore.ieee.org/document/9679937" class="external-link">this paper</a> for a
 detailed review<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.</p>
 </div>
@@ -211,9 +302,15 @@ vectors. This is useful for inspecting which features might need to be
 dropped due to large proportions of undesirable (e.g., <code>NA</code>,
 <code>NaN</code> etc.) values. We can specify the plot
 <code>type = "quality</code> to make this graphic:</p>
+<<<<<<< HEAD
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">feature_matrix</span>, type <span class="op">=</span> <span class="st">"quality"</span><span class="op">)</span></code></pre></div>
+<p><img src="theft_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;"></p>
+=======
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">feature_matrix</span>, type <span class="op">=</span> <span class="st">"quality"</span><span class="op">)</span></code></pre></div>
 <p><img src="theft_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;"></p>
+>>>>>>> main
 </div>
 <div class="section level2">
 <h2 id="normalisingscaling-functions">Normalising/scaling functions<a class="anchor" aria-label="anchor" href="#normalisingscaling-functions"></a>
@@ -228,20 +325,24 @@ single vector of values (e.g. values for all participants on just the
 <code>SB_BinaryStats_mean_longstretch1</code> feature). Four
 normalisation methods are offered:</p>
 <ul>
-<li>z-score - <code>"z-score"</code>
+<li>z-score – <code>"z-score"</code>
 </li>
-<li>Sigmoid - <code>"Sigmoid"</code>
+<li>Sigmoid – <code>"Sigmoid"</code>
 </li>
 <li>Outlier-robust Sigmoid (credit to Ben Fulcher for creating the
 original <a href="https://github.com/benfulcher/hctsa" class="external-link">MATLAB
 version</a>) - <code>"RobustSigmoid"</code>
 </li>
-<li>Min-max - <code>"MinMax"</code>
+<li>Min-max – <code>"MinMax"</code>
 </li>
 </ul>
 <p>Normalisation on the whole <code>feature_calculations</code> object
 can be performed in one line:</p>
+<<<<<<< HEAD
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+=======
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+>>>>>>> main
 <code class="sourceCode R"><span class="va">normed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/normalise.html">normalise</a></span><span class="op">(</span><span class="va">feature_matrix</span>, method <span class="op">=</span> <span class="st">"z-score"</span><span class="op">)</span></code></pre></div>
 <p>For single vector normalisation, all you need to do is pass in a
 vector as <code>normalise</code> checks for object classes.</p>
@@ -285,9 +386,15 @@ documentation</a> for more information.</p>
 in <code>theft</code>) have been discretised for visual clarity as
 continuous legends can be difficult to interpret meaningful value
 differences easily.</p>
+<<<<<<< HEAD
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">feature_matrix</span>, type <span class="op">=</span> <span class="st">"matrix"</span><span class="op">)</span></code></pre></div>
+<p><img src="theft_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;"></p>
+=======
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">feature_matrix</span>, type <span class="op">=</span> <span class="st">"matrix"</span><span class="op">)</span></code></pre></div>
 <p><img src="theft_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;"></p>
+>>>>>>> main
 <p>You can control the normalisation type with the <code>method</code>
 argument and the hierarchical clustering method with the
 <code>clust_method</code> argument (the example above used defaults so
@@ -301,16 +408,26 @@ manual specification was not needed).</p>
 principal components analysis (PCA) or <em>t</em>-distributed stochastic
 neighbour embedding (<em>t</em>-SNE) fit on it. This result is stored in
 a custom object class called <code>low_dimension</code>:</p>
+<<<<<<< HEAD
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+=======
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+>>>>>>> main
 <code class="sourceCode R"><span class="va">low_dim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reduce_dims.html">reduce_dims</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
                        method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>, 
                        low_dim_method <span class="op">=</span> <span class="st">"PCA"</span>, 
                        seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
 <p>We can similarly call <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> on this object to produce a
 two-dimensional scatterplot of the results:</p>
+<<<<<<< HEAD
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">low_dim</span><span class="op">)</span></code></pre></div>
+<p><img src="theft_files/figure-html/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;"></p>
+=======
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">low_dim</span><span class="op">)</span></code></pre></div>
 <p><img src="theft_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;"></p>
+>>>>>>> main
 <p>Alternatively, a <em>t</em>-SNE version can be specified in a similar
 fashion, with the <code>perplexity</code> hyperparameter able to be
 controlled by the user. Typical values for this range between 5 and 50,
@@ -321,7 +438,11 @@ uninterpretable as clusters can merge. See <a href="https://distill.pub/2016/mis
 article</a> for a detailed review. Shaded covariance ellipses can also
 be disabled when plotting <code>low_dimension</code> objects by setting
 <code>show_covariance = FALSE</code>:</p>
+<<<<<<< HEAD
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+=======
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+>>>>>>> main
 <code class="sourceCode R"><span class="va">low_dim2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reduce_dims.html">reduce_dims</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
                         method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>, 
                         low_dim_method <span class="op">=</span> <span class="st">"t-SNE"</span>, 
@@ -329,7 +450,11 @@ be disabled when plotting <code>low_dimension</code> objects by setting
                         seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">low_dim2</span>, show_covariance <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<<<<<<< HEAD
+<p><img src="theft_files/figure-html/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;"></p>
+=======
 <p><img src="theft_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;"></p>
+>>>>>>> main
 </div>
 <div class="section level3">
 <h3 id="pairwise-correlations">Pairwise correlations<a class="anchor" aria-label="anchor" href="#pairwise-correlations"></a>
@@ -337,9 +462,15 @@ be disabled when plotting <code>low_dimension</code> objects by setting
 <p>You can plot correlations between feature vectors using
 <code>plot(type = "cor")</code> on a <code>feature_calculations</code>
 object:</p>
+<<<<<<< HEAD
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">feature_matrix</span>, type <span class="op">=</span> <span class="st">"cor"</span><span class="op">)</span></code></pre></div>
+<p><img src="theft_files/figure-html/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;"></p>
+=======
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">feature_matrix</span>, type <span class="op">=</span> <span class="st">"cor"</span><span class="op">)</span></code></pre></div>
 <p><img src="theft_files/figure-html/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;"></p>
+>>>>>>> main
 <p>Similarly, you can control the normalisation type with the
 <code>method</code> argument and the hierarchical clustering method with
 the <code>clust_method</code> argument (the example above used defaults
@@ -460,6 +591,33 @@ you make are grounded in careful thought.</p>
 <p>The <code>seed</code> argument allows you to specify a number to fix
 R’s random number generator for reproducible results. It defaults to
 <code>123</code> if nothing is provided.</p>
+<<<<<<< HEAD
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">outputs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compute_top_features.html">compute_top_features</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
+                                num_features <span class="op">=</span> <span class="fl">10</span>, 
+                                normalise_violin_plots <span class="op">=</span> <span class="cn">FALSE</span>,
+                                method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,
+                                cor_method <span class="op">=</span> <span class="st">"pearson"</span>,
+                                test_method <span class="op">=</span> <span class="st">"svmLinear"</span>,
+                                clust_method <span class="op">=</span> <span class="st">"average"</span>,
+                                use_balanced_accuracy <span class="op">=</span> <span class="cn">FALSE</span>,
+                                use_k_fold <span class="op">=</span> <span class="cn">TRUE</span>,
+                                num_folds <span class="op">=</span> <span class="fl">3</span>,
+                                use_empirical_null <span class="op">=</span>  <span class="cn">TRUE</span>,
+                                null_testing_method <span class="op">=</span> <span class="st">"ModelFreeShuffles"</span>,
+                                p_value_method <span class="op">=</span> <span class="st">"gaussian"</span>,
+                                num_permutations <span class="op">=</span> <span class="fl">3</span>,
+                                pool_empirical_null <span class="op">=</span> <span class="cn">FALSE</span>,
+                                seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></code></pre></div>
+<p>Each component is named and can be accessed through regular use of
+the <code>$</code> operator. Here is the feature-feature correlation
+plot:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">$</span><span class="va">FeatureFeatureCorrelationPlot</span><span class="op">)</span></code></pre></div>
+<p><img src="FeatureFeatureCorrelationPlot.png" alt="Feature-feature correlation plot"></p>
+<p>And here is the violin plot:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+=======
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">outputs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compute_top_features.html">compute_top_features</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
                                 num_features <span class="op">=</span> <span class="fl">10</span>, 
@@ -485,6 +643,7 @@ plot:</p>
 <p><img src="FeatureFeatureCorrelationPlot.png" alt="Feature-feature correlation plot"></p>
 <p>And here is the violin plot:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+>>>>>>> main
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">$</span><span class="va">ViolinPlots</span><span class="op">)</span></code></pre></div>
 <p><img src="ViolinPlots.png" alt="Violin plots"></p>
 <p>For two-class problems, users can fit statistical models to directly
@@ -518,7 +677,11 @@ functionality), but comparing multiple calculated feature sets is
 recommended in practice.</p>
 <p>Now we can use our multi-feature functionality (note the similarity
 in options to the single feature version we specified above):</p>
+<<<<<<< HEAD
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+=======
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+>>>>>>> main
 <code class="sourceCode R"><span class="va">multi_outputs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_multi_feature_classifier.html">fit_multi_feature_classifier</a></span><span class="op">(</span><span class="va">feature_matrix</span>, 
                                               by_set <span class="op">=</span> <span class="cn">TRUE</span>, 
                                               test_method <span class="op">=</span> <span class="st">"svmLinear"</span>,
@@ -553,7 +716,11 @@ balanced classes, in this case, accuracy <span class="math inline">\(=\)</span> 
 calculated features for <code>catch22</code>, the accuracy for
 <code>"All features"</code> <span class="math inline">\(=\)</span>
 accuracy for <code>catch22</code>):</p>
+<<<<<<< HEAD
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+=======
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+>>>>>>> main
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">multi_outputs</span><span class="op">$</span><span class="va">FeatureSetResultsPlot</span><span class="op">)</span></code></pre></div>
 <p><img src="FeatureSetResultsPlot.png" alt="Comparison of classification and balanced classification accuracy for catch22"></p>
 <p>Note that for the multi-feature version, only valid
@@ -576,7 +743,11 @@ File Format 1</a>, this file should have 3 variables with the following
 exact names: <code>timeSeriesData</code>, <code>labels</code>, and
 <code>keywords</code>. Here is an example using the <a href="https://journals.aps.org/pre/abstract/10.1103/PhysRevE.64.061907" class="external-link">Bonn
 University EEG dataset</a><a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>.</p>
+<<<<<<< HEAD
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+=======
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+>>>>>>> main
 <code class="sourceCode R"><span class="va">d2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/process_hctsa_file.html">process_hctsa_file</a></span><span class="op">(</span><span class="st">"https://cloudstor.aarnet.edu.au/plus/s/6sRD6IPMJyZLNlN/download"</span><span class="op">)</span></code></pre></div>
 </div>
 <div class="footnotes footnotes-end-of-document">
