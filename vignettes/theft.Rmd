@@ -82,7 +82,7 @@ feature_matrix <- calculate_features(data = simData,
                                      seed = 123)
 ```
 
-Note that if you want to use any of the Python-based packages, you must first tell R (prior to running `calculate_features`) which Python and/or virtual environment on your computer contains the installed libraries. This can be done in `theft` via the `init_theft` function, which has two arguments:
+If you want to use any of the Python-based packages, you must first tell R (prior to running `calculate_features`) which Python and/or virtual environment on your computer contains the installed libraries. This can be done in `theft` via the `init_theft` function, which has two arguments:
 
 1. `python_path` -- string specifying the filepath to the version of Python you wish to use
 2. `venv_path` -- string specifying the filepath to the Python virtual environment where `tsfresh`, `TSFEL`, and/or `Kats` are installed
@@ -97,14 +97,14 @@ A tidy dataframe of *most* of the included features and the set they correspond 
 head(feature_list)
 ```
 
-NOTE: If using the `tsfresh` feature set, you might want to consider the `tsfresh_cleanup` argument to `calculate_features`. This argument defaults to `FALSE` and specifies whether to use the in-built `tsfresh` relevant feature filter or not. If you are seeking a fast solution to select good features, `theft` has a function `select_best_features` that uses the $F$-statistic from analysis of variance (ANOVA) if a classification setting is detected or the absolute Pearson correlation coefficient if a regression setting is detected. `select_best_features` has 3 arguments:
+NOTE: If using the `tsfresh` feature set, you might want to consider the `tsfresh_cleanup` argument to `calculate_features`. This argument defaults to `FALSE` and specifies whether to use the in-built `tsfresh` relevant feature filter or not. If you are seeking a fast solution to select good features, `theft` has a function `select_k_best` that uses the $F$-statistic from analysis of variance (ANOVA) if a classification setting is detected or the absolute Pearson correlation coefficient if a regression setting is detected to perform fast and simple univariate feature selection. `select_k_best` has 3 arguments:
 
 * `data` -- the `feature_calculations` object containing the extracted features from `calculate_features`
 * `k` -- the number of features you wish to retain. Defaults to half of the number of features identified in `data` (but we are manually specifying 10 in this example)
 * `outputs` -- a data frame containing an ID column (that matches the IDs in `data`) and a column of the output value vector you are interested in. Usually, this would be included as the `group` variable in `calculate_features`, but the `outputs` option here lets you pass in such information if it was omitted during feature calculations
 
 ```{r, message = FALSE, warning = FALSE}
-feature_matrix_small <- select_best_features(data = feature_matrix, k = 10)
+feature_matrix_small <- select_k_best(data = feature_matrix, k = 10)
 ```
 
 ### Comparison of feature sets

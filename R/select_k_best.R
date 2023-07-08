@@ -1,7 +1,8 @@
-#' Perform a fast reduction of features based on an output vector using analysis of variance or correlation
+#' Perform fast and simple univariate feature selection based on an output vector using analysis of variance or correlation
 #' 
 #' @importFrom stats aov cor
 #' @importFrom dplyr %>% select rename left_join mutate filter pull slice_max
+#' @importFrom tidyr drop_na pivot_wider pivot_longer
 #' 
 #' @param data the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
 #' @param k \code{integer} denoting the number of features to retain. Defaults to half the length of the unique features available in \code{data}
@@ -11,7 +12,7 @@
 #' @export
 #' 
 
-select_best_features <- function(data, k = floor(length(unique(data[[1]]$names)) / 2), outputs = NULL){
+select_k_best <- function(data, k = floor(length(unique(data[[1]]$names)) / 2), outputs = NULL){
   
   stopifnot(inherits(data, "feature_calculations") == TRUE)
   
@@ -64,6 +65,17 @@ select_best_features <- function(data, k = floor(length(unique(data[[1]]$names))
       dplyr::mutate(group = as.factor(group))
   }
   
+  # Drop features that are all NaNs or constants
+  
+  tmp <- tmp %>%
+    dplyr::select(c(id, group, feature, values)) %>%
+    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "feature", values_from = "values") %>%
+    dplyr::select_if(~sum(!is.na(.)) > 0) %>%
+    dplyr::select(mywhere(~dplyr::n_distinct(.) > 1))
+  
+  tmp <- tmp %>%
+    tidyr::pivot_longer(cols = 3:ncol(tmp), names_to = "feature", values_to = "values")
+  
   #----------------- Do feature selection ----------------
   
   # Compute statistics for each time-series feature
@@ -106,6 +118,7 @@ select_best_features <- function(data, k = floor(length(unique(data[[1]]$names))
   # Filter features based on statistics
   
   feature_stats <- feature_stats %>% 
+    tidyr::drop_na() %>%
     dplyr::slice_max(statistic, n = k) %>%
     dplyr::pull(feature)
   
