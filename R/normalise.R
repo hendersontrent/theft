@@ -3,7 +3,7 @@
 #' @importFrom rlang .data
 #' @import dplyr
 #' @param data either a \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features} or a \code{vector} of class \code{numeric} containing values to be normalised
-#' @param method \code{string} denoting the rescaling/normalising method to apply to violin plots. Defaults to \code{"z-score"}
+#' @param method \code{character} denoting the rescaling/normalising method to apply to violin plots. Defaults to \code{"z-score"}
 #' @return either an object of class \code{data.frame} or \code{numeric}
 #' @author Trent Henderson
 #' @export

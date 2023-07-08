@@ -91,7 +91,7 @@ select_k_best <- function(data, k = floor(length(unique(data[[1]]$names)) / 2), 
       
       fit <- try(summary(stats::aov(values ~ group, data = feat_i)))
       
-      if(class(fit) == "try-error"){
+      if("try-error" %in% class(fit)){
         feature_stats[[match(i, unique(tmp$feature))]] <- data.frame(feature = i, statistic = NA)
       } else{
         feature_stats[[match(i, unique(tmp$feature))]] <- data.frame(feature = i, statistic = fit[[1]]$`F value`[1])
@@ -105,10 +105,12 @@ select_k_best <- function(data, k = floor(length(unique(data[[1]]$names)) / 2), 
       feat_i <- tmp %>%
         dplyr::filter(feature == i)
       
+      fit <- try(abs(stats::cor(feat_i$values, feat_i$group)))
+      
       if(class(fit) == "try-error"){
         feature_stats[[match(i, unique(tmp$feature))]] <- data.frame(feature = i, statistic = NA)
       } else{
-        feature_stats[[match(i, unique(tmp$feature))]] <- data.frame(feature = i, statistic = abs(stats::cor(feat_i$values, feat_i$group)))
+        feature_stats[[match(i, unique(tmp$feature))]] <- data.frame(feature = i, statistic = fit)
       }
     }
   }

@@ -77,7 +77,7 @@ tsfeatures_helper <- function(data, grouped = FALSE, feats){
     dplyr::ungroup() %>%
     tidyr::gather("names", "values", -c(dplyr::all_of(vars))) %>%
     dplyr::mutate(method = "tsfeatures")
-
+  
   return(outData)
 }
 
@@ -311,14 +311,14 @@ calc_kats <- function(data){
 #' @importFrom fabletools features
 #' @importFrom fabletools feature_set
 #' @param data \code{data.frame} with at least 4 columns: id variable, group variable, time variable, value variable
-#' @param id_var \code{string} specifying the ID variable to identify each time series. Defaults to \code{"id"}
-#' @param time_var \code{string} specifying the time index variable. Defaults to \code{"timepoint"}
-#' @param values_var \code{string} specifying the values variable. Defaults to \code{"values"}
-#' @param group_var \code{string} specifying the grouping variable that each unique series sits under (if one exists). Defaults to \code{NULL}
-#' @param feature_set \code{string} or \code{vector} of \code{string}s denoting the set of time-series features to calculate. Defaults to \code{"catch22"}
+#' @param id_var \code{character} specifying the ID variable to identify each time series. Defaults to \code{"id"}
+#' @param time_var \code{character} specifying the time index variable. Defaults to \code{"timepoint"}
+#' @param values_var \code{character} specifying the values variable. Defaults to \code{"values"}
+#' @param group_var \code{character} specifying the grouping variable that each unique series sits under (if one exists). Defaults to \code{NULL}
+#' @param feature_set \code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Defaults to \code{"catch22"}
 #' @param catch24 \code{Boolean} specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}
 #' @param tsfresh_cleanup \code{Boolean} specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}
-#' @param seed \code{integer} denoting a fixed number for R's random number generator to ensure reproducibility
+#' @param seed \code{integer} denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to \code{123}
 #' @return object of class \code{feature_calculations} that contains the summary statistics for each feature
 #' @author Trent Henderson
 #' @export
@@ -344,7 +344,6 @@ calculate_features <- function(data, id_var = "id", time_var = "timepoint", valu
   
   # Recode deprecated lower case from v0.3.5
   
-  #feature_set = match.arg(feature_set)
   feature_set <- replace(feature_set, feature_set == "kats", "Kats")
   feature_set <- replace(feature_set, feature_set == "tsfel", "TSFEL")
   
@@ -446,27 +445,27 @@ calculate_features <- function(data, id_var = "id", time_var = "timepoint", valu
   if(length(feature_set) > 1){
     message("\nBinding feature dataframes together...")
   }
-    
+  
   if(exists("tmp_catch22")){
     tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_catch22)
   }
-    
+  
   if(exists("tmp_feasts")){
     tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_feasts)
   }
-    
+  
   if(exists("tmp_tsfeatures")){
     tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_tsfeatures)
   }
-    
+  
   if(exists("tmp_tsfresh")){
     tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_tsfresh)
   }
-    
+  
   if(exists("tmp_tsfel")){
     tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_tsfel)
   }
-    
+  
   if(exists("tmp_kats")){
     tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_kats)
   }

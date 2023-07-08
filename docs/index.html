@@ -22,8 +22,8 @@
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tools for Handling Extraction of Features from Time Series">
 <meta property="og:description" content="Consolidates and calculates different sets of time-series features from multiple
@@ -49,7 +49,7 @@
     
     <a class="navbar-brand me-2" href="index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,64 +85,113 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="theft-">theft <a class="anchor" aria-label="anchor" href="#theft-"></a>
+<img src="logo.png" class="logo" alt=""><h1 id="theft-">theft
+<a class="anchor" aria-label="anchor" href="#theft-"></a>
 </h1>
 </div>
 
-<p>Tools for Handling Extraction of Features from Time series (theft)</p>
+<p>Tools for Handling Extraction of Features from Time series
+(theft)</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the stable version of <code>theft</code> from CRAN:</p>
+<p>You can install the stable version of <code>theft</code> from
+CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"theft"</span><span class="op">)</span></span></code></pre></div>
-<p>You can install the development version of <code>theft</code> from GitHub using the following:</p>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"theft"</span><span class="op">)</span></code></pre></div>
+<p>You can install the development version of <code>theft</code> from
+GitHub using the following:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"hendersontrent/theft"</span><span class="op">)</span></span></code></pre></div>
-<p>Please also check out our new paper <a href="https://arxiv.org/abs/2208.06146" class="external-link">Feature-Based Time-Series Analysis in R using the theft Package</a> which discusses the motivation and theoretical underpinnings of <code>theft</code> and walks through all of its functionality using the <a href="https://journals.aps.org/pre/abstract/10.1103/PhysRevE.64.061907" class="external-link">Bonn EEG dataset</a> — a well-studied neuroscience dataset.</p>
+<code class="sourceCode R"><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"hendersontrent/theft"</span><span class="op">)</span></code></pre></div>
+<p>Please also check out our new paper <a href="https://arxiv.org/abs/2208.06146" class="external-link">Feature-Based Time-Series
+Analysis in R using the theft Package</a> which discusses the motivation
+and theoretical underpinnings of <code>theft</code> and walks through
+all of its functionality using the <a href="https://journals.aps.org/pre/abstract/10.1103/PhysRevE.64.061907" class="external-link">Bonn
+EEG dataset</a> — a well-studied neuroscience dataset.</p>
 </div>
 <div class="section level2">
 <h2 id="general-purpose">General purpose<a class="anchor" aria-label="anchor" href="#general-purpose"></a>
 </h2>
-<p><code>theft</code> is a software package for R that facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. The package provides a single point of access to a large number of time-series features from a range of existing R and Python packages and lets the user specify which groups (or all) of the these features to calculate. The packages which <code>theft</code> currently ‘steals’ features from include:</p>
+<p><code>theft</code> is a software package for R that facilitates
+user-friendly access to a structured analytical workflow for the
+extraction, analysis, and visualisation of time-series features. The
+package provides a single point of access to a large number of
+time-series features from a range of existing R and Python packages and
+lets the user specify which groups (or all) of the these features to
+calculate. The packages which <code>theft</code> currently ‘steals’
+features from include:</p>
 <ul>
 <li>
-<a href="https://link.springer.com/article/10.1007/s10618-019-00647-x" class="external-link">catch22</a> (R; <a href="https://github.com/hendersontrent/Rcatch22" class="external-link">see <code>Rcatch22</code> for the native implementation on CRAN</a>)</li>
+<a href="https://link.springer.com/article/10.1007/s10618-019-00647-x" class="external-link">catch22</a>
+(R; <a href="https://github.com/hendersontrent/Rcatch22" class="external-link">see
+<code>Rcatch22</code> for the native implementation on CRAN</a>)</li>
 <li>
 <a href="https://feasts.tidyverts.org" class="external-link">feasts</a> (R)</li>
 <li>
-<a href="https://github.com/robjhyndman/tsfeatures" class="external-link">tsfeatures</a> (R)</li>
+<a href="https://github.com/robjhyndman/tsfeatures" class="external-link">tsfeatures</a>
+(R)</li>
 <li>
-<a href="https://facebookresearch.github.io/Kats/" class="external-link">Kats</a> (Python)</li>
+<a href="https://facebookresearch.github.io/Kats/" class="external-link">Kats</a>
+(Python)</li>
 <li>
 <a href="https://tsfresh.com" class="external-link">tsfresh</a> (Python)</li>
 <li>
-<a href="https://tsfel.readthedocs.io/en/latest/" class="external-link">TSFEL</a> (Python)</li>
+<a href="https://tsfel.readthedocs.io/en/latest/" class="external-link">TSFEL</a>
+(Python)</li>
 </ul>
-<p>Note that <code>Kats</code>, <code>tsfresh</code> and <code>TSFEL</code> are Python packages. The R package <code>reticulate</code> is used to call Python code that uses these packages and applies it within the broader <em>tidy</em> data philosophy embodied by <code>theft</code>. At present, depending on the input time series, <code>theft</code> provides access to <span class="math inline"> &gt; 1200</span> features. Prior to using <code>theft</code> (only if you want to use the <code>Kats</code>, <code>tsfresh</code> or <code>TSFEL</code> feature sets; the R-based sets will run fine) you should have a working Python installation and download <code>Kats</code> using the instructions located <a href="https://facebookresearch.github.io/Kats/" class="external-link">here</a>, <code>tsfresh</code> <a href="https://tsfresh.com" class="external-link">here</a> and/or <code>TSFEL</code> <a href="https://github.com/fraunhoferportugal/TSFEL" class="external-link">here</a>.</p>
-<p>For a comprehensive comparison of these six feature sets, please refer to the recent paper <a href="https://ieeexplore.ieee.org/document/9679937" class="external-link">An Empirical Evaluation of Time-Series Feature Sets</a>.</p>
+<p>Note that <code>Kats</code>, <code>tsfresh</code> and
+<code>TSFEL</code> are Python packages. The R package
+<code>reticulate</code> is used to call Python code that uses these
+packages and applies it within the broader <em>tidy</em> data philosophy
+embodied by <code>theft</code>. At present, depending on the input time
+series, <code>theft</code> provides access to <span class="math inline"> &gt; 1200</span> features. Prior to using
+<code>theft</code> (only if you want to use the <code>Kats</code>,
+<code>tsfresh</code> or <code>TSFEL</code> feature sets; the R-based
+sets will run fine) you should have a working Python 3.9 installation
+and run the function <code>install_python_pkgs</code> after first
+installing <code>theft</code>. Please run
+<code><a href="reference/install_python_pkgs.html">?install_python_pkgs</a></code> or consult the vignette for more
+information.</p>
+<p>For a comprehensive comparison of these six feature sets, please
+refer to the recent paper <a href="https://ieeexplore.ieee.org/document/9679937" class="external-link">An Empirical
+Evaluation of Time-Series Feature Sets</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="statistical-and-graphical-tools">Statistical and graphical tools<a class="anchor" aria-label="anchor" href="#statistical-and-graphical-tools"></a>
 </h2>
-<p><code>theft</code> also contains an extensive suite of tools for automatic processing of extracted feature vectors (including data quality assessments and normalisation methods), low dimensional projections (linear and nonlinear), data matrix visualisations, single feature and multiple feature time-series classification procedures, and various other statistical and graphical tools.</p>
+<p><code>theft</code> also contains an extensive suite of tools for
+automatic processing of extracted feature vectors (including data
+quality assessments and normalisation methods), low dimensional
+projections (linear and nonlinear), data matrix visualisations, single
+feature and multiple feature time-series classification procedures, and
+various other statistical and graphical tools.</p>
 </div>
 <div class="section level2">
 <h2 id="web-application">Web application<a class="anchor" aria-label="anchor" href="#web-application"></a>
 </h2>
-<p>An <a href="https://dynamicsandneuralsystems.shinyapps.io/timeseriesfeaturevis/" class="external-link">interactive web application</a> has been built on top of <code>theft</code> which enables users to access most of the functionality included in the package from within a web browser without any code. The application automates the entire workflow included in <code>theft</code>, converts all static graphics included in the package into interactive visualisations, and enables downloads of feature calculations. Note that since <code>theft</code> is an active development project, not all functionality has been copied across to the webtool yet.</p>
+<p>An <a href="https://dynamicsandneuralsystems.shinyapps.io/timeseriesfeaturevis/" class="external-link">interactive
+web application</a> has been built on top of <code>theft</code> which
+enables users to access most of the functionality included in the
+package from within a web browser without any code. The application
+automates the entire workflow included in <code>theft</code>, converts
+all static graphics included in the package into interactive
+visualisations, and enables downloads of feature calculations. Note that
+since <code>theft</code> is an active development project, not all
+functionality has been copied across to the webtool yet.</p>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<p>If you use <code>theft</code> in your own work, please cite both the paper:</p>
-<p>T. Henderson and Ben D. Fulcher. <a href="https://arxiv.org/abs/2208.06146" class="external-link">Feature-Based Time-Series Analysis in R using the theft Package</a>. arXiv, (2022).</p>
-<p>and the software (below):</p>
+<p>If you use <code>theft</code> in your own work, please cite both the
+paper:</p>
+<p>T. Henderson and Ben D. Fulcher. <a href="https://arxiv.org/abs/2208.06146" class="external-link">Feature-Based Time-Series
+Analysis in R using the theft Package</a>. arXiv, (2022).</p>
+<p>and the software:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>To cite package <span class="st">'theft'</span> <span class="cf">in</span> publications use<span class="sc">:</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  Henderson <span class="fu">T</span> (<span class="dv">2023</span>). _theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of Features</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  from Time Series_. R package version <span class="dv">0</span>.<span class="dv">4</span>.<span class="fl">2.3</span>,</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="sc">&lt;</span>https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theft<span class="sc">/</span><span class="er">&gt;</span>.</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  Trent <span class="fu">Henderson</span> (<span class="dv">2023</span>). theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  Features from Time Series. R package version <span class="dv">0</span>.<span class="dv">4</span>.<span class="fl">3.</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theft<span class="sc">/</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>A BibTeX entry <span class="cf">for</span> LaTeX users is</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
@@ -150,7 +199,7 @@
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    title <span class="ot">=</span> {theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of Features from Time Series},</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    author <span class="ot">=</span> {Trent Henderson},</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    year <span class="ot">=</span> {<span class="dv">2023</span>},</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="dv">4</span>.<span class="fl">2.3</span>},</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">4.3</span>},</span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    url <span class="ot">=</span> {https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theft<span class="sc">/</span>},</span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
 </div>
@@ -208,7 +257,8 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.2.</p>
 </div>
 
     </footer>

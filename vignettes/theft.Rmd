@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
     toc: true
-    toc_depth: 3
+    toc_depth: 4
 vignette: >
   %\VignetteIndexEntry{Introduction to theft}
   %\VignetteEngine{knitr::rmarkdown}
@@ -51,7 +51,13 @@ head(simData)
 
 The core function that automates the calculation of the feature statistics at once is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `"catch22"`, `"feasts"`, `"Kats"`, `"tsfeatures"`, `"tsfresh"`, and/or `"TSFEL"`.
 
-Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, depending on the input time-series, `theft` provides access to $>1200$ features. Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets; the R-based sets will run fine) you should have a working Python 3.9 installation and run the function `install_python_pkgs(python_path, path)` after first installing `theft`, where the `python_path` argument is the filepath to the location of Python 3.9 on your machine and the `path` argument is the location you wish to install the Python libraries and virtual environment to on your machine. For example, if you wanted to install the Python libraries and the resulting virtual environment in `"C:/Users/User/Desktop/theft"` and Python 3.9 is located at `"/usr/bin/python"` on your machine, you would run the following after first having installed `theft`:
+Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, depending on the input time-series, `theft` provides access to $>1200$ features. 
+
+#### Installing Python feature sets
+
+Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets; the R-based sets will run fine) you should have a working Python 3.9 installation and run the function `install_python_pkgs(python_path, path)` after first installing `theft`, where the `python_path` argument is the filepath to the location of Python 3.9 on your machine and the `path` argument is the location you wish to install the Python libraries and virtual environment to on your machine. 
+
+For example, if you wanted to install the Python libraries and the resulting virtual environment in `"C:/Users/User/Desktop/theft"` and Python 3.9 is located at `"/usr/bin/python"` on your machine, you would run the following after first having installed `theft`:
 
 ```{r, eval = FALSE}
 install_python_pkgs("C:/Users/User/Desktop/theft", "/usr/bin/python")
@@ -65,6 +71,8 @@ If you want to use any of the Python-based packages, you must first tell R which
 However, you do not necessarily have to use this convenience function. If you have another method for pointing R to the correct Python (such as `reticulate` or `findpython`), you can use those in your workflow instead.
 
 **NOTE: You only need to call ** `init_theft` **or your other solution once per session.**
+
+#### Calculating features
 
 You are then ready to use the rest of the package's functionality, beginning with the extraction of time-series features. Here is an example with the `catch22` set:
   
@@ -257,36 +265,30 @@ outputs <- compute_top_features(feature_matrix,
                                 clust_method = "average",
                                 use_balanced_accuracy = FALSE,
                                 use_k_fold = TRUE,
-                                num_folds = 10,
+                                num_folds = 3,
                                 use_empirical_null =  TRUE,
                                 null_testing_method = "ModelFreeShuffles",
                                 p_value_method = "gaussian",
-                                num_permutations = 10,
+                                num_permutations = 3,
                                 pool_empirical_null = FALSE,
                                 seed = 123)
 ```
 
-Each component is named and can be accessed through regular use of the `$` operator or through list indexing (both return the same object). Here's the top few rows:
+Each component is named and can be accessed through regular use of the `$` operator. Here is the feature-feature correlation plot:
 
-```{r, message = FALSE, warning = FALSE, echo = FALSE}
-load("outputs.rda")
-```
-
-```{r, message = FALSE, warning = FALSE}
-head(outputs$ResultsTable)
-```
-
-The feature-feature correlation plots are accessed as the second object:
-
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 print(outputs$FeatureFeatureCorrelationPlot)
 ```
 
-The violin plots are accessed as the third object:
+<img src="FeatureFeatureCorrelationPlot.png" alt="Feature-feature correlation plot" />
 
-```{r, message = FALSE, warning = FALSE}
+And here is the violin plot:
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 print(outputs$ViolinPlots)
 ```
+
+<img src="ViolinPlots.png" alt="Violin plots" />
 
 For two-class problems, users can fit statistical models to directly compute *p*-values by specifying one of the following models as the string argument to `test_method`: `"t-test"`, `"wilcox"` or `"BinomialLogistic"`. `theft` has special procedures for these three options if a two-class problem is registered and thus none of the function arguments pertaining to empirical null testing or classification model parameters are used. For multiclass problems (and binary), users can specify any model name string that is a valid `method` name in the popular [`caret`](https://topepo.github.io/caret/train-models-by-tag.html) package and `theft` will pass this through to the relevant sub-procedures which will make use of the arguments relating to *k*-fold cross-validation, permutation testing, and *p*-value calculation.
 
@@ -302,11 +304,11 @@ multi_outputs <- fit_multi_feature_classifier(feature_matrix,
                                               test_method = "svmLinear",
                                               use_balanced_accuracy = TRUE,
                                               use_k_fold = TRUE,
-                                              num_folds = 10,
+                                              num_folds = 3,
                                               use_empirical_null =  TRUE,
                                               null_testing_method = "ModelFreeShuffles",
                                               p_value_method = "gaussian",
-                                              num_permutations = 10,
+                                              num_permutations = 3,
                                               seed = 123)
 ```
 
@@ -317,26 +319,12 @@ We can now access the various named objects returned by this function, which inc
 3. `RawClassificationResults` -- a dataframe containing classification accuracies results from each main and null prediction
 
 Here's the feature set comparison plot (note that because we have balanced classes, in this case, accuracy $=$ balanced accuracy; and because we only calculated features for `catch22`, the accuracy for `"All features"` $=$ accuracy for `catch22`):
-
-```{r, message = FALSE, warning = FALSE, echo = FALSE}
-load("multi_outputs.rda")
-```
   
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 print(multi_outputs$FeatureSetResultsPlot)
 ```
 
-Here's the test statistics summary:
-
-```{r, message = FALSE, warning = FALSE}
-head(multi_outputs$TestStatistics)
-```
-
-And here's the raw classifier results:
-  
-```{r, message = FALSE, warning = FALSE}
-head(multi_outputs$RawClassificationResults)
-```
+<img src="FeatureSetResultsPlot.png" alt="Comparison of classification and balanced classification accuracy for catch22" />
 
 Note that for the multi-feature version, only valid `caret` method names are able to be used to specify a `test_method`.
 
