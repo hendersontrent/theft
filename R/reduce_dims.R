@@ -9,10 +9,10 @@
 #' @importFrom stats prcomp
 #' @import Rtsne
 #' @param data the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
-#' @param method a rescaling/normalising method to apply. Defaults to \code{"z-score"}
-#' @param low_dim_method the low dimensional embedding method to use. Defaults to \code{"PCA"}
-#' @param perplexity the perplexity hyperparameter to use if t-SNE algorithm is selected. Defaults to \code{30}
-#' @param seed fixed number for R's random number generator to ensure reproducibility
+#' @param method \code{character} specifying a rescaling/normalising method to apply. Defaults to \code{"z-score"}
+#' @param low_dim_method \code{character} specifying the low dimensional embedding method to use. Defaults to \code{"PCA"}
+#' @param perplexity \code{integer} denoting the perplexity hyperparameter to use if t-SNE algorithm is selected. Defaults to \code{30}
+#' @param seed \code{integer} to fix R's random number generator to ensure reproducibility. Defaults to \code{123}
 #' @return object of class \code{low_dimension}
 #' @author Trent Henderson
 #' @export

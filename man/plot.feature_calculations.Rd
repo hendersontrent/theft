@@ -17,13 +17,13 @@
 \arguments{
 \item{x}{the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}}
 
-\item{type}{\code{string} specifying the type of plot to draw. Defaults to \code{"quality"}}
+\item{type}{\code{character} specifying the type of plot to draw. Defaults to \code{"quality"}}
 
-\item{method}{\code{string} specifying a rescaling/normalising method to apply if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"z-score"}}
+\item{method}{\code{character} specifying a rescaling/normalising method to apply if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"z-score"}}
 
-\item{clust_method}{\code{string} specifying the hierarchical clustering method to use if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"average"}}
+\item{clust_method}{\code{character} specifying the hierarchical clustering method to use if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"average"}}
 
-\item{cor_method}{\code{string} specifying the correlation method to use if \code{type = "cor"}. Defaults to \code{"pearson"}}
+\item{cor_method}{\code{character} specifying the correlation method to use if \code{type = "cor"}. Defaults to \code{"pearson"}}
 
 \item{...}{Arguments to be passed to methods}
 }

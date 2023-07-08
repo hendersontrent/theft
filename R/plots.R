@@ -10,10 +10,10 @@
 #' @importFrom reshape2 melt
 #' @importFrom stats hclust dist cor
 #' @param x the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
-#' @param type \code{string} specifying the type of plot to draw. Defaults to \code{"quality"}
-#' @param method \code{string} specifying a rescaling/normalising method to apply if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"z-score"}
-#' @param clust_method \code{string} specifying the hierarchical clustering method to use if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"average"}
-#' @param cor_method \code{string} specifying the correlation method to use if \code{type = "cor"}. Defaults to \code{"pearson"}
+#' @param type \code{character} specifying the type of plot to draw. Defaults to \code{"quality"}
+#' @param method \code{character} specifying a rescaling/normalising method to apply if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"z-score"}
+#' @param clust_method \code{character} specifying the hierarchical clustering method to use if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"average"}
+#' @param cor_method \code{character} specifying the correlation method to use if \code{type = "cor"}. Defaults to \code{"pearson"}
 #' @param ... Arguments to be passed to methods
 #' @return object of class \code{ggplot} that contains the graphic
 #' @author Trent Henderson

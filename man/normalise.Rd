@@ -9,7 +9,7 @@ normalise(data, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"))
 \arguments{
 \item{data}{either a \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features} or a \code{vector} of class \code{numeric} containing values to be normalised}
 
-\item{method}{\code{string} denoting the rescaling/normalising method to apply to violin plots. Defaults to \code{"z-score"}}
+\item{method}{\code{character} denoting the rescaling/normalising method to apply to violin plots. Defaults to \code{"z-score"}}
 }
 \value{
 either an object of class \code{data.frame} or \code{numeric}
