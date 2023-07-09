@@ -29,7 +29,7 @@ library(theft)
 
 ## Purpose
 
-`theft` facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. This structured workflow is presented in the graphic below (note that `theft` has many more functions than displayed in this graphic --- keep reading for more):
+`theft` facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. This structured workflow is presented in the graphic below (note that `theft` has many more functions than displayed in this graphic---keep reading for more):
 
 <img src="workflow-graphic2.png" width="700" alt="Structured workflow of the theft package for R" />
 
@@ -144,7 +144,7 @@ normed <- normalise(feature_matrix, method = "z-score")
 
 For single vector normalisation, all you need to do is pass in a vector as `normalise` checks for object classes.
 
-## Data visualisation and low-dimensional project functions
+## Data visualisation and low-dimensional projections
 
 The package also comes with additional statistical and graphical functionality:
 
@@ -203,6 +203,20 @@ low_dim2 <- reduce_dims(feature_matrix,
 
 plot(low_dim2, show_covariance = FALSE)
 ```
+
+There is also the option to specify any other arguments to `reduce_dims` that are then passed to either `stats::prcomp` or `Rtsne::Rtsne` through the ellipsis additional arguments. For example, you may wish to control the maximum number of iterations (`max_iter`) and the speed-accuracy trade-off (`theta`) in `Rtsne::Rtsne`:
+
+```{r, eval = FALSE}
+low_dim3 <- reduce_dims(feature_matrix, 
+                        method = "RobustSigmoid", 
+                        low_dim_method = "t-SNE", 
+                        perplexity = 10,
+                        seed = 123,
+                        max_iter = 5000,
+                        theta = 0.2)
+```
+
+You can consult the documentation to get a list of potential arguments by calling either `?prcomp` or `?Rtsne`.
 
 ### Pairwise correlations
 

@@ -1,25 +1,26 @@
 #' Project a feature matrix into a low dimensional representation using PCA or t-SNE
+#' 
 #' @importFrom rlang .data
 #' @import dplyr
 #' @import ggplot2
 #' @import tibble
 #' @importFrom tidyr drop_na
-#' @importFrom broom augment
-#' @importFrom broom tidy
+#' @importFrom broom augment tidy
 #' @importFrom stats prcomp
-#' @import Rtsne
+#' @importFrom Rtsne Rtsne
 #' @param data the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
 #' @param method \code{character} specifying a rescaling/normalising method to apply. Defaults to \code{"z-score"}
 #' @param low_dim_method \code{character} specifying the low dimensional embedding method to use. Defaults to \code{"PCA"}
-#' @param perplexity \code{integer} denoting the perplexity hyperparameter to use if t-SNE algorithm is selected. Defaults to \code{30}
+#' @param perplexity \code{integer} denoting the perplexity hyperparameter to use if \code{low_dim_method} is \code{"t-SNE"}. Defaults to \code{10}
 #' @param seed \code{integer} to fix R's random number generator to ensure reproducibility. Defaults to \code{123}
+#' @param ... arguments to be passed to either \code{stats::prcomp} or \code{Rtsne::Rtsne} depending on whether \code{"low_dim_method"} is \code{"PCA"} or \code{"t-SNE"}
 #' @return object of class \code{low_dimension}
 #' @author Trent Henderson
 #' @export
 #' 
 
 reduce_dims <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
-                        low_dim_method = c("PCA", "t-SNE"), perplexity = 30, seed = 123){
+                        low_dim_method = c("PCA", "t-SNE"), perplexity = 10, seed = 123, ...){
 
   stopifnot(inherits(data, "feature_calculations") == TRUE)
   method <- match.arg(method)
@@ -54,7 +55,7 @@ reduce_dims <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", 
     set.seed(seed)
     
     fits <- wide_data %>%
-      stats::prcomp(scale = FALSE)
+      stats::prcomp(center = FALSE, scale. = FALSE, ...)
     
     # Retrieve eigenvalues and tidy up variance explained for plotting
     
@@ -79,8 +80,8 @@ reduce_dims <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", 
     
     set.seed(seed)
     
-    fits <- Rtsne::Rtsne(as.matrix(wide_data), perplexity = perplexity, max_iter = 5000, dims = 2,
-                         check_duplicates = FALSE)
+    fits <- Rtsne::Rtsne(as.matrix(wide_data), perplexity = perplexity, dims = 2,
+                         check_duplicates = FALSE, ...)
     
     # Retrieve 2-dimensional embedding and add in unique IDs
     

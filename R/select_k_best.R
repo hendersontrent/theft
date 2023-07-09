@@ -3,7 +3,6 @@
 #' @importFrom stats aov cor
 #' @importFrom dplyr %>% select rename left_join mutate filter pull slice_max
 #' @importFrom tidyr drop_na pivot_wider pivot_longer
-#' 
 #' @param data the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
 #' @param k \code{integer} denoting the number of features to retain. Defaults to half the length of the unique features available in \code{data}
 #' @param outputs \code{data.frame} containing output data if it was not included in the \code{group} column initially when running \code{calculate_features}. Should have 2 columns where the first is an ID variable that can be joined to the \code{id} column of \code{data} and the second the output of interest (i.e., a 'y' variable). If a character or factor, classification is assumed, and if numeric, regression is assumed. Defaults to \code{NULL} which assumes the \code{group} variable exists in \code{data}
