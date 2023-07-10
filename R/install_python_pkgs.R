@@ -26,14 +26,6 @@ install_python_pkgs <- function(python_path, path){
                "&& pip install tsfresh", "&& pip install tsfel", "&& pip install pandas==1.5.3",
                paste0("&& pip install -e ", kats_path_short), sep = " "))
   
-  # system(paste0("cd ", path))
-  # system("python3.9 -m venv theft")
-  # system("source theft/bin/activate")
-  # system("pip install tsfresh")
-  # system("pip install tsfel")
-  # system("pip install pandas==1.5.3")
-  # system(paste0("pip install -e ", kats_path_short))
-  
   message(paste0("All libraries installed. Virtual environment created is called theft at ", path, "/theft", 
                  "\nYou should be good to go!"))
 }
