@@ -1,7 +1,7 @@
 #' Perform fast and simple univariate feature selection based on an output vector using analysis of variance or correlation
 #' 
-#' @importFrom stats aov cor
-#' @importFrom dplyr %>% select rename left_join mutate filter pull slice_max
+#' @importFrom stats aov cor.test
+#' @importFrom dplyr %>% select rename left_join mutate filter pull slice_max n_distinct
 #' @importFrom tidyr drop_na pivot_wider pivot_longer
 #' @param data the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
 #' @param k \code{integer} denoting the number of features to retain. Defaults to half the length of the unique features available in \code{data}
@@ -29,10 +29,10 @@ select_k_best <- function(data, k = floor(length(unique(data[[1]]$names)) / 2), 
                     group = 2)
     
     if(class(outputs$group) == "numeric"){
-      message("Numeric output variable detected. Assuming task is regression and using correlation as selection metric.")
+      message("Numeric output variable detected. Assuming task is regression and using correlation p-value as selection metric.")
       prob_type <- "regression"
     } else if(class(outputs$y) %in% c("character", "factor")){
-      message("Character or factor output variable detected. Assuming task is classification and using ANOVA as selection metric.")
+      message("Character or factor output variable detected. Assuming task is classification and using ANOVA p-value as selection metric.")
       prob_type <- "classification"
     } else{
       stop("y variable should be a character/factor or numeric.")
@@ -46,10 +46,10 @@ select_k_best <- function(data, k = floor(length(unique(data[[1]]$names)) / 2), 
     tmp <- data[[1]]
     
     if(class(tmp$group) == "numeric"){
-      message("Numeric group variable detected. Assuming task is regression and using correlation as selection metric.")
+      message("Numeric group variable detected. Assuming task is regression and using correlation p-value as selection metric.")
       prob_type <- "regression"
     } else if(class(tmp$group) %in% c("character", "factor")){
-      message("Character or factor group variable detected. Assuming task is classification and using ANOVA as selection metric.")
+      message("Character or factor group variable detected. Assuming task is classification and using ANOVA p-value as selection metric.")
       prob_type <- "classification"
     } else{
       stop("group variable should be a character/factor or numeric.")
@@ -93,7 +93,7 @@ select_k_best <- function(data, k = floor(length(unique(data[[1]]$names)) / 2), 
       if("try-error" %in% class(fit)){
         feature_stats[[match(i, unique(tmp$feature))]] <- data.frame(feature = i, statistic = NA)
       } else{
-        feature_stats[[match(i, unique(tmp$feature))]] <- data.frame(feature = i, statistic = fit[[1]]$`F value`[1])
+        feature_stats[[match(i, unique(tmp$feature))]] <- data.frame(feature = i, statistic = fit[[1]]$`Pr(>F)`[1])
       }
     }
     
@@ -104,12 +104,12 @@ select_k_best <- function(data, k = floor(length(unique(data[[1]]$names)) / 2), 
       feat_i <- tmp %>%
         dplyr::filter(feature == i)
       
-      fit <- try(abs(stats::cor(feat_i$values, feat_i$group)))
+      fit <- try(abs(stats::cor.test(feat_i$values, feat_i$group)))
       
       if(class(fit) == "try-error"){
         feature_stats[[match(i, unique(tmp$feature))]] <- data.frame(feature = i, statistic = NA)
       } else{
-        feature_stats[[match(i, unique(tmp$feature))]] <- data.frame(feature = i, statistic = fit)
+        feature_stats[[match(i, unique(tmp$feature))]] <- data.frame(feature = i, statistic = fit$p.value)
       }
     }
   }
@@ -120,7 +120,7 @@ select_k_best <- function(data, k = floor(length(unique(data[[1]]$names)) / 2), 
   
   feature_stats <- feature_stats %>% 
     tidyr::drop_na() %>%
-    dplyr::slice_max(statistic, n = k) %>%
+    dplyr::slice_min(statistic, n = k) %>%
     dplyr::pull(feature)
   
   # Final returns
