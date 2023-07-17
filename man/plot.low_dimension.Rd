@@ -7,7 +7,7 @@
 \method{plot}{low_dimension}(x, show_covariance = TRUE, ...)
 }
 \arguments{
-\item{x}{the \code{low_dimension} object containing the dimensionality reduction projection calculated by \code{reduce_dims}}
+\item{x}{\code{low_dimension} object containing the dimensionality reduction projection calculated by \code{reduce_dims}}
 
 \item{show_covariance}{\code{Boolean} of whether covariance ellipses should be shown on the plot. Defaults to \code{TRUE}}
 

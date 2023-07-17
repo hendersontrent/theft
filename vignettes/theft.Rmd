@@ -24,14 +24,17 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, message = FALSE, warning = FALSE}
+library(dplyr)
+library(ggplot2)
+library(e1071)
 library(theft)
 ```
 
 ## Purpose
 
-`theft` facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. This structured workflow is presented in the graphic below (note that `theft` has many more functions than displayed in this graphic --- keep reading for more):
+`theft` facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. This structured workflow is presented in the graphic below (note that `theft` has many more functions than displayed in this graphic---keep reading for more):
 
-<img src="workflow-graphic2.png" width="700" alt="Structured workflow of the theft package for R" />
+<img src="workflow-graphic_v05.png" width="700" alt="Structured workflow of the theft package for R" />
 
 ## Core calculation functions
 
@@ -105,15 +108,7 @@ A tidy dataframe of *most* of the included features and the set they correspond 
 head(feature_list)
 ```
 
-NOTE: If using the `tsfresh` feature set, you might want to consider the `tsfresh_cleanup` argument to `calculate_features`. This argument defaults to `FALSE` and specifies whether to use the in-built `tsfresh` relevant feature filter or not. If you are seeking a fast solution to select good features, `theft` has a function `select_k_best` that uses the $F$-statistic from analysis of variance (ANOVA) if a classification setting is detected or the absolute Pearson correlation coefficient if a regression setting is detected to perform fast and simple univariate feature selection. `select_k_best` has 3 arguments:
-
-* `data` -- the `feature_calculations` object containing the extracted features from `calculate_features`
-* `k` -- the number of features you wish to retain. Defaults to half of the number of features identified in `data` (but we are manually specifying 10 in this example)
-* `outputs` -- (optional) a data frame containing an ID column (that matches the IDs in `data`) and a column of the output value vector you are interested in. Usually, this would be included as the `group` variable in `calculate_features`, but the `outputs` option here lets you pass in such information if it was omitted during feature calculations
-
-```{r, message = FALSE, warning = FALSE}
-feature_matrix_small <- select_k_best(data = feature_matrix, k = 10)
-```
+NOTE: If using the `tsfresh` feature set, you might want to consider the `tsfresh_cleanup` argument to `calculate_features`. This argument defaults to `FALSE` and specifies whether to use the in-built `tsfresh` relevant feature filter or not.
 
 ### Comparison of feature sets
 
@@ -144,7 +139,7 @@ normed <- normalise(feature_matrix, method = "z-score")
 
 For single vector normalisation, all you need to do is pass in a vector as `normalise` checks for object classes.
 
-## Data visualisation and low-dimensional project functions
+## Data visualisation and low-dimensional projections
 
 The package also comes with additional statistical and graphical functionality:
 
@@ -204,6 +199,20 @@ low_dim2 <- reduce_dims(feature_matrix,
 plot(low_dim2, show_covariance = FALSE)
 ```
 
+There is also the option to specify any other arguments to `reduce_dims` that are then passed to either `stats::prcomp` or `Rtsne::Rtsne` through the ellipsis additional arguments. For example, you may wish to control the maximum number of iterations (`max_iter`) and the speed-accuracy trade-off (`theta`) in `Rtsne::Rtsne`:
+
+```{r, eval = FALSE}
+low_dim3 <- reduce_dims(feature_matrix, 
+                        method = "RobustSigmoid", 
+                        low_dim_method = "t-SNE", 
+                        perplexity = 10,
+                        seed = 123,
+                        max_iter = 5000,
+                        theta = 0.2)
+```
+
+You can consult the documentation to get a list of potential arguments by calling either `?prcomp` or `?Rtsne`.
+
 ### Pairwise correlations
 
 You can plot correlations between feature vectors using `plot(type = "cor")` on a `feature_calculations` object:
@@ -218,120 +227,118 @@ Similarly, you can control the normalisation type with the `method` argument and
 
 ### Feature-by-feature
 
-Since feature-based time-series analysis has shown particular promise for classification problems, `theft` includes functionality for exploring group separation in addition to the low dimensional representation. The `compute_top_features` function takes a `feature_calculations` object and performs the following:
+Since feature-based time-series analysis has shown particular promise for classification problems, `theft` includes functionality for exploring group separation. The function `tsfeature_classifier` enables you to fit a range of classification models to enable statistical comparisons using the resampling methodology presented in [this paper](https://pakdd2023.org/wp-content/uploads/2023/05/pakdd23_w1_p3.pdf) for a detailed review^[T. Henderson, A. G., Bryant, and B. D. Fulcher, "Never a Dull Moment: Distributional Properties as a Baseline for Time-Series Classification", 27th Pacific-Asia Conference on Knowledge Discovery and Data Mining, 2023.]. This function is meant to serve as a fast answer that can be used to guide analysis and not a replacement for the development of a careful statistical pipeline. `tsfeature_classifier` has the following arguments:
 
-1. Processes the data ready for analysis
-2. Computes a classification algorithm or statistical model on the entire input `feature_calculations` object
-3. Extracts individual feature performance from the classification algorithm using a designated performance metric
-4. Filters the feature data to the top `n` performing features (where `n` is specified by the user)
-5. Plots a feature $\times$ feature correlation matrix as a heatmap for the top performing features
-6. Plots a group of violin plots coloured by class label for the top performing features
+* `data`---`feature_calculations` object containing the raw feature matrix produced by `calculate_features` with an included `group` column as per `theft::calculate_features`
+* `classifier`---`function` specifying the classifier to fit. Should be a function with 2 arguments: `formula` and `data`. Please note that `tsfeature_classifier` z-scores data prior to modelling using the train set's information so disabling default scaling if your function uses it is recommended. Defaults to `NULL` which means the following linear SVM is fit: `classifier = function(formula, data){mod <- e1071::svm(formula, data = data, kernel = "linear", scale = FALSE, probability = TRUE)}`
+* `train_size`---Numeric value denoting the proportion of samples to use in the training set. Defaults to `0.75`
+* `n_resamples`---Integer denoting the number of resamples to calculate. Defaults to `30`
+* `by_set`---Boolean specifying whether to compute classifiers for each feature set. Defaults to `TRUE` (see below section "Multi-feature" for more on this). If `FALSE`, the function will instead find the best individually-performing features
+* `use_null`---Boolean whether to fit null models where class labels are shuffled in order to generate a null distribution that can be compared to performance on correct class labels. Defaults to `FALSE`. This is known as permutation testing
+* `seed`---Integer to fix R's random number generator to ensure reproducibility. Defaults to `123`
 
-This analysis is useful because it can help guide researchers toward more efficient and appropriate interpretation of high-performing features (if any exist) and helps protect against over-interpretation of feature values.
+Since we are interested in individual features in this section, we will calculate both main and null results for each feature using just `5` resamples for efficiency (in practice, we would use more!) with the default linear SVM:
 
-This function returns an object with three components to summarise the above steps:
-
-1. `ResultsTable` -- a dataframe containing feature names, feature set membership, and performance statistics for the top performing features
-2. `FeatureFeatureCorrelationPlot` -- a `ggplot` containing the pairwise correlations between top performing features represented as a heatmap
-3. `ViolinPlots` -- a `ggplot` containing a matrix of violin plots showing class discrimination by feature
-
-The code below produces analysis for a multiclass problem using a Gaussian process classifier with a radial basis function kernel. It implements a custom "empirical null" procedure for estimating a *p*-value based on classification accuracy of the real data compared to a distribution of null samples built from classification accuracies of the same data but with random class label shuffles. This is also known as permutation testing (see [this document](https://faculty.washington.edu/kenrice/sisg/SISG-08-06.pdf)^[Rice, Ken & Lumley, Thomas. (2008) "Permutation tests"] for a good overview). Note that higher numbers of permutation samples means that a better empirical null distribution can be generated. It is recommended to run 100-1000 permutations, though this comes with considerable computation time. We'll enable a [k-fold cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) procedure too for good measure. Note that using these procedures increases the computation time. Electing to not use an empirical null will be faster, but top features will be determined based off classification accuracy of features and not *p*-values. Further, when `use_k_fold = FALSE`, the model will instead be fit on all data and predict classes based off the same data (in `caret` language, this is equivalent to `caret::trainControl(method = "none")` and then calling `predict` on the input data and getting accuracy from the confusion matrix between the two). This will very likely lead to overfitting, but will return results orders of magnitude faster than if `use_k_fold = TRUE`.
-
-Importantly, the argument `null_testing_method` has two choices:
-  
-  1. `ModelFreeShuffles` -- Generates `num_permutations` number of random shuffles of group labels and computes the proportion that match, returning a distribution of "accuracies". This model is extremely fast as it involves no null model fitting
-2. `NullModelFits` -- Generates `num_permutations` number of models that are trained and tested on data where the class label is shuffled. This method is slow but fits separate null models for each `num_permutations` shuffle
-
-We we only use `ModelFreeShuffles` throughout this tutorial to reduce computation time.
-
-`p_value_method` also has two choices:
-  
-1. `empirical` -- calculates the proportion of null classification accuracies that are equal to or greater than the main model accuracy
-2. `gaussian` -- calculates mean and standard deviation of the null distribution to analytically calculate *p*-value for main model against. Initial package testing indicated that the null distributions (especially for increasing `num_permutations`) were approximately Gaussian, meaning this approach can be feasibly used
-
-Note that `ModelFreeShuffles` is incompatible with `pool_empirical_null = TRUE` as the null distributions would be exactly the same. Further, if you set `pool_empirical_null = TRUE` this will compute statistical analysis for each feature against the entire pooled empirical null classification results of all features. Setting it to `FALSE` will compute a *p*-value for each feature against only its empirical null distribution.
-
-**IMPORTANT NOTE:** `theft` currently does not label any results as "statistically significant". If you intend to in your work, please adjust for multiple comparisons when considering numerous results against a threshold (e.g., $\alpha = 0.05$) and ensure any decisions you make are grounded in careful thought.
-
-The `seed` argument allows you to specify a number to fix R's random number generator for reproducible results. It defaults to `123` if nothing is provided.
-
-```{r, message = FALSE, warning = FALSE, eval = FALSE}
-outputs <- compute_top_features(feature_matrix, 
-                                num_features = 10, 
-                                normalise_violin_plots = FALSE,
-                                method = "RobustSigmoid",
-                                cor_method = "pearson",
-                                test_method = "svmLinear",
-                                clust_method = "average",
-                                use_balanced_accuracy = FALSE,
-                                use_k_fold = TRUE,
-                                num_folds = 3,
-                                use_empirical_null =  TRUE,
-                                null_testing_method = "ModelFreeShuffles",
-                                p_value_method = "gaussian",
-                                num_permutations = 3,
-                                pool_empirical_null = FALSE,
-                                seed = 123)
+```{r, message = FALSE, warning = FALSE}
+feature_classifiers <- tsfeature_classifier(feature_matrix, by_set = FALSE, n_resamples = 5, use_null = TRUE)
 ```
 
-Each component is named and can be accessed through regular use of the `$` operator. Here is the feature-feature correlation plot:
+To show you how simple it is to specify a different classifier, we can instead maybe use a radial basis function SVM (though you are absolutely not limited to just `e1071` models! You can use anything that can be used with R's `predict` generic as `tsfeature_classifier` internally constructs confusion matrices from model predictions):
 
-```{r, message = FALSE, warning = FALSE, eval = FALSE}
-print(outputs$FeatureFeatureCorrelationPlot)
+```{r, message = FALSE, warning = FALSE}
+myclassifier <- function(formula, data){
+  mod <- e1071::svm(formula, data = data, kernel = "radial", scale = FALSE, probability = TRUE)
+}
+
+feature_classifiers_radial <- tsfeature_classifier(feature_matrix, classifier = myclassifier, by_set = FALSE, n_resamples = 5, use_null = TRUE)
 ```
 
-<img src="FeatureFeatureCorrelationPlot.png" alt="Feature-feature correlation plot" />
+While have raw classification results is useful, we often also would like to statistical evaluate some facet of it. `theft` includes the function `compare_features` for doing this. `compare_features` contains the following arguments:
 
-And here is the violin plot:
+* `data`---List object containing the classification outputs produce by `tsfeature_classifier`
+* `metric`---Character denoting the classification performance metric to use in statistical testing. Can be one of `"accuracy"`, `"precision"`, `"recall"`, `"f1"`. Defaults to `"accuracy"`
+* `by_set`---Boolean specifying whether you want to compare feature sets (if `TRUE`) or individual features (if `FALSE`). Defaults to `TRUE` but this is contingent on whether you computed by set or not in `tsfeature_classifier`
+* `hypothesis`---Character denoting whether p-values should be calculated for each feature set or feature (depending on `by_set` argument) individually relative to the null if `use_null = TRUE` in `tsfeature_classifier` through `"null"`, or whether pairwise comparisons between each set or feature should be conducted on main model fits only through `"pairwise"`. Defaults to `"null"`
+* `p_adj`---Character denoting the adjustment made to p-values for multiple comparisons. Should be a valid argument to [`stats::p.adjust`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/p.adjust). Defaults to `"none"` for no adjustment. `"holm"` is recommended as a starting point for adjustments
 
-```{r, message = FALSE, warning = FALSE, eval = FALSE}
-print(outputs$ViolinPlots)
+We can use `compare_features` to evaluate how well each individual feature performs relative to its empirical null distribution (noting that we are using the defaults for the other arguments for code cleanliness):
+
+```{r, message = FALSE, warning = FALSE}
+feature_vs_null <- compare_features(feature_classifiers, by_set = FALSE, hypothesis = "null")
+head(feature_vs_null)
 ```
 
-<img src="ViolinPlots.png" alt="Violin plots" />
+Or to conduct pairwise comparisons between individual features:
 
-For two-class problems, users can fit statistical models to directly compute *p*-values by specifying one of the following models as the string argument to `test_method`: `"t-test"`, `"wilcox"` or `"BinomialLogistic"`. `theft` has special procedures for these three options if a two-class problem is registered and thus none of the function arguments pertaining to empirical null testing or classification model parameters are used. For multiclass problems (and binary), users can specify any model name string that is a valid `method` name in the popular [`caret`](https://topepo.github.io/caret/train-models-by-tag.html) package and `theft` will pass this through to the relevant sub-procedures which will make use of the arguments relating to *k*-fold cross-validation, permutation testing, and *p*-value calculation.
+```{r, message = FALSE, warning = FALSE}
+pairwise_features <- compare_features(feature_classifiers, by_set = FALSE, hypothesis = "pairwise")
+head(pairwise_features)
+```
+
+We can then use `ggplot2` to summarise and visualise our results. Here is a pairwise correlation plot between the top 10 features in `catch22` for this toy problem. We are just simply filtering the original full feature data and making use of the `plot` generic defined for objects of class `feature_calculations`:
+
+```{r, message = FALSE, warning = FALSE}
+top_10 <- feature_vs_null %>% 
+  dplyr::slice_min(p_value_adj, n = 10) %>% 
+  dplyr::select(c(method, original_names, p_value_adj))
+
+feature_matrix_filt <- feature_matrix[[1]] %>% 
+  dplyr::filter(method %in% top_10$method & names %in% top_10$original_names)
+
+feature_matrix_filt <- structure(list(feature_matrix_filt), class = "feature_calculations")
+plot(feature_matrix_filt, type = "cor")
+```
+
+We can also easily draw a violin plot of the top 10 features to visualise the distributions by group:
+
+```{r, message = FALSE, warning = FALSE}
+feature_matrix_filt[[1]] %>%
+  ggplot2::ggplot(ggplot2::aes(x = group, y = values, colour = group)) +
+  ggplot2::geom_violin() +
+  ggplot2::geom_point(size = 1, alpha = 0.9, position = ggplot2::position_jitter(w = 0.05)) +
+  ggplot2::labs(x = "Class",
+                y = "Value") +
+  ggplot2::scale_colour_brewer(palette = "Dark2") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(legend.position = "none",
+                 panel.grid.minor = ggplot2::element_blank(),
+                 strip.background = ggplot2::element_blank(),
+                 axis.text.x = ggplot2::element_text(angle = 90)) +
+  ggplot2::facet_wrap(~ names, ncol = 2, scales = "free_y")
+```
 
 ### Multi-feature
 
-A multi-feature option is also available. The `fit_multi_feature_classifier` function fits all features in the `feature_calculations` object at once instead of by individual features to estimate classification accuracy. This can be split by feature set (if the `by_set` argument is set to `TRUE`) to enable systematic comparisons between those made available in `theft`. To save computation time in this tutorial, we will only analyse `catch22` (with `by_set = TRUE` to demonstrate automated plotting functionality), but comparing multiple calculated feature sets is recommended in practice.
+Since `theft` contains entire sets of features, we can also use `tsfeature_classifier` to compare them at the set level through the `by_set` argument:
 
-Now we can use our multi-feature functionality (note the similarity in options to the single feature version we specified above):
-
-```{r, message = FALSE, warning = FALSE, eval = FALSE}
-multi_outputs <- fit_multi_feature_classifier(feature_matrix, 
-                                              by_set = TRUE, 
-                                              test_method = "svmLinear",
-                                              use_balanced_accuracy = TRUE,
-                                              use_k_fold = TRUE,
-                                              num_folds = 3,
-                                              use_empirical_null =  TRUE,
-                                              null_testing_method = "ModelFreeShuffles",
-                                              p_value_method = "gaussian",
-                                              num_permutations = 3,
-                                              seed = 123)
+```{r, message = FALSE, warning = FALSE}
+set_classifiers <- tsfeature_classifier(feature_matrix, by_set = TRUE, n_resamples = 5, use_null = TRUE)
+head(set_classifiers)
 ```
 
-We can now access the various named objects returned by this function, which include:
-
-1. `FeatureSetResultsPlot` (only if `by_set` is set to `TRUE`) -- a `ggplot` displaying classification accuracy (or balanced classification accuracy if `use_balanced_accuracy` is set to `TRUE`) by feature set
-2. `TestStatistics` -- a dataframe containing a summary of test statistics (and *p*-values if `use_empirical_null` is set to `TRUE`)
-3. `RawClassificationResults` -- a dataframe containing classification accuracies results from each main and null prediction
-
-Here's the feature set comparison plot (note that because we have balanced classes, in this case, accuracy $=$ balanced accuracy; and because we only calculated features for `catch22`, the accuracy for `"All features"` $=$ accuracy for `catch22`):
+Since we only calculated `catch22` in this vignette, the only other comparate set is `"All features"` which is automatically always included by default. This means they will both have identical results, but this functionality becomes more powerful if other feature sets were also calculated. Similar to the individual feature case, we can also use `ggplot2` to summarise our findings. Here is a comparison of mean accuracy $\pm 1SD$ between feature sets:
   
-```{r, message = FALSE, warning = FALSE, eval = FALSE}
-print(multi_outputs$FeatureSetResultsPlot)
+```{r, message = FALSE, warning = FALSE}
+set_classifiers$ClassificationResults %>%
+  dplyr::filter(model_type == "Main") %>% 
+  dplyr::group_by(method) %>%
+  dplyr::summarise(mu = mean(accuracy),
+                   lower = mu - (1 * sd(accuracy)),
+                   upper = mu + (1 * sd(accuracy))) %>%
+  dplyr::ungroup() %>%
+  ggplot2::ggplot(ggplot2::aes(x = reorder(method, -mu), y = mu, colour = method)) +
+  ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper)) +
+  ggplot2::geom_point(size = 5) +
+  ggplot2::labs(x = "Feature set",
+                y = "Classification accuracy") +
+  ggplot2::scale_colour_brewer(palette = "Dark2") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(legend.position = "none",
+                 panel.grid.minor = ggplot2::element_blank())
 ```
 
-<img src="FeatureSetResultsPlot.png" alt="Comparison of classification and balanced classification accuracy for catch22" />
-
-Note that for the multi-feature version, only valid `caret` method names are able to be used to specify a `test_method`.
+As you can see, given that we only computed `catch22` the plot is not super informative, but had we computed others, it would provide a fast summary of average performance at the set level---and with a useful reference point of the potentially huge set of all calculated features.
 
 ## Reading and processing hctsa-formatted files
 
-As `theft` is based on the foundations laid by [`hctsa`](https://github.com/benfulcher/hctsa), there is also functionality for reading in `hctsa`-formatted Matlab files and automatically processing them into tidy dataframes ready for feature extraction in `theft`. The `process_hctsa_file` function takes a string filepath to the Matlab file and does all the work for you, returning a dataframe with naming conventions consistent with other `theft` functionality. As per `hctsa` specifications for [Input File Format 1](https://hctsa-users.gitbook.io/hctsa-manual/calculating/input_files), this file should have 3 variables with the following exact names: `timeSeriesData`, `labels`, and `keywords`.  Here is an example using the [Bonn University EEG dataset](https://journals.aps.org/pre/abstract/10.1103/PhysRevE.64.061907)^[Andrzejak, Ralph G., et al. (2001) "Indications of nonlinear deterministic and finite-dimensional structures in time series of brain electrical activity: Dependence on recording region and brain state." Physical Review E 64(6): 061907].
-
-```{r, message = FALSE, warning = FALSE, eval = FALSE}
-d2 <- process_hctsa_file("https://cloudstor.aarnet.edu.au/plus/s/6sRD6IPMJyZLNlN/download")
-```
+As `theft` is based on the foundations laid by [`hctsa`](https://github.com/benfulcher/hctsa), there is also functionality for reading in `hctsa`-formatted Matlab files and automatically processing them into tidy dataframes ready for feature extraction in `theft`. The `process_hctsa_file` function takes a string filepath to the Matlab file and does all the work for you, returning a dataframe with naming conventions consistent with other `theft` functionality. As per `hctsa` specifications for [Input File Format 1](https://hctsa-users.gitbook.io/hctsa-manual/calculating/input_files), this file should have 3 variables with the following exact names: `timeSeriesData`, `labels`, and `keywords`. The filepath can be a local drive path or a URL.

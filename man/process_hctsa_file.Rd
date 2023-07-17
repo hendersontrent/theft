@@ -15,14 +15,6 @@ an object of class \code{data.frame} in tidy format
 \description{
 Load in hctsa formatted MATLAB files of time series data into a tidy format ready for feature extraction
 }
-\examples{
-\donttest{
-myfile <- process_hctsa_file(
-  "https://cloudstor.aarnet.edu.au/plus/s/6sRD6IPMJyZLNlN/download"
-  )
-}
-
-}
 \author{
 Trent Henderson
 }

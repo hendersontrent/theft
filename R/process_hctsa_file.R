@@ -26,12 +26,6 @@ hctsa_iterator <- function(labels, keywords, timeSeriesData, x){
 #' @return an object of class \code{data.frame} in tidy format
 #' @author Trent Henderson
 #' @export
-#' @examples
-#' \donttest{
-#' myfile <- process_hctsa_file(
-#'   "https://cloudstor.aarnet.edu.au/plus/s/6sRD6IPMJyZLNlN/download"
-#'   )
-#' }
 #' 
 
 process_hctsa_file <- function(data){
