@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,9 +66,9 @@
         <dd>Check for presence of NAs and non-numerics in a vector</dd>
       </dl><dl><dt>
           
-          <code><a href="compute_top_features.html">compute_top_features()</a></code> 
+          <code><a href="compare_features.html">compare_features()</a></code> 
         </dt>
-        <dd>Return an object containing results from top-performing features on a classification task</dd>
+        <dd>Conduct statistical testing on time-series feature classification performance to identify top features or compare entire sets</dd>
       </dl><dl><dt>
           
           <code><a href="feature_list.html">feature_list</a></code> 
@@ -76,14 +76,24 @@
         <dd>All features available in theft in tidy format</dd>
       </dl><dl><dt>
           
-          <code><a href="fit_multi_feature_classifier.html">fit_multi_feature_classifier()</a></code> 
+          <code><a href="filter_good_features.html">filter_good_features()</a></code> 
         </dt>
-        <dd>Fit a classifier to feature matrix using all features or all features by set</dd>
+        <dd>Filter resample data sets according to good feature list</dd>
       </dl><dl><dt>
           
-          <code><a href="fit_single_feature_classifier.html">fit_single_feature_classifier()</a></code> 
+          <code><a href="find_good_features.html">find_good_features()</a></code> 
         </dt>
-        <dd>Fit a classifier to feature matrix to extract top performers</dd>
+        <dd>Helper function to find features in both train and test set that are "good"</dd>
+      </dl><dl><dt>
+          
+          <code><a href="fit_models.html">fit_models()</a></code> 
+        </dt>
+        <dd>Fit classification model and compute key metrics</dd>
+      </dl><dl><dt>
+          
+          <code><a href="get_rescale_vals.html">get_rescale_vals()</a></code> 
+        </dt>
+        <dd>Calculate central tendency and spread values for all numeric columns in a dataset</dd>
       </dl><dl><dt>
           
           <code><a href="init_theft.html">init_theft()</a></code> 
@@ -126,14 +136,24 @@
         <dd>Project a feature matrix into a low dimensional representation using PCA or t-SNE</dd>
       </dl><dl><dt>
           
+          <code><a href="resampled_ttest.html">resampled_ttest()</a></code> 
+        </dt>
+        <dd>Compute correlated t-statistic and p-value for resampled data from correctR package</dd>
+      </dl><dl><dt>
+          
+          <code><a href="resample_data.html">resample_data()</a></code> 
+        </dt>
+        <dd>Helper function to create a resampled dataset</dd>
+      </dl><dl><dt>
+          
+          <code><a href="rescale_zscore.html">rescale_zscore()</a></code> 
+        </dt>
+        <dd>Calculate z-score for all columns in a dataset using train set central tendency and spread</dd>
+      </dl><dl><dt>
+          
           <code><a href="robustsigmoid_scaler.html">robustsigmoid_scaler()</a></code> 
         </dt>
         <dd>Rescales a numeric vector using an outlier-robust Sigmoidal transformation and then into the unit interval [0,1]</dd>
-      </dl><dl><dt>
-          
-          <code><a href="select_k_best.html">select_k_best()</a></code> 
-        </dt>
-        <dd>Perform fast and simple univariate feature selection based on an output vector using analysis of variance or correlation</dd>
       </dl><dl><dt>
           
           <code><a href="sigmoid_scaler.html">sigmoid_scaler()</a></code> 
@@ -146,9 +166,19 @@
         <dd>Sample of randomly-generated time series to produce function tests and vignettes</dd>
       </dl><dl><dt>
           
+          <code><a href="stat_test.html">stat_test()</a></code> 
+        </dt>
+        <dd>Calculate p-values for feature sets or features relative to an empirical null or each other using resampled t-tests</dd>
+      </dl><dl><dt>
+          
           <code><a href="theft.html">theft</a></code> 
         </dt>
         <dd>Tools for Handling Extraction of Features from Time-series</dd>
+      </dl><dl><dt>
+          
+          <code><a href="tsfeature_classifier.html">tsfeature_classifier()</a></code> 
+        </dt>
+        <dd>Fit classifiers using time-series features using a resample-based approach and get a fast understanding of performance</dd>
       </dl><dl><dt>
           
           <code><a href="zscore_scaler.html">zscore_scaler()</a></code> 

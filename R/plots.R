@@ -150,7 +150,7 @@ plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor"),
     
     if(length(unique(cluster_out$names)) <= 22){
       p <- p +
-        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1),
                        axis.ticks.y = ggplot2::element_blank())
     } else {
       p <- p +
@@ -186,8 +186,8 @@ plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor"),
     
     cor_dat <- data_id %>%
       dplyr::filter(.data$id %in% ids_to_keep) %>%
-      tidyr::pivot_wider(id_cols = "names", names_from = "id", values_from = "values") %>%
-      dplyr::select(-c(.data$names))
+      tidyr::pivot_wider(id_cols = "id", names_from = "names", values_from = "values") %>%
+      dplyr::select(-c(.data$id))
     
     #--------- Correlation ----------
     
@@ -215,7 +215,7 @@ plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor"),
     mypalette <- c("#B2182B", "#D6604D", "#F4A582", "#FDDBC7", "#D1E5F0", "#92C5DE", "#4393C3", "#2166AC")
     
     p <- cluster_out %>%
-        ggplot2::ggplot(ggplot2::aes(x = .data$Var1, y = .data$Var2)) +
+      ggplot2::ggplot(ggplot2::aes(x = .data$Var1, y = .data$Var2)) +
       ggplot2::geom_raster(ggplot2::aes(fill = .data$value)) +
       ggplot2::labs(title = "Pairwise correlation matrix",
                     x = "Feature",
@@ -227,9 +227,9 @@ plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor"),
       ggplot2::theme(panel.grid = ggplot2::element_blank(),
                      legend.position = "bottom")
     
-    if(nrow(cluster_out) <= 20){
+    if(ncol(cor_dat) <= 20){
       p <- p +
-        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
     } else {
       p <- p +
         ggplot2::theme(axis.text = ggplot2::element_blank())
@@ -249,7 +249,7 @@ plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor"),
 #' @import tibble
 #' @importFrom tidyr drop_na
 #' @importFrom broom augment tidy
-#' @param x the \code{low_dimension} object containing the dimensionality reduction projection calculated by \code{reduce_dims}
+#' @param x \code{low_dimension} object containing the dimensionality reduction projection calculated by \code{reduce_dims}
 #' @param show_covariance \code{Boolean} of whether covariance ellipses should be shown on the plot. Defaults to \code{TRUE}
 #' @param ... Arguments to be passed to methods
 #' @return object of class \code{ggplot} that contains the graphic
