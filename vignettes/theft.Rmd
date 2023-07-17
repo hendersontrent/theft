@@ -236,6 +236,13 @@ Since feature-based time-series analysis has shown particular promise for classi
 * `by_set`---Boolean specifying whether to compute classifiers for each feature set. Defaults to `TRUE` (see below section "Multi-feature" for more on this). If `FALSE`, the function will instead find the best individually-performing features
 * `use_null`---Boolean whether to fit null models where class labels are shuffled in order to generate a null distribution that can be compared to performance on correct class labels. Defaults to `FALSE`. This is known as permutation testing
 * `seed`---Integer to fix R's random number generator to ensure reproducibility. Defaults to `123`
+* `preference`--- Character denoting which feature set to keep (meaning the others will be filtered out) between `"feasts"`, `"tsfeatures"`, and `"Kats"` since there is considerable overlap between these three sets. Defaults to `"feasts"`. Only applies if `by_set = TRUE` (since a set of "All features" is constructed automatically as a comparator)
+
+*NOTE:* You can apply duplicate filtering to any `feature_calculations` object through the function `filter_duplicates`. This function only has 2 arguments: `data` (the  `feature_calculations` object) and `preference` (same as above). For example, if you assumed that we calculated features from all the sets, you could run the following upfront:
+
+```{r, eval = FALSE}
+feature_matrix_filt <- filter_duplicates(feature_matrix, preference = "feasts")
+```
 
 Since we are interested in individual features in this section, we will calculate both main and null results for each feature using just `5` resamples for efficiency (in practice, we would use more!) with the default linear SVM:
 
