@@ -99,9 +99,9 @@ and the software:
 
     To cite package 'theft' in publications use:
 
-      Trent Henderson (2023). theft: Tools for Handling Extraction of
-      Features from Time Series. R package version 0.4.3.
-      https://hendersontrent.github.io/theft/
+      Henderson T (2023). _theft: Tools for Handling Extraction of Features
+      from Time Series_. R package version 0.5.0,
+      <https://hendersontrent.github.io/theft/>.
 
     A BibTeX entry for LaTeX users is
 
@@ -109,6 +109,6 @@ and the software:
         title = {theft: Tools for Handling Extraction of Features from Time Series},
         author = {Trent Henderson},
         year = {2023},
-        note = {R package version 0.4.3},
+        note = {R package version 0.5.0},
         url = {https://hendersontrent.github.io/theft/},
       }
