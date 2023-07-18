@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -460,9 +460,12 @@ ensure reproducibility. Defaults to <code>123</code>
 keep (meaning the others will be filtered out) between
 <code>"feasts"</code>, <code>"tsfeatures"</code>, and
 <code>"Kats"</code> since there is considerable overlap between these
-three sets. Defaults to <code>"feasts"</code>. Only applies if
-<code>by_set = TRUE</code> (since a set of “All features” is constructed
-automatically as a comparator)</li>
+three sets. Defaults to <code>"feasts"</code>. Duplicates will
+<strong>not</strong> be removed from the respective non-preferenced sets
+when computing set-level results to ensure fairness. They are only
+filtered out for either the construction of the set of “All features” if
+<code>by_set = TRUE</code> and when computing individual feature results
+(to reduce redundant calculations)</li>
 </ul>
 <p><em>NOTE:</em> You can apply duplicate filtering to any
 <code>feature_calculations</code> object through the function
@@ -536,13 +539,13 @@ cleanliness):</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">feature_vs_null</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compare_features.html">compare_features</a></span><span class="op">(</span><span class="va">feature_classifiers</span>, by_set <span class="op">=</span> <span class="cn">FALSE</span>, hypothesis <span class="op">=</span> <span class="st">"null"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">feature_vs_null</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                                                                                           hypothesis</span></span>
-<span><span class="co">#&gt; 1 catch22_CO_Embed2_Dist_tau_d_expfit_meandiff &gt; catch22_CO_Embed2_Dist_tau_d_expfit_meandiff (null)</span></span>
-<span><span class="co">#&gt; 2                                                       catch22_CO_f1ecac &gt; catch22_CO_f1ecac (null)</span></span>
-<span><span class="co">#&gt; 3                                             catch22_CO_FirstMin_ac &gt; catch22_CO_FirstMin_ac (null)</span></span>
-<span><span class="co">#&gt; 4                         catch22_CO_HistogramAMI_even_2_5 &gt; catch22_CO_HistogramAMI_even_2_5 (null)</span></span>
-<span><span class="co">#&gt; 5                                               catch22_CO_trev_1_num &gt; catch22_CO_trev_1_num (null)</span></span>
-<span><span class="co">#&gt; 6                                   catch22_DN_HistogramMode_10 &gt; catch22_DN_HistogramMode_10 (null)</span></span>
+<span><span class="co">#&gt;                                                                                            hypothesis</span></span>
+<span><span class="co">#&gt; 1 catch22_CO_Embed2_Dist_tau_d_expfit_meandiff != catch22_CO_Embed2_Dist_tau_d_expfit_meandiff (null)</span></span>
+<span><span class="co">#&gt; 2                                                       catch22_CO_f1ecac != catch22_CO_f1ecac (null)</span></span>
+<span><span class="co">#&gt; 3                                             catch22_CO_FirstMin_ac != catch22_CO_FirstMin_ac (null)</span></span>
+<span><span class="co">#&gt; 4                         catch22_CO_HistogramAMI_even_2_5 != catch22_CO_HistogramAMI_even_2_5 (null)</span></span>
+<span><span class="co">#&gt; 5                                               catch22_CO_trev_1_num != catch22_CO_trev_1_num (null)</span></span>
+<span><span class="co">#&gt; 6                                   catch22_DN_HistogramMode_10 != catch22_DN_HistogramMode_10 (null)</span></span>
 <span><span class="co">#&gt;                                          names  method</span></span>
 <span><span class="co">#&gt; 1 catch22_CO_Embed2_Dist_tau_d_expfit_meandiff catch22</span></span>
 <span><span class="co">#&gt; 2                            catch22_CO_f1ecac catch22</span></span>
@@ -551,30 +554,30 @@ cleanliness):</p>
 <span><span class="co">#&gt; 5                        catch22_CO_trev_1_num catch22</span></span>
 <span><span class="co">#&gt; 6                  catch22_DN_HistogramMode_10 catch22</span></span>
 <span><span class="co">#&gt;                         original_names   metric t_statistic     p.value</span></span>
-<span><span class="co">#&gt; 1 CO_Embed2_Dist_tau_d_expfit_meandiff accuracy    6.846532 0.001190873</span></span>
-<span><span class="co">#&gt; 2                            CO_f1ecac accuracy    5.106615 0.003475256</span></span>
-<span><span class="co">#&gt; 3                       CO_FirstMin_ac accuracy    2.195775 0.046545113</span></span>
-<span><span class="co">#&gt; 4             CO_HistogramAMI_even_2_5 accuracy    3.674235 0.010655821</span></span>
-<span><span class="co">#&gt; 5                        CO_trev_1_num accuracy    4.321159 0.006218020</span></span>
-<span><span class="co">#&gt; 6                  DN_HistogramMode_10 accuracy    2.660532 0.028179542</span></span>
+<span><span class="co">#&gt; 1 CO_Embed2_Dist_tau_d_expfit_meandiff accuracy   5.5468407 0.002583706</span></span>
+<span><span class="co">#&gt; 2                            CO_f1ecac accuracy   3.5781322 0.011603187</span></span>
+<span><span class="co">#&gt; 3                       CO_FirstMin_ac accuracy   5.7154761 0.002317920</span></span>
+<span><span class="co">#&gt; 4             CO_HistogramAMI_even_2_5 accuracy   2.2015813 0.046244746</span></span>
+<span><span class="co">#&gt; 5                        CO_trev_1_num accuracy   1.4446302 0.111034114</span></span>
+<span><span class="co">#&gt; 6                  DN_HistogramMode_10 accuracy   0.4082483 0.352000000</span></span>
 <span><span class="co">#&gt;   p_value_adj</span></span>
-<span><span class="co">#&gt; 1 0.001190873</span></span>
-<span><span class="co">#&gt; 2 0.003475256</span></span>
-<span><span class="co">#&gt; 3 0.046545113</span></span>
-<span><span class="co">#&gt; 4 0.010655821</span></span>
-<span><span class="co">#&gt; 5 0.006218020</span></span>
-<span><span class="co">#&gt; 6 0.028179542</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 0.002583706</span></span>
+<span><span class="co">#&gt; 2 0.011603187</span></span>
+<span><span class="co">#&gt; 3 0.002317920</span></span>
+<span><span class="co">#&gt; 4 0.046244746</span></span>
+<span><span class="co">#&gt; 5 0.111034114</span></span>
+<span><span class="co">#&gt; 6 0.352000000</span></span></code></pre></div>
 <p>Or to conduct pairwise comparisons between individual features:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pairwise_features</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compare_features.html">compare_features</a></span><span class="op">(</span><span class="va">feature_classifiers</span>, by_set <span class="op">=</span> <span class="cn">FALSE</span>, hypothesis <span class="op">=</span> <span class="st">"pairwise"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pairwise_features</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                                                                        hypothesis</span></span>
-<span><span class="co">#&gt; 1                catch22_CO_Embed2_Dist_tau_d_expfit_meandiff &gt; catch22_CO_f1ecac</span></span>
-<span><span class="co">#&gt; 2           catch22_CO_Embed2_Dist_tau_d_expfit_meandiff &gt; catch22_CO_FirstMin_ac</span></span>
-<span><span class="co">#&gt; 3 catch22_CO_Embed2_Dist_tau_d_expfit_meandiff &gt; catch22_CO_HistogramAMI_even_2_5</span></span>
-<span><span class="co">#&gt; 4            catch22_CO_Embed2_Dist_tau_d_expfit_meandiff &gt; catch22_CO_trev_1_num</span></span>
-<span><span class="co">#&gt; 5      catch22_CO_Embed2_Dist_tau_d_expfit_meandiff &gt; catch22_DN_HistogramMode_10</span></span>
-<span><span class="co">#&gt; 6       catch22_CO_Embed2_Dist_tau_d_expfit_meandiff &gt; catch22_DN_HistogramMode_5</span></span>
+<span><span class="co">#&gt;                                                                         hypothesis</span></span>
+<span><span class="co">#&gt; 1                catch22_CO_Embed2_Dist_tau_d_expfit_meandiff != catch22_CO_f1ecac</span></span>
+<span><span class="co">#&gt; 2           catch22_CO_Embed2_Dist_tau_d_expfit_meandiff != catch22_CO_FirstMin_ac</span></span>
+<span><span class="co">#&gt; 3 catch22_CO_Embed2_Dist_tau_d_expfit_meandiff != catch22_CO_HistogramAMI_even_2_5</span></span>
+<span><span class="co">#&gt; 4            catch22_CO_Embed2_Dist_tau_d_expfit_meandiff != catch22_CO_trev_1_num</span></span>
+<span><span class="co">#&gt; 5      catch22_CO_Embed2_Dist_tau_d_expfit_meandiff != catch22_DN_HistogramMode_10</span></span>
+<span><span class="co">#&gt; 6       catch22_CO_Embed2_Dist_tau_d_expfit_meandiff != catch22_DN_HistogramMode_5</span></span>
 <span><span class="co">#&gt;                                        names_a                          names_b</span></span>
 <span><span class="co">#&gt; 1 catch22_CO_Embed2_Dist_tau_d_expfit_meandiff                catch22_CO_f1ecac</span></span>
 <span><span class="co">#&gt; 2 catch22_CO_Embed2_Dist_tau_d_expfit_meandiff           catch22_CO_FirstMin_ac</span></span>
@@ -582,13 +585,13 @@ cleanliness):</p>
 <span><span class="co">#&gt; 4 catch22_CO_Embed2_Dist_tau_d_expfit_meandiff            catch22_CO_trev_1_num</span></span>
 <span><span class="co">#&gt; 5 catch22_CO_Embed2_Dist_tau_d_expfit_meandiff      catch22_DN_HistogramMode_10</span></span>
 <span><span class="co">#&gt; 6 catch22_CO_Embed2_Dist_tau_d_expfit_meandiff       catch22_DN_HistogramMode_5</span></span>
-<span><span class="co">#&gt;     metric t_statistic     p.value p_value_adj</span></span>
-<span><span class="co">#&gt; 1 accuracy    4.146140 0.007152509 0.007152509</span></span>
-<span><span class="co">#&gt; 2 accuracy    2.927700 0.021456091 0.021456091</span></span>
-<span><span class="co">#&gt; 3 accuracy    1.107823 0.165032825 0.165032825</span></span>
-<span><span class="co">#&gt; 4 accuracy    3.166667 0.016983072 0.016983072</span></span>
-<span><span class="co">#&gt; 5 accuracy    3.761703 0.009872873 0.009872873</span></span>
-<span><span class="co">#&gt; 6 accuracy    7.892800 0.000696776 0.000696776</span></span></code></pre></div>
+<span><span class="co">#&gt;     metric t_statistic      p.value  p_value_adj</span></span>
+<span><span class="co">#&gt; 1 accuracy  -1.3093073 1.302873e-01 1.302873e-01</span></span>
+<span><span class="co">#&gt; 2 accuracy   0.3726780 3.641474e-01 3.641474e-01</span></span>
+<span><span class="co">#&gt; 3 accuracy  -0.5871366 2.943266e-01 2.943266e-01</span></span>
+<span><span class="co">#&gt; 4 accuracy   4.0273190 7.884261e-03 7.884261e-03</span></span>
+<span><span class="co">#&gt; 5 accuracy  22.8619043 1.084307e-05 1.084307e-05</span></span>
+<span><span class="co">#&gt; 6 accuracy   7.2623980 9.545688e-04 9.545688e-04</span></span></code></pre></div>
 <p>We can then use <code>ggplot2</code> to summarise and visualise our
 results. Here is a pairwise correlation plot between the top 10 features
 in <code>catch22</code> for this toy problem. We are just simply
@@ -639,26 +642,26 @@ level through the <code>by_set</code> argument:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $ClassificationResults</span></span>
 <span><span class="co">#&gt;    model_type resample   accuracy mean_precision mean_recall mean_f1_score</span></span>
-<span><span class="co">#&gt; 1        Main        1 0.55555556      0.6396825  0.64861111     0.6311182</span></span>
-<span><span class="co">#&gt; 2        Main        2 0.60000000      0.6825397  0.69188034     0.6667894</span></span>
-<span><span class="co">#&gt; 3        Main        3 0.60000000      0.6769841  0.66111111     0.6637639</span></span>
-<span><span class="co">#&gt; 4        Main        4 0.64444444      0.7246032  0.71825397     0.6979972</span></span>
-<span><span class="co">#&gt; 5        Main        5 0.60000000      0.6968254  0.69841270     0.6782930</span></span>
-<span><span class="co">#&gt; 6        Null        1 0.13333333      0.1515873  0.14615385     0.2364672</span></span>
-<span><span class="co">#&gt; 7        Null        2 0.06666667      0.1000000  0.05357143     0.2064777</span></span>
-<span><span class="co">#&gt; 8        Null        3 0.13333333      0.1710317  0.15170614     0.1708604</span></span>
-<span><span class="co">#&gt; 9        Null        4 0.13333333      0.2000000  0.05138340     0.2410714</span></span>
-<span><span class="co">#&gt; 10       Null        5 0.22222222      0.3166667  0.25015873     0.4711955</span></span>
-<span><span class="co">#&gt; 11       Main        1 0.55555556      0.6396825  0.64861111     0.6311182</span></span>
-<span><span class="co">#&gt; 12       Main        2 0.60000000      0.6825397  0.69188034     0.6667894</span></span>
-<span><span class="co">#&gt; 13       Main        3 0.60000000      0.6769841  0.66111111     0.6637639</span></span>
-<span><span class="co">#&gt; 14       Main        4 0.64444444      0.7246032  0.71825397     0.6979972</span></span>
-<span><span class="co">#&gt; 15       Main        5 0.60000000      0.6968254  0.69841270     0.6782930</span></span>
-<span><span class="co">#&gt; 16       Null        1 0.13333333      0.1515873  0.14615385     0.2364672</span></span>
-<span><span class="co">#&gt; 17       Null        2 0.06666667      0.1000000  0.05357143     0.2064777</span></span>
-<span><span class="co">#&gt; 18       Null        3 0.13333333      0.1710317  0.15170614     0.1708604</span></span>
-<span><span class="co">#&gt; 19       Null        4 0.13333333      0.2000000  0.05138340     0.2410714</span></span>
-<span><span class="co">#&gt; 20       Null        5 0.22222222      0.3166667  0.25015873     0.4711955</span></span>
+<span><span class="co">#&gt; 1        Main        1 0.73333333      0.7731481   0.7291667     0.7379157</span></span>
+<span><span class="co">#&gt; 2        Main        2 0.71111111      0.7250000   0.7235450     0.7210240</span></span>
+<span><span class="co">#&gt; 3        Main        3 0.75555556      0.7643519   0.7500000     0.7481076</span></span>
+<span><span class="co">#&gt; 4        Main        4 0.71111111      0.7351852   0.7389499     0.7256702</span></span>
+<span><span class="co">#&gt; 5        Main        5 0.80000000      0.8310185   0.8132937     0.8192783</span></span>
+<span><span class="co">#&gt; 6        Null        1 0.06666667      0.0915404   0.1083333     0.1173046</span></span>
+<span><span class="co">#&gt; 7        Null        2 0.08888889      0.0912037   0.0907967     0.1313582</span></span>
+<span><span class="co">#&gt; 8        Null        3 0.13333333      0.1744108   0.1599327     0.2199786</span></span>
+<span><span class="co">#&gt; 9        Null        4 0.08888889      0.1100589   0.1079365     0.1306333</span></span>
+<span><span class="co">#&gt; 10       Null        5 0.28888889      0.2736532   0.2613636     0.3179221</span></span>
+<span><span class="co">#&gt; 11       Main        1 0.73333333      0.7731481   0.7291667     0.7379157</span></span>
+<span><span class="co">#&gt; 12       Main        2 0.71111111      0.7250000   0.7235450     0.7210240</span></span>
+<span><span class="co">#&gt; 13       Main        3 0.75555556      0.7643519   0.7500000     0.7481076</span></span>
+<span><span class="co">#&gt; 14       Main        4 0.71111111      0.7351852   0.7389499     0.7256702</span></span>
+<span><span class="co">#&gt; 15       Main        5 0.80000000      0.8310185   0.8132937     0.8192783</span></span>
+<span><span class="co">#&gt; 16       Null        1 0.06666667      0.0915404   0.1083333     0.1173046</span></span>
+<span><span class="co">#&gt; 17       Null        2 0.08888889      0.0912037   0.0907967     0.1313582</span></span>
+<span><span class="co">#&gt; 18       Null        3 0.13333333      0.1744108   0.1599327     0.2199786</span></span>
+<span><span class="co">#&gt; 19       Null        4 0.08888889      0.1100589   0.1079365     0.1306333</span></span>
+<span><span class="co">#&gt; 20       Null        5 0.28888889      0.2736532   0.2613636     0.3179221</span></span>
 <span><span class="co">#&gt;          method</span></span>
 <span><span class="co">#&gt; 1  All features</span></span>
 <span><span class="co">#&gt; 2  All features</span></span>

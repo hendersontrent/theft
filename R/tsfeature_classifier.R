@@ -12,7 +12,7 @@
 #' @param by_set \code{Boolean} specifying whether to compute classifiers for each feature set. Defaults to \code{TRUE}. If \code{FALSE}, the function will instead find the best individually-performing features
 #' @param use_null \code{Boolean} whether to fit null models where class labels are shuffled in order to generate a null distribution that can be compared to performance on correct class labels. Defaults to \code{FALSE}
 #' @param seed \code{integer} to fix R's random number generator to ensure reproducibility. Defaults to \code{123}
-#' @param preference \code{character} denoting which feature set to keep (meaning the others will be filtered out) between \code{"feasts"}, \code{"tsfeatures"}, and \code{"Kats"} since there is considerable overlap between these three sets. Defaults to \code{"feasts"}. Only applies if \code{by_set = TRUE} (since a set of "All features" is constructed automatically as a comparator)
+#' @param preference \code{character} denoting which feature set to keep (meaning the others will be filtered out) between \code{"feasts"}, \code{"tsfeatures"}, and \code{"Kats"} since there is considerable overlap between these three sets. Defaults to \code{"feasts"}. Duplicates will NOT be removed from sets when computing set-level results for the respective non-preferenced sets to ensure fairness. They are only filtered out for either the construction of the set of "All features" if \code{by_set = TRUE} and when computing individual feature results (to reduce redundant calculations)
 #' @return \code{list} containing a named \code{vector} of train-test set sizes, and a \code{data.frame} of classification performance results
 #' @author Trent Henderson
 #' @export
@@ -55,17 +55,15 @@ tsfeature_classifier <- function(data, classifier = NULL, train_size = 0.75, n_r
   
   # Set up data
   
-  tmp <- data[[1]] %>%
-    dplyr::mutate(group = as.factor(as.character(.data$group)),
-                  names = paste0(.data$method, "_", .data$names)) %>%
-    dplyr::select(c(.data$id, .data$group, .data$names, .data$values)) %>%
-    tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
-    dplyr::select_if(~sum(!is.na(.)) > 0) %>% # Delete features that are all NaNs
-    dplyr::select(mywhere(~dplyr::n_distinct(.) > 1)) # Delete features with constant values
-  
-  # Add "All features" if by_set = TRUE
-  
   if(by_set){
+    
+    tmp <- data[[1]] %>%
+      dplyr::mutate(group = as.factor(as.character(.data$group)),
+                    names = paste0(.data$method, "_", .data$names)) %>%
+      dplyr::select(c(.data$id, .data$group, .data$names, .data$values)) %>%
+      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
+      dplyr::select_if(~sum(!is.na(.)) > 0) %>% # Delete features that are all NaNs
+      dplyr::select(mywhere(~dplyr::n_distinct(.) > 1)) # Delete features with constant values
     
     # Remove duplicate features
     
@@ -84,10 +82,25 @@ tsfeature_classifier <- function(data, classifier = NULL, train_size = 0.75, n_r
     
     tmp <- tmp %>%
       dplyr::left_join(tmp2, by = c("id" = "id", "group" = "group"))
+    
+  } else{
+    
+    # Remove duplicate features
+    
+    tmp <- filter_duplicates(data = data, preference = preference)
+    
+    tmp <- tmp[[1]] %>%
+      dplyr::mutate(group = as.factor(as.character(.data$group)),
+                    names = paste0(.data$method, "_", .data$names)) %>%
+      dplyr::select(c(.data$id, .data$group, .data$names, .data$values)) %>%
+      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
+      dplyr::select_if(~sum(!is.na(.)) > 0) %>% # Delete features that are all NaNs
+      dplyr::select(mywhere(~dplyr::n_distinct(.) > 1)) # Delete features with constant values
   }
   
   # Assign samples to train or test
   
+  set.seed(seed)
   dt <- sort(sample(nrow(tmp), nrow(tmp) * train_size))
   train <- tmp[dt, ] %>% dplyr::mutate(set_split = "Train")
   test <- tmp[-dt, ] %>% dplyr::mutate(set_split = "Test")
@@ -101,7 +114,7 @@ tsfeature_classifier <- function(data, classifier = NULL, train_size = 0.75, n_r
   
   if(is.null(classifier)){
     classifier <- function(formula, data){
-      mod <- e1071::svm(formula, data = data, scale = FALSE, probability = TRUE)
+      mod <- e1071::svm(formula, data = data, kernel = "linear", scale = FALSE, probability = TRUE)
     }
   } else{
     if(length(names(formals(classifier))) != 2){

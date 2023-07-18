@@ -9,7 +9,7 @@ filter_duplicates(data, preference = c("feasts", "tsfeatures", "Kats"))
 \arguments{
 \item{data}{\code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}}
 
-\item{preference}{\code{character} denoting which feature set to keep (meaning the others will be filtered out) between \code{"feasts"}, \code{"tsfeatures"}, and \code{"Kats"} since there is considerable overlap between these three sets. Defaults to \code{"feasts"}. Only applies if \code{by_set = TRUE} (since a set of "All features" is constructed automatically as a comparator)}
+\item{preference}{\code{character} denoting which feature set to keep (meaning the others will be filtered out) between \code{"feasts"}, \code{"tsfeatures"}, and \code{"Kats"} since there is considerable overlap between these three sets. Defaults to \code{"feasts"}. Duplicates will NOT be removed from sets when computing set-level results for the respective non-preferenced sets to ensure fairness. They are only filtered out for either the construction of the set of "All features" if \code{by_set = TRUE} and when computing individual feature results (to reduce redundant calculations)}
 }
 \value{
 \code{feature_calculations} object containing filtered feature data

@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,7 +94,7 @@
 
 
 <dt>preference</dt>
-<dd><p><code>character</code> denoting which feature set to keep (meaning the others will be filtered out) between <code>"feasts"</code>, <code>"tsfeatures"</code>, and <code>"Kats"</code> since there is considerable overlap between these three sets. Defaults to <code>"feasts"</code>. Only applies if <code>by_set = TRUE</code> (since a set of "All features" is constructed automatically as a comparator)</p></dd>
+<dd><p><code>character</code> denoting which feature set to keep (meaning the others will be filtered out) between <code>"feasts"</code>, <code>"tsfeatures"</code>, and <code>"Kats"</code> since there is considerable overlap between these three sets. Defaults to <code>"feasts"</code>. Duplicates will NOT be removed from sets when computing set-level results for the respective non-preferenced sets to ensure fairness. They are only filtered out for either the construction of the set of "All features" if <code>by_set = TRUE</code> and when computing individual feature results (to reduce redundant calculations)</p></dd>
 
 </dl></div>
     <div class="section level2">
