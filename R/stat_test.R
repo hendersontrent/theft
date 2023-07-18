@@ -144,8 +144,8 @@ stat_test <- function(data, iter_data, row_id, by_set = FALSE, hypothesis, metri
         outs <- data.frame(hypothesis = paste0(iter_filt, " > ", iter_filt, " (null)"),
                            method = iter_filt, metric = metric, t_statistic = NA, p.value = NA)
       } else{
-        outs <- data.frame(hypothesis = paste0(iter_filt$names, " > ", iter_filt$names, " (null)"),
-                           method = iter_filt$names, metric = metric, t_statistic = NA, p.value = NA)
+        outs <- data.frame(hypothesis = paste0(iter_filt, " > ", iter_filt, " (null)"),
+                           method = iter_filt, metric = metric, t_statistic = NA, p.value = NA)
       }
     } else{
       if(by_set){
