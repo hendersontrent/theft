@@ -47,51 +47,7 @@ stat_test <- function(data, iter_data, row_id, by_set = FALSE, hypothesis, metri
   
   # Select only relevant columns and rename for easier use later
   
-  if(hypothesis == "null"){
-    if(by_set){
-      if(metric == "accuracy"){
-        tmp_data <- tmp_data %>% dplyr::select(c(.data$model_type, .data$method, .data$accuracy)) %>% dplyr::rename(mymetric = .data$accuracy)
-      } else if(metric == "precision"){
-        tmp_data <- tmp_data %>% dplyr::select(c(.data$model_type, .data$method, .data$mean_precision)) %>% dplyr::rename(mymetric = .data$mean_precision)
-      } else if(metric == "recall"){
-        tmp_data <- tmp_data %>% dplyr::select(c(.data$model_type, .data$method, .data$mean_recall)) %>% dplyr::rename(mymetric = .data$mean_recall)
-      } else{
-        tmp_data <- tmp_data %>% dplyr::select(c(.data$model_type, .data$method, .data$mean_f1_score)) %>% dplyr::rename(mymetric = .data$mean_recall)
-      }
-    } else{
-      if(metric == "accuracy"){
-        tmp_data <- tmp_data %>% dplyr::select(c(.data$model_type, .data$names, .data$accuracy)) %>% dplyr::rename(mymetric = .data$accuracy)
-      } else if(metric == "precision"){
-        tmp_data <- tmp_data %>% dplyr::select(c(.data$model_type, .data$names, .data$mean_precision)) %>% dplyr::rename(mymetric = .data$mean_precision)
-      } else if(metric == "recall"){
-        tmp_data <- tmp_data %>% dplyr::select(c(.data$model_type, .data$names, .data$mean_recall)) %>% dplyr::rename(mymetric = .data$mean_recall)
-      } else{
-        tmp_data <- tmp_data %>% dplyr::select(c(.data$model_type, .data$names, .data$mean_f1_score)) %>% dplyr::rename(mymetric = .data$mean_f1_score)
-      }
-    }
-  } else{
-    if(by_set){
-      if(metric == "accuracy"){
-        tmp_data <- tmp_data %>% dplyr::select(c(.data$method, .data$accuracy)) %>% dplyr::rename(mymetric = .data$accuracy)
-      } else if(metric == "precision"){
-        tmp_data <- tmp_data %>% dplyr::select(c(.data$method, .data$mean_precision)) %>% dplyr::rename(mymetric = .data$mean_precision)
-      } else if(metric == "recall"){
-        tmp_data <- tmp_data %>% dplyr::select(c(.data$method, .data$mean_recall)) %>% dplyr::rename(mymetric = .data$mean_recall)
-      } else{
-        tmp_data <- tmp_data %>% dplyr::select(c(.data$method, .data$mean_f1_score)) %>% dplyr::rename(mymetric = .data$mean_f1_score)
-      }
-    } else{
-      if(metric == "accuracy"){
-        tmp_data <- tmp_data %>% dplyr::select(c(.data$names, .data$accuracy)) %>% dplyr::rename(mymetric = .data$accuracy)
-      } else if(metric == "precision"){
-        tmp_data <- tmp_data %>% dplyr::select(c(.data$names, .data$mean_precision)) %>% dplyr::rename(mymetric = .data$mean_precision)
-      } else if(metric == "recall"){
-        tmp_data <- tmp_data %>% dplyr::select(c(.data$names, .data$mean_recall)) %>% dplyr::rename(mymetric = .data$mean_recall)
-      } else{
-        tmp_data <- tmp_data %>% dplyr::select(c(.data$names, .data$mean_f1_score)) %>% dplyr::rename(mymetric = .data$mean_f1_score)
-      }
-    }
-  }
+  tmp_data <- select_stat_cols(data = tmp_data, by_set = by_set, metric = metric, hypothesis = hypothesis)
   
   # Check for 0 variance
   
@@ -141,18 +97,18 @@ stat_test <- function(data, iter_data, row_id, by_set = FALSE, hypothesis, metri
   if(0 %in% sd_check$stddev){
     if(hypothesis == "null"){
       if(by_set){
-        outs <- data.frame(hypothesis = paste0(iter_filt, " > ", iter_filt, " (null)"),
+        outs <- data.frame(hypothesis = paste0(iter_filt, " != ", iter_filt, " (null)"),
                            method = iter_filt, metric = metric, t_statistic = NA, p.value = NA)
       } else{
-        outs <- data.frame(hypothesis = paste0(iter_filt$names, " > ", iter_filt$names, " (null)"),
-                           method = iter_filt$names, metric = metric, t_statistic = NA, p.value = NA)
+        outs <- data.frame(hypothesis = paste0(iter_filt, " != ", iter_filt, " (null)"),
+                           method = iter_filt, metric = metric, t_statistic = NA, p.value = NA)
       }
     } else{
       if(by_set){
-        outs <- data.frame(hypothesis = paste0(iter_filt$method_a, " > ", iter_filt$method_b),
+        outs <- data.frame(hypothesis = paste0(iter_filt$method_a, " != ", iter_filt$method_b),
                            method_a = iter_filt$method_a, method_b = iter_filt$method_b, metric = metric, t_statistic = NA, p.value = NA)
       } else{
-        outs <- data.frame(hypothesis = paste0(iter_filt$names_a, " > ", iter_filt$names_b),
+        outs <- data.frame(hypothesis = paste0(iter_filt$names_a, " != ", iter_filt$names_b),
                            names_a = iter_filt$names_a, names_b = iter_filt$names_b, metric = metric, t_statistic = NA, p.value = NA)
       }
     }
@@ -161,12 +117,12 @@ stat_test <- function(data, iter_data, row_id, by_set = FALSE, hypothesis, metri
       if(by_set){
         t_test <- resampled_ttest(x = x, y = y, n = n_resamples, n1 = train_test_sizes[1], n2 = train_test_sizes[1])
         
-        outs <- data.frame(hypothesis = paste0(iter_filt, " > ", iter_filt, " (null)"),
+        outs <- data.frame(hypothesis = paste0(iter_filt, " != ", iter_filt, " (null)"),
                            method = iter_filt, metric = metric, t_statistic = t_test$statistic, p.value = t_test$p.value)
       } else{
         t_test <- resampled_ttest(x = x, y = y, n = n_resamples, n1 = train_test_sizes[1], n2 = train_test_sizes[1])
         
-        outs <- data.frame(hypothesis = paste0(iter_filt, " > ", iter_filt, " (null)"),
+        outs <- data.frame(hypothesis = paste0(iter_filt, " != ", iter_filt, " (null)"),
                            names = iter_filt, method = gsub("_.*", "\\1", iter_filt), 
                            original_names = gsub("^[^_]*_", "", iter_filt), metric = metric, 
                            t_statistic = t_test$statistic, p.value = t_test$p.value)
@@ -175,12 +131,12 @@ stat_test <- function(data, iter_data, row_id, by_set = FALSE, hypothesis, metri
       if(by_set){
         t_test <- resampled_ttest(x = x, y = y, n = n_resamples, n1 = train_test_sizes[1], n2 = train_test_sizes[1])
         
-        outs <- data.frame(hypothesis = paste0(iter_filt$method_a, " > ", iter_filt$method_b),
+        outs <- data.frame(hypothesis = paste0(iter_filt$method_a, " != ", iter_filt$method_b),
                            method_a = iter_filt$method_a, method_b = iter_filt$method_b, metric = metric, t_statistic = t_test$statistic, p.value = t_test$p.value)
       } else{
         t_test <- resampled_ttest(x = x, y = y, n = n_resamples, n1 = train_test_sizes[1], n2 = train_test_sizes[1])
         
-        outs <- data.frame(hypothesis = paste0(iter_filt$names_a, " > ", iter_filt$names_b),
+        outs <- data.frame(hypothesis = paste0(iter_filt$names_a, " != ", iter_filt$names_b),
                            names_a = iter_filt$names_a, names_b = iter_filt$names_b, metric = metric, t_statistic = t_test$statistic, p.value = t_test$p.value)
       }
     }

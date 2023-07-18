@@ -70,9 +70,9 @@ Sets](https://ieeexplore.ieee.org/document/9679937).
 `theft` also contains an extensive suite of tools for automatic
 processing of extracted feature vectors (including data quality
 assessments and normalisation methods), low dimensional projections
-(linear and nonlinear), data matrix visualisations, single feature and
-multiple feature time-series classification procedures, and various
-other statistical and graphical tools.
+(linear and nonlinear), data matrix visualisations, automated
+time-series classification procedures, statistical hypothesis testing,
+and various other statistical and graphical tools.
 
 ## Web application
 
@@ -83,8 +83,9 @@ the functionality included in the package from within a web browser
 without any code. The application automates the entire workflow included
 in `theft`, converts all static graphics included in the package into
 interactive visualisations, and enables downloads of feature
-calculations. Note that since `theft` is an active development project,
-not all functionality has been copied across to the webtool yet.
+calculations. Note that since `theft` is an active development project
+and the web application is not, functionality in the application may be
+out of date relative to what is available in `theft`.
 
 ## Citation
 
@@ -100,7 +101,7 @@ and the software:
     To cite package 'theft' in publications use:
 
       Henderson T (2023). _theft: Tools for Handling Extraction of Features
-      from Time Series_. R package version 0.5.0,
+      from Time Series_. R package version 0.5.1,
       <https://hendersontrent.github.io/theft/>.
 
     A BibTeX entry for LaTeX users is
@@ -109,6 +110,6 @@ and the software:
         title = {theft: Tools for Handling Extraction of Features from Time Series},
         author = {Trent Henderson},
         year = {2023},
-        note = {R package version 0.5.0},
+        note = {R package version 0.5.1},
         url = {https://hendersontrent.github.io/theft/},
       }
