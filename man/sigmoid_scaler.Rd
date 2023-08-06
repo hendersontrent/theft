@@ -7,10 +7,10 @@
 sigmoid_scaler(x)
 }
 \arguments{
-\item{x}{\code{numeric vector}}
+\item{x}{\code{numeric} vector}
 }
 \value{
-\code{numeric vector}
+\code{numeric} vector
 }
 \description{
 \eqn{z_{i} = \left[1 + \exp(-\frac{x_{i} - \mu}{\sigma})\right]^{-1}}
