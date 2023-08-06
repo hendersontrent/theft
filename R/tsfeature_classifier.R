@@ -59,7 +59,7 @@ tsfeature_classifier <- function(data, classifier = NULL, train_size = 0.75, n_r
     
     tmp <- data[[1]] %>%
       dplyr::mutate(group = as.factor(as.character(.data$group)),
-                    names = paste0(.data$method, "_", .data$names)) %>%
+                    names = paste0(.data$feature_set, "_", .data$names)) %>%
       dplyr::select(c(.data$id, .data$group, .data$names, .data$values)) %>%
       tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
       dplyr::select_if(~sum(!is.na(.)) > 0) %>% # Delete features that are all NaNs
@@ -72,9 +72,9 @@ tsfeature_classifier <- function(data, classifier = NULL, train_size = 0.75, n_r
     # Construct set of all features
     
     tmp2 <- tmp2[[1]] %>%
-      dplyr::mutate(method = "allfeatures",
+      dplyr::mutate(feature_set = "allfeatures",
                     group = as.factor(as.character(.data$group)),
-                    names = paste0(.data$method, "_", .data$names)) %>%
+                    names = paste0(.data$feature_set, "_", .data$names)) %>%
       dplyr::select(c(.data$id, .data$group, .data$names, .data$values)) %>%
       tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
       dplyr::select_if(~sum(!is.na(.)) > 0) %>% # Delete features that are all NaNs
@@ -91,7 +91,7 @@ tsfeature_classifier <- function(data, classifier = NULL, train_size = 0.75, n_r
     
     tmp <- tmp[[1]] %>%
       dplyr::mutate(group = as.factor(as.character(.data$group)),
-                    names = paste0(.data$method, "_", .data$names)) %>%
+                    names = paste0(.data$feature_set, "_", .data$names)) %>%
       dplyr::select(c(.data$id, .data$group, .data$names, .data$values)) %>%
       tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
       dplyr::select_if(~sum(!is.na(.)) > 0) %>% # Delete features that are all NaNs
@@ -204,13 +204,13 @@ tsfeature_classifier <- function(data, classifier = NULL, train_size = 0.75, n_r
         purrr::map_dfr(~ fit_models(res_data, iters, .x, is_null_run = TRUE, classifier = classifier))
       
       outs <- dplyr::bind_rows(outs, outs_null) %>%
-        dplyr::mutate(method = ifelse(.data$method == "allfeatures", "All features", .data$method)) %>%
-        dplyr::arrange(.data$method)
+        dplyr::mutate(feature_set = ifelse(.data$feature_set == "allfeatures", "All features", .data$feature_set)) %>%
+        dplyr::arrange(.data$feature_set)
       
     } else{
       outs <- 1:nrow(iters) %>%
         purrr::map_dfr(~ fit_models(res_data, iters, .x, is_null_run = FALSE, classifier = classifier)) %>%
-        dplyr::mutate(method = ifelse(.data$method == "allfeatures", "All features", .data$method))
+        dplyr::mutate(feature_set = ifelse(.data$feature_set == "allfeatures", "All features", .data$feature_set))
     }
   } else{
     

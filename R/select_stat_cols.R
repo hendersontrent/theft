@@ -15,13 +15,13 @@ select_stat_cols <- function(data, by_set, metric, hypothesis){
   if(hypothesis == "null"){
     if(by_set){
       if(metric == "accuracy"){
-        tmp <- data %>% dplyr::select(c(.data$model_type, .data$method, .data$accuracy)) %>% dplyr::rename(mymetric = .data$accuracy)
+        tmp <- data %>% dplyr::select(c(.data$model_type, .data$feature_set, .data$accuracy)) %>% dplyr::rename(mymetric = .data$accuracy)
       } else if(metric == "precision"){
-        tmp <- data %>% dplyr::select(c(.data$model_type, .data$method, .data$mean_precision)) %>% dplyr::rename(mymetric = .data$mean_precision)
+        tmp <- data %>% dplyr::select(c(.data$model_type, .data$feature_set, .data$mean_precision)) %>% dplyr::rename(mymetric = .data$mean_precision)
       } else if(metric == "recall"){
-        tmp <- data %>% dplyr::select(c(.data$model_type, .data$method, .data$mean_recall)) %>% dplyr::rename(mymetric = .data$mean_recall)
+        tmp <- data %>% dplyr::select(c(.data$model_type, .data$feature_set, .data$mean_recall)) %>% dplyr::rename(mymetric = .data$mean_recall)
       } else{
-        tmp <- data %>% dplyr::select(c(.data$model_type, .data$method, .data$mean_f1_score)) %>% dplyr::rename(mymetric = .data$mean_recall)
+        tmp <- data %>% dplyr::select(c(.data$model_type, .data$feature_set, .data$mean_f1_score)) %>% dplyr::rename(mymetric = .data$mean_recall)
       }
     } else{
       if(metric == "accuracy"){
@@ -37,13 +37,13 @@ select_stat_cols <- function(data, by_set, metric, hypothesis){
   } else{
     if(by_set){
       if(metric == "accuracy"){
-        tmp <- data %>% dplyr::select(c(.data$method, .data$accuracy)) %>% dplyr::rename(mymetric = .data$accuracy)
+        tmp <- data %>% dplyr::select(c(.data$feature_set, .data$accuracy)) %>% dplyr::rename(mymetric = .data$accuracy)
       } else if(metric == "precision"){
-        tmp <- data %>% dplyr::select(c(.data$method, .data$mean_precision)) %>% dplyr::rename(mymetric = .data$mean_precision)
+        tmp <- data %>% dplyr::select(c(.data$feature_set, .data$mean_precision)) %>% dplyr::rename(mymetric = .data$mean_precision)
       } else if(metric == "recall"){
-        tmp <- data %>% dplyr::select(c(.data$method, .data$mean_recall)) %>% dplyr::rename(mymetric = .data$mean_recall)
+        tmp <- data %>% dplyr::select(c(.data$feature_set, .data$mean_recall)) %>% dplyr::rename(mymetric = .data$mean_recall)
       } else{
-        tmp <- data %>% dplyr::select(c(.data$method, .data$mean_f1_score)) %>% dplyr::rename(mymetric = .data$mean_f1_score)
+        tmp <- data %>% dplyr::select(c(.data$feature_set, .data$mean_f1_score)) %>% dplyr::rename(mymetric = .data$mean_f1_score)
       }
     } else{
       if(metric == "accuracy"){

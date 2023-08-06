@@ -11,23 +11,26 @@
 #' @importFrom stats hclust dist cor
 #' @param x the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
 #' @param type \code{character} specifying the type of plot to draw. Defaults to \code{"quality"}
-#' @param method \code{character} specifying a rescaling/normalising method to apply if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"z-score"}
+#' @param norm_method \code{character} specifying a rescaling/normalising method to apply if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"z-score"}
+#' @param unit_int \code{Boolean} whether to rescale into unit interval \code{[0,1]} after applying normalisation method. Defaults to \code{FALSE}
 #' @param clust_method \code{character} specifying the hierarchical clustering method to use if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"average"}
 #' @param cor_method \code{character} specifying the correlation method to use if \code{type = "cor"}. Defaults to \code{"pearson"}
-#' @param ... Arguments to be passed to methods
+#' @param feature_names \code{character} vector denoting the name of the features to plot if \code{type = "violin"}. Defaults to \code{NULL}
+#' @param ... Arguments to be passed to \code{ggplot2::geom_bar} if \code{type = "quality"}, \code{ggplot2::geom_raster} if \code{type = "matrix"}, \code{ggplot2::geom_raster} if \code{type = "cor"}, or \code{ggplot2::geom_point} if \code{type = "violin"}
 #' @return object of class \code{ggplot} that contains the graphic
 #' @author Trent Henderson
 #' @export
 #' 
 
-plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor"), 
-                                      method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor", "violin"), 
+                                      norm_method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+                                      unit_int = FALSE,
                                       clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid"),
-                                      cor_method = c("pearson", "spearman"), ...){
+                                      cor_method = c("pearson", "spearman"), feature_names = NULL, ...){
   
   stopifnot(inherits(x, "feature_calculations") == TRUE)
   type <- match.arg(type)
-  method <- match.arg(method)
+  norm_method <- match.arg(norm_method)
   clust_method <- match.arg(clust_method)
   cor_method <- match.arg(cor_method)
   
@@ -73,7 +76,7 @@ plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor"),
     
     p <- tmp %>%
       ggplot2::ggplot(ggplot2::aes(x = stats::reorder(.data$names, -.data$ranker), y = .data$props)) +
-      ggplot2::geom_bar(stat = "identity", ggplot2::aes(fill = .data$quality)) +
+      ggplot2::geom_bar(stat = "identity", ggplot2::aes(fill = .data$quality), ...) +
       ggplot2::labs(title = "Data quality for computed features",
                     x = "Feature",
                     y = "Proportion of Outputs",
@@ -97,13 +100,12 @@ plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor"),
     #------------- Apply normalisation -------------
     
     data_id <- x[[1]] %>%
-      dplyr::rename(feature_set = .data$method) %>% # Avoids issues with method arg later
       dplyr::select(c(.data$id, .data$names, .data$values, .data$feature_set)) %>%
       tidyr::drop_na() %>%
       dplyr::mutate(names = paste0(.data$feature_set, "_", .data$names)) %>% # Catches errors when using all features across sets (i.e., there's duplicates)
       dplyr::select(-c(.data$feature_set)) %>%
       dplyr::group_by(.data$names) %>%
-      dplyr::mutate(values = normalise(.data$values, method = method)) %>%
+      dplyr::mutate(values = normalise(.data$values, norm_method = norm_method, unit_int = unit_int)) %>%
       dplyr::ungroup()
     
     #------------- Hierarchical clustering ----------
@@ -137,7 +139,7 @@ plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor"),
     
     p <- cluster_out %>%
         ggplot2::ggplot(ggplot2::aes(x = .data$names, y = .data$id, fill = .data$value))  +
-        ggplot2::geom_raster() +
+        ggplot2::geom_raster(...) +
         ggplot2::scale_fill_stepsn(n.breaks = 6, colours = rev(mypalette),
                                    show.limits = TRUE) +
       ggplot2::labs(title = "Data matrix",
@@ -161,12 +163,11 @@ plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor"),
     p <- p +
       ggplot2::theme(legend.position = "bottom")
     
-  } else {
+  } else if(type == "cor") {
     
     #------------- Clean up structure --------------
     
     data_id <- x[[1]] %>%
-      dplyr::rename(feature_set = .data$method) %>% # Avoids issues with method arg later
       dplyr::select(c(.data$id, .data$names, .data$values, .data$feature_set)) %>%
       tidyr::drop_na() %>%
       dplyr::mutate(names = paste0(.data$feature_set, "_", .data$names)) %>% # Catches errors when using all features across sets (i.e., there's duplicates)
@@ -216,7 +217,7 @@ plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor"),
     
     p <- cluster_out %>%
       ggplot2::ggplot(ggplot2::aes(x = .data$Var1, y = .data$Var2)) +
-      ggplot2::geom_raster(ggplot2::aes(fill = .data$value)) +
+      ggplot2::geom_raster(ggplot2::aes(fill = .data$value), ...) +
       ggplot2::labs(title = "Pairwise correlation matrix",
                     x = "Feature",
                     y = "Feature",
@@ -233,6 +234,35 @@ plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor"),
     } else {
       p <- p +
         ggplot2::theme(axis.text = ggplot2::element_blank())
+    }
+  } else{
+    
+    if(is.null(feature_names)){
+      stop("feature_names argument must not be NULL if drawing a violin plot. Please enter a vector of valid feature names.")
+    } else{
+      p <- x[[1]] %>%
+        dplyr::filter(names %in% feature_names) %>%
+        dplyr::mutate(names = paste0(feature_set, "_", names))
+      
+      if("group" %in% colnames(p)){
+        p <- p %>%
+          ggplot2::ggplot(ggplot2::aes(x = group, y = values, colour = group))
+      } else{
+        p <- p %>%
+          dplyr::mutate(group = "Data") %>%
+          ggplot2::ggplot(ggplot2::aes(x = group, y = values))
+      }
+      
+      p <- p + 
+        ggplot2::geom_violin() +
+        ggplot2::geom_point(position = ggplot2::position_jitter(w = 0.05), ...) +
+        ggplot2::labs(x = "Class",
+                      y = "Feature value") +
+        ggplot2::scale_colour_brewer(palette = "Dark2") +
+        ggplot2::theme_bw() +
+        ggplot2::theme(legend.position = "none",
+                       axis.text.x = ggplot2::element_text(angle = 90)) +
+        ggplot2::facet_wrap(~ names, scales = "free_y")
     }
   }
   

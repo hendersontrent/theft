@@ -4,12 +4,18 @@
 \alias{normalise}
 \title{Scale each feature vector into a user-specified range for visualisation and modelling}
 \usage{
-normalise(data, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"))
+normalise(
+  data,
+  norm_method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+  unit_int = FALSE
+)
 }
 \arguments{
 \item{data}{either a \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features} or a \code{vector} of class \code{numeric} containing values to be normalised}
 
-\item{method}{\code{character} denoting the rescaling/normalising method to apply to violin plots. Defaults to \code{"z-score"}}
+\item{norm_method}{\code{character} denoting the rescaling/normalising method to apply to violin plots. Defaults to \code{"z-score"}}
+
+\item{unit_int}{\code{Boolean} whether to rescale into unit interval \code{[0,1]} after applying normalisation method. Defaults to \code{FALSE}}
 }
 \value{
 either an object of class \code{data.frame} or \code{numeric}

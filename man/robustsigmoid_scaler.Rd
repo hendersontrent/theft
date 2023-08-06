@@ -4,12 +4,10 @@
 \alias{robustsigmoid_scaler}
 \title{Rescales a numeric vector using an outlier-robust Sigmoidal transformation and then into the unit interval [0,1]}
 \usage{
-robustsigmoid_scaler(x, unitInt = TRUE)
+robustsigmoid_scaler(x)
 }
 \arguments{
 \item{x}{\code{numeric vector}}
-
-\item{unitInt}{\code{Boolean} whether to rescale into unit interval \code{[0,1]}. Defaults to \code{TRUE}}
 }
 \value{
 \code{numeric vector}

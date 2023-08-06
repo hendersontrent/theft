@@ -13,7 +13,7 @@ calc_catch22 <- function(data, catch24){
       dplyr::arrange(.data$timepoint) %>%
       dplyr::summarise(Rcatch22::catch22_all(.data$values, catch24 = catch24)) %>%
       dplyr::ungroup() %>%
-      dplyr::mutate(method = "catch22")
+      dplyr::mutate(feature_set = "catch22")
   } else{
     outData <- data %>%
       tibble::as_tibble() %>%
@@ -21,7 +21,7 @@ calc_catch22 <- function(data, catch24){
       dplyr::arrange(.data$timepoint) %>%
       dplyr::summarise(Rcatch22::catch22_all(.data$values, catch24 = catch24)) %>%
       dplyr::ungroup() %>%
-      dplyr::mutate(method = "catch22")
+      dplyr::mutate(feature_set = "catch22")
   }
   
   message("\nCalculations completed for catch22.")
@@ -40,14 +40,14 @@ calc_feasts <- function(data){
     outData <- tsData %>%
       fabletools::features(.data$values, fabletools::feature_set(pkgs = "feasts"))  %>%
       tidyr::gather("names", "values", -c(.data$id, .data$group)) %>%
-      dplyr::mutate(method = "feasts")
+      dplyr::mutate(feature_set = "feasts")
   } else{
     tsData <- tsibble::as_tsibble(data, key = c(.data$id), index = .data$timepoint)
     
     outData <- tsData %>%
       fabletools::features(.data$values, fabletools::feature_set(pkgs = "feasts"))  %>%
       tidyr::gather("names", "values", -.data$id) %>%
-      dplyr::mutate(method = "feasts")
+      dplyr::mutate(feature_set = "feasts")
   }
   
   message("\nCalculations completed for feasts.")
@@ -76,7 +76,7 @@ tsfeatures_helper <- function(data, grouped = FALSE, feats){
     dplyr::summarise(tsfeatures::tsfeatures(.data$values, features = feats)) %>%
     dplyr::ungroup() %>%
     tidyr::gather("names", "values", -c(dplyr::all_of(vars))) %>%
-    dplyr::mutate(method = "tsfeatures")
+    dplyr::mutate(feature_set = "tsfeatures")
   
   return(outData)
 }
@@ -175,7 +175,7 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
     outData <- outData %>%
       cbind(ids2) %>%
       tidyr::gather("names", "values", -.data$id) %>%
-      dplyr::mutate(method = "tsfresh")
+      dplyr::mutate(feature_set = "tsfresh")
     
   } else{
     temp1 <- data.frame(id = data$id,
@@ -200,7 +200,7 @@ calc_tsfresh <- function(data, column_id = "id", column_sort = "timepoint", clea
     outData <- outData %>%
       dplyr::mutate(id = ids) %>%
       tidyr::gather("names", "values", -.data$id) %>%
-      dplyr::mutate(method = "tsfresh")
+      dplyr::mutate(feature_set = "tsfresh")
   }
   
   if(c("group") %in% colnames(data)){
@@ -231,7 +231,7 @@ calc_tsfel <- function(data){
       dplyr::summarise(tsfel_calculator(.data$values)) %>%
       dplyr::ungroup() %>%
       tidyr::gather("names", "values", -c(.data$id, .data$group)) %>%
-      dplyr::mutate(method = "TSFEL")
+      dplyr::mutate(feature_set = "TSFEL")
   } else{
     outData <- data %>%
       tibble::as_tibble() %>%
@@ -240,7 +240,7 @@ calc_tsfel <- function(data){
       dplyr::summarise(tsfel_calculator(.data$values)) %>%
       dplyr::ungroup() %>%
       tidyr::gather("names", "values", -c(.data$id)) %>%
-      dplyr::mutate(method = "TSFEL")
+      dplyr::mutate(feature_set = "TSFEL")
   }
   
   message("\nCalculations completed for TSFEL.")
@@ -277,7 +277,7 @@ calc_kats <- function(data){
       tidyr::unnest_wider(.data$results) %>%
       dplyr::ungroup() %>%
       tidyr::gather("names", "values", -c(.data$id, .data$group)) %>%
-      dplyr::mutate(method = "Kats")
+      dplyr::mutate(feature_set = "Kats")
   } else{
     outData <- data %>%
       dplyr::left_join(datetimes, by = c("timepoint" = "timepoint")) %>%
@@ -288,7 +288,7 @@ calc_kats <- function(data){
       tidyr::unnest_wider(.data$results) %>%
       dplyr::ungroup() %>%
       tidyr::gather("names", "values", -c(.data$id)) %>%
-      dplyr::mutate(method = "Kats")
+      dplyr::mutate(feature_set = "Kats")
   }
   
   message("\nCalculations completed for Kats.")

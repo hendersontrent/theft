@@ -79,7 +79,7 @@ fit_models <- function(data, iter_data, row_id, is_null_run = FALSE, classifier)
       dplyr::mutate(names = iter_filt$feature_name)
   } else{
     results <- results %>%
-      dplyr::mutate(method = iter_filt$set_name)
+      dplyr::mutate(feature_set = iter_filt$set_name)
   }
   
   return(results)

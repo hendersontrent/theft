@@ -9,7 +9,6 @@
 #'
 
 minmax_scaler <- function(x){
-  
   x1 <- as.vector(x) # Catches class "ts" cases
   x_new <- scales::rescale(x1, to = c(0, 1))
   return(x_new)
@@ -22,20 +21,13 @@ minmax_scaler <- function(x){
 #' @importFrom stats sd
 #' @importFrom scales rescale
 #' @param x \code{numeric vector}
-#' @param unitInt \code{Boolean} whether to rescale into unit interval \code{[0,1]}. Defaults to \code{TRUE}
 #' @return \code{numeric} vector
 #' @author Trent Henderson
 #'
 
-zscore_scaler <- function(x, unitInt = TRUE){
-  
+zscore_scaler <- function(x){
   x1 <- as.vector(x) # Catches class "ts" cases
   x_new <- (x1 - mean(x1, na.rm = TRUE)) / stats::sd(x1, na.rm = TRUE)
-  
-  if(unitInt){
-    x_new <- scales::rescale(x_new, to = c(0, 1))
-  }
-  
   return(x_new)
 }
 
@@ -46,20 +38,13 @@ zscore_scaler <- function(x, unitInt = TRUE){
 #' @importFrom stats sd
 #' @importFrom scales rescale
 #' @param x \code{numeric vector}
-#' @param unitInt \code{Boolean} whether to rescale into unit interval \code{[0,1]}. Defaults to \code{TRUE}
 #' @return \code{numeric vector}
 #' @author Trent Henderson
 #'
 
-sigmoid_scaler <- function(x, unitInt = TRUE){
-  
+sigmoid_scaler <- function(x){
   x1 <- as.vector(x) # Catches class "ts" cases
   x_new <- 1 / (1 + exp(-((x1 - mean(x1, na.rm = TRUE)) / stats::sd(x1, na.rm = TRUE))))
-  
-  if(unitInt){
-    x_new <- scales::rescale(x_new, to = c(0, 1))
-  }
-  
   return(x_new)
 }
 
@@ -70,20 +55,13 @@ sigmoid_scaler <- function(x, unitInt = TRUE){
 #' @importFrom stats median IQR
 #' @importFrom scales rescale
 #' @param x \code{numeric vector}
-#' @param unitInt \code{Boolean} whether to rescale into unit interval \code{[0,1]}. Defaults to \code{TRUE}
 #' @return \code{numeric vector}
 #' @references Fulcher, Ben D., Little, Max A., and Jones, Nick S. Highly Comparative Time-Series Analysis: The Empirical Structure of Time Series and Their Methods. Journal of The Royal Society Interface 10(83), (2013).
 #' @author Trent Henderson
 #'
 
-robustsigmoid_scaler <- function(x, unitInt = TRUE){
-  
+robustsigmoid_scaler <- function(x){
   x1 <- as.vector(x) # Catches class "ts" cases
   x_new <- 1 / (1 + exp(-((x1 - stats::median(x1, na.rm = TRUE)) / (stats::IQR(x1, na.rm = TRUE) / 1.35))))
-  
-  if(unitInt){
-    x_new <- scales::rescale(x_new, to = c(0, 1))
-  }
-  
   return(x_new)
 }

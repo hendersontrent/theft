@@ -134,10 +134,10 @@ Putting calculated feature vectors on an equal scale is crucial for any statisti
 Normalisation on the whole `feature_calculations` object can be performed in one line:
 
 ```{r, message = FALSE, warning = FALSE}
-normed <- normalise(feature_matrix, method = "z-score")
+normed <- normalise(feature_matrix, norm_method = "z-score", unit_int = FALSE)
 ```
 
-For single vector normalisation, all you need to do is pass in a vector as `normalise` checks for object classes.
+For single vector normalisation, all you need to do is pass in a vector as `normalise` checks for object classes. If you wish to rescale values into the unit interval $[0,1]$ after applying the selected normalisation method, you can set `unit_int = TRUE`.
 
 ## Data visualisation and low-dimensional projections
 
@@ -165,10 +165,34 @@ See the [`hclust` documentation](https://www.rdocumentation.org/packages/stats/v
 Note that the legend for this plot (and other matrix visualisations in `theft`) have been discretised for visual clarity as continuous legends can be difficult to interpret meaningful value differences easily.
 
 ```{r, message = FALSE, warning = FALSE}
-plot(feature_matrix, type = "matrix")
+plot(feature_matrix, type = "matrix", norm_method = "RobustSigmoid")
 ```
 
-You can control the normalisation type with the `method` argument and the hierarchical clustering method with the `clust_method` argument (the example above used defaults so manual specification was not needed).
+You can control the normalisation type with the `norm_method` argument, whether to rescale to the unit interval after normalisation with the `unit_int` argument, and the hierarchical clustering method with the `clust_method` argument (the example above used defaults so manual specification was not needed).
+
+### Individual feature distributions
+
+Plotting the entire feature matrix is useful, but sometimes we wish to understand the distributions of individual features. This is particularly useful if there are different groups in your data (such as in a time-series classification context). We can again use the `plot()` generic here to draw violin plots through setting `type = "violin"`. Note that for violin plots, we also need to tell the function which features we wish to plot (i.e., a vector of characters specifying feature names from the `names` column in your `feature_calculations` object). For simplicity, we will just plot two random features from `catch22` here:
+
+```{r, message = FALSE, warning = FALSE}
+plot(feature_matrix, type = "violin", 
+     feature_names = c("CO_f1ecac", "PD_PeriodicityWang_th0_01"))
+```
+
+Note that when using these defined `plot()` generics, you can pass any additional arguments to certain geoms to control the plot look through the `...` argument in the `plot()` function. Below is a guide to where these arguments go depending on the plot type:
+
+* `type = "quality"`---`...` goes to `ggplot2::geom_bar`
+* `type = "matrix"`---`...` goes to `ggplot2::geom_raster`
+* `type = "cor"`---`...` goes to `ggplot2::geom_raster`
+* `type = "violin"`---`...` goes to `ggplot2::geom_point`
+
+For example, we may wish to control the point size and transparency in the above plot (not rendered here for space):
+
+```{r, eval = FALSE}
+plot(feature_matrix, type = "violin", 
+     feature_names = c("CO_f1ecac", "PD_PeriodicityWang_th0_01"), 
+     size = 0.7, alpha = 0.9)
+```
 
 ### Low dimensional projections
 
@@ -176,7 +200,8 @@ The function `reduce_dims` takes the `feature_calculations` object and calculate
 
 ```{r, message = FALSE, warning = FALSE}
 low_dim <- reduce_dims(feature_matrix, 
-                       method = "RobustSigmoid", 
+                       norm_method = "RobustSigmoid", 
+                       unit_int = TRUE,
                        low_dim_method = "PCA", 
                        seed = 123)
 ```
@@ -191,7 +216,8 @@ Alternatively, a *t*-SNE version can be specified in a similar fashion, with the
 
 ```{r, message = FALSE, warning = FALSE}
 low_dim2 <- reduce_dims(feature_matrix, 
-                        method = "RobustSigmoid", 
+                        norm_method = "RobustSigmoid", 
+                        unit_int = TRUE,
                         low_dim_method = "t-SNE", 
                         perplexity = 10,
                         seed = 123)
@@ -203,7 +229,8 @@ There is also the option to specify any other arguments to `reduce_dims` that ar
 
 ```{r, eval = FALSE}
 low_dim3 <- reduce_dims(feature_matrix, 
-                        method = "RobustSigmoid", 
+                        norm_method = "RobustSigmoid",
+                        unit_int = TRUE,
                         low_dim_method = "t-SNE", 
                         perplexity = 10,
                         seed = 123,
@@ -221,7 +248,7 @@ You can plot correlations between feature vectors using `plot(type = "cor")` on 
 plot(feature_matrix, type = "cor")
 ```
 
-Similarly, you can control the normalisation type with the `method` argument and the hierarchical clustering method with the `clust_method` argument (the example above used defaults so manual specification was not needed).
+Similarly, you can control the normalisation type with the `norm_method` argument and the hierarchical clustering method with the `clust_method` argument (the example above used defaults so manual specification was not needed).
 
 ## Time-series classification
 
@@ -266,7 +293,7 @@ While have raw classification results is useful, we often also would like to sta
 * `metric`---Character denoting the classification performance metric to use in statistical testing. Can be one of `"accuracy"`, `"precision"`, `"recall"`, `"f1"`. Defaults to `"accuracy"`
 * `by_set`---Boolean specifying whether you want to compare feature sets (if `TRUE`) or individual features (if `FALSE`). Defaults to `TRUE` but this is contingent on whether you computed by set or not in `tsfeature_classifier`
 * `hypothesis`---Character denoting whether p-values should be calculated for each feature set or feature (depending on `by_set` argument) individually relative to the null if `use_null = TRUE` in `tsfeature_classifier` through `"null"`, or whether pairwise comparisons between each set or feature should be conducted on main model fits only through `"pairwise"`. Defaults to `"null"`
-* `p_adj`---Character denoting the adjustment made to p-values for multiple comparisons. Should be a valid argument to [`stats::p.adjust`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/p.adjust). Defaults to `"none"` for no adjustment. `"holm"` is recommended as a starting point for adjustments
+* `p_adj`---Character denoting the adjustment made to p-values for multiple comparisons. Should be a valid argument to [`stats::p.adjust`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/p.adjust). Defaults to `"none"` for no adjustment. `"holm"` is recommended as a starting point if adjustments are sought
 
 We can use `compare_features` to evaluate how well each individual feature performs relative to its empirical null distribution (noting that we are using the defaults for the other arguments for code cleanliness):
 
@@ -278,7 +305,7 @@ head(feature_vs_null)
 Or to conduct pairwise comparisons between individual features:
 
 ```{r, message = FALSE, warning = FALSE}
-pairwise_features <- compare_features(feature_classifiers, by_set = FALSE, hypothesis = "pairwise")
+pairwise_features <- compare_features(feature_classifiers, by_set = FALSE, hypothesis = "pairwise", p_adj = "holm")
 head(pairwise_features)
 ```
 
@@ -286,11 +313,11 @@ We can then use `ggplot2` to summarise and visualise our results. Here is a pair
 
 ```{r, message = FALSE, warning = FALSE}
 top_10 <- feature_vs_null %>% 
-  dplyr::slice_min(p_value_adj, n = 10) %>% 
-  dplyr::select(c(method, original_names, p_value_adj))
+  dplyr::slice_min(p.value, n = 10) %>% 
+  dplyr::select(c(feature_set, original_names, p.value))
 
 feature_matrix_filt <- feature_matrix[[1]] %>% 
-  dplyr::filter(method %in% top_10$method & names %in% top_10$original_names)
+  dplyr::filter(feature_set %in% top_10$feature_set & names %in% top_10$original_names)
 
 feature_matrix_filt <- structure(list(feature_matrix_filt), class = "feature_calculations")
 plot(feature_matrix_filt, type = "cor")
@@ -328,12 +355,12 @@ Since we only calculated `catch22` in this vignette, the only other comparate se
 ```{r, message = FALSE, warning = FALSE}
 set_classifiers$ClassificationResults %>%
   dplyr::filter(model_type == "Main") %>% 
-  dplyr::group_by(method) %>%
+  dplyr::group_by(feature_set) %>%
   dplyr::summarise(mu = mean(accuracy),
                    lower = mu - (1 * sd(accuracy)),
                    upper = mu + (1 * sd(accuracy))) %>%
   dplyr::ungroup() %>%
-  ggplot2::ggplot(ggplot2::aes(x = reorder(method, -mu), y = mu, colour = method)) +
+  ggplot2::ggplot(ggplot2::aes(x = reorder(feature_set, -mu), y = mu, colour = feature_set)) +
   ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper)) +
   ggplot2::geom_point(size = 5) +
   ggplot2::labs(x = "Feature set",

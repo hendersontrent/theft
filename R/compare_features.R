@@ -63,7 +63,7 @@ compare_features <- function(data, metric = c("accuracy", "precision", "recall",
       
       # Develop iterator
       
-      iters <- data.frame(method = unique(data$ClassificationResults$method))
+      iters <- data.frame(feature_set = unique(data$ClassificationResults$feature_set))
       
       # Produce final output
       
@@ -76,7 +76,7 @@ compare_features <- function(data, metric = c("accuracy", "precision", "recall",
       
       # Develop iterator
       
-      iters <- tidyr::crossing(unique(data$ClassificationResults$method), unique(data$ClassificationResults$method)) %>%
+      iters <- tidyr::crossing(unique(data$ClassificationResults$feature_set), unique(data$ClassificationResults$feature_set)) %>%
         dplyr::rename(method_a = 1, method_b = 2) %>%
         dplyr::filter(.data$method_a != .data$method_b)
       
@@ -132,6 +132,9 @@ compare_features <- function(data, metric = c("accuracy", "precision", "recall",
     }
   }
   
-  results$p_value_adj <- stats::p.adjust(results$p.value, method = p_adj)
+  if(p_adj != "none"){
+    results$p_value_adj <- stats::p.adjust(results$p.value, method = p_adj)
+  }
+  
   return(results)
 }

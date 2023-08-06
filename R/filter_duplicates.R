@@ -26,41 +26,41 @@ filter_duplicates <- function(data, preference = c("feasts", "tsfeatures", "Kats
   
   filtered_data <- data[[1]] %>%
     dplyr::mutate(flag = dplyr::case_when(
-        .data$method %in% sets_to_filter & .data$names %in% c("crossing_points", "n_crossing_points") ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "curvature"                                 ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "diff1_acf1"                                ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "diff1_acf10"                               ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "diff2_acf1"                                ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "diff2_acf10"                               ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "entropy"                                   ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "flat_spots"                                ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "histogram_mode"                            ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "histogram_mode_10"                         ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "linearity"                                 ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "lumpiness"                                 ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "spikiness"                                 ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "stability"                                 ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "std1st_der"                                ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "trend_strength"                            ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "unitroot_kpss"                             ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "firstmin_ac"                               ~ TRUE,
-        .data$method %in% sets_to_filter & .data$names == "firstzero_ac"                              ~ TRUE,
-        TRUE                                                                                          ~ FALSE)) %>%
-    dplyr::filter(!flag) %>%
-    dplyr::select(-c(flag))
+        .data$feature_set %in% sets_to_filter & .data$names %in% c("crossing_points", "n_crossing_points") ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "curvature"                                 ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "diff1_acf1"                                ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "diff1_acf10"                               ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "diff2_acf1"                                ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "diff2_acf10"                               ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "entropy"                                   ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "flat_spots"                                ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "histogram_mode"                            ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "histogram_mode_10"                         ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "linearity"                                 ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "lumpiness"                                 ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "spikiness"                                 ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "stability"                                 ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "std1st_der"                                ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "trend_strength"                            ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "unitroot_kpss"                             ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "firstmin_ac"                               ~ TRUE,
+        .data$feature_set %in% sets_to_filter & .data$names == "firstzero_ac"                              ~ TRUE,
+        TRUE                                                                                               ~ FALSE)) %>%
+    dplyr::filter(!.data$flag) %>%
+    dplyr::select(-c(.data$flag))
   
   # Handle hurst separately since the name is slightly different between {feasts} and {tsfeatures}
   
   if(preference == "feasts"){
     filtered_data <- filtered_data %>%
-      dplyr::mutate(flag = ifelse(.data$method == "tsfeatures" & names == "hurst", TRUE, FALSE)) %>%
-      dplyr::filter(!flag) %>%
-      dplyr::select(-c(flag))
+      dplyr::mutate(flag = ifelse(.data$feature_set == "tsfeatures" & names == "hurst", TRUE, FALSE)) %>%
+      dplyr::filter(!.data$flag) %>%
+      dplyr::select(-c(.data$flag))
   } else if(preference == "tsfeatures"){
     filtered_data <- filtered_data %>%
-      dplyr::mutate(flag = ifelse(.data$method == "feasts" & names == "coef_hurst", TRUE, FALSE)) %>%
-      dplyr::filter(!flag) %>%
-      dplyr::select(-c(flag))
+      dplyr::mutate(flag = ifelse(.data$feature_set == "feasts" & names == "coef_hurst", TRUE, FALSE)) %>%
+      dplyr::filter(!.data$flag) %>%
+      dplyr::select(-c(.data$flag))
   } else{
     
   }
