@@ -274,7 +274,10 @@ feature_matrix_filt <- filter_duplicates(feature_matrix, preference = "feasts")
 Since we are interested in individual features in this section, we will calculate both main and null results for each feature using just `5` resamples for efficiency (in practice, we would use more!) with the default linear SVM:
 
 ```{r, message = FALSE, warning = FALSE}
-feature_classifiers <- tsfeature_classifier(feature_matrix, by_set = FALSE, n_resamples = 5, use_null = TRUE)
+feature_classifiers <- tsfeature_classifier(feature_matrix, 
+                                            by_set = FALSE, 
+                                            n_resamples = 5, 
+                                            use_null = TRUE)
 ```
 
 To show you how simple it is to specify a different classifier, we can instead maybe use a radial basis function SVM (though you are absolutely not limited to just `e1071` models! You can use anything that can be used with R's `predict` generic as `tsfeature_classifier` internally constructs confusion matrices from model predictions):
@@ -284,7 +287,11 @@ myclassifier <- function(formula, data){
   mod <- e1071::svm(formula, data = data, kernel = "radial", scale = FALSE, probability = TRUE)
 }
 
-feature_classifiers_radial <- tsfeature_classifier(feature_matrix, classifier = myclassifier, by_set = FALSE, n_resamples = 5, use_null = TRUE)
+feature_classifiers_radial <- tsfeature_classifier(feature_matrix, 
+                                                   classifier = myclassifier, 
+                                                   by_set = FALSE, 
+                                                   n_resamples = 5, 
+                                                   use_null = TRUE)
 ```
 
 While have raw classification results is useful, we often also would like to statistical evaluate some facet of it. `theft` includes the function `compare_features` for doing this. `compare_features` contains the following arguments:
@@ -298,14 +305,21 @@ While have raw classification results is useful, we often also would like to sta
 We can use `compare_features` to evaluate how well each individual feature performs relative to its empirical null distribution (noting that we are using the defaults for the other arguments for code cleanliness):
 
 ```{r, message = FALSE, warning = FALSE}
-feature_vs_null <- compare_features(feature_classifiers, by_set = FALSE, hypothesis = "null")
+feature_vs_null <- compare_features(feature_classifiers, 
+                                    by_set = FALSE, 
+                                    hypothesis = "null")
+
 head(feature_vs_null)
 ```
 
 Or to conduct pairwise comparisons between individual features:
 
 ```{r, message = FALSE, warning = FALSE}
-pairwise_features <- compare_features(feature_classifiers, by_set = FALSE, hypothesis = "pairwise", p_adj = "holm")
+pairwise_features <- compare_features(feature_classifiers, 
+                                      by_set = FALSE, 
+                                      hypothesis = "pairwise", 
+                                      p_adj = "holm")
+
 head(pairwise_features)
 ```
 
@@ -326,7 +340,9 @@ plot(feature_matrix_filt, type = "cor")
 We can also easily draw a violin plot of the top 10 features to visualise the distributions by group:
 
 ```{r, message = FALSE, warning = FALSE}
-plot(feature_matrix_filt, type = "violin", feature_names = top_10$original_names)
+plot(feature_matrix_filt, 
+     type = "violin", 
+     feature_names = top_10$original_names)
 ```
 
 ### Multi-feature
