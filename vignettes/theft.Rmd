@@ -326,19 +326,7 @@ plot(feature_matrix_filt, type = "cor")
 We can also easily draw a violin plot of the top 10 features to visualise the distributions by group:
 
 ```{r, message = FALSE, warning = FALSE}
-feature_matrix_filt[[1]] %>%
-  ggplot2::ggplot(ggplot2::aes(x = group, y = values, colour = group)) +
-  ggplot2::geom_violin() +
-  ggplot2::geom_point(size = 1, alpha = 0.9, position = ggplot2::position_jitter(w = 0.05)) +
-  ggplot2::labs(x = "Class",
-                y = "Value") +
-  ggplot2::scale_colour_brewer(palette = "Dark2") +
-  ggplot2::theme_bw() +
-  ggplot2::theme(legend.position = "none",
-                 panel.grid.minor = ggplot2::element_blank(),
-                 strip.background = ggplot2::element_blank(),
-                 axis.text.x = ggplot2::element_text(angle = 90)) +
-  ggplot2::facet_wrap(~ names, ncol = 2, scales = "free_y")
+plot(feature_matrix_filt, type = "violin", feature_names = top_10$original_names)
 ```
 
 ### Multi-feature

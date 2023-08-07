@@ -113,18 +113,26 @@ stat_test <- function(data, iter_data, row_id, by_set = FALSE, hypothesis, metri
       }
     }
   } else{
+    
+    # Calculate means for final dataframe
+    
+    x_mean <- mean(x, na.rm = TRUE)
+    y_mean <- mean(y, na.rm = TRUE)
+    
     if(hypothesis == "null"){
       if(by_set){
         t_test <- resampled_ttest(x = x, y = y, n = n_resamples, n1 = train_test_sizes[1], n2 = train_test_sizes[1])
         
-        outs <- data.frame(hypothesis = paste0(iter_filt, " != ", iter_filt, " (null)"),
-                           feature_set = iter_filt, metric = metric, t_statistic = t_test$statistic, p.value = t_test$p.value)
+        outs <- data.frame(hypothesis = paste0(iter_filt, " != own null"),
+                           feature_set = iter_filt, metric = metric, set_mean = x_mean, null_mean = y_mean,
+                           t_statistic = t_test$statistic, p.value = t_test$p.value)
       } else{
         t_test <- resampled_ttest(x = x, y = y, n = n_resamples, n1 = train_test_sizes[1], n2 = train_test_sizes[1])
         
-        outs <- data.frame(hypothesis = paste0(iter_filt, " != ", iter_filt, " (null)"),
+        outs <- data.frame(hypothesis = paste0(iter_filt, " != own null"),
                            names = iter_filt, feature_set = gsub("_.*", "\\1", iter_filt), 
-                           original_names = gsub("^[^_]*_", "", iter_filt), metric = metric, 
+                           original_names = gsub("^[^_]*_", "", iter_filt), metric = metric,
+                           feature_mean = x_mean, null_mean = y_mean,
                            t_statistic = t_test$statistic, p.value = t_test$p.value)
       }
     } else{
@@ -132,12 +140,16 @@ stat_test <- function(data, iter_data, row_id, by_set = FALSE, hypothesis, metri
         t_test <- resampled_ttest(x = x, y = y, n = n_resamples, n1 = train_test_sizes[1], n2 = train_test_sizes[1])
         
         outs <- data.frame(hypothesis = paste0(iter_filt$method_a, " != ", iter_filt$method_b),
-                           feature_set_a = iter_filt$method_a, feature_set_b = iter_filt$method_b, metric = metric, t_statistic = t_test$statistic, p.value = t_test$p.value)
+                           feature_set_a = iter_filt$method_a, feature_set_b = iter_filt$method_b, metric = metric, 
+                           set_a_mean = x_mean, set_b_mean = y_mean,
+                           t_statistic = t_test$statistic, p.value = t_test$p.value)
       } else{
         t_test <- resampled_ttest(x = x, y = y, n = n_resamples, n1 = train_test_sizes[1], n2 = train_test_sizes[1])
         
         outs <- data.frame(hypothesis = paste0(iter_filt$names_a, " != ", iter_filt$names_b),
-                           names_a = iter_filt$names_a, names_b = iter_filt$names_b, metric = metric, t_statistic = t_test$statistic, p.value = t_test$p.value)
+                           names_a = iter_filt$names_a, names_b = iter_filt$names_b, metric = metric, 
+                           names_a_mean = x_mean, names_b_mean = y_mean, 
+                           t_statistic = t_test$statistic, p.value = t_test$p.value)
       }
     }
   }
