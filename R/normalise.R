@@ -1,12 +1,14 @@
 #' Scale each feature vector into a user-specified range for visualisation and modelling
 #' 
+#' `normalise()` and `normalize()` are synonyms.
+#' 
 #' @importFrom rlang .data
 #' @importFrom scales rescale
 #' @import dplyr
-#' @param data either a \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features} or a \code{vector} of class \code{numeric} containing values to be normalised
-#' @param norm_method \code{character} denoting the rescaling/normalising method to apply to violin plots. Defaults to \code{"z-score"}
+#' @param data either a \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features} or a \code{vector} of class \code{numeric} containing values to be rescaled
+#' @param norm_method \code{character} denoting the rescaling/normalising method to apply. Can be one of \code{"z-score"}, \code{"Sigmoid"}, \code{"RobustSigmoid"}, or \code{"MinMax"}. Defaults to \code{"z-score"}
 #' @param unit_int \code{Boolean} whether to rescale into unit interval \code{[0,1]} after applying normalisation method. Defaults to \code{FALSE}
-#' @return either an object of class \code{data.frame} or \code{numeric}
+#' @return either an object of class \code{data.frame} or a \code{numeric} vector
 #' @author Trent Henderson
 #' @export
 #' 
@@ -75,3 +77,9 @@ normalise <- function(data, norm_method = c("z-score", "Sigmoid", "RobustSigmoid
   
   return(normed)
 }
+
+# Alternate spelling version
+
+#' @rdname normalise
+#' @export
+normalize <- normalise

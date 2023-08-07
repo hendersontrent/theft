@@ -21,7 +21,7 @@
 
 \item{type}{\code{character} specifying the type of plot to draw. Defaults to \code{"quality"}}
 
-\item{norm_method}{\code{character} specifying a rescaling/normalising method to apply if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"z-score"}}
+\item{norm_method}{\code{character} specifying a rescaling/normalising method to apply if \code{type = "matrix"} or if \code{type = "cor"}. Can be one of \code{"z-score"}, \code{"Sigmoid"}, \code{"RobustSigmoid"}, or \code{"MinMax"}. Defaults to \code{"z-score"}}
 
 \item{unit_int}{\code{Boolean} whether to rescale into unit interval \code{[0,1]} after applying normalisation method. Defaults to \code{FALSE}}
 

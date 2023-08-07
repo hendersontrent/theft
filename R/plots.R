@@ -11,7 +11,7 @@
 #' @importFrom stats hclust dist cor
 #' @param x the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
 #' @param type \code{character} specifying the type of plot to draw. Defaults to \code{"quality"}
-#' @param norm_method \code{character} specifying a rescaling/normalising method to apply if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"z-score"}
+#' @param norm_method \code{character} specifying a rescaling/normalising method to apply if \code{type = "matrix"} or if \code{type = "cor"}. Can be one of \code{"z-score"}, \code{"Sigmoid"}, \code{"RobustSigmoid"}, or \code{"MinMax"}. Defaults to \code{"z-score"}
 #' @param unit_int \code{Boolean} whether to rescale into unit interval \code{[0,1]} after applying normalisation method. Defaults to \code{FALSE}
 #' @param clust_method \code{character} specifying the hierarchical clustering method to use if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"average"}
 #' @param cor_method \code{character} specifying the correlation method to use if \code{type = "cor"}. Defaults to \code{"pearson"}

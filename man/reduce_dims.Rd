@@ -17,7 +17,7 @@ reduce_dims(
 \arguments{
 \item{data}{the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}}
 
-\item{norm_method}{\code{character} specifying a rescaling/normalising method to apply. Defaults to \code{"z-score"}}
+\item{norm_method}{\code{character} denoting the rescaling/normalising method to apply. Can be one of \code{"z-score"}, \code{"Sigmoid"}, \code{"RobustSigmoid"}, or \code{"MinMax"}. Defaults to \code{"z-score"}}
 
 \item{unit_int}{\code{Boolean} whether to rescale into unit interval \code{[0,1]} after applying normalisation method. Defaults to \code{FALSE}}
 
