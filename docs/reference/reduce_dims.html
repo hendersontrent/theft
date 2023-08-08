@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,7 +53,8 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">reduce_dims</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
-<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"z-score"</span>, <span class="st">"Sigmoid"</span>, <span class="st">"RobustSigmoid"</span>, <span class="st">"MinMax"</span><span class="op">)</span>,</span>
+<span>  norm_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"z-score"</span>, <span class="st">"Sigmoid"</span>, <span class="st">"RobustSigmoid"</span>, <span class="st">"MinMax"</span><span class="op">)</span>,</span>
+<span>  unit_int <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  low_dim_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PCA"</span>, <span class="st">"t-SNE"</span><span class="op">)</span>,</span>
 <span>  perplexity <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">123</span>,</span>
@@ -67,8 +68,12 @@
 <dd><p>the <code>feature_calculations</code> object containing the raw feature matrix produced by <code>calculate_features</code></p></dd>
 
 
-<dt>method</dt>
-<dd><p><code>character</code> specifying a rescaling/normalising method to apply. Defaults to <code>"z-score"</code></p></dd>
+<dt>norm_method</dt>
+<dd><p><code>character</code> denoting the rescaling/normalising method to apply. Can be one of <code>"z-score"</code>, <code>"Sigmoid"</code>, <code>"RobustSigmoid"</code>, or <code>"MinMax"</code>. Defaults to <code>"z-score"</code></p></dd>
+
+
+<dt>unit_int</dt>
+<dd><p><code>Boolean</code> whether to rescale into unit interval <code>[0,1]</code> after applying normalisation method. Defaults to <code>FALSE</code></p></dd>
 
 
 <dt>low_dim_method</dt>

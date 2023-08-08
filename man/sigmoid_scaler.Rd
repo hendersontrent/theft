@@ -4,15 +4,13 @@
 \alias{sigmoid_scaler}
 \title{Rescales a numeric vector using a Sigmoidal transformation}
 \usage{
-sigmoid_scaler(x, unitInt = TRUE)
+sigmoid_scaler(x)
 }
 \arguments{
-\item{x}{\code{numeric vector}}
-
-\item{unitInt}{\code{Boolean} whether to rescale into unit interval \code{[0,1]}. Defaults to \code{TRUE}}
+\item{x}{\code{numeric} vector}
 }
 \value{
-\code{numeric vector}
+\code{numeric} vector
 }
 \description{
 \eqn{z_{i} = \left[1 + \exp(-\frac{x_{i} - \mu}{\sigma})\right]^{-1}}

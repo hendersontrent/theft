@@ -9,7 +9,8 @@
 #' @importFrom stats prcomp
 #' @importFrom Rtsne Rtsne
 #' @param data the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
-#' @param method \code{character} specifying a rescaling/normalising method to apply. Defaults to \code{"z-score"}
+#' @param norm_method \code{character} denoting the rescaling/normalising method to apply. Can be one of \code{"z-score"}, \code{"Sigmoid"}, \code{"RobustSigmoid"}, or \code{"MinMax"}. Defaults to \code{"z-score"}
+#' @param unit_int \code{Boolean} whether to rescale into unit interval \code{[0,1]} after applying normalisation method. Defaults to \code{FALSE}
 #' @param low_dim_method \code{character} specifying the low dimensional embedding method to use. Defaults to \code{"PCA"}
 #' @param perplexity \code{integer} denoting the perplexity hyperparameter to use if \code{low_dim_method} is \code{"t-SNE"}. Defaults to \code{10}
 #' @param seed \code{integer} to fix R's random number generator to ensure reproducibility. Defaults to \code{123}
@@ -19,21 +20,20 @@
 #' @export
 #' 
 
-reduce_dims <- function(data, method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+reduce_dims <- function(data, norm_method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"), unit_int = FALSE,
                         low_dim_method = c("PCA", "t-SNE"), perplexity = 10, seed = 123, ...){
 
   stopifnot(inherits(data, "feature_calculations") == TRUE)
-  method <- match.arg(method)
+  norm_method <- match.arg(norm_method)
   low_dim_method <- match.arg(low_dim_method)
 
   #------------- Normalise data -------------------
 
   normed <- data[[1]] %>%
-    dplyr::rename(feature_set = .data$method) %>% # Avoids issues with method arg later
     dplyr::select(c(.data$id, .data$names, .data$values, .data$feature_set)) %>%
     tidyr::drop_na() %>%
     dplyr::group_by(.data$names) %>%
-    dplyr::mutate(values = normalise(.data$values, method = method)) %>%
+    dplyr::mutate(values = normalise(.data$values, norm_method = norm_method, unit_int = unit_int)) %>%
     dplyr::ungroup() %>%
     tidyr::drop_na() %>%
     dplyr::mutate(names = paste0(.data$feature_set, "_", .data$names)) %>% # Catches errors when using all features across sets (i.e., there's duplicates)

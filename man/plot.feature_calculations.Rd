@@ -6,11 +6,13 @@
 \usage{
 \method{plot}{feature_calculations}(
   x,
-  type = c("quality", "matrix", "cor"),
-  method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+  type = c("quality", "matrix", "cor", "violin"),
+  norm_method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+  unit_int = FALSE,
   clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty",
     "median", "centroid"),
   cor_method = c("pearson", "spearman"),
+  feature_names = NULL,
   ...
 )
 }
@@ -19,13 +21,17 @@
 
 \item{type}{\code{character} specifying the type of plot to draw. Defaults to \code{"quality"}}
 
-\item{method}{\code{character} specifying a rescaling/normalising method to apply if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"z-score"}}
+\item{norm_method}{\code{character} specifying a rescaling/normalising method to apply if \code{type = "matrix"} or if \code{type = "cor"}. Can be one of \code{"z-score"}, \code{"Sigmoid"}, \code{"RobustSigmoid"}, or \code{"MinMax"}. Defaults to \code{"z-score"}}
+
+\item{unit_int}{\code{Boolean} whether to rescale into unit interval \code{[0,1]} after applying normalisation method. Defaults to \code{FALSE}}
 
 \item{clust_method}{\code{character} specifying the hierarchical clustering method to use if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"average"}}
 
 \item{cor_method}{\code{character} specifying the correlation method to use if \code{type = "cor"}. Defaults to \code{"pearson"}}
 
-\item{...}{Arguments to be passed to methods}
+\item{feature_names}{\code{character} vector denoting the name of the features to plot if \code{type = "violin"}. Defaults to \code{NULL}}
+
+\item{...}{Arguments to be passed to \code{ggplot2::geom_bar} if \code{type = "quality"}, \code{ggplot2::geom_raster} if \code{type = "matrix"}, \code{ggplot2::geom_raster} if \code{type = "cor"}, or \code{ggplot2::geom_point} if \code{type = "violin"}}
 }
 \value{
 object of class \code{ggplot} that contains the graphic

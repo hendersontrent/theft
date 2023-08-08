@@ -7,10 +7,10 @@
 minmax_scaler(x)
 }
 \arguments{
-\item{x}{\code{numeric vector}}
+\item{x}{\code{numeric} vector}
 }
 \value{
-\code{numeric vector}
+\code{numeric} vector
 }
 \description{
 \eqn{z_{i} = \frac{x_{i} - \text{min}(\mathbf{x})}{\text{max}(\mathbf{x}) - \text{min}(\mathbf{x})}}

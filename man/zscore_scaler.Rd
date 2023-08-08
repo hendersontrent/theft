@@ -2,14 +2,12 @@
 % Please edit documentation in R/rescalers.R
 \name{zscore_scaler}
 \alias{zscore_scaler}
-\title{Rescales a numeric vector into z-scores and then into the unit interval [0,1]}
+\title{Rescales a numeric vector into z-scores}
 \usage{
-zscore_scaler(x, unitInt = TRUE)
+zscore_scaler(x)
 }
 \arguments{
-\item{x}{\code{numeric vector}}
-
-\item{unitInt}{\code{Boolean} whether to rescale into unit interval \code{[0,1]}. Defaults to \code{TRUE}}
+\item{x}{\code{numeric} vector}
 }
 \value{
 \code{numeric} vector
