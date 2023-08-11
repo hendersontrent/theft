@@ -131,8 +131,8 @@ calculate_interval <- function(data, metric = c("accuracy", "precision", "recall
       dplyr::group_by(!!rlang::sym(grouper)) %>%
       dplyr::summarise(.mean = mean(.data$values),
                        interval_width = stats::qt(interval, (n_samps - 1)) * stats::sd(.data$values) / sqrt(n_samps),
-                       .lower = .data$.mean - interval_width,
-                       .upper = .data$.mean + interval_width) %>%
+                       .lower = .data$.mean - .data$interval_width,
+                       .upper = .data$.mean + .data$interval_width) %>%
       dplyr::ungroup() %>%
       dplyr::select(-c(.data$interval_width))
     
