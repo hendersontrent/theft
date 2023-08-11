@@ -25,6 +25,9 @@
     <loc>https://hendersontrent.github.io/theft/reference/calculate_features.html</loc>
   </url>
   <url>
+    <loc>https://hendersontrent.github.io/theft/reference/calculate_interval.html</loc>
+  </url>
+  <url>
     <loc>https://hendersontrent.github.io/theft/reference/check_vector_quality.html</loc>
   </url>
   <url>
@@ -77,6 +80,9 @@
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/reference/install_python_pkgs.html</loc>
+  </url>
+  <url>
+    <loc>https://hendersontrent.github.io/theft/reference/make_title.html</loc>
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/reference/minmax_scaler.html</loc>
