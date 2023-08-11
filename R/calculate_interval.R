@@ -14,7 +14,7 @@ make_title <- function(x){
 #' Calculate interval summaries with a measure of central tendency of classification results
 #' 
 #' @importFrom stats sd quantile median qt
-#' @importFrom rlang sym
+#' @importFrom rlang sym .data
 #' @import dplyr
 #' @param data \code{list} object containing the classification outputs produce by \code{tsfeature_classifier}
 #' @param metric \code{character} denoting the classification performance metric to calculate intervals for. Can be one of \code{"accuracy"}, \code{"precision"}, \code{"recall"}, \code{"f1"}. Defaults to \code{"accuracy"}
@@ -117,9 +117,9 @@ calculate_interval <- function(data, metric = c("accuracy", "precision", "recall
     intervals <- intervals %>%
       dplyr::filter(model_type == model_type_str) %>% 
       dplyr::group_by(!!rlang::sym(grouper)) %>%
-      dplyr::summarise(.mean = mean(values),
-                       .lower = .mean - (interval * stats::sd(values)),
-                       .upper = .mean + (interval * stats::sd(values))) %>%
+      dplyr::summarise(.mean = mean(.data$values),
+                       .lower = .data$.mean - (interval * stats::sd(.data$values)),
+                       .upper = .data$.mean + (interval * stats::sd(.data$values))) %>%
       dplyr::ungroup()
     
   } else if(type == "qt"){
@@ -129,12 +129,12 @@ calculate_interval <- function(data, metric = c("accuracy", "precision", "recall
     intervals <- intervals %>%
       dplyr::filter(model_type == model_type_str) %>% 
       dplyr::group_by(!!rlang::sym(grouper)) %>%
-      dplyr::summarise(.mean = mean(values),
-                       interval_width = stats::qt(interval, (n_samps - 1)) * stats::sd(values) / sqrt(n_samps),
-                       .lower = .mean - interval_width,
-                       .upper = .mean + interval_width) %>%
+      dplyr::summarise(.mean = mean(.data$values),
+                       interval_width = stats::qt(interval, (n_samps - 1)) * stats::sd(.data$values) / sqrt(n_samps),
+                       .lower = .data$.mean - .data$interval_width,
+                       .upper = .data$.mean + .data$interval_width) %>%
       dplyr::ungroup() %>%
-      dplyr::select(-c(interval_width))
+      dplyr::select(-c(.data$interval_width))
     
   } else{
     
@@ -148,9 +148,9 @@ calculate_interval <- function(data, metric = c("accuracy", "precision", "recall
     intervals <- intervals %>%
       dplyr::filter(model_type == model_type_str) %>% 
       dplyr::group_by(!!rlang::sym(grouper)) %>%
-      dplyr::summarise(.median = stats::median(values),
-                       .lower = stats::quantile(values, prob = lower_bound),
-                       .upper = stats::quantile(values, prob = upper_bound)) %>%
+      dplyr::summarise(.median = stats::median(.data$values),
+                       .lower = stats::quantile(.data$values, prob = lower_bound),
+                       .upper = stats::quantile(.data$values, prob = upper_bound)) %>%
       dplyr::ungroup()
   }
   
