@@ -19,9 +19,9 @@ make_title <- function(x){
 #' @param data \code{list} object containing the classification outputs produce by \code{tsfeature_classifier}
 #' @param metric \code{character} denoting the classification performance metric to calculate intervals for. Can be one of \code{"accuracy"}, \code{"precision"}, \code{"recall"}, \code{"f1"}. Defaults to \code{"accuracy"}
 #' @param by_set \code{Boolean} specifying whether to compute intervals for each feature set. Defaults to \code{TRUE}. If \code{FALSE}, the function will instead calculate intervals for each feature
-#' @param type \code{character} denoting whether to calculate a +/- SD interval with \code{type = "sd"}, confidence interval based off the t-distribution with \code{"qt"}, or based on a quantile with \code{"quantile"}. Defaults to \code{"sd"}
+#' @param type \code{character} denoting whether to calculate a +/- SD interval with \code{"sd"}, confidence interval based off the t-distribution with \code{"qt"}, or based on a quantile with \code{"quantile"}. Defaults to \code{"sd"}
 #' @param interval \code{numeric} scalar denoting the width of the interval to calculate. Defaults to \code{1} if \code{type = "sd"} to produce a +/- 1 SD interval. Defaults to \code{0.95} if \code{type = "qt"} or \code{type = "quantile"} for a 95 per cent interval
-#' @param model_type \code{character} denoting whether to calculate intervals for main models with \code{"main"} or null models with \code{"null"} if when using \code{tsfeature_classifier} function argument \code{use_null = TRUE}. Defaults to \code{"main"}
+#' @param model_type \code{character} denoting whether to calculate intervals for main models with \code{"main"} or null models with \code{"null"} if the \code{use_null} argument when using \code{tsfeature_classifier} was \code{use_null = TRUE}. Defaults to \code{"main"}
 #' @return \code{data.frame} containing the results
 #' @author Trent Henderson
 #' @export
@@ -117,9 +117,9 @@ calculate_interval <- function(data, metric = c("accuracy", "precision", "recall
     intervals <- intervals %>%
       dplyr::filter(model_type == model_type_str) %>% 
       dplyr::group_by(!!rlang::sym(grouper)) %>%
-      dplyr::summarise(mu = mean(values),
-                       lower = mu - (interval * stats::sd(values)),
-                       upper = mu + (interval * stats::sd(values))) %>%
+      dplyr::summarise(.mean = mean(values),
+                       .lower = .mean - (interval * stats::sd(values)),
+                       .upper = .mean + (interval * stats::sd(values))) %>%
       dplyr::ungroup()
     
   } else if(type == "qt"){
@@ -129,10 +129,10 @@ calculate_interval <- function(data, metric = c("accuracy", "precision", "recall
     intervals <- intervals %>%
       dplyr::filter(model_type == model_type_str) %>% 
       dplyr::group_by(!!rlang::sym(grouper)) %>%
-      dplyr::summarise(mu = mean(values),
+      dplyr::summarise(.mean = mean(values),
                        interval_width = stats::qt(interval, (n_samps - 1)) * stats::sd(values) / sqrt(n_samps),
-                       lower = mu - interval_width,
-                       upper = mu + interval_width) %>%
+                       .lower = .mean - interval_width,
+                       .upper = .mean + interval_width) %>%
       dplyr::ungroup() %>%
       dplyr::select(-c(interval_width))
     
@@ -148,9 +148,9 @@ calculate_interval <- function(data, metric = c("accuracy", "precision", "recall
     intervals <- intervals %>%
       dplyr::filter(model_type == model_type_str) %>% 
       dplyr::group_by(!!rlang::sym(grouper)) %>%
-      dplyr::summarise(med = stats::median(values),
-                       lower = stats::quantile(values, prob = lower_bound),
-                       upper = stats::quantile(values, prob = upper_bound)) %>%
+      dplyr::summarise(.median = stats::median(values),
+                       .lower = stats::quantile(values, prob = lower_bound),
+                       .upper = stats::quantile(values, prob = upper_bound)) %>%
       dplyr::ungroup()
   }
   

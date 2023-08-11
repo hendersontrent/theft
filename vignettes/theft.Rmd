@@ -345,6 +345,21 @@ plot(feature_matrix_filt,
      feature_names = top_10$original_names)
 ```
 
+Finally, `theft` also contains a function `calculate_interval` for summarising the results of `tsfeature_classifier`. `calculate_interval` takes the following arguments:
+
+* `data`---list object containing the classification outputs produce by `tsfeature_classifier`
+* `metric`---character denoting the classification performance metric to calculate intervals for. Can be one of `"accuracy"`, `"precision"`, `"recall"`, `"f1"`. Defaults to `"accuracy"`
+* `by_set`---Boolean specifying whether to compute intervals for each feature set. Defaults to `TRUE`. If `FALSE`, the function will instead calculate intervals for each feature
+* `type`---character denoting whether to calculate a $\pm$ SD interval with `"sd"`, confidence interval based off the $t$-distribution with    `"qt"`, or based on a quantile with `"quantile"`. Defaults to `"sd"`
+* `interval`---numeric scalar denoting the width of the interval to calculate. Defaults to `1` if `type = "sd"` to produce a $\pm 1$ SD interval. Defaults to `0.95` if `type = "qt"` or `type = "quantile"` for a $95\%$ interval
+* `model_type`---character denoting whether to calculate intervals for main models with `"main"` or null models with `"null"` if the `use_null` argument when using `tsfeature_classifier` was `use_null = TRUE`. Defaults to `"main"`
+
+We can evidently use `calculate_interval` to produce a variety of different summaries for us. For example, we might wish to compute the $\pm1$ SD interval for each feature's main model classification accuracy values (note that the defaults for the function do this for us, so we only need to set `by_set = FALSE` manually):
+
+```{r, message = FALSE, warning = FALSE}
+calculate_interval(feature_classifiers, by_set = FALSE)
+```
+
 ### Multi-feature
 
 Since `theft` contains entire sets of features, we can also use `tsfeature_classifier` to compare them at the set level through the `by_set` argument:
@@ -354,18 +369,14 @@ set_classifiers <- tsfeature_classifier(feature_matrix, by_set = TRUE, n_resampl
 head(set_classifiers)
 ```
 
-Since we only calculated `catch22` in this vignette, the only other comparate set is `"All features"` which is automatically always included by default. This means they will both have identical results, but this functionality becomes more powerful if other feature sets were also calculated. Similar to the individual feature case, we can also use `ggplot2` to summarise our findings. Here is a comparison of mean accuracy $\pm 1SD$ between feature sets:
+Since we only calculated `catch22` in this vignette, the only other comparate set is `"All features"` which is automatically always included by default. This means they will both have identical results, but this functionality becomes more powerful if other feature sets were also calculated. Similar to the individual feature case, we can also use `calculate_interval` combined with `ggplot2` to summarise our findings. Here is a comparison of mean accuracy $\pm 1SD$ between feature sets:
   
 ```{r, message = FALSE, warning = FALSE}
-set_classifiers$ClassificationResults %>%
-  dplyr::filter(model_type == "Main") %>% 
-  dplyr::group_by(feature_set) %>%
-  dplyr::summarise(mu = mean(accuracy),
-                   lower = mu - (1 * sd(accuracy)),
-                   upper = mu + (1 * sd(accuracy))) %>%
-  dplyr::ungroup() %>%
-  ggplot2::ggplot(ggplot2::aes(x = reorder(feature_set, -mu), y = mu, colour = feature_set)) +
-  ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper)) +
+interval_calcs <- calculate_interval(set_classifiers)
+
+interval_calcs %>%
+  ggplot2::ggplot(ggplot2::aes(x = reorder(feature_set, -.mean), y = .mean, colour = feature_set)) +
+  ggplot2::geom_errorbar(ggplot2::aes(ymin = .lower, ymax = .upper)) +
   ggplot2::geom_point(size = 5) +
   ggplot2::labs(x = "Feature set",
                 y = "Classification accuracy") +
