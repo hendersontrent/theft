@@ -284,7 +284,8 @@ To show you how simple it is to specify a different classifier, we can instead m
 
 ```{r, message = FALSE, warning = FALSE}
 myclassifier <- function(formula, data){
-  mod <- e1071::svm(formula, data = data, kernel = "radial", scale = FALSE, probability = TRUE)
+  mod <- e1071::svm(formula, data = data, kernel = "radial", scale = FALSE, 
+                    probability = TRUE)
 }
 
 feature_classifiers_radial <- tsfeature_classifier(feature_matrix, 
@@ -333,7 +334,9 @@ top_10 <- feature_vs_null %>%
 feature_matrix_filt <- feature_matrix[[1]] %>% 
   dplyr::filter(feature_set %in% top_10$feature_set & names %in% top_10$original_names)
 
-feature_matrix_filt <- structure(list(feature_matrix_filt), class = "feature_calculations")
+feature_matrix_filt <- structure(list(feature_matrix_filt), 
+                                 class = "feature_calculations")
+
 plot(feature_matrix_filt, type = "cor")
 ```
 
@@ -365,7 +368,11 @@ calculate_interval(feature_classifiers, by_set = FALSE)
 Since `theft` contains entire sets of features, we can also use `tsfeature_classifier` to compare them at the set level through the `by_set` argument:
 
 ```{r, message = FALSE, warning = FALSE}
-set_classifiers <- tsfeature_classifier(feature_matrix, by_set = TRUE, n_resamples = 5, use_null = TRUE)
+set_classifiers <- tsfeature_classifier(feature_matrix, 
+                                        by_set = TRUE, 
+                                        n_resamples = 5, 
+                                        use_null = TRUE)
+
 head(set_classifiers)
 ```
 
@@ -375,7 +382,8 @@ Since we only calculated `catch22` in this vignette, the only other comparate se
 interval_calcs <- calculate_interval(set_classifiers)
 
 interval_calcs %>%
-  ggplot2::ggplot(ggplot2::aes(x = reorder(feature_set, -.mean), y = .mean, colour = feature_set)) +
+  ggplot2::ggplot(ggplot2::aes(x = reorder(feature_set, -.mean), y = .mean, 
+                               colour = feature_set)) +
   ggplot2::geom_errorbar(ggplot2::aes(ymin = .lower, ymax = .upper)) +
   ggplot2::geom_point(size = 5) +
   ggplot2::labs(x = "Feature set",

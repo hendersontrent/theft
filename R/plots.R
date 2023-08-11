@@ -242,15 +242,15 @@ plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor", "v
     } else{
       p <- x[[1]] %>%
         dplyr::filter(names %in% feature_names) %>%
-        dplyr::mutate(names = paste0(feature_set, "_", names))
+        dplyr::mutate(names = paste0(feature_set, "_", .data$names))
       
       if("group" %in% colnames(p)){
         p <- p %>%
-          ggplot2::ggplot(ggplot2::aes(x = group, y = values, colour = group))
+          ggplot2::ggplot(ggplot2::aes(x = .data$group, y = .data$values, colour = .data$group))
       } else{
         p <- p %>%
           dplyr::mutate(group = "Data") %>%
-          ggplot2::ggplot(ggplot2::aes(x = group, y = values))
+          ggplot2::ggplot(ggplot2::aes(x = .data$group, y = .data$values))
       }
       
       p <- p + 
