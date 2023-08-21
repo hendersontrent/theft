@@ -9,9 +9,10 @@
 #' @importFrom tidyr pivot_wider pivot_longer drop_na
 #' @importFrom reshape2 melt
 #' @importFrom stats hclust dist cor
+#' @importFrom normaliseR normalise
 #' @param x the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
 #' @param type \code{character} specifying the type of plot to draw. Defaults to \code{"quality"}
-#' @param norm_method \code{character} specifying a rescaling/normalising method to apply if \code{type = "matrix"} or if \code{type = "cor"}. Can be one of \code{"z-score"}, \code{"Sigmoid"}, \code{"RobustSigmoid"}, or \code{"MinMax"}. Defaults to \code{"z-score"}
+#' @param norm_method \code{character} specifying a rescaling/normalising method to apply if \code{type = "matrix"} or if \code{type = "cor"}. Can be one of \code{"zScore"}, \code{"Sigmoid"}, \code{"RobustSigmoid"}, \code{"MinMax"}, or \code{"MaxAbs"}. Defaults to \code{"zScore"}
 #' @param unit_int \code{Boolean} whether to rescale into unit interval \code{[0,1]} after applying normalisation method. Defaults to \code{FALSE}
 #' @param clust_method \code{character} specifying the hierarchical clustering method to use if \code{type = "matrix"} or if \code{type = "cor"}. Defaults to \code{"average"}
 #' @param cor_method \code{character} specifying the correlation method to use if \code{type = "cor"}. Defaults to \code{"pearson"}
@@ -23,7 +24,7 @@
 #' 
 
 plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor", "violin"), 
-                                      norm_method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+                                      norm_method = c("zScore", "Sigmoid", "RobustSigmoid", "MinMax", "MaxAbs"),
                                       unit_int = FALSE,
                                       clust_method = c("average", "ward.D", "ward.D2", "single", "complete", "mcquitty", "median", "centroid"),
                                       cor_method = c("pearson", "spearman"), feature_names = NULL, ...){
@@ -105,7 +106,7 @@ plot.feature_calculations <- function(x, type = c("quality", "matrix", "cor", "v
       dplyr::mutate(names = paste0(.data$feature_set, "_", .data$names)) %>% # Catches errors when using all features across sets (i.e., there's duplicates)
       dplyr::select(-c(.data$feature_set)) %>%
       dplyr::group_by(.data$names) %>%
-      dplyr::mutate(values = normalise(.data$values, norm_method = norm_method, unit_int = unit_int)) %>%
+      dplyr::mutate(values = normaliseR::normalise(.data$values, norm_method = norm_method, unit_int = unit_int)) %>%
       dplyr::ungroup()
     
     #------------- Hierarchical clustering ----------

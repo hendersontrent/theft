@@ -129,13 +129,13 @@ stat_test <- function(data, iter_data, row_id, by_set = FALSE, hypothesis, metri
     
     if(hypothesis == "null"){
       if(by_set){
-        t_test <- resampled_ttest(x = x, y = y, n = n_resamples, n1 = train_test_sizes[1], n2 = train_test_sizes[1])
+        t_test <- correctR::resampled_ttest(x = x, y = y, n = n_resamples, n1 = train_test_sizes[1], n2 = train_test_sizes[1])
         
         outs <- data.frame(hypothesis = paste0(iter_filt, " != own null"),
                            feature_set = iter_filt, metric = metric, set_mean = x_mean, null_mean = y_mean,
                            t_statistic = t_test$statistic, p.value = t_test$p.value)
       } else{
-        t_test <- resampled_ttest(x = x, y = y, n = n_resamples, n1 = train_test_sizes[1], n2 = train_test_sizes[1])
+        t_test <- correctR::resampled_ttest(x = x, y = y, n = n_resamples, n1 = train_test_sizes[1], n2 = train_test_sizes[1])
         
         outs <- data.frame(hypothesis = paste0(iter_filt, " != own null"),
                            names = iter_filt, original_names = gsub("^[^_]*_", "", iter_filt), 
@@ -145,14 +145,14 @@ stat_test <- function(data, iter_data, row_id, by_set = FALSE, hypothesis, metri
       }
     } else{
       if(by_set){
-        t_test <- resampled_ttest(x = x, y = y, n = n_resamples, n1 = train_test_sizes[1], n2 = train_test_sizes[1])
+        t_test <- correctR::resampled_ttest(x = x, y = y, n = n_resamples, n1 = train_test_sizes[1], n2 = train_test_sizes[1])
         
         outs <- data.frame(hypothesis = paste0(iter_filt$method_a, " != ", iter_filt$method_b),
                            feature_set_a = iter_filt$method_a, feature_set_b = iter_filt$method_b, metric = metric, 
                            set_a_mean = x_mean, set_b_mean = y_mean,
                            t_statistic = t_test$statistic, p.value = t_test$p.value)
       } else{
-        t_test <- resampled_ttest(x = x, y = y, n = n_resamples, n1 = train_test_sizes[1], n2 = train_test_sizes[1])
+        t_test <- correctR::resampled_ttest(x = x, y = y, n = n_resamples, n1 = train_test_sizes[1], n2 = train_test_sizes[1])
         
         outs <- data.frame(hypothesis = paste0(iter_filt$names_a, " != ", iter_filt$names_b),
                            names_a = iter_filt$names_a, names_b = iter_filt$names_b, metric = metric, 

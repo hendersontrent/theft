@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,7 @@
           
           <code><a href="calculate_features.html">calculate_features()</a></code> 
         </dt>
-        <dd>Compute features on an input time series dataset</dd>
+        <dd>Wrapper function to compute features on an input time series dataset</dd>
       </dl><dl><dt>
           
           <code><a href="calculate_interval.html">calculate_interval()</a></code> 
@@ -108,12 +108,12 @@
           
           <code><a href="init_theft.html">init_theft()</a></code> 
         </dt>
-        <dd>Communicate to R the Python virtual environment containing the relevant libraries for calculating features</dd>
+        <dd>Wrapper function to communicate to R the Python virtual environment containing the relevant libraries for calculating features</dd>
       </dl><dl><dt>
           
           <code><a href="install_python_pkgs.html">install_python_pkgs()</a></code> 
         </dt>
-        <dd>Download and install all the relevant Python packages into a target location</dd>
+        <dd>Wrapper function to download and install all the relevant Python packages into a target location</dd>
       </dl><dl><dt>
           
           <code><a href="make_title.html">make_title()</a></code> 
@@ -121,14 +121,14 @@
         <dd>Helper function for converting to title case</dd>
       </dl><dl><dt>
           
-          <code><a href="minmax_scaler.html">minmax_scaler()</a></code> 
+          <code><a href="normalise.html">normalise()</a></code> 
         </dt>
-        <dd>Rescales a numeric vector into the unit interval [0,1]</dd>
+        <dd>Wrapper function to scale each feature vector into a user-specified range for visualisation and modelling</dd>
       </dl><dl><dt>
           
-          <code><a href="normalise.html">normalise()</a></code> <code><a href="normalise.html">normalize()</a></code> 
+          <code><a href="normalize.html">normalize()</a></code> 
         </dt>
-        <dd>Scale each feature vector into a user-specified range for visualisation and modelling</dd>
+        <dd>Wrapper function to scale each feature vector into a user-specified range for visualisation and modelling</dd>
       </dl><dl><dt>
           
           <code><a href="plot.feature_calculations.html">plot(<i>&lt;feature_calculations&gt;</i>)</a></code> 
@@ -148,12 +148,7 @@
           
           <code><a href="reduce_dims.html">reduce_dims()</a></code> 
         </dt>
-        <dd>Project a feature matrix into a low dimensional representation using PCA or t-SNE</dd>
-      </dl><dl><dt>
-          
-          <code><a href="resampled_ttest.html">resampled_ttest()</a></code> 
-        </dt>
-        <dd>Compute correlated t-statistic and p-value for resampled data from correctR package</dd>
+        <dd>Wrapper function to project a feature matrix into a low dimensional representation using PCA or t-SNE</dd>
       </dl><dl><dt>
           
           <code><a href="resample_data.html">resample_data()</a></code> 
@@ -166,19 +161,9 @@
         <dd>Calculate z-score for all columns in a dataset using train set central tendency and spread</dd>
       </dl><dl><dt>
           
-          <code><a href="robustsigmoid_scaler.html">robustsigmoid_scaler()</a></code> 
-        </dt>
-        <dd>Rescales a numeric vector using an outlier-robust Sigmoidal transformation</dd>
-      </dl><dl><dt>
-          
           <code><a href="select_stat_cols.html">select_stat_cols()</a></code> 
         </dt>
         <dd>Helper function to select only the relevant columns for statistical testing</dd>
-      </dl><dl><dt>
-          
-          <code><a href="sigmoid_scaler.html">sigmoid_scaler()</a></code> 
-        </dt>
-        <dd>Rescales a numeric vector using a Sigmoidal transformation</dd>
       </dl><dl><dt>
           
           <code><a href="simData.html">simData</a></code> 
@@ -191,7 +176,7 @@
         <dd>Calculate p-values for feature sets or features relative to an empirical null or each other using resampled t-tests</dd>
       </dl><dl><dt>
           
-          <code><a href="theft.html">theft</a></code> 
+          <code><a href="theft.html">theft</a></code> <code><a href="theft.html">theft-package</a></code> 
         </dt>
         <dd>Tools for Handling Extraction of Features from Time-series</dd>
       </dl><dl><dt>
@@ -199,11 +184,6 @@
           <code><a href="tsfeature_classifier.html">tsfeature_classifier()</a></code> 
         </dt>
         <dd>Fit classifiers using time-series features using a resample-based approach and get a fast understanding of performance</dd>
-      </dl><dl><dt>
-          
-          <code><a href="zscore_scaler.html">zscore_scaler()</a></code> 
-        </dt>
-        <dd>Rescales a numeric vector into z-scores</dd>
       </dl></div>
   </main></div>
 

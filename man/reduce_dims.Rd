@@ -2,38 +2,35 @@
 % Please edit documentation in R/reduce_dims.R
 \name{reduce_dims}
 \alias{reduce_dims}
-\title{Project a feature matrix into a low dimensional representation using PCA or t-SNE}
+\title{Wrapper function to project a feature matrix into a low dimensional representation using PCA or t-SNE}
 \usage{
 reduce_dims(
   data,
-  norm_method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+  norm_method = c("zScore", "Sigmoid", "RobustSigmoid", "MinMax"),
   unit_int = FALSE,
-  low_dim_method = c("PCA", "t-SNE"),
-  perplexity = 10,
+  low_dim_method = c("PCA", "tSNE", "ClassicalMDS", "KruskalMDS", "SammonMDS", "UMAP"),
   seed = 123,
   ...
 )
 }
 \arguments{
-\item{data}{the \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}}
+\item{data}{the \code{feature_calculations} object containing the raw feature matrix produced by \code{purloiner::extract_features}}
 
-\item{norm_method}{\code{character} denoting the rescaling/normalising method to apply. Can be one of \code{"z-score"}, \code{"Sigmoid"}, \code{"RobustSigmoid"}, or \code{"MinMax"}. Defaults to \code{"z-score"}}
+\item{norm_method}{\code{character} denoting the rescaling/normalising method to apply. Can be one of \code{"zScore"}, \code{"Sigmoid"}, \code{"RobustSigmoid"}, \code{"MinMax"}, or \code{"MaxAbs"}. Defaults to \code{"zScore"}}
 
 \item{unit_int}{\code{Boolean} whether to rescale into unit interval \code{[0,1]} after applying normalisation method. Defaults to \code{FALSE}}
 
 \item{low_dim_method}{\code{character} specifying the low dimensional embedding method to use. Defaults to \code{"PCA"}}
 
-\item{perplexity}{\code{integer} denoting the perplexity hyperparameter to use if \code{low_dim_method} is \code{"t-SNE"}. Defaults to \code{10}}
-
 \item{seed}{\code{integer} to fix R's random number generator to ensure reproducibility. Defaults to \code{123}}
 
-\item{...}{arguments to be passed to either \code{stats::prcomp} or \code{Rtsne::Rtsne} depending on whether \code{"low_dim_method"} is \code{"PCA"} or \code{"t-SNE"}}
+\item{...}{arguments to be passed to \code{stats::prcomp} or \code{Rtsne::Rtsne}, \code{stats::cmdscale}, \code{MASS::isoMDS}, \code{MASS::sammon}, or \code{umap::umap} depending on selection in \code{low_dim_method}}
 }
 \value{
 object of class \code{low_dimension}
 }
 \description{
-Project a feature matrix into a low dimensional representation using PCA or t-SNE
+Wrapper function to project a feature matrix into a low dimensional representation using PCA or t-SNE
 }
 \author{
 Trent Henderson

@@ -2,7 +2,7 @@
 % Please edit documentation in R/calculate_features.R
 \name{calculate_features}
 \alias{calculate_features}
-\title{Compute features on an input time series dataset}
+\title{Wrapper function to compute features on an input time series dataset}
 \usage{
 calculate_features(
   data,
@@ -10,14 +10,15 @@ calculate_features(
   time_var = "timepoint",
   values_var = "values",
   group_var = NULL,
-  feature_set = c("catch22", "feasts", "tsfeatures", "Kats", "tsfresh", "TSFEL"),
+  feature_set = c("catch22", "feasts", "tsfeatures", "Kats", "tsfresh", "TSFEL",
+    "basicproperties"),
   catch24 = FALSE,
   tsfresh_cleanup = FALSE,
   seed = 123
 )
 }
 \arguments{
-\item{data}{\code{data.frame} with at least 4 columns: id variable, group variable, time variable, value variable}
+\item{data}{\code{data.frame} with at least 3 columns: id variable, time variable, value variable. Can also have a fourth column for a group variable which is especially useful for time-series classification applications}
 
 \item{id_var}{\code{character} specifying the ID variable to identify each time series. Defaults to \code{"id"}}
 
@@ -39,7 +40,7 @@ calculate_features(
 object of class \code{feature_calculations} that contains the summary statistics for each feature
 }
 \description{
-Compute features on an input time series dataset
+Wrapper function to compute features on an input time series dataset
 }
 \examples{
 featMat <- calculate_features(data = simData, 

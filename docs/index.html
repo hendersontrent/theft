@@ -49,7 +49,7 @@
     
     <a class="navbar-brand me-2" href="index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -104,25 +104,11 @@
 <div class="section level2">
 <h2 id="general-purpose">General purpose<a class="anchor" aria-label="anchor" href="#general-purpose"></a>
 </h2>
-<p><code>theft</code> is a software package for R that facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. The package provides a single point of access to <span class="math inline"> &gt; 1200</span> time-series features from a range of existing R and Python packages. The packages which <code>theft</code> ‘steals’ features from currently are:</p>
-<ul>
-<li>
-<a href="https://link.springer.com/article/10.1007/s10618-019-00647-x" class="external-link">catch22</a> (R; <a href="https://github.com/hendersontrent/Rcatch22" class="external-link">see <code>Rcatch22</code> for the native implementation on CRAN</a>)</li>
-<li>
-<a href="https://feasts.tidyverts.org" class="external-link">feasts</a> (R)</li>
-<li>
-<a href="https://github.com/robjhyndman/tsfeatures" class="external-link">tsfeatures</a> (R)</li>
-<li>
-<a href="https://facebookresearch.github.io/Kats/" class="external-link">Kats</a> (Python)</li>
-<li>
-<a href="https://tsfresh.com" class="external-link">tsfresh</a> (Python)</li>
-<li>
-<a href="https://tsfel.readthedocs.io/en/latest/" class="external-link">TSFEL</a> (Python)</li>
-</ul>
-<p>Note that <code>Kats</code>, <code>tsfresh</code> and <code>TSFEL</code> are Python packages. <code>theft</code> has built-in functionality for helping you install these libraries—all you need to do is install Python 3.9 on your machine. If you wish to access the Python feature sets, please run <code><a href="reference/install_python_pkgs.html">?install_python_pkgs</a></code> in R after downloading <code>theft</code> or consult the vignette in the package for more information. For a comprehensive comparison of these six feature sets across a range of domains (including computation speed, within-set feature composition, and between-set feature correlations), please refer to the paper <a href="https://ieeexplore.ieee.org/document/9679937" class="external-link">An Empirical Evaluation of Time-Series Feature Sets</a>.</p>
-<p>The core workflow for feature-based time-series analysis (and corresponding functions) in <code>theft</code> is presented below:</p>
+<p><code>theft</code> is a software package for R that facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. As of <code>v0.5.4</code>, <code>theft</code> now acts as a ‘mothership’ one-stop-shop package ecosystem which calls several other smaller, more bespoke packages:</p>
+<p><img src="articles/theft-ecosystem.png" alt="The theft R package ecosystem"></p>
+<p>Users are encouraged to either use <code>theft</code> to access all the functionality, or, if they require only specific functions, to explore the individual packages. That being said, <code>theft</code> provides a structured workflow for taking users from data import through to detailed insights about their temporal data. This structured workflow is presented in the graphic below:</p>
 <p><img src="articles/workflow-graphic_v05.png" width="700" alt="Structured workflow of the theft package for R"></p>
-<p>As you can see from the graphic above, <code>theft</code> contains a convenient and extensive suite of tools for semi-automated processing of extracted features (including data quality assessments and normalisation methods), low dimensional projections (linear and nonlinear), data matrix and feature distribution visualisations, time-series classification procedures, statistical hypothesis testing, and various other statistical and graphical tools.</p>
+<p>As you can see from the graphic above, <code>theft</code> contains a convenient and extensive suite of tools for semi-automated processing of extracted features (including data quality assessments and normalisation methods), low dimensional projections (linear and nonlinear), data matrix and feature distribution visualisations, time-series classification procedures, statistical hypothesis testing, and various other statistical and graphical tools. <code>theft</code> currently facilitates access to <span class="math inline"> &gt; 1200</span> time-series features.</p>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
@@ -133,7 +119,7 @@
 <div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>To cite package <span class="st">'theft'</span> <span class="cf">in</span> publications use<span class="sc">:</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  Henderson <span class="fu">T</span> (<span class="dv">2023</span>). _theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of Features</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  from Time Series_. R package version <span class="dv">0</span>.<span class="fl">5.3</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  from Time Series_. R package version <span class="dv">0</span>.<span class="fl">5.4</span>,</span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="sc">&lt;</span>https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theft<span class="sc">/</span><span class="er">&gt;</span>.</span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a></span>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>A BibTeX entry <span class="cf">for</span> LaTeX users is</span>
@@ -142,7 +128,7 @@
 <span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>    title <span class="ot">=</span> {theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of Features from Time Series},</span>
 <span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>    author <span class="ot">=</span> {Trent Henderson},</span>
 <span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>    year <span class="ot">=</span> {<span class="dv">2023</span>},</span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">5.3</span>},</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">5.4</span>},</span>
 <span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>    url <span class="ot">=</span> {https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theft<span class="sc">/</span>},</span>
 <span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>  }</span></code></pre></div>
 </div>

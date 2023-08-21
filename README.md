@@ -35,33 +35,18 @@ dataset](https://journals.aps.org/pre/abstract/10.1103/PhysRevE.64.061907)
 
 `theft` is a software package for R that facilitates user-friendly
 access to a structured analytical workflow for the extraction, analysis,
-and visualisation of time-series features. The package provides a single
-point of access to $>1200$ time-series features from a range of existing
-R and Python packages. The packages which `theft` ‘steals’ features from
-currently are:
+and visualisation of time-series features. As of `v0.5.4`, `theft` now
+acts as a ‘mothership’ one-stop-shop package ecosystem which calls
+several other smaller, more bespoke packages:
 
-- [catch22](https://link.springer.com/article/10.1007/s10618-019-00647-x)
-  (R; [see `Rcatch22` for the native implementation on
-  CRAN](https://github.com/hendersontrent/Rcatch22))
-- [feasts](https://feasts.tidyverts.org) (R)
-- [tsfeatures](https://github.com/robjhyndman/tsfeatures) (R)
-- [Kats](https://facebookresearch.github.io/Kats/) (Python)
-- [tsfresh](https://tsfresh.com) (Python)
-- [TSFEL](https://tsfel.readthedocs.io/en/latest/) (Python)
+<img src="vignettes/theft-ecosystem.png" alt="The theft R package ecosystem" />
 
-Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. `theft` has
-built-in functionality for helping you install these libraries—all you
-need to do is install Python 3.9 on your machine. If you wish to access
-the Python feature sets, please run `?install_python_pkgs` in R after
-downloading `theft` or consult the vignette in the package for more
-information. For a comprehensive comparison of these six feature sets
-across a range of domains (including computation speed, within-set
-feature composition, and between-set feature correlations), please refer
-to the paper [An Empirical Evaluation of Time-Series Feature
-Sets](https://ieeexplore.ieee.org/document/9679937).
-
-The core workflow for feature-based time-series analysis (and
-corresponding functions) in `theft` is presented below:
+Users are encouraged to either use `theft` to access all the
+functionality, or, if they require only specific functions, to explore
+the individual packages. That being said, `theft` provides a structured
+workflow for taking users from data import through to detailed insights
+about their temporal data. This structured workflow is presented in the
+graphic below:
 
 <img src="vignettes/workflow-graphic_v05.png" width="700" alt="Structured workflow of the theft package for R" />
 
@@ -71,7 +56,8 @@ features (including data quality assessments and normalisation methods),
 low dimensional projections (linear and nonlinear), data matrix and
 feature distribution visualisations, time-series classification
 procedures, statistical hypothesis testing, and various other
-statistical and graphical tools.
+statistical and graphical tools. `theft` currently facilitates access to
+$>1200$ time-series features.
 
 ## Citation
 
@@ -87,7 +73,7 @@ and the software:
     To cite package 'theft' in publications use:
 
       Henderson T (2023). _theft: Tools for Handling Extraction of Features
-      from Time Series_. R package version 0.5.3,
+      from Time Series_. R package version 0.5.4,
       <https://hendersontrent.github.io/theft/>.
 
     A BibTeX entry for LaTeX users is
@@ -96,6 +82,6 @@ and the software:
         title = {theft: Tools for Handling Extraction of Features from Time Series},
         author = {Trent Henderson},
         year = {2023},
-        note = {R package version 0.5.3},
+        note = {R package version 0.5.4},
         url = {https://hendersontrent.github.io/theft/},
       }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/init_theft.R
 \name{init_theft}
 \alias{init_theft}
-\title{Communicate to R the Python virtual environment containing the relevant libraries for calculating features}
+\title{Wrapper function to communicate to R the Python virtual environment containing the relevant libraries for calculating features}
 \usage{
 init_theft(python_path, venv_path)
 }
@@ -11,11 +11,8 @@ init_theft(python_path, venv_path)
 
 \item{venv_path}{\code{character} specifying the filepath to the Python virtual environment where "tsfresh", "tsfel", and/or "kats" are installed}
 }
-\value{
-no return value; called for side effects
-}
 \description{
-Communicate to R the Python virtual environment containing the relevant libraries for calculating features
+Wrapper function to communicate to R the Python virtual environment containing the relevant libraries for calculating features
 }
 \author{
 Trent Henderson

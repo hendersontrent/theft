@@ -32,7 +32,11 @@ library(theft)
 
 ## Purpose
 
-`theft` facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. This structured workflow is presented in the graphic below (note that `theft` has many more functions than displayed in this graphic---keep reading for more):
+`theft` facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. As of `v0.5.4`, `theft` now acts as a 'mothership' one-stop-shop package ecosystem which calls several other smaller, more bespoke packages:
+
+<img src="theft-ecosystem.png" alt="The theft R package ecosystem" />
+
+Users are encouraged to either use `theft` to access all the functionality, or, if they require only specific functions, to explore the individual packages. That being said, `theft` provides a structured workflow for taking users from data import through to detailed insights about their temporal data. This structured workflow is presented in the graphic below (note that `theft` has many more functions than displayed in this graphic---keep reading for more):
 
 <img src="workflow-graphic_v05.png" width="700" alt="Structured workflow of the theft package for R" />
 
@@ -52,13 +56,13 @@ head(simData)
 
 ### Calculating feature summary statistics
 
-The core function that automates the calculation of the feature statistics at once is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `"catch22"`, `"feasts"`, `"Kats"`, `"tsfeatures"`, `"tsfresh"`, and/or `"TSFEL"`.
+The core function that automates the calculation of the feature statistics at once is `calculate_features`. As of `v0.5.4`, `calculate_features` is a wrapper for the [`purloiner`](https://github.com/hendersontrent/purloiner) function `extract_features`, such that `purloiner` now acts as both a stanalone package and the feature extraction module of `theft`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `"catch22"`, `"feasts"`, `"basicproperties"`, `"Kats"`, `"tsfeatures"`, `"tsfresh"`, and/or `"TSFEL"`.
 
 Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, depending on the input time-series, `theft` provides access to $>1200$ features. 
 
 #### Installing Python feature sets
 
-Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets; the R-based sets will run fine) you should have a working Python 3.9 installation and run the function `install_python_pkgs(python_path, path)` after first installing `theft`, where the `python_path` argument is the filepath to the location of Python 3.9 on your machine and the `path` argument is the location you wish to install the Python libraries and virtual environment to on your machine. 
+Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets; the R-based sets will run fine) you should have a working Python 3.9 installation and run the function `install_python_pkgs(python_path, path)` after first installing `theft`, where the `python_path` argument is the filepath to the location of Python 3.9 on your machine and the `path` argument is the location you wish to install the Python libraries and virtual environment to on your machine. Note that as of `v0.5.4`, `install_python_pkgs` is a wrapper for `purloiner::install_python_libs`.
 
 For example, if you wanted to install the Python libraries and the resulting virtual environment in `"C:/Users/User/Desktop/theft"` and Python 3.9 is located at `"/usr/bin/python"` on your machine, you would run the following after first having installed `theft`:
 
@@ -73,11 +77,25 @@ If you want to use any of the Python-based packages, you must first tell R which
 
 However, you do not necessarily have to use this convenience function. If you have another method for pointing R to the correct Python (such as `reticulate` or `findpython`), you can use those in your workflow instead.
 
+ Note that as of `v0.5.4`, `init_theft` is a wrapper for `purloiner::init_purloin`.
+
 **NOTE: You only need to call ** `init_theft` **or your other solution once per session.**
 
 #### Calculating features
 
-You are then ready to use the rest of the package's functionality, beginning with the extraction of time-series features. Here is an example with the `catch22` set:
+You are then ready to use the rest of the package's functionality, beginning with the extraction of time-series features. `calculate_features` (and `purloiner::extract_features`) take the following arguments: 
+
+* `data`---data.frame with at least 3 columns: id variable, time variable, value variable
+* `id_var`--- character specifying the ID variable to identify each time series. Defaults to `"id"`
+* `time_var`---character specifying the time index variable. Defaults to `"timepoint"`
+* `values_var`---character specifying the values variable. Defaults to `"values"`
+* `group_var`---character specifying the grouping variable that each unique series sits under (if one exists). Defaults to `NULL`
+* `feature_set`---character or vector of characters denoting the set of time-series features to calculate. Defaults to `"catch22"`
+* `catch24`---Boolean specifying whether to compute `catch24` in addition to `catch22` if `catch22` is one of the feature sets selected. Defaults to `FALSE`
+* `tsfresh_cleanup`---Boolean specifying whether to use the in-built `tsfresh` relevant feature filter or not. Defaults to `FALSE`
+* `seed`---integer denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to `123`
+
+Here is an example call with the `catch22` and `basicproperties` sets:
   
 ```{r, message = FALSE, warning = FALSE}
 feature_matrix <- calculate_features(data = simData, 
@@ -85,7 +103,7 @@ feature_matrix <- calculate_features(data = simData,
                                      time_var = "timepoint", 
                                      values_var = "values", 
                                      group_var = "process", 
-                                     feature_set = "catch22",
+                                     feature_set = c("catch22", "basicproperties"),
                                      seed = 123)
 ```
 
@@ -100,12 +118,6 @@ feature_matrix <- calculate_features(data = simData,
                                      feature_set = "catch22",
                                      catch24 = TRUE,
                                      seed = 123)
-```
-
-A tidy dataframe of *most* of the included features and the set they correspond to is available in the dataframe `feature_list`:
-  
-```{r, message = FALSE, warning = FALSE}
-head(feature_list)
 ```
 
 NOTE: If using the `tsfresh` feature set, you might want to consider the `tsfresh_cleanup` argument to `calculate_features`. This argument defaults to `FALSE` and specifies whether to use the in-built `tsfresh` relevant feature filter or not.
@@ -126,18 +138,21 @@ plot(feature_matrix, type = "quality")
 
 Putting calculated feature vectors on an equal scale is crucial for any statistical or machine learning model as variables with high variance can adversely impact the model's capacity to fit the data appropriately, learn appropriate weight values, or minimise a loss function. `theft` includes function `normalise` to rescale either the whole `feature_calculations` object, or a single vector of values (e.g. values for all participants on just the `SB_BinaryStats_mean_longstretch1` feature). Four normalisation methods are offered:
 
-* z-score -- `"z-score"`
-* Sigmoid -- `"Sigmoid"`
-* Outlier-robust Sigmoid (credit to Ben Fulcher for creating the original [MATLAB version](https://github.com/benfulcher/hctsa)) - `"RobustSigmoid"`
-* Min-max -- `"MinMax"`
+* z-score---`"zScore"`
+* Sigmoid---`"Sigmoid"`
+* Outlier-robust Sigmoid (credit to Ben Fulcher for creating the original [MATLAB version](https://github.com/benfulcher/hctsa)) -- `"RobustSigmoid"`
+* Min-max---`"MinMax"`
+* Maximum absolute---`"MaxAbs"`
 
 Normalisation on the whole `feature_calculations` object can be performed in one line:
 
 ```{r, message = FALSE, warning = FALSE}
-normed <- normalise(feature_matrix, norm_method = "z-score", unit_int = FALSE)
+normed <- normalise(feature_matrix, norm_method = "zScore", unit_int = FALSE)
 ```
 
 For single vector normalisation, all you need to do is pass in a vector as `normalise` checks for object classes. If you wish to rescale values into the unit interval $[0,1]$ after applying the selected normalisation method, you can set `unit_int = TRUE`.
+
+Note that as of `v0.5.4`, `normalise` is a wrapper for the [`normaliseR`](https://github.com/hendersontrent/normaliseR) function `normaliseR::normalise` such that `normaliseR` now acts as both a stanalone package and the rescaling module of `theft`. An alternate spelling version `normalize` also exists.
 
 ## Data visualisation and low-dimensional projections
 
@@ -196,7 +211,25 @@ plot(feature_matrix, type = "violin",
 
 ### Low dimensional projections
 
-The function `reduce_dims` takes the `feature_calculations` object and calculates either a principal components analysis (PCA) or *t*-distributed stochastic neighbour embedding (*t*-SNE) fit on it. This result is stored in a custom object class called `low_dimension`:
+The function `reduce_dims` takes the `feature_calculations` object and reduces the dimensionality down to two dimensions appropriate for a scatterplot using one of the following methods:
+
+* Principal components analysis (PCA)---`"PCA"`
+* $t$-Stochastic Neighbor Embedding ($t$-SNE)---`"tSNE"`
+* Classical multidimensional scaling (MDS)---`"ClassicalMDS"`
+* Kruskal’s non-metric multidimensional scaling---`"KruskalMDS"`
+* Sammon’s non-linear mapping non-metric multidimensional scaling---`"SammonMDS"`
+* Uniform Manifold Approximation and Projection for Dimension Reduction (UMAP)---`"UMAP"`
+
+As of `v0.5.4`, `reduce_dims` is a wrapper for the [`pilfer`](https://github.com/hendersontrent/pilfer) function `pilfer::reduce_dimensions` such that `pilfer` now acts as both a stanalone package and the dimension reduction module of `theft`. The result of `reduce_dims` is stored in a custom object class called `low_dimension`. The function takes the following arguments:
+
+* `data`---`feature_calculations` object containing the raw feature matrix produced by `purloiner::extract_features`
+* `norm_method`---character denoting the rescaling/normalising method to apply. Can be one of `"zScore"`, `"Sigmoid"`, `"RobustSigmoid"`, `"MinMax"`, or `"MaxAbs"`. Defaults to `"zScore"`
+* `unit_int`---Boolean whether to rescale into unit interval $[0,1]$ after applying normalisation method. Defaults to `FALSE`
+* `low_dim_method`---character specifying the low dimensional embedding method to use. Defaults to `"PCA"`
+* `seed`---integer to fix R's random number generator to ensure reproducibility. Defaults to `123`
+* `...` arguments to be passed to `stats::prcomp` or `Rtsne::Rtsne`, `stats::cmdscale`, `MASS::isoMDS`, `MASS::sammon`, or `umap::umap` depending on selection in `low_dim_method`
+
+Here is an example call:
 
 ```{r, message = FALSE, warning = FALSE}
 low_dim <- reduce_dims(feature_matrix, 
@@ -212,33 +245,20 @@ We can similarly call `plot()` on this object to produce a two-dimensional scatt
 plot(low_dim)
 ```
 
-Alternatively, a *t*-SNE version can be specified in a similar fashion, with the `perplexity` hyperparameter able to be controlled by the user. Typical values for this range between 5 and 50, depending on the size of the data. At lower levels of `perplexity`, local variations tend to dominate, while at very high levels of `perplexity`, results can be uninterpretable as clusters can merge. See [this interactive article](https://distill.pub/2016/misread-tsne/) for a detailed review. Shaded covariance ellipses can also be disabled when plotting `low_dimension` objects by setting `show_covariance = FALSE`:
+Similarly, we could use $t$-SNE instead and make use of the `...` additional arguments to control hyperparameters such as `perplexity`. Shaded covariance ellipses can also be disabled when plotting `low_dimension` objects by setting `show_covariance = FALSE`:
 
 ```{r, message = FALSE, warning = FALSE}
 low_dim2 <- reduce_dims(feature_matrix, 
                         norm_method = "RobustSigmoid", 
                         unit_int = TRUE,
-                        low_dim_method = "t-SNE", 
+                        low_dim_method = "tSNE", 
                         perplexity = 10,
                         seed = 123)
 
 plot(low_dim2, show_covariance = FALSE)
 ```
 
-There is also the option to specify any other arguments to `reduce_dims` that are then passed to either `stats::prcomp` or `Rtsne::Rtsne` through the ellipsis additional arguments. For example, you may wish to control the maximum number of iterations (`max_iter`) and the speed-accuracy trade-off (`theta`) in `Rtsne::Rtsne`:
-
-```{r, eval = FALSE}
-low_dim3 <- reduce_dims(feature_matrix, 
-                        norm_method = "RobustSigmoid",
-                        unit_int = TRUE,
-                        low_dim_method = "t-SNE", 
-                        perplexity = 10,
-                        seed = 123,
-                        max_iter = 5000,
-                        theta = 0.2)
-```
-
-You can consult the documentation to get a list of potential arguments by calling either `?prcomp` or `?Rtsne`.
+You can consult help files to get a list of potential arguments by calling `?` on the appropriate dimension reduction function, such as `?prcomp` or `?Rtsne`.
 
 ### Pairwise correlations
 
@@ -257,7 +277,7 @@ Similarly, you can control the normalisation type with the `norm_method` argumen
 Since feature-based time-series analysis has shown particular promise for classification problems, `theft` includes functionality for exploring group separation. The function `tsfeature_classifier` enables you to fit a range of classification models to enable statistical comparisons using the resampling methodology presented in [this paper](https://pakdd2023.org/wp-content/uploads/2023/05/pakdd23_w1_p3.pdf) for a detailed review^[T. Henderson, A. G., Bryant, and B. D. Fulcher, "Never a Dull Moment: Distributional Properties as a Baseline for Time-Series Classification", 27th Pacific-Asia Conference on Knowledge Discovery and Data Mining, 2023.]. This function is meant to serve as a fast answer that can be used to guide analysis and not a replacement for the development of a careful statistical pipeline. `tsfeature_classifier` has the following arguments:
 
 * `data`---`feature_calculations` object containing the raw feature matrix produced by `calculate_features` with an included `group` column as per `theft::calculate_features`
-* `classifier`---`function` specifying the classifier to fit. Should be a function with 2 arguments: `formula` and `data`. Please note that `tsfeature_classifier` z-scores data prior to modelling using the train set's information so disabling default scaling if your function uses it is recommended. Defaults to `NULL` which means the following linear SVM is fit: `classifier = function(formula, data){mod <- e1071::svm(formula, data = data, kernel = "linear", scale = FALSE, probability = TRUE)}`
+* `classifier`---`function` specifying the classifier to fit. Should be a function with 2 arguments: `formula` and `data`. Please note that `tsfeature_classifier` $z$-scores data prior to modelling using the train set's information so disabling default scaling if your function uses it is recommended. Defaults to `NULL` which means the following linear SVM is fit: `classifier = function(formula, data){mod <- e1071::svm(formula, data = data, kernel = "linear", scale = FALSE, probability = TRUE)}`
 * `train_size`---Numeric value denoting the proportion of samples to use in the training set. Defaults to `0.75`
 * `n_resamples`---Integer denoting the number of resamples to calculate. Defaults to `30`
 * `by_set`---Boolean specifying whether to compute classifiers for each feature set. Defaults to `TRUE` (see below section "Multi-feature" for more on this). If `FALSE`, the function will instead find the best individually-performing features
@@ -295,7 +315,15 @@ feature_classifiers_radial <- tsfeature_classifier(feature_matrix,
                                                    use_null = TRUE)
 ```
 
-While have raw classification results is useful, we often also would like to statistical evaluate some facet of it. `theft` includes the function `compare_features` for doing this. `compare_features` contains the following arguments:
+While have raw classification results is useful, we often also would like to statistical evaluate some facet of it. `theft` includes the function `compare_features` for doing this. `compare_features` calls the [`correctR`](https://github.com/hendersontrent/correctR/) package under-the-hood for access to corrected test statistics for resampled data. In the case of random subsampling (such as the resample procedure implemented by `tsfeature_classifier`), the standard $t$-test inflates Type I error due to an underestimation of the variance, as found by Dietterich (1998)^[Dietterich, T. G. (1998). Approximate Statistical Tests for Comparing Supervised Classification Learning Algorithms. Neural Computation, 10(7)]. Nadeau and Bengio (2003) proposed a solution which `correctR` implements as:
+
+$$
+t = \frac{\frac{1}{n} \sum_{j=1}^{n}x_{j}}{\sqrt{(\frac{1}{n} + \frac{n_{2}}{n_{1}})\sigma^{2}}}
+$$
+
+where $n$ is the number of resamples (NOTE: $n$ is *not* sample size), $n_{1}$ is the number of samples in the training data, and $n_{2}$ is the number of samples in the test data. $\sigma^{2}$ is the variance estimate used in the standard paired $t$-test (which simply has $\frac{\sigma}{\sqrt{n}}$ in the denominator where $n$ is the sample size in this case).
+
+`compare_features` takes the following arguments:
 
 * `data`---List object containing the classification outputs produce by `tsfeature_classifier`
 * `metric`---Character denoting the classification performance metric to use in statistical testing. Can be one of `"accuracy"`, `"precision"`, `"recall"`, `"f1"`. Defaults to `"accuracy"`
@@ -376,7 +404,7 @@ set_classifiers <- tsfeature_classifier(feature_matrix,
 head(set_classifiers)
 ```
 
-Since we only calculated `catch22` in this vignette, the only other comparate set is `"All features"` which is automatically always included by default. This means they will both have identical results, but this functionality becomes more powerful if other feature sets were also calculated. Similar to the individual feature case, we can also use `calculate_interval` combined with `ggplot2` to summarise our findings. Here is a comparison of mean accuracy $\pm 1SD$ between feature sets:
+Since we calculated `catch22` and `basicproperties` in this vignette, the only other comparate set is `"All features"` which is automatically always included by default. Similar to the individual feature case, we can also use `calculate_interval` combined with `ggplot2` to summarise our findings. Here is a comparison of mean accuracy $\pm 1SD$ between feature sets:
   
 ```{r, message = FALSE, warning = FALSE}
 interval_calcs <- calculate_interval(set_classifiers)
@@ -394,7 +422,7 @@ interval_calcs %>%
                  panel.grid.minor = ggplot2::element_blank())
 ```
 
-As you can see, given that we only computed `catch22` the plot is not super informative, but had we computed others, it would provide a fast summary of average performance at the set level---and with a useful reference point of the potentially huge set of all calculated features.
+As you can see, `calculate_interval` provides a fast summary of average performance at the set level---and with a useful reference point of the potentially huge set of all calculated features.
 
 ## Reading and processing hctsa-formatted files
 

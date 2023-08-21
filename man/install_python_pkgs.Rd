@@ -2,7 +2,7 @@
 % Please edit documentation in R/install_python_pkgs.R
 \name{install_python_pkgs}
 \alias{install_python_pkgs}
-\title{Download and install all the relevant Python packages into a target location}
+\title{Wrapper function to download and install all the relevant Python packages into a target location}
 \usage{
 install_python_pkgs(python_path, path)
 }
@@ -12,7 +12,7 @@ install_python_pkgs(python_path, path)
 \item{path}{\code{character} denoting the filepath to install the Python libraries and virtual environment to}
 }
 \description{
-Download and install all the relevant Python packages into a target location
+Wrapper function to download and install all the relevant Python packages into a target location
 }
 \author{
 Trent Henderson

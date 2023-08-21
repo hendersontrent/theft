@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,7 +55,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"quality"</span>, <span class="st">"matrix"</span>, <span class="st">"cor"</span>, <span class="st">"violin"</span><span class="op">)</span>,</span>
-<span>  norm_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"z-score"</span>, <span class="st">"Sigmoid"</span>, <span class="st">"RobustSigmoid"</span>, <span class="st">"MinMax"</span><span class="op">)</span>,</span>
+<span>  norm_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"zScore"</span>, <span class="st">"Sigmoid"</span>, <span class="st">"RobustSigmoid"</span>, <span class="st">"MinMax"</span>, <span class="st">"MaxAbs"</span><span class="op">)</span>,</span>
 <span>  unit_int <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  clust_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"average"</span>, <span class="st">"ward.D"</span>, <span class="st">"ward.D2"</span>, <span class="st">"single"</span>, <span class="st">"complete"</span>, <span class="st">"mcquitty"</span>,</span>
 <span>    <span class="st">"median"</span>, <span class="st">"centroid"</span><span class="op">)</span>,</span>
@@ -76,7 +76,7 @@
 
 
 <dt>norm_method</dt>
-<dd><p><code>character</code> specifying a rescaling/normalising method to apply if <code>type = "matrix"</code> or if <code>type = "cor"</code>. Can be one of <code>"z-score"</code>, <code>"Sigmoid"</code>, <code>"RobustSigmoid"</code>, or <code>"MinMax"</code>. Defaults to <code>"z-score"</code></p></dd>
+<dd><p><code>character</code> specifying a rescaling/normalising method to apply if <code>type = "matrix"</code> or if <code>type = "cor"</code>. Can be one of <code>"zScore"</code>, <code>"Sigmoid"</code>, <code>"RobustSigmoid"</code>, <code>"MinMax"</code>, or <code>"MaxAbs"</code>. Defaults to <code>"zScore"</code></p></dd>
 
 
 <dt>unit_int</dt>
