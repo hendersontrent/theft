@@ -46,7 +46,7 @@ reduce_dims <- function(data, norm_method = c("z-score", "Sigmoid", "RobustSigmo
   wide_data <- normed %>%
     tidyr::pivot_wider(id_cols = "id", names_from = "names", values_from = "values") %>%
     tibble::column_to_rownames(var = "id") %>%
-    tidyr::drop_na()
+    dplyr::select(where(~!any(is.na(.x))))
   
   if(low_dim_method == "PCA"){
     
