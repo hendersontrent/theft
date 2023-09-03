@@ -3,6 +3,7 @@
 \docType{package}
 \name{theft}
 \alias{theft}
+\alias{theft-package}
 \title{Tools for Handling Extraction of Features from Time-series}
 \description{
 Tools for Handling Extraction of Features from Time-series

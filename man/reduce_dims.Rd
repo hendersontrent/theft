@@ -6,9 +6,10 @@
 \usage{
 reduce_dims(
   data,
-  norm_method = c("z-score", "Sigmoid", "RobustSigmoid", "MinMax"),
+  norm_method = c("zScore", "Sigmoid", "RobustSigmoid", "MinMax"),
   unit_int = FALSE,
-  low_dim_method = c("PCA", "t-SNE"),
+  low_dim_method = c("PCA", "tSNE"),
+  na_removal = c("feature", "sample"),
   perplexity = 10,
   seed = 123,
   ...
@@ -21,7 +22,9 @@ reduce_dims(
 
 \item{unit_int}{\code{Boolean} whether to rescale into unit interval \code{[0,1]} after applying normalisation method. Defaults to \code{FALSE}}
 
-\item{low_dim_method}{\code{character} specifying the low dimensional embedding method to use. Defaults to \code{"PCA"}}
+\item{low_dim_method}{\code{character} specifying the low dimensional embedding method to use. Can be one of \code{"PCA"} or \code{"tSNE"}. Defaults to \code{"PCA"}}
+
+\item{na_removal}{\code{character} defining the way to deal with NAs produced during feature calculation. Can be one of \code{"feature"} or \code{"sample"}. \code{"feature"} removes all features that produced any NAs in any sample, keeping the number of samples the same. \code{"sample"} omits all samples that produced at least one NA. Defaults to \code{"feature"}}
 
 \item{perplexity}{\code{integer} denoting the perplexity hyperparameter to use if \code{low_dim_method} is \code{"t-SNE"}. Defaults to \code{10}}
 

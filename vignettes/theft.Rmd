@@ -126,15 +126,16 @@ plot(feature_matrix, type = "quality")
 
 Putting calculated feature vectors on an equal scale is crucial for any statistical or machine learning model as variables with high variance can adversely impact the model's capacity to fit the data appropriately, learn appropriate weight values, or minimise a loss function. `theft` includes function `normalise` to rescale either the whole `feature_calculations` object, or a single vector of values (e.g. values for all participants on just the `SB_BinaryStats_mean_longstretch1` feature). Four normalisation methods are offered:
 
-* z-score -- `"z-score"`
-* Sigmoid -- `"Sigmoid"`
-* Outlier-robust Sigmoid (credit to Ben Fulcher for creating the original [MATLAB version](https://github.com/benfulcher/hctsa)) - `"RobustSigmoid"`
-* Min-max -- `"MinMax"`
+* z-score---`"zScore"`
+* Sigmoid---`"Sigmoid"`
+* Outlier-robust Sigmoid (credit to Ben Fulcher for creating the original [MATLAB version](https://github.com/benfulcher/hctsa)) -- `"RobustSigmoid"`
+* Min-max---`"MinMax"`
+* Maximum absolute---`"MaxAbs"`
 
 Normalisation on the whole `feature_calculations` object can be performed in one line:
 
 ```{r, message = FALSE, warning = FALSE}
-normed <- normalise(feature_matrix, norm_method = "z-score", unit_int = FALSE)
+normed <- normalise(feature_matrix, norm_method = "zScore", unit_int = FALSE)
 ```
 
 For single vector normalisation, all you need to do is pass in a vector as `normalise` checks for object classes. If you wish to rescale values into the unit interval $[0,1]$ after applying the selected normalisation method, you can set `unit_int = TRUE`.
@@ -196,7 +197,15 @@ plot(feature_matrix, type = "violin",
 
 ### Low dimensional projections
 
-The function `reduce_dims` takes the `feature_calculations` object and calculates either a principal components analysis (PCA) or *t*-distributed stochastic neighbour embedding (*t*-SNE) fit on it. This result is stored in a custom object class called `low_dimension`:
+The function `reduce_dims` takes the `feature_calculations` object and calculates either a principal components analysis (PCA) or *t*-distributed stochastic neighbour embedding (*t*-SNE) fit on it. This result is stored in a custom object class called `low_dimension`. The function takes the following arguments:
+
+* `data`---`feature_calculations` object containing the raw feature matrix produced by `calculate_features`
+* `norm_method`---character denoting the rescaling/normalising method to apply. Can be one of `"zScore"`, `"Sigmoid"`, `"RobustSigmoid"`, `"MinMax"`, or `"MaxAbs"`. Defaults to `"zScore"`
+* `unit_int`---Boolean whether to rescale into unit interval $[0,1]$ after applying normalisation method. Defaults to `FALSE`
+* `low_dim_method`---character specifying the low dimensional embedding method to use. Can be one of `"PCA"` or `"tSNE"`. Defaults to `"PCA"`
+* `seed`---integer to fix R's random number generator to ensure reproducibility. Defaults to `123`
+* `...` arguments to be passed to `stats::prcomp` or `Rtsne::Rtsne` depending on the selection in `low_dim_method`
+
 
 ```{r, message = FALSE, warning = FALSE}
 low_dim <- reduce_dims(feature_matrix, 
@@ -218,7 +227,7 @@ Alternatively, a *t*-SNE version can be specified in a similar fashion, with the
 low_dim2 <- reduce_dims(feature_matrix, 
                         norm_method = "RobustSigmoid", 
                         unit_int = TRUE,
-                        low_dim_method = "t-SNE", 
+                        low_dim_method = "tSNE", 
                         perplexity = 10,
                         seed = 123)
 
@@ -231,7 +240,7 @@ There is also the option to specify any other arguments to `reduce_dims` that ar
 low_dim3 <- reduce_dims(feature_matrix, 
                         norm_method = "RobustSigmoid",
                         unit_int = TRUE,
-                        low_dim_method = "t-SNE", 
+                        low_dim_method = "tSNE", 
                         perplexity = 10,
                         seed = 123,
                         max_iter = 5000,

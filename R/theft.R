@@ -1,5 +1,6 @@
 #' 
 #' @docType package
+#' @aliases theft-package
 #' @name theft
 #' @title Tools for Handling Extraction of Features from Time-series
 #' 

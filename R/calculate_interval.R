@@ -106,9 +106,9 @@ calculate_interval <- function(data, metric = c("accuracy", "precision", "recall
   
   # Produce dataframe to be summarised
   
-  intervals <- data$ClassificationResults
-  intervals <- intervals[, c(grouper, "model_type", mymetric)]
-  colnames(intervals) <- c(grouper, "model_type", "values")
+  intervals <- data$ClassificationResults %>%
+    dplyr::select(c(dplyr::all_of(grouper), "model_type", dplyr::all_of(mymetric))) %>%
+    dplyr::rename("values" = 3)
   
   # Calculate intervals
   

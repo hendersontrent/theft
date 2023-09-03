@@ -105,6 +105,28 @@ tsfeature_classifier <- function(data, classifier = NULL, train_size = 0.75, n_r
   train <- tmp[dt, ] %>% dplyr::mutate(set_split = "Train")
   test <- tmp[-dt, ] %>% dplyr::mutate(set_split = "Test")
   
+  # Ensure train set gets at least a sample from each group
+  
+  if(length(unique(train$group)) != length(unique(tmp$group))){
+    group_counts <- tmp %>% 
+      dplyr::group_by(.data$group) %>% 
+      dplyr::summarise(count = dplyr::n())
+    
+    min_group_samples <- round(group_counts$count * train_size)
+    min_group_samples[min_group_samples < 1] <- 1
+    selected_indices <- integer(0)
+    
+    for (i in 1:nrow(group_counts)) {
+      group_indices <- which(tmp$group == group_counts$group[i])
+      selected_indices <- c(selected_indices, sample(group_indices, min_group_samples[i]))
+    }
+    
+    train <- tmp[selected_indices, ] %>% dplyr::mutate(set_split = "Train")
+    test <- tmp[setdiff(1:nrow(tmp), selected_indices), ] %>% dplyr::mutate(set_split = "Test")
+  }
+  
+  stopifnot(nrow(train) + nrow(test) == nrow(tmp))
+  
   # Pivot back to tidy dataframe
   
   tmp <- dplyr::bind_rows(train, test) %>%
