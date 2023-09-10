@@ -62,8 +62,9 @@ tsfeature_classifier <- function(data, classifier = NULL, train_size = 0.75, n_r
     # Construct set of all features
     
     tmp2 <- tmp2[[1]] %>%
-      dplyr::mutate(feature_set = "allfeatures",
-                    group = as.factor(as.character(.data$group)),
+      dplyr::mutate(group = as.factor(as.character(.data$group)),
+                    names = paste0(.data$feature_set, "_", .data$names),
+                    feature_set = "allfeatures",
                     names = paste0(.data$feature_set, "_", .data$names)) %>%
       dplyr::select(c(.data$id, .data$group, .data$names, .data$values)) %>%
       tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
