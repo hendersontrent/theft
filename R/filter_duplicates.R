@@ -1,70 +1,119 @@
-#' Helper function to remove duplicate features that exist in multiple feature sets
+#' Remove duplicate features that exist in multiple feature sets and retain a reproducible random selection of one of them
 #' 
 #' @import dplyr
 #' 
 #' @param data \code{feature_calculations} object containing the raw feature matrix produced by \code{calculate_features}
-#' @param preference \code{character} denoting which feature set to keep (meaning the others will be filtered out) between \code{"feasts"}, \code{"tsfeatures"}, and \code{"Kats"} since there is considerable overlap between these three sets. Defaults to \code{"feasts"}. Duplicates will NOT be removed from sets when computing set-level results for the respective non-preferenced sets to ensure fairness. They are only filtered out for either the construction of the set of "All features" if \code{by_set = TRUE} and when computing individual feature results (to reduce redundant calculations)
+#' @param preference deprecated. Do not use
+#' @param seed \code{integer} denoting a fix for R's pseudo-random number generator to ensure selections are reproducible. Defaults to \code{123}
 #' @return \code{feature_calculations} object containing filtered feature data
 #' @author Trent Henderson
 #' @export
 #' 
 
-filter_duplicates <- function(data, preference = c("feasts", "tsfeatures", "Kats")){
+filter_duplicates <- function(data, preference = NULL, seed = 123){
   
-  # Check preference
-  
-  preference <- match.arg(preference)
   '%ni%' <- Negate('%in%')
   
-  if(preference %ni% c("feasts", "tsfeatures", "Kats")){
-    stop("preference must be one of 'feasts', 'tsfeatures' or 'Kats'.")
-  }
-  
-  sets_to_filter <- c("feasts", "tsfeatures", "Kats")[!c("feasts", "tsfeatures", "Kats") %in% preference]
-  
-  # Filter duplicates
-  
-  filtered_data <- data[[1]] %>%
-    dplyr::mutate(flag = dplyr::case_when(
-        .data$feature_set %in% sets_to_filter & .data$names %in% c("crossing_points", "n_crossing_points") ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "curvature"                                 ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "diff1_acf1"                                ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "diff1_acf10"                               ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "diff2_acf1"                                ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "diff2_acf10"                               ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "entropy"                                   ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "flat_spots"                                ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "histogram_mode"                            ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "histogram_mode_10"                         ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "linearity"                                 ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "lumpiness"                                 ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "spikiness"                                 ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "stability"                                 ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "std1st_der"                                ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "trend_strength"                            ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "unitroot_kpss"                             ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "firstmin_ac"                               ~ TRUE,
-        .data$feature_set %in% sets_to_filter & .data$names == "firstzero_ac"                              ~ TRUE,
-        TRUE                                                                                               ~ FALSE)) %>%
-    dplyr::filter(!.data$flag) %>%
-    dplyr::select(-c(.data$flag))
-  
-  # Handle hurst separately since the name is slightly different between {feasts} and {tsfeatures}
-  
-  if(preference == "feasts"){
-    filtered_data <- filtered_data %>%
-      dplyr::mutate(flag = ifelse(.data$feature_set == "tsfeatures" & names == "hurst", TRUE, FALSE)) %>%
-      dplyr::filter(!.data$flag) %>%
-      dplyr::select(-c(.data$flag))
-  } else if(preference == "tsfeatures"){
-    filtered_data <- filtered_data %>%
-      dplyr::mutate(flag = ifelse(.data$feature_set == "feasts" & names == "coef_hurst", TRUE, FALSE)) %>%
-      dplyr::filter(!.data$flag) %>%
-      dplyr::select(-c(.data$flag))
+  if(sum(c("feasts", "tsfeatures", "Kats") %in% unique(data[[1]]$feature_set)) < 2){
+    message("Only one set of 'feasts', 'tsfeatures', or 'Kats' with potential duplicates is in your feature data. Exiting and returning original input data.")
+    return(data)
   } else{
     
+    # Set up dictionary of duplicates and their concordance of names
+    
+    dictionary <- data.frame(feasts_name = c("n_crossing_points", "diff1_acf1", "diff1_acf10", "diff2_acf1", "diff2_acf10", "spectral_entropy", 
+                                             "trend_strength", NA, NA, "coef_hurst", "stl_e_acf1", "stl_e_acf10", "acf1",
+                                             "stat_arch_lm", "shift_kl_max", "shift_kl_index", "diff1_pacf5", "diff2_pacf5",
+                                             "pacf5", "kpss_stat"),
+                             tsfeatures_name = c("crossing_points", "diff1_acf1", "diff1_acf10", "diff2_acf1", "diff2_acf10", "entropy", 
+                                                 "trend", "firstmin_ac", "firstzero_ac", "hurst", "e_acf1", "e_acf10", "x_acf1",
+                                                 "ARCH.LM", "max_kl_shift", "time_kl_shift", "diff1x_pacf5", "diff2x_pacf5",
+                                                 "x_pacf5", "unitroot_kpss"),
+                             Kats_name = c("crossing_points", "diff1y_acf1", NA, "diff2y_acf1", NA, NA, 
+                                           NA, "firstmin_ac", "firstzero_ac", NA, NA, NA, "y_acf1",
+                                           NA, NA, NA, NA, NA,
+                                           NA, NA))
+    
+    rownames(dictionary) <- c("crossing_points", "diff1_acf1", "diff1_acf10", "diff2_acf1", "diff2_acf10", "entropy",
+                              "trend", "firstmin_ac", "firstzero_ac", "hurst", "e_acf1", "e_acf10", "x_acf1", 
+                              "ARCH.LM", "shift_kl_max", "time_kl_shift", "diff1_pacf5", "diff2x_pacf5", 
+                              "x_pacf5", "kpss_stat")
+    
+    # Set up features to remove based on sets in data
+    
+    if(sum(c("feasts", "tsfeatures", "Kats") %in% unique(data[[1]]$feature_set)) == 3){
+      sets_to_filter <- c("feasts", "tsfeatures", "Kats")
+      dups <- dictionary
+    } else if("feasts" %ni% unique(data[[1]]$feature_set) && sum(c("tsfeatures", "Kats") %in% unique(data[[1]]$feature_set) == 2)){
+      sets_to_filter <- c("tsfeatures", "Kats")
+      dups <- dictionary %>% dplyr::filter(!is.na(tsfeatures_name)) %>% dplyr::filter(!is.na(Kats_name)) %>% dplyr::select(c(tsfeatures_name, Kats_name))
+    } else if("tsfeatures" %ni% unique(data[[1]]$feature_set) && sum(c("feasts", "Kats") %in% unique(data[[1]]$feature_set) == 2)){
+      sets_to_filter <- c("feasts", "Kats")
+      dups <- dictionary %>% dplyr::filter(!is.na(feasts_name)) %>% dplyr::filter(!is.na(Kats_name)) %>% dplyr::select(c(feasts_name, Kats_name))
+    } else {
+      sets_to_filter <- c("feasts", "tsfeatures")
+      dups <- dictionary %>% dplyr::filter(!is.na(feasts_name)) %>% dplyr::filter(!is.na(tsfeatures_name)) %>% dplyr::select(c(feasts_name, tsfeatures_name))
+    }
+    
+    # Generate names of other feature sets to retain
+    
+    other_sets_to_keep <- unique(data[[1]]$feature_set)[!unique(data[[1]]$feature_set) %in% sets_to_filter]
+    
+    # Retain other data
+    
+    other_sets <- data[[1]] %>%
+      dplyr::filter(feature_set %in% other_sets_to_keep)
+    
+    # Filter duplicate data
+    
+    dup_sets <- data[[1]] %>%
+      dplyr::filter(feature_set %in% sets_to_filter)
+    
+    # Handle duplicate features
+    
+    set.seed(seed)
+    
+    filter_feature <- function(data, feature_row){
+      
+      # Choose a set to retain
+      
+      feat <- dictionary[feature_row, ]
+      feat <- feat[, colSums(is.na(feat)) == 0]
+      colnames(feat) <- gsub("_name", "\\1", colnames(feat))
+      selected_set <- sample(colnames(feat), size = 1, replace = FALSE)
+      selected_feature <- as.character(feat[1, selected_set])
+      
+      # Perform filtering
+      
+      tmp <- data %>%
+        dplyr::filter(.data$names == selected_feature) %>%
+        dplyr::mutate(keeper = dplyr::case_when(
+          .data$feature_set == selected_set & .data$names == selected_feature ~ TRUE,
+          TRUE                                                                ~ FALSE)) %>%
+        dplyr::filter(.data$keeper) %>%
+        dplyr::select(-c(.data$keeper))
+      
+      return(tmp)
+    }
+    
+    dup_sets <- 1:nrow(dups) %>%
+      purrr::map_dfr(~ filter_feature(data = dup_sets, feature_row = .x))
+    
+    # Add back in non-duplicate features from these sets
+    
+    dup_sets_other_feats <- data[[1]] %>%
+      dplyr::filter(.data$feature_set %in% sets_to_filter) %>%
+      dplyr::filter(.data$names %ni% unique(as.vector(na.omit(as.vector(t(as.matrix(dups)))))))
+    
+    filtered_feats <- dplyr::bind_rows(dup_sets, other_sets, dup_sets_other_feats)
+    
+    # Check we did not remove any more rows than we should have
+    
+    #stopifnot((length(na.omit(as.vector(t(as.matrix(dups))))) - nrow(dups)) * length(unique(data[[1]]$id)) == nrow(data[[1]]) - nrow(filtered_feats))
+    
+    # Return final object
+    
+    filtered_feats <- structure(list(filtered_feats), class = "feature_calculations")
+    return(filtered_feats)
   }
-  
-  filtered_data <- structure(list(filtered_data), class = "feature_calculations")
-  return(filtered_data)
 }
