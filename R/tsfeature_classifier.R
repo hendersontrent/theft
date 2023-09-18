@@ -12,7 +12,6 @@
 #' @param by_set \code{Boolean} specifying whether to compute classifiers for each feature set. Defaults to \code{TRUE}. If \code{FALSE}, the function will instead find the best individually-performing features
 #' @param use_null \code{Boolean} whether to fit null models where class labels are shuffled in order to generate a null distribution that can be compared to performance on correct class labels. Defaults to \code{FALSE}
 #' @param seed \code{integer} to fix R's random number generator to ensure reproducibility. Defaults to \code{123}
-#' @param preference \code{character} denoting which feature set to keep (meaning the others will be filtered out) between \code{"feasts"}, \code{"tsfeatures"}, and \code{"Kats"} since there is considerable overlap between these three sets. Defaults to \code{"feasts"}. Duplicates will NOT be removed from sets when computing set-level results for the respective non-preferenced sets to ensure fairness. They are only filtered out for either the construction of the set of "All features" if \code{by_set = TRUE} and when computing individual feature results (to reduce redundant calculations)
 #' @return \code{list} containing a named \code{vector} of train-test set sizes, and a \code{data.frame} of classification performance results
 #' @author Trent Henderson
 #' @export
@@ -32,7 +31,7 @@
 #' 
 
 tsfeature_classifier <- function(data, classifier = NULL, train_size = 0.75, n_resamples = 30, by_set = TRUE,
-                                 use_null = FALSE, seed = 123, preference = c("feasts", "tsfeatures", "Kats")){
+                                 use_null = FALSE, seed = 123){
   
   stopifnot(inherits(data, "feature_calculations") == TRUE)
   
@@ -42,15 +41,6 @@ tsfeature_classifier <- function(data, classifier = NULL, train_size = 0.75, n_r
   
   if(n_resamples < 0){
     stop("n_resamples must be an integer >= 1.")
-  }
-  
-  # Check preference
-  
-  preference <- match.arg(preference)
-  '%ni%' <- Negate('%in%')
-  
-  if(preference %ni% c("feasts", "tsfeatures", "Kats")){
-    stop("preference must be one of 'feasts', 'tsfeatures' or 'Kats'.")
   }
   
   # Set up data
@@ -67,13 +57,14 @@ tsfeature_classifier <- function(data, classifier = NULL, train_size = 0.75, n_r
     
     # Remove duplicate features
     
-    tmp2 <- filter_duplicates(data = data, preference = preference)
+    tmp2 <- filter_duplicates(data = data, seed = seed)
     
     # Construct set of all features
     
     tmp2 <- tmp2[[1]] %>%
-      dplyr::mutate(feature_set = "allfeatures",
-                    group = as.factor(as.character(.data$group)),
+      dplyr::mutate(group = as.factor(as.character(.data$group)),
+                    names = paste0(.data$feature_set, "_", .data$names),
+                    feature_set = "allfeatures",
                     names = paste0(.data$feature_set, "_", .data$names)) %>%
       dplyr::select(c(.data$id, .data$group, .data$names, .data$values)) %>%
       tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
@@ -87,7 +78,7 @@ tsfeature_classifier <- function(data, classifier = NULL, train_size = 0.75, n_r
     
     # Remove duplicate features
     
-    tmp <- filter_duplicates(data = data, preference = preference)
+    tmp <- filter_duplicates(data = data, seed = seed)
     
     tmp <- tmp[[1]] %>%
       dplyr::mutate(group = as.factor(as.character(.data$group)),

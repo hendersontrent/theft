@@ -11,8 +11,7 @@ tsfeature_classifier(
   n_resamples = 30,
   by_set = TRUE,
   use_null = FALSE,
-  seed = 123,
-  preference = c("feasts", "tsfeatures", "Kats")
+  seed = 123
 )
 }
 \arguments{
@@ -29,8 +28,6 @@ tsfeature_classifier(
 \item{use_null}{\code{Boolean} whether to fit null models where class labels are shuffled in order to generate a null distribution that can be compared to performance on correct class labels. Defaults to \code{FALSE}}
 
 \item{seed}{\code{integer} to fix R's random number generator to ensure reproducibility. Defaults to \code{123}}
-
-\item{preference}{\code{character} denoting which feature set to keep (meaning the others will be filtered out) between \code{"feasts"}, \code{"tsfeatures"}, and \code{"Kats"} since there is considerable overlap between these three sets. Defaults to \code{"feasts"}. Duplicates will NOT be removed from sets when computing set-level results for the respective non-preferenced sets to ensure fairness. They are only filtered out for either the construction of the set of "All features" if \code{by_set = TRUE} and when computing individual feature results (to reduce redundant calculations)}
 }
 \value{
 \code{list} containing a named \code{vector} of train-test set sizes, and a \code{data.frame} of classification performance results
