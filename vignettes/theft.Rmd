@@ -273,7 +273,7 @@ Since feature-based time-series analysis has shown particular promise for classi
 * `use_null`---Boolean whether to fit null models where class labels are shuffled in order to generate a null distribution that can be compared to performance on correct class labels. Defaults to `FALSE`. This is known as permutation testing
 * `seed`---Integer to fix R's random number generator to ensure reproducibility. Defaults to `123`
 
-*NOTE:* You can filter the duplicate features contained in `tsfeatures`, `feasts`, and `Kats` in any `feature_calculations` object through the function `filter_duplicates`, which is also called internally in `tsfeature_classifier`. This function only has 2 arguments: `data` (the  `feature_calculations` object) and `seed`. For example, if you assumed that we calculated features from all the sets, you could run the following upfront:
+*NOTE:* You can filter the duplicate features contained in `tsfeatures`, `feasts`, `Kats`, and `catch22` in any `feature_calculations` object through the function `filter_duplicates`, which is also called internally in `tsfeature_classifier`. This function only has 2 arguments: `data` (the  `feature_calculations` object) and `seed`. For example, if you assumed that we calculated features from all the sets, you could run the following upfront:
 
 ```{r, eval = FALSE}
 feature_matrix_filt <- filter_duplicates(feature_matrix, seed = 123)

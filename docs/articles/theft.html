@@ -76,7 +76,7 @@
                         <h4 data-toc-skip class="author">Trent
 Henderson</h4>
             
-            <h4 data-toc-skip class="date">2023-09-10</h4>
+            <h4 data-toc-skip class="date">2023-09-18</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/HEAD/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -547,13 +547,14 @@ ensure reproducibility. Defaults to <code>123</code>
 </li>
 </ul>
 <p><em>NOTE:</em> You can filter the duplicate features contained in
-<code>tsfeatures</code>, <code>feasts</code>, and <code>Kats</code> in
-any <code>feature_calculations</code> object through the function
-<code>filter_duplicates</code>, which is also called internally in
-<code>tsfeature_classifier</code>. This function only has 2 arguments:
-<code>data</code> (the <code>feature_calculations</code> object) and
-<code>seed</code>. For example, if you assumed that we calculated
-features from all the sets, you could run the following upfront:</p>
+<code>tsfeatures</code>, <code>feasts</code>, <code>Kats</code>, and
+<code>catch22</code> in any <code>feature_calculations</code> object
+through the function <code>filter_duplicates</code>, which is also
+called internally in <code>tsfeature_classifier</code>. This function
+only has 2 arguments: <code>data</code> (the
+<code>feature_calculations</code> object) and <code>seed</code>. For
+example, if you assumed that we calculated features from all the sets,
+you could run the following upfront:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">feature_matrix_filt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/filter_duplicates.html">filter_duplicates</a></span><span class="op">(</span><span class="va">feature_matrix</span>, seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></span></code></pre></div>
 <p>Since we are interested in individual features in this section, we
