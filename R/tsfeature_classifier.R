@@ -77,6 +77,8 @@ tsfeature_classifier <- function(data, classifier = NULL, train_size = 0.75, n_r
       
       tmp <- tmp %>%
         dplyr::left_join(tmp2, by = c("id" = "id", "group" = "group"))
+    } else{
+      message("Only one unique feature set detected. Will not construct composite set of 'all features'.")
     }
     
   } else{
