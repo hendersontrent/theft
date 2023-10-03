@@ -55,24 +55,29 @@ tsfeature_classifier <- function(data, classifier = NULL, train_size = 0.75, n_r
       dplyr::select_if(~sum(!is.na(.)) > 0) %>% # Delete features that are all NaNs
       dplyr::select(mywhere(~dplyr::n_distinct(.) > 1)) # Delete features with constant values
     
-    # Remove duplicate features
+    # Set up "All features" set
     
-    tmp2 <- filter_duplicates(data = data, seed = seed)
-    
-    # Construct set of all features
-    
-    tmp2 <- tmp2[[1]] %>%
-      dplyr::mutate(group = as.factor(as.character(.data$group)),
-                    names = paste0(.data$feature_set, "_", .data$names),
-                    feature_set = "allfeatures",
-                    names = paste0(.data$feature_set, "_", .data$names)) %>%
-      dplyr::select(c(.data$id, .data$group, .data$names, .data$values)) %>%
-      tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
-      dplyr::select_if(~sum(!is.na(.)) > 0) %>% # Delete features that are all NaNs
-      dplyr::select(mywhere(~dplyr::n_distinct(.) > 1)) # Delete features with constant values
-    
-    tmp <- tmp %>%
-      dplyr::left_join(tmp2, by = c("id" = "id", "group" = "group"))
+    if(length(unique(data[[1]]$feature_set)) > 1){
+      
+      # Remove duplicate features
+      
+      tmp2 <- filter_duplicates(data = data, seed = seed)
+      
+      # Construct set of all features
+      
+      tmp2 <- tmp2[[1]] %>%
+        dplyr::mutate(group = as.factor(as.character(.data$group)),
+                      names = paste0(.data$feature_set, "_", .data$names),
+                      feature_set = "allfeatures",
+                      names = paste0(.data$feature_set, "_", .data$names)) %>%
+        dplyr::select(c(.data$id, .data$group, .data$names, .data$values)) %>%
+        tidyr::pivot_wider(id_cols = c("id", "group"), names_from = "names", values_from = "values") %>%
+        dplyr::select_if(~sum(!is.na(.)) > 0) %>% # Delete features that are all NaNs
+        dplyr::select(mywhere(~dplyr::n_distinct(.) > 1)) # Delete features with constant values
+      
+      tmp <- tmp %>%
+        dplyr::left_join(tmp2, by = c("id" = "id", "group" = "group"))
+    }
     
   } else{
     
@@ -137,7 +142,6 @@ tsfeature_classifier <- function(data, classifier = NULL, train_size = 0.75, n_r
       stop("classifier should be a function with 2 arguments: 'formula' and 'data'.")
     }
   }
-  formals(classifier)
   
   #------------------ Find good features to retain across resamples ---------------
   
