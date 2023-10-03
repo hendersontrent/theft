@@ -797,56 +797,34 @@ level through the <code>by_set</code> argument:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $ClassificationResults</span></span>
 <span><span class="co">#&gt;    model_type resample   accuracy mean_precision mean_recall mean_f1_score</span></span>
-<span><span class="co">#&gt; 1        Main        1 0.73333333     0.77314815  0.72916667     0.7379157</span></span>
-<span><span class="co">#&gt; 2        Main        2 0.71111111     0.72500000  0.72354497     0.7210240</span></span>
-<span><span class="co">#&gt; 3        Main        3 0.75555556     0.76435185  0.75000000     0.7481076</span></span>
-<span><span class="co">#&gt; 4        Main        4 0.71111111     0.73518519  0.73894994     0.7256702</span></span>
-<span><span class="co">#&gt; 5        Main        5 0.80000000     0.83101852  0.81329365     0.8192783</span></span>
-<span><span class="co">#&gt; 6        Null        1 0.06666667     0.09154040  0.10833333     0.1173046</span></span>
-<span><span class="co">#&gt; 7        Null        2 0.08888889     0.09120370  0.09079670     0.1313582</span></span>
-<span><span class="co">#&gt; 8        Null        3 0.13333333     0.17441077  0.15993266     0.2199786</span></span>
-<span><span class="co">#&gt; 9        Null        4 0.08888889     0.11005892  0.10793651     0.1306333</span></span>
-<span><span class="co">#&gt; 10       Null        5 0.28888889     0.27365320  0.26136364     0.3179221</span></span>
-<span><span class="co">#&gt; 11       Main        1 0.75555556     0.79398148  0.75000000     0.7520290</span></span>
-<span><span class="co">#&gt; 12       Main        2 0.68888889     0.70648148  0.70238095     0.7002193</span></span>
-<span><span class="co">#&gt; 13       Main        3 0.68888889     0.70879630  0.67083333     0.6813426</span></span>
-<span><span class="co">#&gt; 14       Main        4 0.68888889     0.71666667  0.74285714     0.7186873</span></span>
-<span><span class="co">#&gt; 15       Main        5 0.82222222     0.84953704  0.83333333     0.8398321</span></span>
-<span><span class="co">#&gt; 16       Null        1 0.04444444     0.03367003  0.06944444     0.1333333</span></span>
-<span><span class="co">#&gt; 17       Null        2 0.11111111     0.10972222  0.12988400     0.1723485</span></span>
-<span><span class="co">#&gt; 18       Null        3 0.11111111     0.15589226  0.12718855     0.2012987</span></span>
-<span><span class="co">#&gt; 19       Null        4 0.02222222     0.01851852  0.05555556     0.1666667</span></span>
-<span><span class="co">#&gt; 20       Null        5 0.22222222     0.22356902  0.19761905     0.3109825</span></span>
-<span><span class="co">#&gt;     feature_set</span></span>
-<span><span class="co">#&gt; 1  All features</span></span>
-<span><span class="co">#&gt; 2  All features</span></span>
-<span><span class="co">#&gt; 3  All features</span></span>
-<span><span class="co">#&gt; 4  All features</span></span>
-<span><span class="co">#&gt; 5  All features</span></span>
-<span><span class="co">#&gt; 6  All features</span></span>
-<span><span class="co">#&gt; 7  All features</span></span>
-<span><span class="co">#&gt; 8  All features</span></span>
-<span><span class="co">#&gt; 9  All features</span></span>
-<span><span class="co">#&gt; 10 All features</span></span>
-<span><span class="co">#&gt; 11      catch22</span></span>
-<span><span class="co">#&gt; 12      catch22</span></span>
-<span><span class="co">#&gt; 13      catch22</span></span>
-<span><span class="co">#&gt; 14      catch22</span></span>
-<span><span class="co">#&gt; 15      catch22</span></span>
-<span><span class="co">#&gt; 16      catch22</span></span>
-<span><span class="co">#&gt; 17      catch22</span></span>
-<span><span class="co">#&gt; 18      catch22</span></span>
-<span><span class="co">#&gt; 19      catch22</span></span>
-<span><span class="co">#&gt; 20      catch22</span></span></code></pre></div>
-<p>Since we only calculated <code>catch22</code> in this vignette, the
-only other comparate set is <code>"All features"</code> which is
-automatically always included by default. This means they will both have
-identical results, but this functionality becomes more powerful if other
-feature sets were also calculated. Similar to the individual feature
-case, we can also use <code>calculate_interval</code> combined with
-<code>ggplot2</code> to summarise our findings. Here is a comparison of
-mean accuracy <span class="math inline">\(\pm 1SD\)</span> between
-feature sets:</p>
+<span><span class="co">#&gt; 1        Main        1 0.73333333      0.7731481   0.7291667     0.7379157</span></span>
+<span><span class="co">#&gt; 2        Main        2 0.71111111      0.7250000   0.7235450     0.7210240</span></span>
+<span><span class="co">#&gt; 3        Main        3 0.75555556      0.7643519   0.7500000     0.7481076</span></span>
+<span><span class="co">#&gt; 4        Main        4 0.71111111      0.7351852   0.7389499     0.7256702</span></span>
+<span><span class="co">#&gt; 5        Main        5 0.80000000      0.8310185   0.8132937     0.8192783</span></span>
+<span><span class="co">#&gt; 6        Null        1 0.06666667      0.0915404   0.1083333     0.1173046</span></span>
+<span><span class="co">#&gt; 7        Null        2 0.08888889      0.0912037   0.0907967     0.1313582</span></span>
+<span><span class="co">#&gt; 8        Null        3 0.13333333      0.1744108   0.1599327     0.2199786</span></span>
+<span><span class="co">#&gt; 9        Null        4 0.08888889      0.1100589   0.1079365     0.1306333</span></span>
+<span><span class="co">#&gt; 10       Null        5 0.28888889      0.2736532   0.2613636     0.3179221</span></span>
+<span><span class="co">#&gt;    feature_set</span></span>
+<span><span class="co">#&gt; 1      catch22</span></span>
+<span><span class="co">#&gt; 2      catch22</span></span>
+<span><span class="co">#&gt; 3      catch22</span></span>
+<span><span class="co">#&gt; 4      catch22</span></span>
+<span><span class="co">#&gt; 5      catch22</span></span>
+<span><span class="co">#&gt; 6      catch22</span></span>
+<span><span class="co">#&gt; 7      catch22</span></span>
+<span><span class="co">#&gt; 8      catch22</span></span>
+<span><span class="co">#&gt; 9      catch22</span></span>
+<span><span class="co">#&gt; 10     catch22</span></span></code></pre></div>
+<p>Since we only calculated <code>catch22</code> in this vignette,
+<code>tsfeature_classifier</code> did not construct a composite set of
+<code>"All features"</code> (i.e., all features across all computed
+sets). This set is automatically included by default when <span class="math inline">\(&gt;2\)</span> unique feature sets are detected in
+the feature data. Similar to the individual feature case, we can also
+use <code>calculate_interval</code> combined with <code>ggplot2</code>
+to summarise our findings. Here is a comparison of mean accuracy <span class="math inline">\(\pm 1SD\)</span> between feature sets:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">interval_calcs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_interval.html">calculate_interval</a></span><span class="op">(</span><span class="va">set_classifiers</span><span class="op">)</span></span>
 <span></span>
@@ -862,11 +840,6 @@ feature sets:</p>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>                 panel.grid.minor <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="theft_files/figure-html/unnamed-chunk-27-1.png" width="672" style="display: block; margin: auto;"></p>
-<p>As you can see, given that we only computed <code>catch22</code> the
-plot is not super informative, but had we computed others, it would
-provide a fast summary of average performance at the set level—and with
-a useful reference point of the potentially huge set of all calculated
-features.</p>
 </div>
 </div>
 <div class="section level2">

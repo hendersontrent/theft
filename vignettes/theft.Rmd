@@ -384,7 +384,7 @@ set_classifiers <- tsfeature_classifier(feature_matrix,
 head(set_classifiers)
 ```
 
-Since we only calculated `catch22` in this vignette, the only other comparate set is `"All features"` which is automatically always included by default. This means they will both have identical results, but this functionality becomes more powerful if other feature sets were also calculated. Similar to the individual feature case, we can also use `calculate_interval` combined with `ggplot2` to summarise our findings. Here is a comparison of mean accuracy $\pm 1SD$ between feature sets:
+Since we only calculated `catch22` in this vignette, `tsfeature_classifier` did not construct a composite set of `"All features"` (i.e., all features across all computed sets). This set is automatically included by default when $>2$ unique feature sets are detected in the feature data. Similar to the individual feature case, we can also use `calculate_interval` combined with `ggplot2` to summarise our findings. Here is a comparison of mean accuracy $\pm 1SD$ between feature sets:
   
 ```{r, message = FALSE, warning = FALSE}
 interval_calcs <- calculate_interval(set_classifiers)
@@ -401,8 +401,6 @@ interval_calcs %>%
   ggplot2::theme(legend.position = "none",
                  panel.grid.minor = ggplot2::element_blank())
 ```
-
-As you can see, given that we only computed `catch22` the plot is not super informative, but had we computed others, it would provide a fast summary of average performance at the set level---and with a useful reference point of the potentially huge set of all calculated features.
 
 ## Reading and processing hctsa-formatted files
 
