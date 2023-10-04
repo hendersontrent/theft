@@ -1,6 +1,6 @@
 #' Rescales a numeric vector into the unit interval [0,1]
 #'
-#' \eqn{z_{i} = \frac{x_{i} - \text{min}(\mathbf{x})}{\text{max}(\mathbf{x}) - \text{min}(\mathbf{x})}}
+#' \eqn{z_{i} = \frac{x_{i} - min(\mathbf{x})}{max(\mathbf{x}) - min(\mathbf{x})}}
 #'
 #' @importFrom scales rescale
 #' @param x \code{numeric} vector
@@ -51,7 +51,7 @@ sigmoid_scaler <- function(x){
 
 #' Rescales a numeric vector using an outlier-robust Sigmoidal transformation
 #'
-#' \eqn{z_{i} = \left[1 + \exp\left(-\frac{x_{i} - \text{median}(\mathbf{x})}{\text{IQR}(\mathbf{x})/{1.35}}\right)\right]^{-1}}
+#' \eqn{z_{i} = \left[1 + \exp\left(-\frac{x_{i} - median(\mathbf{x})}{IQR(\mathbf{x})/{1.35}}\right)\right]^{-1}}
 #'
 #' @importFrom stats median IQR
 #' @param x \code{numeric} vector
@@ -69,7 +69,7 @@ robustsigmoid_scaler <- function(x){
 
 #' Rescales a numeric vector using maximum absolute scaling
 #'
-#' \eqn{z_{i} = \frac{x_{i}}{\text{max}(\mathbf{x})}}
+#' \eqn{z_{i} = \frac{x_{i}}{max(\mathbf{x})}}
 #'
 #' @param x \code{numeric} vector
 #' @return \code{numeric} vector

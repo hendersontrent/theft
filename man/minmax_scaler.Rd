@@ -13,7 +13,7 @@ minmax_scaler(x)
 \code{numeric} vector
 }
 \description{
-\eqn{z_{i} = \frac{x_{i} - \text{min}(\mathbf{x})}{\text{max}(\mathbf{x}) - \text{min}(\mathbf{x})}}
+\eqn{z_{i} = \frac{x_{i} - min(\mathbf{x})}{max(\mathbf{x}) - min(\mathbf{x})}}
 }
 \author{
 Trent Henderson

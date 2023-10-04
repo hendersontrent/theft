@@ -13,7 +13,7 @@ maxabs_scaler(x)
 \code{numeric} vector
 }
 \description{
-\eqn{z_{i} = \frac{x_{i}}{\text{max}(\mathbf{x})}}
+\eqn{z_{i} = \frac{x_{i}}{max(\mathbf{x})}}
 }
 \author{
 Trent Henderson
