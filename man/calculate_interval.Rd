@@ -46,6 +46,7 @@ classifiers <- tsfeature_classifier(featMat,
   by_set = FALSE)
   
 calculate_interval(classifiers,
+  by_set = FALSE,
   type = "sd",
   interval = 1)
 }
