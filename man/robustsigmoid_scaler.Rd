@@ -13,7 +13,7 @@ robustsigmoid_scaler(x)
 \code{numeric} vector
 }
 \description{
-\eqn{z_{i} = \left[1 + \exp\left(-\frac{x_{i} - \text{median}(\mathbf{x})}{\text{IQR}(\mathbf{x})/{1.35}}\right)\right]^{-1}}
+\eqn{z_{i} = \left[1 + \exp\left(-\frac{x_{i} - median(\mathbf{x})}{IQR(\mathbf{x})/{1.35}}\right)\right]^{-1}}
 }
 \references{
 Fulcher, Ben D., Little, Max A., and Jones, Nick S. Highly Comparative Time-Series Analysis: The Empirical Structure of Time Series and Their Methods. Journal of The Royal Society Interface 10(83), (2013).
