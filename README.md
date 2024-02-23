@@ -60,18 +60,15 @@ feature composition, and between-set feature correlations), please refer
 to the paper [An Empirical Evaluation of Time-Series Feature
 Sets](https://ieeexplore.ieee.org/document/9679937).
 
-The core workflow for feature-based time-series analysis (and
-corresponding functions) in `theft` is presented below:
+Users can also supply their own features to `theft` (see the vignette
+for more).
 
-<img src="vignettes/workflow-graphic_v05.png" width="700" alt="Structured workflow of the theft package for R" />
+## Package extensibility
 
-As you can see from the graphic above, `theft` contains a convenient and
-extensive suite of tools for semi-automated processing of extracted
-features (including data quality assessments and normalisation methods),
-low dimensional projections (linear and nonlinear), data matrix and
-feature distribution visualisations, time-series classification
-procedures, statistical hypothesis testing, and various other
-statistical and graphical tools.
+The companion package
+[`thefttools`](https://github.com/hendersontrent/thefttools) contains an
+extensive suite of functions for analysing, interpreting, and
+visualising time-series features calculated from `theft`.
 
 ## Citation
 
@@ -86,9 +83,9 @@ and the software:
 
     To cite package 'theft' in publications use:
 
-      Henderson T (2023). _theft: Tools for Handling Extraction of Features
-      from Time Series_. R package version 0.5.4.1,
-      <https://hendersontrent.github.io/theft/>.
+      Trent Henderson (2023). theft: Tools for Handling Extraction of
+      Features from Time Series. R package version 0.5.4.
+      https://hendersontrent.github.io/theft/
 
     A BibTeX entry for LaTeX users is
 
@@ -96,6 +93,6 @@ and the software:
         title = {theft: Tools for Handling Extraction of Features from Time Series},
         author = {Trent Henderson},
         year = {2023},
-        note = {R package version 0.5.4.1},
+        note = {R package version 0.5.4},
         url = {https://hendersontrent.github.io/theft/},
       }

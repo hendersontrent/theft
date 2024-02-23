@@ -1,8 +1,8 @@
 Package: theft
 Type: Package
 Title: Tools for Handling Extraction of Features from Time Series
-Version: 0.5.4.1
-Date: 2023-10-05
+Version: 0.6.1
+Date: 2024-02-23
 Authors@R: c(
   person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut")),
   person("Annie", "Bryant", role = "ctb", comment = "Balanced classification accuracy")
@@ -15,8 +15,7 @@ Description: Consolidates and calculates different sets of time-series features 
     <https://CRAN.R-project.org/package=tsfeatures>, 'tsfresh' Christ, M., Braun, N., Neuffer, J.,
     and Kempa-Liehr A.W. (2018) <doi:10.1016/j.neucom.2018.03.067>, 'TSFEL' Barandas, M., et al. (2020)
     <doi:10.1016/j.softx.2020.100456>, and 'Kats' Facebook Infrastructure Data Science (2021)
-    <https://facebookresearch.github.io/Kats/>. Provides a standardised workflow from feature calculation to
-    feature processing, machine learning classification procedures, and the production of statistical graphics.
+    <https://facebookresearch.github.io/Kats/>.
 BugReports: https://github.com/hendersontrent/theft/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -25,26 +24,17 @@ Depends:
     R (>= 3.5.0)
 Imports: 
     rlang,
-    stats,
     dplyr,
-    ggplot2,
     tidyr,
-    reshape2,
-    scales,
-    tibble,
-    purrr,
-    broom,
     tsibble,
     fabletools,
     tsfeatures,
     feasts,
     Rcatch22,
     reticulate,
-    Rtsne,
-    R.matlab,
-    e1071,
-    janitor
+    R.matlab
 Suggests: 
+    thefttools,
     lifecycle,
     cachem,
     bslib,
