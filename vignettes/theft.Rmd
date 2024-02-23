@@ -24,7 +24,6 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, message = FALSE, warning = FALSE}
-library(dplyr)
 library(theft)
 ```
 
@@ -32,7 +31,7 @@ library(theft)
 
 `theft` enables the standardised calculation of time-series features from multiple existing feature sets, and any user-supplied features.
 
-## Core calculation functions
+## Core functionality
 
 To explore package functionality, we are going to use a dataset that comes standard with `theft` called `simData`. This dataset contains a collection of randomly generated time series for six different types of processes. The dataset can be accessed via:
   
@@ -83,6 +82,8 @@ feature_matrix <- calculate_features(data = simData,
                                      group_var = "process", 
                                      feature_set = "catch22",
                                      seed = 123)
+
+head(feature_matrix)
 ```
 
 Note that for the `catch22` set you can set the additional `catch24` argument to calculate the mean and standard deviation in addition to the standard 22 features:
@@ -98,13 +99,18 @@ feature_matrix <- calculate_features(data = simData,
                                      seed = 123)
 ```
 
-A tidy dataframe of *most* of the included features and the set they correspond to is available in the dataframe `feature_list`:
-  
-```{r, message = FALSE, warning = FALSE}
-head(feature_list)
-```
-
 NOTE: If using the `tsfresh` feature set, you might want to consider the `tsfresh_cleanup` argument to `calculate_features`. This argument defaults to `FALSE` and specifies whether to use the in-built `tsfresh` relevant feature filter or not.
+
+You can also supply your own named list of functions to compute as time-series features. Below is an example with mean and standard deviation. Note that the list *must* be named as `theft` uses the list element names to label the time-series features internally. Note that if you don't want to use any of the existing feature sets in `theft` and only calculate the features you supply to `features`, just set `feature_set = NULL`.
+
+```{r, message = FALSE, warning = FALSE}
+feature_matrix2 <- calculate_features(data = simData, 
+                                      group_var = "process",
+                                      feature_set = NULL,
+                                      features = list("mean" = mean, "sd" = sd))
+
+head(feature_matrix2)
+```
 
 ### Comparison of feature sets
 

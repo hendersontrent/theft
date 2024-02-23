@@ -294,6 +294,44 @@ calc_kats <- function(data){
   return(outData)
 }
 
+#-----
+# User
+#-----
+
+calc_user <- function(data, features){
+  
+  if("group" %in% colnames(data)){
+    outData <- data %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(.data$id) %>%
+      dplyr::arrange(.data$timepoint) %>%
+      dplyr::ungroup() %>%
+      dplyr::reframe(dplyr::across(.data$values, .fns = features), .by = c(.data$id, .data$group))
+    
+    colnames(outData) <- append(c("id", "group"), names(features))
+    
+    outData <- outData %>%
+      tidyr::pivot_longer(cols = 3:ncol(outData), names_to = "names", values_to = "values") %>%
+      dplyr::mutate(feature_set = "User-supplied")
+  } else{
+    outData <- data %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(.data$id) %>%
+      dplyr::arrange(.data$timepoint) %>%
+      dplyr::ungroup() %>%
+      dplyr::reframe(dplyr::across(.data$values, .fns = features), .by = c(.data$id))
+    
+    colnames(outData) <- append(c("id"), names(features))
+    
+    outData <- outData %>%
+      tidyr::pivot_longer(cols = 2:ncol(outData), names_to = "names", values_to = "values") %>%
+      dplyr::mutate(feature_set = "User-supplied")
+  }
+  
+  message("\nCalculations completed for user-supplied features.")
+  return(outData)
+}
+
 #------------------- Main exported calculation function ------------
 
 #' Compute features on an input time series dataset
@@ -317,6 +355,7 @@ calc_kats <- function(data){
 #' @param feature_set \code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Defaults to \code{"catch22"}
 #' @param catch24 \code{Boolean} specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}
 #' @param tsfresh_cleanup \code{Boolean} specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}
+#' @param features named \code{list} containing a set of user-supplied functions to calculate on \code{data}. Each function should take a single argument which is the time series. Defaults to \code{NULL} for no manually-specified features. Each list entry must have a name as \code{calculate_features} looks for these to name the features. If you don't want to use the existing feature sets and only compute those passed to \code{features}, set \code{feature_set = NULL}
 #' @param seed \code{integer} denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to \code{123}
 #' @return object of class \code{feature_calculations} that contains the summary statistics for each feature
 #' @author Trent Henderson
@@ -333,7 +372,7 @@ calc_kats <- function(data){
 
 calculate_features <- function(data, id_var = "id", time_var = "timepoint", values_var = "values", group_var = NULL,
                                feature_set = c("catch22", "feasts", "tsfeatures", "Kats", "tsfresh", "TSFEL"), 
-                               catch24 = FALSE, tsfresh_cleanup = FALSE, seed = 123){
+                               catch24 = FALSE, tsfresh_cleanup = FALSE, features = NULL, seed = 123){
   
   #--------- Error catches ---------
   
@@ -439,6 +478,24 @@ calculate_features <- function(data, id_var = "id", time_var = "timepoint", valu
     tmp_kats <- calc_kats(data = data_re)
   }
   
+  #-----------------------
+  # User-supplied features
+  #-----------------------
+  
+  if(!is.null(features)){
+    stopifnot(class(features) == "list")
+    stopifnot(sapply(features, class) == "function")
+    
+    if(is.null(names(features))){
+      stop("features must be a named list as calculate_features uses the names to label features produced by each function in the list") # More informative error message than above as this is a bit more specific
+    }
+    
+    message("Running computations for user-supplied features...")
+    tmp_user <- calc_user(data = data_re, features = features)
+  }
+  
+  #--------- Feature binding --------
+  
   tmp_all_features <- data.frame()
   
   if(length(feature_set) > 1){
@@ -467,6 +524,10 @@ calculate_features <- function(data, id_var = "id", time_var = "timepoint", valu
   
   if(exists("tmp_kats")){
     tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_kats)
+  }
+  
+  if(exists("tmp_user")){
+    tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_user)
   }
   
   tmp_all_features <- structure(tmp_all_features, class = c("feature_calculations", "data.frame"))

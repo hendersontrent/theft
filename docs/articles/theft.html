@@ -85,8 +85,7 @@ Henderson</h4>
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hendersontrent.github.io/theft/">theft</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hendersontrent.github.io/theft/">theft</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="purpose">Purpose<a class="anchor" aria-label="anchor" href="#purpose"></a>
 </h2>
@@ -95,7 +94,7 @@ time-series features from multiple existing feature sets, and any
 user-supplied features.</p>
 </div>
 <div class="section level2">
-<h2 id="core-calculation-functions">Core calculation functions<a class="anchor" aria-label="anchor" href="#core-calculation-functions"></a>
+<h2 id="core-functionality">Core functionality<a class="anchor" aria-label="anchor" href="#core-functionality"></a>
 </h2>
 <p>To explore package functionality, we are going to use a dataset that
 comes standard with <code>theft</code> called <code>simData</code>. This
@@ -183,7 +182,23 @@ example with the <code>catch22</code> set:</p>
 <span>                                     values_var <span class="op">=</span> <span class="st">"values"</span>, </span>
 <span>                                     group_var <span class="op">=</span> <span class="st">"process"</span>, </span>
 <span>                                     feature_set <span class="op">=</span> <span class="st">"catch22"</span>,</span>
-<span>                                     seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></span></code></pre></div>
+<span>                                     seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">feature_matrix</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                 id          group                    names      values</span></span>
+<span><span class="co">#&gt; 1 Gaussian Noise_1 Gaussian Noise       DN_HistogramMode_5 -0.01408452</span></span>
+<span><span class="co">#&gt; 2 Gaussian Noise_1 Gaussian Noise      DN_HistogramMode_10 -0.27031413</span></span>
+<span><span class="co">#&gt; 3 Gaussian Noise_1 Gaussian Noise                CO_f1ecac  1.60843425</span></span>
+<span><span class="co">#&gt; 4 Gaussian Noise_1 Gaussian Noise           CO_FirstMin_ac  3.00000000</span></span>
+<span><span class="co">#&gt; 5 Gaussian Noise_1 Gaussian Noise CO_HistogramAMI_even_2_5  0.09661403</span></span>
+<span><span class="co">#&gt; 6 Gaussian Noise_1 Gaussian Noise            CO_trev_1_num  1.51953865</span></span>
+<span><span class="co">#&gt;   feature_set</span></span>
+<span><span class="co">#&gt; 1     catch22</span></span>
+<span><span class="co">#&gt; 2     catch22</span></span>
+<span><span class="co">#&gt; 3     catch22</span></span>
+<span><span class="co">#&gt; 4     catch22</span></span>
+<span><span class="co">#&gt; 5     catch22</span></span>
+<span><span class="co">#&gt; 6     catch22</span></span></code></pre></div>
 <p>Note that for the <code>catch22</code> set you can set the additional
 <code>catch24</code> argument to calculate the mean and standard
 deviation in addition to the standard 22 features:</p>
@@ -196,23 +211,33 @@ deviation in addition to the standard 22 features:</p>
 <span>                                     feature_set <span class="op">=</span> <span class="st">"catch22"</span>,</span>
 <span>                                     catch24 <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                                     seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></span></code></pre></div>
-<p>A tidy dataframe of <em>most</em> of the included features and the
-set they correspond to is available in the dataframe
-<code>feature_list</code>:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">feature_list</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   feature_set                  feature</span></span>
-<span><span class="co">#&gt; 1     catch22       DN_HistogramMode_5</span></span>
-<span><span class="co">#&gt; 2     catch22      DN_HistogramMode_10</span></span>
-<span><span class="co">#&gt; 3     catch22                CO_f1ecac</span></span>
-<span><span class="co">#&gt; 4     catch22           CO_FirstMin_ac</span></span>
-<span><span class="co">#&gt; 5     catch22 CO_HistogramAMI_even_2_5</span></span>
-<span><span class="co">#&gt; 6     catch22            CO_trev_1_num</span></span></code></pre></div>
 <p>NOTE: If using the <code>tsfresh</code> feature set, you might want
 to consider the <code>tsfresh_cleanup</code> argument to
 <code>calculate_features</code>. This argument defaults to
 <code>FALSE</code> and specifies whether to use the in-built
 <code>tsfresh</code> relevant feature filter or not.</p>
+<p>You can also supply your own named list of functions to compute as
+time-series features. Below is an example with mean and standard
+deviation. Note that the list <em>must</em> be named as
+<code>theft</code> uses the list element names to label the time-series
+features internally. Note that if you don’t want to use any of the
+existing feature sets in <code>theft</code> and only calculate the
+features you supply to <code>features</code>, just set
+<code>feature_set = NULL</code>.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">feature_matrix2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, </span>
+<span>                                      group_var <span class="op">=</span> <span class="st">"process"</span>,</span>
+<span>                                      feature_set <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>                                      features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"mean"</span> <span class="op">=</span> <span class="va">mean</span>, <span class="st">"sd"</span> <span class="op">=</span> <span class="va">sd</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">feature_matrix2</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                 id          group names       values   feature_set</span></span>
+<span><span class="co">#&gt; 1 Gaussian Noise_1 Gaussian Noise  mean  0.106146509 User-supplied</span></span>
+<span><span class="co">#&gt; 2 Gaussian Noise_1 Gaussian Noise    sd  0.900816596 User-supplied</span></span>
+<span><span class="co">#&gt; 3 Gaussian Noise_2 Gaussian Noise  mean  0.029534984 User-supplied</span></span>
+<span><span class="co">#&gt; 4 Gaussian Noise_2 Gaussian Noise    sd  1.129814821 User-supplied</span></span>
+<span><span class="co">#&gt; 5 Gaussian Noise_3 Gaussian Noise  mean -0.009571088 User-supplied</span></span>
+<span><span class="co">#&gt; 6 Gaussian Noise_3 Gaussian Noise    sd  0.872840204 User-supplied</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">

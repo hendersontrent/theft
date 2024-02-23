@@ -5,7 +5,7 @@ Version: 0.6.1
 Date: 2024-02-23
 Authors@R: c(
   person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut")),
-  person("Annie", "Bryant", role = "ctb", comment = "Balanced classification accuracy")
+  person("Annie", "Bryant", role = "ctb")
   )
 Maintainer: Trent Henderson <then6675@uni.sydney.edu.au>
 Description: Consolidates and calculates different sets of time-series features from multiple
@@ -27,6 +27,7 @@ Imports:
     dplyr,
     tidyr,
     purrr,
+    tibble,
     tsibble,
     fabletools,
     tsfeatures,
