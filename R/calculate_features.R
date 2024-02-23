@@ -9,18 +9,18 @@ calc_catch22 <- function(data, catch24){
   if("group" %in% colnames(data)){
     outData <- data %>%
       tibble::as_tibble() %>%
-      dplyr::group_by(.data$id, .data$group) %>%
+      dplyr::group_by(.data$id) %>%
       dplyr::arrange(.data$timepoint) %>%
-      dplyr::summarise(Rcatch22::catch22_all(.data$values, catch24 = catch24)) %>%
       dplyr::ungroup() %>%
+      dplyr::reframe(Rcatch22::catch22_all(.data$values, catch24 = catch24), .by = c(.data$id, .data$group)) %>%
       dplyr::mutate(feature_set = "catch22")
   } else{
     outData <- data %>%
       tibble::as_tibble() %>%
       dplyr::group_by(.data$id) %>%
       dplyr::arrange(.data$timepoint) %>%
-      dplyr::summarise(Rcatch22::catch22_all(.data$values, catch24 = catch24)) %>%
       dplyr::ungroup() %>%
+      dplyr::reframe(Rcatch22::catch22_all(.data$values, catch24 = catch24), .by = c(.data$id)) %>%
       dplyr::mutate(feature_set = "catch22")
   }
   
@@ -71,10 +71,9 @@ tsfeatures_helper <- function(data, grouped = FALSE, feats){
     dplyr::group_by_at(dplyr::all_of(vars)) %>%
     dplyr::arrange(.data$timepoint) %>%
     dplyr::select(-c(.data$timepoint)) %>%
-    dplyr::summarise(values = list(.data$values)) %>%
-    dplyr::group_by_at(dplyr::all_of(vars)) %>%
-    dplyr::summarise(tsfeatures::tsfeatures(.data$values, features = feats)) %>%
     dplyr::ungroup() %>%
+    dplyr::reframe(values = list(.data$values), .by = dplyr::all_of(vars)) %>%
+    dplyr::reframe(tsfeatures::tsfeatures(.data$values, features = feats), .by = dplyr::all_of(vars)) %>%
     tidyr::gather("names", "values", -c(dplyr::all_of(vars))) %>%
     dplyr::mutate(feature_set = "tsfeatures")
   
@@ -228,8 +227,8 @@ calc_tsfel <- function(data){
       tibble::as_tibble() %>%
       dplyr::group_by(.data$id, .data$group) %>%
       dplyr::arrange(.data$timepoint) %>%
-      dplyr::summarise(tsfel_calculator(.data$values)) %>%
       dplyr::ungroup() %>%
+      dplyr::reframe(tsfel_calculator(.data$values), .by = c(.data$id, .data$group)) %>%
       tidyr::gather("names", "values", -c(.data$id, .data$group)) %>%
       dplyr::mutate(feature_set = "TSFEL")
   } else{
@@ -237,8 +236,8 @@ calc_tsfel <- function(data){
       tibble::as_tibble() %>%
       dplyr::group_by(.data$id) %>%
       dplyr::arrange(.data$timepoint) %>%
-      dplyr::summarise(tsfel_calculator(.data$values)) %>%
       dplyr::ungroup() %>%
+      dplyr::reframe(tsfel_calculator(.data$values), .by = c(.data$id)) %>%
       tidyr::gather("names", "values", -c(.data$id)) %>%
       dplyr::mutate(feature_set = "TSFEL")
   }
@@ -273,9 +272,9 @@ calc_kats <- function(data){
       dplyr::select(-c(.data$timepoint)) %>%
       dplyr::group_by(.data$id, .data$group) %>%
       dplyr::arrange(.data$time) %>%
-      dplyr::summarise(results = list(kats_calculator(timepoints = .data$time, values = .data$values))) %>%
-      tidyr::unnest_wider(.data$results) %>%
       dplyr::ungroup() %>%
+      dplyr::reframe(results = list(kats_calculator(timepoints = .data$time, values = .data$values)), .by = c(.data$id, .data$group)) %>%
+      tidyr::unnest_wider(.data$results) %>%
       tidyr::gather("names", "values", -c(.data$id, .data$group)) %>%
       dplyr::mutate(feature_set = "Kats")
   } else{
@@ -284,9 +283,9 @@ calc_kats <- function(data){
       dplyr::select(-c(.data$timepoint)) %>%
       dplyr::group_by(.data$id) %>%
       dplyr::arrange(.data$time) %>%
-      dplyr::summarise(results = list(kats_calculator(timepoints = .data$time, values = .data$values))) %>%
-      tidyr::unnest_wider(.data$results) %>%
       dplyr::ungroup() %>%
+      dplyr::reframe(results = list(kats_calculator(timepoints = .data$time, values = .data$values)), .by = c(.data$id)) %>%
+      tidyr::unnest_wider(.data$results) %>%
       tidyr::gather("names", "values", -c(.data$id)) %>%
       dplyr::mutate(feature_set = "Kats")
   }
@@ -470,6 +469,6 @@ calculate_features <- function(data, id_var = "id", time_var = "timepoint", valu
     tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_kats)
   }
   
-  tmp_all_features <- structure(list(tmp_all_features), class = "feature_calculations")
+  tmp_all_features <- structure(tmp_all_features, class = c("feature_calculations", "data.frame"))
   return(tmp_all_features)
 }

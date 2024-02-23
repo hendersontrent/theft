@@ -26,6 +26,7 @@ Imports:
     rlang,
     dplyr,
     tidyr,
+    purrr,
     tsibble,
     fabletools,
     tsfeatures,
