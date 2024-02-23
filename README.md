@@ -61,7 +61,13 @@ to the paper [An Empirical Evaluation of Time-Series Feature
 Sets](https://ieeexplore.ieee.org/document/9679937).
 
 Users can also supply their own features to `theft` (see the vignette
-for more).
+for more information).
+
+A high-level overview of how the `theft` ecosystem is typically accessed
+by users is shown below. Many more functions and options for
+customisation are available within the packages.
+
+<img src="vignettes/theft-ecosystem.png" width="700" alt="Schematic of the theft ecosystem in R" />
 
 ## Package extensibility
 
@@ -72,7 +78,8 @@ visualising time-series features calculated from `theft`.
 
 ## Citation
 
-If you use `theft` in your own work, please cite both the paper:
+If you use `theft` or `thefttools` in your own work, please cite both
+the paper:
 
 T. Henderson and Ben D. Fulcher. [Feature-Based Time-Series Analysis in
 R using the theft Package](https://arxiv.org/abs/2208.06146). arXiv,
@@ -83,8 +90,8 @@ and the software:
 
     To cite package 'theft' in publications use:
 
-      Trent Henderson (2023). theft: Tools for Handling Extraction of
-      Features from Time Series. R package version 0.5.4.
+      Trent Henderson (2024). theft: Tools for Handling Extraction of
+      Features from Time Series. R package version 0.6.1.
       https://hendersontrent.github.io/theft/
 
     A BibTeX entry for LaTeX users is
@@ -92,7 +99,22 @@ and the software:
       @Manual{,
         title = {theft: Tools for Handling Extraction of Features from Time Series},
         author = {Trent Henderson},
-        year = {2023},
-        note = {R package version 0.5.4},
+        year = {2024},
+        note = {R package version 0.6.1},
         url = {https://hendersontrent.github.io/theft/},
+      }
+
+
+    To cite package 'thefttools' in publications use:
+
+      Trent Henderson (2024). thefttools: Tools for Analysing and
+      Interpreting Time Series Features. R package version 0.1.0.
+
+    A BibTeX entry for LaTeX users is
+
+      @Manual{,
+        title = {thefttools: Tools for Analysing and Interpreting Time Series Features},
+        author = {Trent Henderson},
+        year = {2024},
+        note = {R package version 0.1.0},
       }
