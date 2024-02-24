@@ -76,7 +76,7 @@
                         <h4 data-toc-skip class="author">Trent
 Henderson</h4>
             
-            <h4 data-toc-skip class="date">2024-02-23</h4>
+            <h4 data-toc-skip class="date">2024-02-24</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/HEAD/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -127,6 +127,9 @@ argument. The choices are currently <code>"catch22"</code>,
 packages and applies it within the broader <em>tidy</em> data philosophy
 embodied by <code>theft</code>. At present, depending on the input
 time-series, <code>theft</code> provides access to <span class="math inline">\(&gt;1200\)</span> features.</p>
+<p>However, as discussed in the functionality demonstrations below, you
+can also supply your own list of features too! But more on that
+later…</p>
 <div class="section level4">
 <h4 id="installing-python-feature-sets">Installing Python feature sets<a class="anchor" aria-label="anchor" href="#installing-python-feature-sets"></a>
 </h4>
@@ -134,40 +137,36 @@ time-series, <code>theft</code> provides access to <span class="math inline">\(&
 <code>Kats</code>, <code>tsfresh</code> or <code>TSFEL</code> feature
 sets; the R-based sets will run fine) you should have a working Python
 3.9 installation and run the function
-<code>install_python_pkgs(python_path, path)</code> after first
-installing <code>theft</code>, where the <code>python_path</code>
-argument is the filepath to the location of Python 3.9 on your machine
-and the <code>path</code> argument is the location you wish to install
-the Python libraries and virtual environment to on your machine.</p>
-<p>For example, if you wanted to install the Python libraries and the
-resulting virtual environment in
-<code>"C:/Users/User/Desktop/theft"</code> and Python 3.9 is located at
-<code>"/usr/bin/python"</code> on your machine, you would run the
-following after first having installed <code>theft</code>:</p>
+<code>install_python_pkgs(venv)</code> after first installing
+<code>theft</code>, where the <code>venv</code> argument is the name of
+the virtual environment you want to create.</p>
+<p>For example, if you wanted to install the Python libraries to the
+default virtual environment folder used by <code>reticulate</code>, you
+would run the following after first having installed <code>theft</code>
+(here I am just creating a new virtual environment called
+<code>"theft-package"</code>—you can call it whatever you like!):</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/install_python_pkgs.html">install_python_pkgs</a></span><span class="op">(</span><span class="st">"C:/Users/User/Desktop/theft"</span>, <span class="st">"/usr/bin/python"</span><span class="op">)</span></span></code></pre></div>
-<p>If you want to use any of the Python-based packages, you must first
-tell R which Python and/or virtual environment on your computer contains
-the installed libraries. This can be done in <code>theft</code> via the
-<code>init_theft</code> function, which has two arguments:</p>
-<ol style="list-style-type: decimal">
-<li>
-<code>python_path</code> – the filepath to the version of Python you
-wish to use (i.e., the same as was entered into
-<code>install_python_pkgs</code> if you ran that first)</li>
-<li>
-<code>venv_path</code> – the filepath to the Python virtual
-environment where <code>tsfresh</code>, <code>TSFEL</code>, and/or
-<code>Kats</code> are installed (i.e., the path returned in the console
-message from <code>install_python_pkgs</code> if you ran that function
-first)</li>
-</ol>
-<p>However, you do not necessarily have to use this convenience
-function. If you have another method for pointing R to the correct
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/install_python_pkgs.html">install_python_pkgs</a></span><span class="op">(</span><span class="st">"theft-package"</span><span class="op">)</span></span></code></pre></div>
+<p>You can then run the following to activate the virtual
+environment:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/init_theft.html">init_theft</a></span><span class="op">(</span><span class="st">"theft-package"</span><span class="op">)</span></span></code></pre></div>
+<p>You are now ready to commit theft using all six potential factory
+feature sets!</p>
+<p>However, you do not necessarily have to use these convenience
+functions. If you have another method for pointing R to the correct
 Python (such as <code>reticulate</code> or <code>findpython</code>), you
-can use those in your workflow instead.</p>
-<p><strong>NOTE: You only need to call </strong> <code>init_theft</code>
-<strong>or your other solution once per session.</strong></p>
+can use those in your workflow instead and make sure you install
+<code>Kats</code>, <code>tsfresh</code> or <code>TSFEL</code> as
+required</p>
+<p><strong>NOTE 1: You only need to call </strong>
+<code>init_theft</code> <strong>or your other solution once per
+session.</strong></p>
+<p><strong>NOTE 2: If you have issues installing </strong>
+<code>Kats</code> <strong>with </strong>
+<code>install_python_pkgs</code> <strong>, try </strong>
+<code>install_python_pkgs("theft-package", simple_kats = FALSE)</code>
+<strong>.</strong></p>
 </div>
 <div class="section level4">
 <h4 id="calculating-features">Calculating features<a class="anchor" aria-label="anchor" href="#calculating-features"></a>
@@ -175,7 +174,7 @@ can use those in your workflow instead.</p>
 <p>You are then ready to use the rest of the package’s functionality,
 beginning with the extraction of time-series features. Here is an
 example with the <code>catch22</code> set:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">feature_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, </span>
 <span>                                     id_var <span class="op">=</span> <span class="st">"id"</span>, </span>
 <span>                                     time_var <span class="op">=</span> <span class="st">"timepoint"</span>, </span>
@@ -202,7 +201,7 @@ example with the <code>catch22</code> set:</p>
 <p>Note that for the <code>catch22</code> set you can set the additional
 <code>catch24</code> argument to calculate the mean and standard
 deviation in addition to the standard 22 features:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">feature_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, </span>
 <span>                                     id_var <span class="op">=</span> <span class="st">"id"</span>, </span>
 <span>                                     time_var <span class="op">=</span> <span class="st">"timepoint"</span>, </span>
@@ -224,7 +223,7 @@ features internally. Note that if you don’t want to use any of the
 existing feature sets in <code>theft</code> and only calculate the
 features you supply to <code>features</code>, just set
 <code>feature_set = NULL</code>.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">feature_matrix2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, </span>
 <span>                                      group_var <span class="op">=</span> <span class="st">"process"</span>,</span>
 <span>                                      feature_set <span class="op">=</span> <span class="cn">NULL</span>,</span>

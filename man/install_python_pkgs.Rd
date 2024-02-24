@@ -4,12 +4,12 @@
 \alias{install_python_pkgs}
 \title{Download and install all the relevant Python packages into a target location}
 \usage{
-install_python_pkgs(python_path, path)
+install_python_pkgs(venv, simple_kats = TRUE)
 }
 \arguments{
-\item{python_path}{\code{character} specifying the filepath to the location of Python 3.9 on your machine}
+\item{venv}{\code{character} specifying the name of the new virtual environment to create}
 
-\item{path}{\code{character} denoting the filepath to install the Python libraries and virtual environment to}
+\item{simple_kats}{\code{Boolean} denoting whether to try a standard installation of \code{Kats} from PyPI using \code{reticulate::virtualenv_install} or to install a safer version with less dependencies. Defaults to \code{TRUE}}
 }
 \description{
 Download and install all the relevant Python packages into a target location

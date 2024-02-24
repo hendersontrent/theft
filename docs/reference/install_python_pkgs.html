@@ -51,15 +51,15 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">install_python_pkgs</span><span class="op">(</span><span class="va">python_path</span>, <span class="va">path</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">install_python_pkgs</span><span class="op">(</span><span class="va">venv</span>, simple_kats <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>python_path</dt>
-<dd><p><code>character</code> specifying the filepath to the location of Python 3.9 on your machine</p></dd>
-<dt>path</dt>
-<dd><p><code>character</code> denoting the filepath to install the Python libraries and virtual environment to</p></dd>
+    <dl><dt>venv</dt>
+<dd><p><code>character</code> specifying the name of the new virtual environment to create</p></dd>
+<dt>simple_kats</dt>
+<dd><p><code>Boolean</code> denoting whether to try a standard installation of <code>Kats</code> from PyPI using <code><a href="https://rstudio.github.io/reticulate/reference/virtualenv-tools.html" class="external-link">reticulate::virtualenv_install</a></code> or to install a safer version with less dependencies. Defaults to <code>TRUE</code></p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>

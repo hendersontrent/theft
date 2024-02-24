@@ -1,33 +1,43 @@
 #' Download and install all the relevant Python packages into a target location
 #' 
 #' @importFrom utils download.file unzip
+#' @importFrom reticulate virtualenv_create virtualenv_install virtualenv_root
 #' 
-#' @param python_path \code{character} specifying the filepath to the location of Python 3.9 on your machine
-#' @param path \code{character} denoting the filepath to install the Python libraries and virtual environment to
+#' @param venv \code{character} specifying the name of the new virtual environment to create
+#' @param simple_kats \code{Boolean} denoting whether to try a standard installation of \code{Kats} from PyPI using \code{reticulate::virtualenv_install} or to install a safer version with less dependencies. Defaults to \code{TRUE}
 #' @author Trent Henderson
 #' @export
 #' 
 
-install_python_pkgs <- function(python_path, path){
+install_python_pkgs <- function(venv, simple_kats = TRUE){
+  reticulate::virtualenv_create(venv)
+  reticulate::virtualenv_install(venv, "tsfresh")
+  reticulate::virtualenv_install(venv, "TSFEL")
   
-  message("install_python_pkgs assumes Python 3.9 is installed on your machine.")
-  stopifnot(is.character(python_path) || is.character(path))
-  Sys.setenv(RETICULATE_PYTHON = python_path)
-  kats_path <- paste0(path, "/Kats.zip")
-  kats_path_short <- gsub(".zip", "\\1", kats_path)
-  
-  # Prepare folder structure and download stable version of Kats with modified dependency files to avoid errors
-  
-  link <- "https://github.com/hendersontrent/theft-python-libraries/raw/main/Kats.zip"
-  utils::download.file(link, kats_path)
-  utils::unzip(kats_path, exdir = path)
-  
-  # Run bash commands to install all Python side of things -- NOTE: assumes Python 3.9 is already installed
-  
-  system(paste(paste0("cd ", path), "&& python3.9 -m venv theft", "&& source theft/bin/activate",
-               "&& pip install tsfresh", "&& pip install tsfel", "&& pip install pandas==1.5.3",
-               paste0("&& pip install -e ", kats_path_short), sep = " "))
-  
-  message(paste0("All libraries installed. Virtual environment created is called theft at ", path, "/theft", 
-                 "\nYou should be good to go!"))
+  if(simple_kats){
+    reticulate::virtualenv_install(venv, "TSFEL")
+  } else{
+    reticulate::use_virtualenv(venv)
+    utils::download.file("https://github.com/hendersontrent/theft-python-libraries/raw/main/Kats.zip", paste0(reticulate::virtualenv_root(), "/", venv, "/Kats.zip"))
+    utils::unzip(paste0(reticulate::virtualenv_root(), "/", venv, "/Kats.zip"), exdir = paste0(reticulate::virtualenv_root(), "/", venv))
+    
+    system(paste(paste0("cd ", normalizePath(paste0(reticulate::virtualenv_root(), "/", venv, "/Kats"))),
+                 paste0("&& python", reticulate::py_version(), " -m venv ", venv),
+                 paste0("&& source ", venv, "/bin/activate"),
+                 paste0("&& pip install -e ", normalizePath(paste0(reticulate::virtualenv_root(), "/", venv, "/Kats"))), sep = " "))
+    
+    # tryCatch({
+    #   reticulate::virtualenv_install(venv, "kats")
+    # },
+    # error = function(e){
+    #   reticulate::use_virtualenv(venv)
+    #   utils::download.file("https://github.com/hendersontrent/theft-python-libraries/raw/main/Kats.zip", paste0(reticulate::virtualenv_root(), "/", venv, "/Kats.zip"))
+    #   utils::unzip(paste0(reticulate::virtualenv_root(), "/", venv, "/Kats.zip"), exdir = paste0(reticulate::virtualenv_root(), "/", venv))
+    #   
+    #   system(paste(paste0("cd ", normalizePath(paste0(reticulate::virtualenv_root(), "/", venv, "/Kats"))), 
+    #                paste0("&& python", reticulate::py_version(), " -m venv ", venv), 
+    #                paste0("&& source ", venv, "/bin/activate"),
+    #                paste0("&& pip install -e ", normalizePath(paste0(reticulate::virtualenv_root(), "/", venv, "/Kats"))), sep = " "))
+    # })
+  }
 }
