@@ -129,4 +129,4 @@ As `theft` is based on the foundations laid by [`hctsa`](https://github.com/benf
 
 ## Analysing, interpreting, and visualising time-series features
 
-Please see the companion package [`thefttools`](https://github.com/hendersontrent/thefttools) for a large suite of functions.
+Please see the companion package [`theftdlc`](https://github.com/hendersontrent/theftdlc) ('`theft` downloadable content') for a large suite of functions.

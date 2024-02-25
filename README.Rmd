@@ -52,11 +52,11 @@ A high-level overview of how the `theft` ecosystem is typically accessed by user
 
 ## Package extensibility
 
-The companion package [`thefttools`](https://github.com/hendersontrent/thefttools) contains an extensive suite of functions for analysing, interpreting, and visualising time-series features calculated from `theft`.
+The companion package [`theftdlc`](https://github.com/hendersontrent/theftdlc) ('`theft` downloadable content'---just like you get [DLCs and expansions](https://en.bandainamcoent.eu/elden-ring/elden-ring/shadow-of-the-erdtree) for video games) contains an extensive suite of functions for analysing, interpreting, and visualising time-series features calculated from `theft`.
 
 ## Citation
 
-If you use `theft` or `thefttools` in your own work, please cite both the paper:
+If you use `theft` or `theftdlc` in your own work, please cite both the paper:
 
 T. Henderson and Ben D. Fulcher. [Feature-Based Time-Series Analysis in R using the theft Package](https://arxiv.org/abs/2208.06146). arXiv, (2022).
 
@@ -64,5 +64,5 @@ and the software:
 
 ```{r, echo = FALSE}
 citation("theft")
-citation("thefttools")
+citation("theftdlc")
 ```

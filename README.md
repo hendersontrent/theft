@@ -72,14 +72,17 @@ customisation are available within the packages.
 ## Package extensibility
 
 The companion package
-[`thefttools`](https://github.com/hendersontrent/thefttools) contains an
-extensive suite of functions for analysing, interpreting, and
-visualising time-series features calculated from `theft`.
+[`theftdlc`](https://github.com/hendersontrent/theftdlc) (‘`theft`
+downloadable content’—just like you get [DLCs and
+expansions](https://en.bandainamcoent.eu/elden-ring/elden-ring/shadow-of-the-erdtree)
+for video games) contains an extensive suite of functions for analysing,
+interpreting, and visualising time-series features calculated from
+`theft`.
 
 ## Citation
 
-If you use `theft` or `thefttools` in your own work, please cite both
-the paper:
+If you use `theft` or `theftdlc` in your own work, please cite both the
+paper:
 
 T. Henderson and Ben D. Fulcher. [Feature-Based Time-Series Analysis in
 R using the theft Package](https://arxiv.org/abs/2208.06146). arXiv,
@@ -105,15 +108,15 @@ and the software:
       }
 
 
-    To cite package 'thefttools' in publications use:
+    To cite package 'theftdlc' in publications use:
 
-      Trent Henderson (2024). thefttools: Tools for Analysing and
+      Trent Henderson (2024). theftdlc: Tools for Analysing and
       Interpreting Time Series Features. R package version 0.1.0.
 
     A BibTeX entry for LaTeX users is
 
       @Manual{,
-        title = {thefttools: Tools for Analysing and Interpreting Time Series Features},
+        title = {theftdlc: Tools for Analysing and Interpreting Time Series Features},
         author = {Trent Henderson},
         year = {2024},
         note = {R package version 0.1.0},
