@@ -81,6 +81,66 @@ customisation are available within the packages.
 
 <img src="man/figures/theft-ecosystem.png" width="900" alt="Schematic of the theft ecosystem in R" />
 
+## Quick tour
+
+`theft` and `theftdlc` combine to create an intuitive and efficient tidy
+feature-based workflow. Here is an example of a single code chunk that
+calculates features using
+[`catch22`](https://github.com/hendersontrent/Rcatch22) and a custom set
+of mean and standard deviation, and projects the feature space into an
+interpretable two-dimensional space using principal components analysis:
+
+``` r
+library(dplyr)
+library(theft)
+library(theftdlc)
+
+calculate_features(data = theft::simData, 
+                   group_var = "process", 
+                   feature_set = "catch22",
+                   features = list("mean" = mean, "sd" = sd)) %>%
+  project(norm_method = "RobustSigmoid",
+          unit_int = TRUE,
+          low_dim_method = "PCA") %>%
+  plot()
+```
+
+![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+In that example, `calculate_features` comes from `theft`, while
+`project` and the `plot` generic come from `theftdlc`.
+
+Similarly, we can perform time-series classification using a similar
+simple workflow to compare the performance of `catch22` against our
+custom set of the first two moments of the distribution:
+
+``` r
+calculate_features(data = theft::simData, 
+                   group_var = "process", 
+                   feature_set = "catch22",
+                   features = list("mean" = mean, "sd" = sd)) %>%
+  classify(by_set = TRUE,
+           n_resamples = 5,
+           use_null = TRUE) %>%
+  compare_features(by_set = TRUE,
+                   hypothesis = "null") %>%
+  head()
+```
+
+                     hypothesis   feature_set   metric  set_mean null_mean
+    1  All features != own null  All features accuracy 0.8400000 0.1688889
+    2 User-supplied != own null User-supplied accuracy 0.7066667 0.1111111
+    3       catch22 != own null       catch22 accuracy 0.7066667 0.1600000
+      t_statistic      p.value
+    1    9.089132 0.0004062310
+    2    5.512023 0.0026431488
+    3    7.363817 0.0009059762
+
+In this example, `classify` and `compare_features` come from `theftdlc`.
+
+Please see the vignette for more information and the full functionality
+of both packages.
+
 ## Citation
 
 If you use `theft` or `theftdlc` in your own work, please cite both the
