@@ -33,7 +33,7 @@ Please also check out our paper [Feature-Based Time-Series Analysis in R using t
 
 ## General purpose
 
-`theft` is a software package for R that facilitates user-friendly access to a structured analytical workflow for the extraction, analysis, and visualisation of time-series features. The package provides a single point of access to $>1200$ time-series features from a range of existing R and Python packages. The packages which `theft` 'steals' features from currently are:
+`theft` is a software package for R that facilitates user-friendly access to a consistent interface for the extraction of time-series features. The package provides a single point of access to $>1200$ time-series features from a range of existing R and Python packages. The packages which `theft` 'steals' features from currently are:
 
 * [catch22](https://link.springer.com/article/10.1007/s10618-019-00647-x) (R; [see `Rcatch22` for the native implementation on CRAN](https://github.com/hendersontrent/Rcatch22))
 * [feasts](https://feasts.tidyverts.org) (R)
@@ -46,13 +46,15 @@ Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. `theft` has built-i
 
 Users can also supply their own features to `theft` (see the vignette for more information).
 
-A high-level overview of how the `theft` ecosystem is typically accessed by users is shown below. Many more functions and options for customisation are available within the packages.
-
-<img src="man/figures/theft-ecosystem.png" width="700" alt="Schematic of the theft ecosystem in R" />
-
 ## Package extensibility
 
-The companion package [`theftdlc`](https://github.com/hendersontrent/theftdlc) ('`theft` downloadable content'---just like you get [DLCs and expansions](https://en.bandainamcoent.eu/elden-ring/elden-ring/shadow-of-the-erdtree) for video games) contains an extensive suite of functions for analysing, interpreting, and visualising time-series features calculated from `theft`.
+The companion package [`theftdlc`](https://github.com/hendersontrent/theftdlc) ('`theft` downloadable content'---just like you get [DLCs and expansions](https://en.bandainamcoent.eu/elden-ring/elden-ring/shadow-of-the-erdtree) for video games) contains an extensive suite of functions for analysing, interpreting, and visualising time-series features calculated from `theft`. Collectively, these packages are referred to as the '`theft` ecosystem'.
+
+<img src="man/figures/theft-packages.png" width="400" height="200" alt="Hex stickers of the theft and theftdlc packages for R" />
+
+A high-level overview of how the `theft` ecosystem for R is typically accessed by users is shown below. Many more functions and options for customisation are available within the packages.
+
+<img src="man/figures/theft-ecosystem.png" width="900" alt="Schematic of the theft ecosystem in R" />
 
 ## Citation
 

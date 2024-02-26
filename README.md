@@ -34,11 +34,10 @@ dataset](https://journals.aps.org/pre/abstract/10.1103/PhysRevE.64.061907)
 ## General purpose
 
 `theft` is a software package for R that facilitates user-friendly
-access to a structured analytical workflow for the extraction, analysis,
-and visualisation of time-series features. The package provides a single
-point of access to $>1200$ time-series features from a range of existing
-R and Python packages. The packages which `theft` ‘steals’ features from
-currently are:
+access to a consistent interface for the extraction of time-series
+features. The package provides a single point of access to $>1200$
+time-series features from a range of existing R and Python packages. The
+packages which `theft` ‘steals’ features from currently are:
 
 - [catch22](https://link.springer.com/article/10.1007/s10618-019-00647-x)
   (R; [see `Rcatch22` for the native implementation on
@@ -63,12 +62,6 @@ Sets](https://ieeexplore.ieee.org/document/9679937).
 Users can also supply their own features to `theft` (see the vignette
 for more information).
 
-A high-level overview of how the `theft` ecosystem is typically accessed
-by users is shown below. Many more functions and options for
-customisation are available within the packages.
-
-<img src="man/figures/theft-ecosystem.png" width="700" alt="Schematic of the theft ecosystem in R" />
-
 ## Package extensibility
 
 The companion package
@@ -77,7 +70,16 @@ downloadable content’—just like you get [DLCs and
 expansions](https://en.bandainamcoent.eu/elden-ring/elden-ring/shadow-of-the-erdtree)
 for video games) contains an extensive suite of functions for analysing,
 interpreting, and visualising time-series features calculated from
-`theft`.
+`theft`. Collectively, these packages are referred to as the ‘`theft`
+ecosystem’.
+
+<img src="man/figures/theft-packages.png" width="400" height="200" alt="Hex stickers of the theft and theftdlc packages for R" />
+
+A high-level overview of how the `theft` ecosystem for R is typically
+accessed by users is shown below. Many more functions and options for
+customisation are available within the packages.
+
+<img src="man/figures/theft-ecosystem.png" width="900" alt="Schematic of the theft ecosystem in R" />
 
 ## Citation
 
@@ -112,6 +114,7 @@ and the software:
 
       Trent Henderson (2024). theftdlc: Tools for Analysing and
       Interpreting Time Series Features. R package version 0.1.0.
+      https://hendersontrent.github.io/theftdlc/
 
     A BibTeX entry for LaTeX users is
 
@@ -120,4 +123,5 @@ and the software:
         author = {Trent Henderson},
         year = {2024},
         note = {R package version 0.1.0},
+        url = {https://hendersontrent.github.io/theftdlc/},
       }

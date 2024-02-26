@@ -111,11 +111,11 @@ EEG dataset</a> — a well-studied neuroscience dataset.</p>
 <h2 id="general-purpose">General purpose<a class="anchor" aria-label="anchor" href="#general-purpose"></a>
 </h2>
 <p><code>theft</code> is a software package for R that facilitates
-user-friendly access to a structured analytical workflow for the
-extraction, analysis, and visualisation of time-series features. The
-package provides a single point of access to <span class="math inline"> &gt; 1200</span> time-series features from a range
-of existing R and Python packages. The packages which <code>theft</code>
-‘steals’ features from currently are:</p>
+user-friendly access to a consistent interface for the extraction of
+time-series features. The package provides a single point of access to
+<span class="math inline"> &gt; 1200</span> time-series features from a
+range of existing R and Python packages. The packages which
+<code>theft</code> ‘steals’ features from currently are:</p>
 <ul>
 <li>
 <a href="https://link.springer.com/article/10.1007/s10618-019-00647-x" class="external-link">catch22</a>
@@ -148,23 +148,26 @@ please refer to the paper <a href="https://ieeexplore.ieee.org/document/9679937"
 Evaluation of Time-Series Feature Sets</a>.</p>
 <p>Users can also supply their own features to <code>theft</code> (see
 the vignette for more information).</p>
-<p>A high-level overview of how the <code>theft</code> ecosystem is
-typically accessed by users is shown below. Many more functions and
-options for customisation are available within the packages.</p>
-<p><img src="reference/figures/theft-ecosystem.png" width="700" alt="Schematic of the theft ecosystem in R"></p>
 </div>
 <div class="section level2">
 <h2 id="package-extensibility">Package extensibility<a class="anchor" aria-label="anchor" href="#package-extensibility"></a>
 </h2>
-<p>The companion package <a href="https://github.com/hendersontrent/thefttools" class="external-link"><code>thefttools</code></a>
-contains an extensive suite of functions for analysing, interpreting,
-and visualising time-series features calculated from
-<code>theft</code>.</p>
+<p>The companion package <a href="https://github.com/hendersontrent/theftdlc" class="external-link"><code>theftdlc</code></a>
+(‘<code>theft</code> downloadable content’—just like you get <a href="https://en.bandainamcoent.eu/elden-ring/elden-ring/shadow-of-the-erdtree" class="external-link">DLCs
+and expansions</a> for video games) contains an extensive suite of
+functions for analysing, interpreting, and visualising time-series
+features calculated from <code>theft</code>. Collectively, these
+packages are referred to as the ‘<code>theft</code> ecosystem’.</p>
+<p><img src="reference/figures/theft-packages.png" width="400" height="200" alt="Hex stickers of the theft and theftdlc packages for R"></p>
+<p>A high-level overview of how the <code>theft</code> ecosystem for R
+is typically accessed by users is shown below. Many more functions and
+options for customisation are available within the packages.</p>
+<p><img src="reference/figures/theft-ecosystem.png" width="900" alt="Schematic of the theft ecosystem in R"></p>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<p>If you use <code>theft</code> or <code>thefttools</code> in your own
+<p>If you use <code>theft</code> or <code>theftdlc</code> in your own
 work, please cite both the paper:</p>
 <p>T. Henderson and Ben D. Fulcher. <a href="https://arxiv.org/abs/2208.06146" class="external-link">Feature-Based Time-Series
 Analysis in R using the theft Package</a>. arXiv, (2022).</p>
@@ -186,19 +189,21 @@ Analysis in R using the theft Package</a>. arXiv, (2022).</p>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>To cite package <span class="st">'thefttools'</span> <span class="cf">in</span> publications use<span class="sc">:</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>To cite package <span class="st">'theftdlc'</span> <span class="cf">in</span> publications use<span class="sc">:</span></span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  Trent <span class="fu">Henderson</span> (<span class="dv">2024</span>). thefttools<span class="sc">:</span> Tools <span class="cf">for</span> Analysing and</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  Trent <span class="fu">Henderson</span> (<span class="dv">2024</span>). theftdlc<span class="sc">:</span> Tools <span class="cf">for</span> Analysing and</span>
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  Interpreting Time Series Features. R package version <span class="dv">0</span>.<span class="dv">1</span>.<span class="fl">0.</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>A BibTeX entry <span class="cf">for</span> LaTeX users is</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="sc">@</span>Manual{,</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    title <span class="ot">=</span> {thefttools<span class="sc">:</span> Tools <span class="cf">for</span> Analysing and Interpreting Time Series Features},</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    author <span class="ot">=</span> {Trent Henderson},</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    year <span class="ot">=</span> {<span class="dv">2024</span>},</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">1.0</span>},</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theftdlc<span class="sc">/</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>A BibTeX entry <span class="cf">for</span> LaTeX users is</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="sc">@</span>Manual{,</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    title <span class="ot">=</span> {theftdlc<span class="sc">:</span> Tools <span class="cf">for</span> Analysing and Interpreting Time Series Features},</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    author <span class="ot">=</span> {Trent Henderson},</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    year <span class="ot">=</span> {<span class="dv">2024</span>},</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">1.0</span>},</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    url <span class="ot">=</span> {https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theftdlc<span class="sc">/</span>},</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
