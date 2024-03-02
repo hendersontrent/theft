@@ -5,6 +5,10 @@
 #' @return no return value; called for side effects
 #' @author Trent Henderson
 #' @export
+#' \donttest{
+#' install_python_pkgs("theft-test")
+#' init_theft("theft-test")
+#' }
 #' 
 
 init_theft <- function(venv){

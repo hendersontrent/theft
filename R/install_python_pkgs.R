@@ -7,6 +7,10 @@
 #' @param simple_kats \code{Boolean} denoting whether to try a standard installation of \code{Kats} from PyPI using \code{reticulate::virtualenv_install} or to install a safer version with less dependencies. Defaults to \code{TRUE}
 #' @author Trent Henderson
 #' @export
+#' @examples
+#' \donttest{
+#' install_python_pkgs("theft-test")
+#' }
 #' 
 
 install_python_pkgs <- function(venv, simple_kats = TRUE){
@@ -15,7 +19,7 @@ install_python_pkgs <- function(venv, simple_kats = TRUE){
   reticulate::virtualenv_install(venv, "TSFEL")
   
   if(simple_kats){
-    reticulate::virtualenv_install(venv, "TSFEL")
+    reticulate::virtualenv_install(venv, "kats")
   } else{
     reticulate::use_virtualenv(venv)
     utils::download.file("https://github.com/hendersontrent/theft-python-libraries/raw/main/Kats.zip", paste0(reticulate::virtualenv_root(), "/", venv, "/Kats.zip"))

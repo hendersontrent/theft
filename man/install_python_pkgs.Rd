@@ -14,6 +14,12 @@ install_python_pkgs(venv, simple_kats = TRUE)
 \description{
 Download and install all the relevant Python packages into a target location
 }
+\examples{
+\donttest{
+install_python_pkgs("theft-test")
+}
+
+}
 \author{
 Trent Henderson
 }
