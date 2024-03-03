@@ -75,7 +75,7 @@ However, you do not necessarily have to use these convenience functions. If you 
 
 **NOTE 1: You only need to call ** `init_theft` **or your other solution once per session.**
 
-**NOTE 2: If you have issues installing  ** `Kats` **with ** `install_python_pkgs` **, try ** `install_python_pkgs("theft-package", simple_kats = FALSE)` **.**
+**NOTE 2: If you have issues installing  ** `Kats` **with ** `install_python_pkgs` **, try ** `install_python_pkgs("theft-package", standard_kats = FALSE)` **.**
 
 #### Calculating features
 

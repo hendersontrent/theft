@@ -4,7 +4,7 @@
 #' @importFrom reticulate virtualenv_create virtualenv_install virtualenv_root
 #' 
 #' @param venv \code{character} specifying the name of the new virtual environment to create
-#' @param simple_kats \code{Boolean} denoting whether to try a standard installation of \code{Kats} from PyPI using \code{reticulate::virtualenv_install} or to install a safer version with less dependencies. Defaults to \code{TRUE}
+#' @param standard_kats \code{Boolean} denoting whether to try a standard installation of \code{Kats} from PyPI using \code{reticulate::virtualenv_install} or to install a safer version with less dependencies. Defaults to \code{TRUE}
 #' @author Trent Henderson
 #' @export
 #' @examples
@@ -13,12 +13,12 @@
 #' }
 #' 
 
-install_python_pkgs <- function(venv, simple_kats = TRUE){
+install_python_pkgs <- function(venv, standard_kats = TRUE){
   reticulate::virtualenv_create(venv)
   reticulate::virtualenv_install(venv, "tsfresh")
   reticulate::virtualenv_install(venv, "TSFEL")
   
-  if(simple_kats){
+  if(standard_kats){
     reticulate::virtualenv_install(venv, "kats")
   } else{
     reticulate::use_virtualenv(venv)
