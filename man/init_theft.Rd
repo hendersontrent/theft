@@ -15,6 +15,13 @@ no return value; called for side effects
 \description{
 Communicate to R the Python virtual environment containing the relevant libraries for calculating features
 }
+\examples{
+\dontrun{
+install_python_pkgs("theft-test")
+init_theft("theft-test")
+}
+
+}
 \author{
 Trent Henderson
 }

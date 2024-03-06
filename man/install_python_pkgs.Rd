@@ -4,18 +4,21 @@
 \alias{install_python_pkgs}
 \title{Download and install all the relevant Python packages into a target location}
 \usage{
-install_python_pkgs(venv, simple_kats = TRUE)
+install_python_pkgs(venv, standard_kats = TRUE)
 }
 \arguments{
 \item{venv}{\code{character} specifying the name of the new virtual environment to create}
 
-\item{simple_kats}{\code{Boolean} denoting whether to try a standard installation of \code{Kats} from PyPI using \code{reticulate::virtualenv_install} or to install a safer version with less dependencies. Defaults to \code{TRUE}}
+\item{standard_kats}{\code{Boolean} denoting whether to try a standard installation of \code{Kats} from PyPI using \code{reticulate::virtualenv_install} or to install a safer version with less dependencies. Defaults to \code{TRUE}}
+}
+\value{
+no return value; called for side effects
 }
 \description{
 Download and install all the relevant Python packages into a target location
 }
 \examples{
-\donttest{
+\dontrun{
 install_python_pkgs("theft-test")
 }
 

@@ -2,7 +2,7 @@ Package: theft
 Type: Package
 Title: Tools for Handling Extraction of Features from Time Series
 Version: 0.6.1
-Date: 2024-03-03
+Date: 2024-03-06
 Authors@R: c(
   person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut")),
   person("Annie", "Bryant", role = "ctb")

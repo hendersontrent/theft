@@ -15,7 +15,7 @@
 #' @importFrom fabletools features feature_set
 #' @import tibble
 #' @importFrom R.matlab readMat
-#' @import reticulate
+#' @importFrom reticulate virtualenv_create virtualenv_install use_virtualenv
 #' @import dplyr
 #' @importFrom purrr map_df
 NULL
