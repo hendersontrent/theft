@@ -59,8 +59,8 @@ feature composition, and between-set feature correlations), please refer
 to the paper [An Empirical Evaluation of Time-Series Feature
 Sets](https://ieeexplore.ieee.org/document/9679937).
 
-Users can also supply their own features to `theft` (see the vignette
-for more information).
+As of `v0.6.1`, users can also supply their own features to `theft` (see
+the vignette for more information)!
 
 ## Package extensibility
 
@@ -76,10 +76,20 @@ ecosystem’.
 <img src="man/figures/theft-packages.png" width="400" height="200" alt="Hex stickers of the theft and theftdlc packages for R" />
 
 A high-level overview of how the `theft` ecosystem for R is typically
-accessed by users is shown below. Many more functions and options for
-customisation are available within the packages.
+accessed by users is shown below. Note that prior to `v0.6.1` of, many
+of the `theftdlc` functions were contained in `theft` but under other
+names. To ensure the `theft` ecosystem is as user-friendly as possible
+and can scale to meet future demands, `theft` has been refactored to be
+just feature extraction, while `theftdlc` handles all the analysis of
+the extracted features. The deprecated names—such as
+`tsfeature_classifier()` being the outdated version of `classify()`—are
+also still available for now in `theftdlc`.
 
 <img src="man/figures/theft-ecosystem.png" width="900" alt="Schematic of the theft ecosystem in R" />
+
+Many more functions and options for customisation are available within
+the packages and users are encouraged to explore the vignettes and
+helper files for more information.
 
 ## Quick tour
 

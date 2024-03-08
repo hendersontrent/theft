@@ -146,8 +146,8 @@ feature sets across a range of domains (including computation speed,
 within-set feature composition, and between-set feature correlations),
 please refer to the paper <a href="https://ieeexplore.ieee.org/document/9679937" class="external-link">An Empirical
 Evaluation of Time-Series Feature Sets</a>.</p>
-<p>Users can also supply their own features to <code>theft</code> (see
-the vignette for more information).</p>
+<p>As of <code>v0.6.1</code>, users can also supply their own features
+to <code>theft</code> (see the vignette for more information)!</p>
 </div>
 <div class="section level2">
 <h2 id="package-extensibility">Package extensibility<a class="anchor" aria-label="anchor" href="#package-extensibility"></a>
@@ -160,9 +160,20 @@ features calculated from <code>theft</code>. Collectively, these
 packages are referred to as the ‘<code>theft</code> ecosystem’.</p>
 <p><img src="reference/figures/theft-packages.png" width="400" height="200" alt="Hex stickers of the theft and theftdlc packages for R"></p>
 <p>A high-level overview of how the <code>theft</code> ecosystem for R
-is typically accessed by users is shown below. Many more functions and
-options for customisation are available within the packages.</p>
+is typically accessed by users is shown below. Note that prior to
+<code>v0.6.1</code> of, many of the <code>theftdlc</code> functions were
+contained in <code>theft</code> but under other names. To ensure the
+<code>theft</code> ecosystem is as user-friendly as possible and can
+scale to meet future demands, <code>theft</code> has been refactored to
+be just feature extraction, while <code>theftdlc</code> handles all the
+analysis of the extracted features. The deprecated names—such as
+<code><a href="https://hendersontrent.github.io/thefttools/reference/classify.html">tsfeature_classifier()</a></code> being the outdated version of
+<code><a href="https://hendersontrent.github.io/thefttools/reference/classify.html">classify()</a></code>—are also still available for now in
+<code>theftdlc</code>.</p>
 <p><img src="reference/figures/theft-ecosystem.png" width="900" alt="Schematic of the theft ecosystem in R"></p>
+<p>Many more functions and options for customisation are available
+within the packages and users are encouraged to explore the vignettes
+and helper files for more information.</p>
 </div>
 <div class="section level2">
 <h2 id="quick-tour">Quick tour<a class="anchor" aria-label="anchor" href="#quick-tour"></a>
