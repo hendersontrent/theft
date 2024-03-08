@@ -9,18 +9,18 @@ calc_catch22 <- function(data, catch24){
   if("group" %in% colnames(data)){
     outData <- data %>%
       tibble::as_tibble() %>%
-      dplyr::group_by(.data$id, .data$group) %>%
+      dplyr::group_by(.data$id) %>%
       dplyr::arrange(.data$timepoint) %>%
-      dplyr::summarise(Rcatch22::catch22_all(.data$values, catch24 = catch24)) %>%
       dplyr::ungroup() %>%
+      dplyr::reframe(Rcatch22::catch22_all(.data$values, catch24 = catch24), .by = c(.data$id, .data$group)) %>%
       dplyr::mutate(feature_set = "catch22")
   } else{
     outData <- data %>%
       tibble::as_tibble() %>%
       dplyr::group_by(.data$id) %>%
       dplyr::arrange(.data$timepoint) %>%
-      dplyr::summarise(Rcatch22::catch22_all(.data$values, catch24 = catch24)) %>%
       dplyr::ungroup() %>%
+      dplyr::reframe(Rcatch22::catch22_all(.data$values, catch24 = catch24), .by = c(.data$id)) %>%
       dplyr::mutate(feature_set = "catch22")
   }
   
@@ -71,10 +71,9 @@ tsfeatures_helper <- function(data, grouped = FALSE, feats){
     dplyr::group_by_at(dplyr::all_of(vars)) %>%
     dplyr::arrange(.data$timepoint) %>%
     dplyr::select(-c(.data$timepoint)) %>%
-    dplyr::summarise(values = list(.data$values)) %>%
-    dplyr::group_by_at(dplyr::all_of(vars)) %>%
-    dplyr::summarise(tsfeatures::tsfeatures(.data$values, features = feats)) %>%
     dplyr::ungroup() %>%
+    dplyr::reframe(values = list(.data$values), .by = dplyr::all_of(vars)) %>%
+    dplyr::reframe(tsfeatures::tsfeatures(.data$values, features = feats), .by = dplyr::all_of(vars)) %>%
     tidyr::gather("names", "values", -c(dplyr::all_of(vars))) %>%
     dplyr::mutate(feature_set = "tsfeatures")
   
@@ -228,8 +227,8 @@ calc_tsfel <- function(data){
       tibble::as_tibble() %>%
       dplyr::group_by(.data$id, .data$group) %>%
       dplyr::arrange(.data$timepoint) %>%
-      dplyr::summarise(tsfel_calculator(.data$values)) %>%
       dplyr::ungroup() %>%
+      dplyr::reframe(tsfel_calculator(.data$values), .by = c(.data$id, .data$group)) %>%
       tidyr::gather("names", "values", -c(.data$id, .data$group)) %>%
       dplyr::mutate(feature_set = "TSFEL")
   } else{
@@ -237,8 +236,8 @@ calc_tsfel <- function(data){
       tibble::as_tibble() %>%
       dplyr::group_by(.data$id) %>%
       dplyr::arrange(.data$timepoint) %>%
-      dplyr::summarise(tsfel_calculator(.data$values)) %>%
       dplyr::ungroup() %>%
+      dplyr::reframe(tsfel_calculator(.data$values), .by = c(.data$id)) %>%
       tidyr::gather("names", "values", -c(.data$id)) %>%
       dplyr::mutate(feature_set = "TSFEL")
   }
@@ -273,9 +272,9 @@ calc_kats <- function(data){
       dplyr::select(-c(.data$timepoint)) %>%
       dplyr::group_by(.data$id, .data$group) %>%
       dplyr::arrange(.data$time) %>%
-      dplyr::summarise(results = list(kats_calculator(timepoints = .data$time, values = .data$values))) %>%
-      tidyr::unnest_wider(.data$results) %>%
       dplyr::ungroup() %>%
+      dplyr::reframe(results = list(kats_calculator(timepoints = .data$time, values = .data$values)), .by = c(.data$id, .data$group)) %>%
+      tidyr::unnest_wider(.data$results) %>%
       tidyr::gather("names", "values", -c(.data$id, .data$group)) %>%
       dplyr::mutate(feature_set = "Kats")
   } else{
@@ -284,14 +283,52 @@ calc_kats <- function(data){
       dplyr::select(-c(.data$timepoint)) %>%
       dplyr::group_by(.data$id) %>%
       dplyr::arrange(.data$time) %>%
-      dplyr::summarise(results = list(kats_calculator(timepoints = .data$time, values = .data$values))) %>%
-      tidyr::unnest_wider(.data$results) %>%
       dplyr::ungroup() %>%
+      dplyr::reframe(results = list(kats_calculator(timepoints = .data$time, values = .data$values)), .by = c(.data$id)) %>%
+      tidyr::unnest_wider(.data$results) %>%
       tidyr::gather("names", "values", -c(.data$id)) %>%
       dplyr::mutate(feature_set = "Kats")
   }
   
   message("\nCalculations completed for Kats.")
+  return(outData)
+}
+
+#-----
+# User
+#-----
+
+calc_user <- function(data, features){
+  
+  if("group" %in% colnames(data)){
+    outData <- data %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(.data$id) %>%
+      dplyr::arrange(.data$timepoint) %>%
+      dplyr::ungroup() %>%
+      dplyr::reframe(dplyr::across(.data$values, .fns = features), .by = c(.data$id, .data$group))
+    
+    colnames(outData) <- append(c("id", "group"), names(features))
+    
+    outData <- outData %>%
+      tidyr::pivot_longer(cols = 3:ncol(outData), names_to = "names", values_to = "values") %>%
+      dplyr::mutate(feature_set = "User-supplied")
+  } else{
+    outData <- data %>%
+      tibble::as_tibble() %>%
+      dplyr::group_by(.data$id) %>%
+      dplyr::arrange(.data$timepoint) %>%
+      dplyr::ungroup() %>%
+      dplyr::reframe(dplyr::across(.data$values, .fns = features), .by = c(.data$id))
+    
+    colnames(outData) <- append(c("id"), names(features))
+    
+    outData <- outData %>%
+      tidyr::pivot_longer(cols = 2:ncol(outData), names_to = "names", values_to = "values") %>%
+      dplyr::mutate(feature_set = "User-supplied")
+  }
+  
+  message("\nCalculations completed for user-supplied features.")
   return(outData)
 }
 
@@ -318,6 +355,7 @@ calc_kats <- function(data){
 #' @param feature_set \code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Defaults to \code{"catch22"}
 #' @param catch24 \code{Boolean} specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}
 #' @param tsfresh_cleanup \code{Boolean} specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}
+#' @param features named \code{list} containing a set of user-supplied functions to calculate on \code{data}. Each function should take a single argument which is the time series. Defaults to \code{NULL} for no manually-specified features. Each list entry must have a name as \code{calculate_features} looks for these to name the features. If you don't want to use the existing feature sets and only compute those passed to \code{features}, set \code{feature_set = NULL}
 #' @param seed \code{integer} denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to \code{123}
 #' @return object of class \code{feature_calculations} that contains the summary statistics for each feature
 #' @author Trent Henderson
@@ -334,7 +372,7 @@ calc_kats <- function(data){
 
 calculate_features <- function(data, id_var = "id", time_var = "timepoint", values_var = "values", group_var = NULL,
                                feature_set = c("catch22", "feasts", "tsfeatures", "Kats", "tsfresh", "TSFEL"), 
-                               catch24 = FALSE, tsfresh_cleanup = FALSE, seed = 123){
+                               catch24 = FALSE, tsfresh_cleanup = FALSE, features = NULL, seed = 123){
   
   #--------- Error catches ---------
   
@@ -440,6 +478,24 @@ calculate_features <- function(data, id_var = "id", time_var = "timepoint", valu
     tmp_kats <- calc_kats(data = data_re)
   }
   
+  #-----------------------
+  # User-supplied features
+  #-----------------------
+  
+  if(!is.null(features)){
+    stopifnot(class(features) == "list")
+    stopifnot(sapply(features, class) == "function")
+    
+    if(is.null(names(features))){
+      stop("features must be a named list as calculate_features uses the names to label features produced by each function in the list") # More informative error message than above as this is a bit more specific
+    }
+    
+    message("Running computations for user-supplied features...")
+    tmp_user <- calc_user(data = data_re, features = features)
+  }
+  
+  #--------- Feature binding --------
+  
   tmp_all_features <- data.frame()
   
   if(length(feature_set) > 1){
@@ -470,6 +526,10 @@ calculate_features <- function(data, id_var = "id", time_var = "timepoint", valu
     tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_kats)
   }
   
-  tmp_all_features <- structure(list(tmp_all_features), class = "feature_calculations")
+  if(exists("tmp_user")){
+    tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_user)
+  }
+  
+  tmp_all_features <- structure(tmp_all_features, class = c("feature_calculations", "data.frame"))
   return(tmp_all_features)
 }

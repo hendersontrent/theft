@@ -4,18 +4,23 @@
 \alias{init_theft}
 \title{Communicate to R the Python virtual environment containing the relevant libraries for calculating features}
 \usage{
-init_theft(python_path, venv_path)
+init_theft(venv)
 }
 \arguments{
-\item{python_path}{\code{character} specifying the filepath to the version of Python you wish to use}
-
-\item{venv_path}{\code{character} specifying the filepath to the Python virtual environment where "tsfresh", "tsfel", and/or "kats" are installed}
+\item{venv}{\code{character} specifying the name of the to the Python virtual environment where \code{"tsfresh"}, \code{"TSFEL"}, and/or \code{"Kats"} are installed}
 }
 \value{
 no return value; called for side effects
 }
 \description{
 Communicate to R the Python virtual environment containing the relevant libraries for calculating features
+}
+\examples{
+\dontrun{
+install_python_pkgs("theft-test")
+init_theft("theft-test")
+}
+
 }
 \author{
 Trent Henderson

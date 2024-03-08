@@ -13,6 +13,7 @@ calculate_features(
   feature_set = c("catch22", "feasts", "tsfeatures", "Kats", "tsfresh", "TSFEL"),
   catch24 = FALSE,
   tsfresh_cleanup = FALSE,
+  features = NULL,
   seed = 123
 )
 }
@@ -32,6 +33,8 @@ calculate_features(
 \item{catch24}{\code{Boolean} specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}}
 
 \item{tsfresh_cleanup}{\code{Boolean} specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}}
+
+\item{features}{named \code{list} containing a set of user-supplied functions to calculate on \code{data}. Each function should take a single argument which is the time series. Defaults to \code{NULL} for no manually-specified features. Each list entry must have a name as \code{calculate_features} looks for these to name the features. If you don't want to use the existing feature sets and only compute those passed to \code{features}, set \code{feature_set = NULL}}
 
 \item{seed}{\code{integer} denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to \code{123}}
 }
