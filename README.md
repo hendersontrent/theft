@@ -137,14 +137,14 @@ calculate_features(data = theft::simData,
   head()
 ```
 
-                     hypothesis   feature_set   metric  set_mean null_mean
-    1  All features != own null  All features accuracy 0.8400000 0.1688889
-    2 User-supplied != own null User-supplied accuracy 0.7066667 0.1111111
-    3       catch22 != own null       catch22 accuracy 0.7066667 0.1600000
+                    hypothesis  feature_set   metric  set_mean null_mean
+    1 All features != own null All features accuracy 0.8400000 0.1688889
+    2         User != own null         User accuracy 0.7066667 0.1111111
+    3      catch22 != own null      catch22 accuracy 0.7066667 0.1600000
       t_statistic      p.value
-    1    9.089132 0.0004062310
-    2    5.512023 0.0026431488
-    3    7.363817 0.0009059762
+    1    9.089132 0.0008124621
+    2    5.512023 0.0052862976
+    3    7.363817 0.0018119523
 
 In this example, `classify` and `compare_features` come from `theftdlc`.
 
@@ -166,7 +166,7 @@ and the software:
     To cite package 'theft' in publications use:
 
       Trent Henderson (2024). theft: Tools for Handling Extraction of
-      Features from Time Series. R package version 0.6.1.
+      Features from Time Series. R package version 0.6.2.
       https://hendersontrent.github.io/theft/
 
     A BibTeX entry for LaTeX users is
@@ -175,23 +175,23 @@ and the software:
         title = {theft: Tools for Handling Extraction of Features from Time Series},
         author = {Trent Henderson},
         year = {2024},
-        note = {R package version 0.6.1},
+        note = {R package version 0.6.2},
         url = {https://hendersontrent.github.io/theft/},
       }
 
 
     To cite package 'theftdlc' in publications use:
 
-      Trent Henderson (2024). theftdlc: Tools for Analysing and
-      Interpreting Time Series Features. R package version 0.1.0.
+      Trent Henderson (2024). theftdlc: Analyse and Interpret Time Series
+      Features. R package version 0.1.1.
       https://hendersontrent.github.io/theftdlc/
 
     A BibTeX entry for LaTeX users is
 
       @Manual{,
-        title = {theftdlc: Tools for Analysing and Interpreting Time Series Features},
+        title = {theftdlc: Analyse and Interpret Time Series Features},
         author = {Trent Henderson},
         year = {2024},
-        note = {R package version 0.1.0},
+        note = {R package version 0.1.1},
         url = {https://hendersontrent.github.io/theftdlc/},
       }
