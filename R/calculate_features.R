@@ -312,7 +312,7 @@ calc_user <- function(data, features){
     
     outData <- outData %>%
       tidyr::pivot_longer(cols = 3:ncol(outData), names_to = "names", values_to = "values") %>%
-      dplyr::mutate(feature_set = "User-supplied")
+      dplyr::mutate(feature_set = "User")
   } else{
     outData <- data %>%
       tibble::as_tibble() %>%
@@ -325,7 +325,7 @@ calc_user <- function(data, features){
     
     outData <- outData %>%
       tidyr::pivot_longer(cols = 2:ncol(outData), names_to = "names", values_to = "values") %>%
-      dplyr::mutate(feature_set = "User-supplied")
+      dplyr::mutate(feature_set = "User")
   }
   
   message("\nCalculations completed for user-supplied features.")

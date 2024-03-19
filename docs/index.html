@@ -47,7 +47,7 @@
     
     <a class="navbar-brand me-2" href="index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -167,8 +167,8 @@ contained in <code>theft</code> but under other names. To ensure the
 scale to meet future demands, <code>theft</code> has been refactored to
 be just feature extraction, while <code>theftdlc</code> handles all the
 analysis of the extracted features. The deprecated names—such as
-<code><a href="https://hendersontrent.github.io/thefttools/reference/classify.html">tsfeature_classifier()</a></code> being the outdated version of
-<code><a href="https://hendersontrent.github.io/thefttools/reference/classify.html">classify()</a></code>—are also still available for now in
+<code><a href="https://hendersontrent.github.io/theftdlc/reference/classify.html">tsfeature_classifier()</a></code> being the outdated version of
+<code><a href="https://hendersontrent.github.io/theftdlc/reference/classify.html">classify()</a></code>—are also still available for now in
 <code>theftdlc</code>.</p>
 <p><img src="reference/figures/theft-ecosystem.png" width="900" alt="Schematic of the theft ecosystem in R"></p>
 <p>Many more functions and options for customisation are available
@@ -193,7 +193,7 @@ principal components analysis:</p>
 <span>                   group_var <span class="op">=</span> <span class="st">"process"</span>, </span>
 <span>                   feature_set <span class="op">=</span> <span class="st">"catch22"</span>,</span>
 <span>                   features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"mean"</span> <span class="op">=</span> <span class="va">mean</span>, <span class="st">"sd"</span> <span class="op">=</span> <span class="va">sd</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://hendersontrent.github.io/thefttools/reference/project.html">project</a></span><span class="op">(</span>norm_method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,</span>
+<span>  <span class="fu"><a href="https://hendersontrent.github.io/theftdlc/reference/project.html">project</a></span><span class="op">(</span>norm_method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,</span>
 <span>          unit_int <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>          low_dim_method <span class="op">=</span> <span class="st">"PCA"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -209,10 +209,10 @@ against our custom set of the first two moments of the distribution:</p>
 <span>                   group_var <span class="op">=</span> <span class="st">"process"</span>, </span>
 <span>                   feature_set <span class="op">=</span> <span class="st">"catch22"</span>,</span>
 <span>                   features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"mean"</span> <span class="op">=</span> <span class="va">mean</span>, <span class="st">"sd"</span> <span class="op">=</span> <span class="va">sd</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://hendersontrent.github.io/thefttools/reference/classify.html">classify</a></span><span class="op">(</span>by_set <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="fu"><a href="https://hendersontrent.github.io/theftdlc/reference/classify.html">classify</a></span><span class="op">(</span>by_set <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>           n_resamples <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>           use_null <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://hendersontrent.github.io/thefttools/reference/compare_features.html">compare_features</a></span><span class="op">(</span>by_set <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="fu"><a href="https://hendersontrent.github.io/theftdlc/reference/compare_features.html">compare_features</a></span><span class="op">(</span>by_set <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                   hypothesis <span class="op">=</span> <span class="st">"null"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>                 hypothesis   feature_set   metric  set_mean null_mean</span>
