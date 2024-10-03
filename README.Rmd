@@ -29,7 +29,7 @@ You can install the development version of `theft` from GitHub using the followi
 devtools::install_github("hendersontrent/theft")
 ```
 
-Please also check out our paper [Feature-Based Time-Series Analysis in R using the theft Package](https://arxiv.org/abs/2208.06146) which discusses the motivation and theoretical underpinnings of `theft` and walks through all of its functionality using the [Bonn EEG dataset](https://journals.aps.org/pre/abstract/10.1103/PhysRevE.64.061907) --- a well-studied neuroscience dataset.
+Please also check out our paper [Feature-Based Time-Series Analysis in R using the theft Package](https://arxiv.org/abs/2208.06146) which discusses the motivation and theoretical underpinnings of `theft` and walks through all of its functionality using the [Bonn EEG dataset](https://pubmed.ncbi.nlm.nih.gov/11736210/) --- a well-studied neuroscience dataset.
 
 ## General purpose
 

@@ -125,7 +125,7 @@ For a detailed comparison of the six feature sets, see [this paper](https://ieee
 
 ## Reading and processing hctsa-formatted files
 
-As `theft` is based on the foundations laid by [`hctsa`](https://github.com/benfulcher/hctsa), there is also functionality for reading in `hctsa`-formatted Matlab files and automatically processing them into tidy dataframes ready for feature extraction in `theft`. The `process_hctsa_file` function takes a string filepath to the Matlab file and does all the work for you, returning a dataframe with naming conventions consistent with other `theft` functionality. As per `hctsa` specifications for [Input File Format 1](https://hctsa-users.gitbook.io/hctsa-manual/calculating/input_files), this file should have 3 variables with the following exact names: `timeSeriesData`, `labels`, and `keywords`. The filepath can be a local drive path or a URL.
+As `theft` is based on the foundations laid by [`hctsa`](https://github.com/benfulcher/hctsa), there is also functionality for reading in `hctsa`-formatted Matlab files and automatically processing them into tidy dataframes ready for feature extraction in `theft`. The `process_hctsa_file` function takes a string filepath to the Matlab file and does all the work for you, returning a dataframe with naming conventions consistent with other `theft` functionality. As per `hctsa` specifications for [Input File Format 1](https://time-series-features.gitbook.io/hctsa-manual/installing-and-using-hctsa/calculating/input_files#input-file-format-1-.mat-file), this file should have 3 variables with the following exact names: `timeSeriesData`, `labels`, and `keywords`. The filepath can be a local drive path or a URL.
 
 ## Analysing, interpreting, and visualising time-series features
 

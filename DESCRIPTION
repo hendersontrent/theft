@@ -1,8 +1,8 @@
 Package: theft
 Type: Package
 Title: Tools for Handling Extraction of Features from Time Series
-Version: 0.6.2
-Date: 2024-03-19
+Version: 0.6.3
+Date: 2024-10-03
 Authors@R: c(
   person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut")),
   person("Annie", "Bryant", role = "ctb")
@@ -37,7 +37,6 @@ Imports:
     reticulate,
     R.matlab
 Suggests: 
-    theftdlc,
     lifecycle,
     cachem,
     bslib,
@@ -46,6 +45,6 @@ Suggests:
     rmarkdown,
     pkgdown,
     testthat
-RoxygenNote: 7.2.2
+RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 URL: https://hendersontrent.github.io/theft/
