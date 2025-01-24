@@ -48,15 +48,19 @@ packages which `theft` ‘steals’ features from currently are:
 - [tsfresh](https://tsfresh.com) (Python)
 - [TSFEL](https://tsfel.readthedocs.io/en/latest/) (Python)
 
+Users can also calculate their own individual features or sets of
+features too!
+
 Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. `theft` has
 built-in functionality for helping you install these libraries—all you
-need to do is install Python 3.9 on your machine. If you wish to access
-the Python feature sets, please run `?install_python_pkgs` in R after
-downloading `theft` or consult the vignette in the package for more
-information. For a comprehensive comparison of these six feature sets
-across a range of domains (including computation speed, within-set
-feature composition, and between-set feature correlations), please refer
-to the paper [An Empirical Evaluation of Time-Series Feature
+need to do is install Python on your machine (preferably Python
+\>=3.10). If you wish to access the Python feature sets, please run
+`?install_python_pkgs` in R after downloading `theft` or consult the
+vignette in the package for more information. For a comprehensive
+comparison of these six feature sets across a range of domains
+(including computation speed, within-set feature composition, and
+between-set feature correlations), please refer to the paper [An
+Empirical Evaluation of Time-Series Feature
 Sets](https://ieeexplore.ieee.org/document/9679937).
 
 As of `v0.6.1`, users can also supply their own features to `theft` (see
@@ -137,14 +141,14 @@ calculate_features(data = theft::simData,
   head()
 ```
 
-                     hypothesis   feature_set   metric  set_mean null_mean
-    1  All features != own null  All features accuracy 0.8400000 0.1688889
-    2 User-supplied != own null User-supplied accuracy 0.7066667 0.1111111
-    3       catch22 != own null       catch22 accuracy 0.7066667 0.1600000
+                    hypothesis  feature_set   metric  set_mean null_mean
+    1 All features != own null All features accuracy 0.8400000 0.1688889
+    2         User != own null         User accuracy 0.7066667 0.1111111
+    3      catch22 != own null      catch22 accuracy 0.7066667 0.1600000
       t_statistic      p.value
-    1    9.089132 0.0004062310
-    2    5.512023 0.0026431488
-    3    7.363817 0.0009059762
+    1    9.089132 0.0008124621
+    2    5.512023 0.0052862976
+    3    7.363817 0.0018119523
 
 In this example, `classify` and `compare_features` come from `theftdlc`.
 
@@ -165,26 +169,26 @@ and the software:
 
     To cite package 'theft' in publications use:
 
-      Henderson T (2024). _theft: Tools for Handling Extraction of Features
-      from Time Series_. R package version 0.6.3,
-      <https://CRAN.R-project.org/package=theft>.
+      Trent Henderson (2025). theft: Tools for Handling Extraction of
+      Features from Time Series. R package version 0.7.1.
+      https://hendersontrent.github.io/theft/
 
     A BibTeX entry for LaTeX users is
 
       @Manual{,
         title = {theft: Tools for Handling Extraction of Features from Time Series},
         author = {Trent Henderson},
-        year = {2024},
-        note = {R package version 0.6.3},
-        url = {https://CRAN.R-project.org/package=theft},
+        year = {2025},
+        note = {R package version 0.7.1},
+        url = {https://hendersontrent.github.io/theft/},
       }
 
 
     To cite package 'theftdlc' in publications use:
 
-      Henderson T (2024). _theftdlc: Analyse and Interpret Time Series
-      Features_. R package version 0.1.2,
-      <https://CRAN.R-project.org/package=theftdlc>.
+      Trent Henderson (2024). theftdlc: Analyse and Interpret Time Series
+      Features. R package version 0.1.2.
+      https://CRAN.R-project.org/package=theftdlc
 
     A BibTeX entry for LaTeX users is
 

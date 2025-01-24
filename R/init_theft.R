@@ -16,6 +16,6 @@
 init_theft <- function(venv){
   reticulate::use_virtualenv(venv)
   tsfresh <- reticulate::import("tsfresh")
-  TSFEL <- reticulate::import("TSFEL")
-  Kats <- reticulate::import("kats")
+  tsfel <- reticulate::import("tsfel")
+  kats <- reticulate::import("kats")
 }
