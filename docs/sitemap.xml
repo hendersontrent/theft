@@ -4,6 +4,12 @@
     <loc>https://hendersontrent.github.io/theft/404.html</loc>
   </url>
   <url>
+    <loc>https://hendersontrent.github.io/theft/LICENSE-text.html</loc>
+  </url>
+  <url>
+    <loc>https://hendersontrent.github.io/theft/LICENSE.html</loc>
+  </url>
+  <url>
     <loc>https://hendersontrent.github.io/theft/articles/index.html</loc>
   </url>
   <url>
@@ -14,12 +20,6 @@
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/index.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/LICENSE.html</loc>
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/reference/calculate_features.html</loc>
@@ -58,10 +58,10 @@
     <loc>https://hendersontrent.github.io/theft/reference/fit_models.html</loc>
   </url>
   <url>
-    <loc>https://hendersontrent.github.io/theft/reference/fit_multivariable_classifier.html</loc>
+    <loc>https://hendersontrent.github.io/theft/reference/fit_multi_feature_classifier.html</loc>
   </url>
   <url>
-    <loc>https://hendersontrent.github.io/theft/reference/fit_multi_feature_classifier.html</loc>
+    <loc>https://hendersontrent.github.io/theft/reference/fit_multivariable_classifier.html</loc>
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/reference/fit_single_feature_classifier.html</loc>
@@ -79,7 +79,16 @@
     <loc>https://hendersontrent.github.io/theft/reference/init_theft.html</loc>
   </url>
   <url>
+    <loc>https://hendersontrent.github.io/theft/reference/install_kats.html</loc>
+  </url>
+  <url>
     <loc>https://hendersontrent.github.io/theft/reference/install_python_pkgs.html</loc>
+  </url>
+  <url>
+    <loc>https://hendersontrent.github.io/theft/reference/install_tsfel.html</loc>
+  </url>
+  <url>
+    <loc>https://hendersontrent.github.io/theft/reference/install_tsfresh.html</loc>
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/reference/make_title.html</loc>
@@ -136,10 +145,10 @@
     <loc>https://hendersontrent.github.io/theft/reference/reduce_dims.html</loc>
   </url>
   <url>
-    <loc>https://hendersontrent.github.io/theft/reference/resampled_ttest.html</loc>
+    <loc>https://hendersontrent.github.io/theft/reference/resample_data.html</loc>
   </url>
   <url>
-    <loc>https://hendersontrent.github.io/theft/reference/resample_data.html</loc>
+    <loc>https://hendersontrent.github.io/theft/reference/resampled_ttest.html</loc>
   </url>
   <url>
     <loc>https://hendersontrent.github.io/theft/reference/rescale_zscore.html</loc>

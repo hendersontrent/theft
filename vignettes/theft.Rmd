@@ -55,12 +55,12 @@ However, as discussed in the functionality demonstrations below, you can also su
 
 #### Installing Python feature sets
 
-Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets; the R-based sets will run fine) you should have a working Python 3.9 installation and run the function `install_python_pkgs(venv)` after first installing `theft`, where the `venv` argument is the name of the virtual environment you want to create. 
+Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets; the R-based sets will run fine) you should have a working Python 3.9 installation and run the function `install_python_pkgs(venv, python)` after first installing `theft`, where the `venv` argument is the name of the virtual environment you want to create and `python` is the path to the Python interpreter you want to use.
 
 For example, if you wanted to install the Python libraries to the default virtual environment folder used by `reticulate`, you would run the following after first having installed `theft` (here I am just creating a new virtual environment called `"theft-package"`---you can call it whatever you like!):
 
 ```{r, eval = FALSE}
-install_python_pkgs("theft-package")
+install_python_pkgs(venv = "theft-package", python = "/usr/local/bin/python3.10")
 ```
 
 You can then run the following to activate the virtual environment:
@@ -75,7 +75,7 @@ However, you do not necessarily have to use these convenience functions. If you 
 
 **NOTE 1: You only need to call ** `init_theft` **or your other solution once per session.**
 
-**NOTE 2: If you have issues installing  ** `Kats` **with ** `install_python_pkgs` **, try ** `install_python_pkgs("theft-package", standard_kats = FALSE)` **.**
+**NOTE 2: There are also separate installation functions for each Python feature set, such as** `install_tsfresh` **if you only need one of the libraries and want to keep your dependencies light.**
 
 #### Calculating features
 

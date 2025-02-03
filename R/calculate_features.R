@@ -344,7 +344,7 @@ calc_user <- function(data, features){
 #' @import Rcatch22
 #' @importFrom tsfeatures lumpiness stability max_level_shift max_var_shift max_kl_shift crossing_points flat_spots hurst compengine autocorr_features pred_features station_features dist_features scal_features embed2_incircle firstzero_ac ac_9 firstmin_ac trev_num motiftwo_entro3 binarize_mean walker_propcross localsimple_taures sampen_first sampenc std1st_der spreadrandomlocal_meantaul histogram_mode outlierinclude_mdrmd fluctanal_prop_r1 entropy tsfeatures stl_features acf_features pacf_features holt_parameters hw_parameters heterogeneity nonlinearity arch_stat
 #' @import feasts
-#' @import reticulate
+#' @importFrom reticulate use_virtualenv import
 #' @importFrom fabletools features
 #' @importFrom fabletools feature_set
 #' @param data \code{data.frame} with at least 4 columns: id variable, group variable, time variable, value variable
@@ -374,16 +374,8 @@ calculate_features <- function(data, id_var = "id", time_var = "timepoint", valu
                                feature_set = c("catch22", "feasts", "tsfeatures", "Kats", "tsfresh", "TSFEL"), 
                                catch24 = FALSE, tsfresh_cleanup = FALSE, features = NULL, seed = 123){
   
-  #--------- Error catches ---------
-  
-  #-----------------
-  # Method selection
-  #-----------------
-  
-  # Recode deprecated lower case from v0.3.5
-  
-  feature_set <- replace(feature_set, feature_set == "kats", "Kats")
-  feature_set <- replace(feature_set, feature_set == "tsfel", "TSFEL")
+  feature_set <- replace(feature_set, feature_set == "Kats", "kats")
+  feature_set <- replace(feature_set, feature_set == "TSFEL", "tsfel")
   
   #--------- Quality by ID --------
   
@@ -433,26 +425,21 @@ calculate_features <- function(data, id_var = "id", time_var = "timepoint", valu
   #--------- Feature calcs --------
   
   if("catch22" %in% feature_set){
-    
     message("Running computations for catch22...")
     tmp_catch22 <- calc_catch22(data = data_re, catch24 = catch24)
   }
   
   if("feasts" %in% feature_set){
-    
     message("Running computations for feasts...")
     tmp_feasts <- calc_feasts(data = data_re)
   }
   
   if("tsfeatures" %in% feature_set){
-    
-    message("Running computations for tsfeatures..")
+    message("Running computations for tsfeatures...")
     tmp_tsfeatures <- calc_tsfeatures(data = data_re)
   }
   
   if("tsfresh" %in% feature_set){
-    
-    message("'tsfresh' requires a Python installation and the 'tsfresh' Python package to also be installed. You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(python_path, venv_path) where python_path is a string specifying the location of Python and venv_path is a string specifying the location of the venv where the Python libraries are installed.")
     
     if(tsfresh_cleanup){
       cleanuper <- "Yes"
@@ -464,16 +451,12 @@ calculate_features <- function(data, id_var = "id", time_var = "timepoint", valu
     tmp_tsfresh <- calc_tsfresh(data = data_re, column_id = "id", column_sort = "timepoint", cleanup = cleanuper)
   }
   
-  if("TSFEL" %in% feature_set){
-    
-    message("'TSFEL' requires a Python installation and the 'TSFEL' Python package to also be installed. You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(python_path, venv_path) where python_path is a string specifying the location of Python and venv_path is a string specifying the location of the venv where the Python libraries are installed.")
+  if("tsfel" %in% feature_set){
     message("\nRunning computations for TSFEL...")
     tmp_tsfel <- calc_tsfel(data = data_re)
   }
   
-  if("Kats" %in% feature_set){
-    
-    message("'Kats' requires a Python installation and the 'Kats' Python package to also be installed. You can specify which Python to use by running one of the following in your R console/script prior to calling calculate_features(): theft::init_theft(python_path, venv_path) where python_path is a string specifying the location of Python and venv_path is a string specifying the location of the venv where the Python libraries are installed.")
+  if("kats" %in% feature_set){
     message("\nRunning computations for Kats...")
     tmp_kats <- calc_kats(data = data_re)
   }
