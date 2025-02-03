@@ -3,7 +3,7 @@ pkgdown: 2.0.2
 pkgdown_sha: ~
 articles:
   theft: theft.html
-last_built: 2025-01-24T05:35Z
+last_built: 2025-02-03T10:02Z
 urls:
   reference: https://hendersontrent.github.io/theft/reference
   article: https://hendersontrent.github.io/theft/articles
