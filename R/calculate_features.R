@@ -243,7 +243,6 @@ calc_user <- function(data, features){
                    .by = tsibble::key_vars(data))
   
   colnames(outData) <- append(tsibble::key_vars(data), names(features))
-  
   key_var_count <- length(tsibble::key_vars(data)) + 1
   col_count <- ncol(outData)
   cols <- key_var_count:col_count
