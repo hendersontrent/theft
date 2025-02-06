@@ -1,8 +1,8 @@
 Package: theft
 Type: Package
 Title: Tools for Handling Extraction of Features from Time Series
-Version: 0.7.2
-Date: 2025-02-06
+Version: 0.8.1
+Date: 2025-02-07
 Authors@R: c(
   person("Trent", "Henderson", email = "then6675@uni.sydney.edu.au", role = c("cre", "aut")),
   person("Annie", "Bryant", role = "ctb")
@@ -24,6 +24,7 @@ Depends:
     R (>= 3.5.0)
 Imports: 
     utils,
+    stats,
     rlang,
     dplyr,
     tidyr,
@@ -31,8 +32,8 @@ Imports:
     tibble,
     tsibble,
     fabletools,
-    tsfeatures,
     feasts,
+    tsfeatures,
     Rcatch22,
     reticulate,
     R.matlab
