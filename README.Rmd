@@ -33,7 +33,7 @@ Please also check out our paper [Feature-Based Time-Series Analysis in R using t
 
 ## General purpose
 
-`theft` is a software package for R that facilitates user-friendly access to a consistent interface for the extraction of time-series features. The package provides a single point of access to $>1200$ time-series features from a range of existing R and Python packages. The packages which `theft` 'steals' features from currently are:
+`theft` is a software package for R that facilitates user-friendly access to a consistent interface for the extraction of time-series features. The package provides a single point of access to $>1100$ time-series features from a range of existing R and Python packages as well as enabling users to calculate their own features. The packages which `theft` 'steals' features from currently are:
 
 * [catch22](https://link.springer.com/article/10.1007/s10618-019-00647-x) (R; [see `Rcatch22` for the native implementation on CRAN](https://github.com/hendersontrent/Rcatch22))
 * [feasts](https://feasts.tidyverts.org) (R)
@@ -70,7 +70,6 @@ library(theft)
 library(theftdlc)
 
 calculate_features(data = theft::simData, 
-                   group_var = "process", 
                    feature_set = "catch22",
                    features = list("mean" = mean, "sd" = sd)) %>%
   project(norm_method = "RobustSigmoid",
@@ -85,7 +84,6 @@ Similarly, we can perform time-series classification using a similar simple work
 
 ```{r, message = FALSE, warning = FALSE}
 calculate_features(data = theft::simData, 
-                   group_var = "process", 
                    feature_set = "catch22",
                    features = list("mean" = mean, "sd" = sd)) %>%
   classify(by_set = TRUE,

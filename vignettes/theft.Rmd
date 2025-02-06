@@ -45,13 +45,11 @@ The data follows the following structure:
 head(simData)
 ```
 
-### Calculating feature summary statistics
+### Calculating time-series features
 
-The core function that automates the calculation of the feature statistics at once is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `"catch22"`, `"feasts"`, `"Kats"`, `"tsfeatures"`, `"tsfresh"`, and/or `"TSFEL"`.
+The core function in `theft` is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `"catch22"`, `"feasts"`, `"tsfeatures"`, `"tsfresh"`, `"tsfel"`, and `"kats"`.
 
-Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. At present, depending on the input time-series, `theft` provides access to $>1200$ features. 
-
-However, as discussed in the functionality demonstrations below, you can also supply your own list of features too! But more on that later...
+Note that `kats`, `tsfresh` and `tsfel` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. `theft` currently provides access to $>1100$ features from these six sets alone. However, as discussed in the functionality demonstrations below, you can also supply your own list of features too!
 
 #### Installing Python feature sets
 
@@ -69,42 +67,22 @@ You can then run the following to activate the virtual environment:
 init_theft("theft-package")
 ```
 
-You are now ready to commit theft using all six potential factory feature sets!
+You are now ready to commit theft!
 
-However, you do not necessarily have to use these convenience functions. If you have another method for pointing R to the correct Python (such as `reticulate` or `findpython`), you can use those in your workflow instead and make sure you install `Kats`, `tsfresh` or `TSFEL` as required
-
-**NOTE 1: You only need to call ** `init_theft` **or your other solution once per session.**
+**NOTE 1: You only need to call ** `init_theft` **once per session.**
 
 **NOTE 2: There are also separate installation functions for each Python feature set, such as** `install_tsfresh` **if you only need one of the libraries and want to keep your dependencies light.**
 
 #### Calculating features
 
-You are then ready to use the rest of the package's functionality, beginning with the extraction of time-series features. Here is an example with the `catch22` set:
+You are then ready to use the rest of the package's functionality, beginning with the extraction of time-series features. Here is an example with the `catch22` set on a dataset of simulated time series that ships with `theft` consisting of data from a Gaussian Noise process and an AR(1) process:
   
 ```{r, message = FALSE, warning = FALSE}
-feature_matrix <- calculate_features(data = simData, 
-                                     id_var = "id", 
-                                     time_var = "timepoint", 
-                                     values_var = "values", 
-                                     group_var = "process", 
-                                     feature_set = "catch22",
-                                     seed = 123)
-
+feature_matrix <- calculate_features(data = simData, feature_set = "catch22")
 head(feature_matrix)
 ```
 
-Note that for the `catch22` set you can set the additional `catch24` argument to calculate the mean and standard deviation in addition to the standard 22 features:
-  
-```{r, message = FALSE, warning = FALSE, eval = FALSE}
-feature_matrix <- calculate_features(data = simData, 
-                                     id_var = "id", 
-                                     time_var = "timepoint", 
-                                     values_var = "values", 
-                                     group_var = "process", 
-                                     feature_set = "catch22",
-                                     catch24 = TRUE,
-                                     seed = 123)
-```
+Note that `data` must be a `tsibble::tbl_ts` object, which has specified `key` (i.e., identifying) and `index` (i.e., time) variables. `theft` treats the first variable in the `key` as the ID variable and the second as the grouping variable (if there is one). Any other key variables will be ignored by `theftdlc` functions which operate only on this information.
 
 NOTE: If using the `tsfresh` feature set, you might want to consider the `tsfresh_cleanup` argument to `calculate_features`. This argument defaults to `FALSE` and specifies whether to use the in-built `tsfresh` relevant feature filter or not.
 
@@ -112,7 +90,6 @@ You can also supply your own named list of functions to compute as time-series f
 
 ```{r, message = FALSE, warning = FALSE}
 feature_matrix2 <- calculate_features(data = simData, 
-                                      group_var = "process",
                                       feature_set = NULL,
                                       features = list("mean" = mean, "sd" = sd))
 
