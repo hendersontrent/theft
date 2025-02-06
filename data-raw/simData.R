@@ -89,6 +89,7 @@ for(i in c("Gaussian Noise", "Noisy Sinusoid", "Random Walk","AR(1)", "MA(1)", "
 }
 
 simData <- do.call("rbind", storage)
+simData <- tsibble::as_tsibble(simData, key = c("id", "process"), index = "timepoint")
 
 # Save output to package
 

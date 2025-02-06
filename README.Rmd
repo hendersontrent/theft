@@ -112,3 +112,7 @@ and the software:
 citation("theft")
 citation("theftdlc")
 ```
+
+## Acknowledgements
+
+Big thanks to [Joshua Moore](https://github.com/joshuabmoore) for his assistance in solving issues with the Python side of things, including solutions for the `install_python_pkgs` function.
