@@ -9,7 +9,7 @@
 #' @importFrom utils packageVersion
 #' @importFrom rlang .data
 #' @importFrom stats ts
-#' @importFrom dplyr group_by filter ungroup bind_rows across all_of mutate arrange reframe mutate select distinct row_number left_join everything rename
+#' @importFrom dplyr group_by filter ungroup bind_rows across all_of mutate arrange reframe mutate select distinct row_number left_join everything rename inner_join
 #' @importFrom tsibble key_vars index_var as_tsibble
 #' @importFrom fabletools features feature_set
 #' @importFrom Rcatch22 catch22_all

@@ -25,12 +25,26 @@ calc_catch22 <- function(data, catch24){
 
 calc_feasts <- function(data){
   
-  var2 <- colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]
+  lookup <- data |>
+    as.data.frame() |>
+    dplyr::select(dplyr::all_of(tsibble::key_vars(data))) |>
+    dplyr::distinct()
   
-  outData <- data |>
-      fabletools::features(dplyr::all_of(var2), fabletools::feature_set(tags = "feasts")) |>
-      tidyr::gather("names", "values", -dplyr::all_of(tsibble::key_vars(data))) |>
-      dplyr::mutate(feature_set = "feasts")
+  id_var <- tsibble::key_vars(data)[1]
+  time_var <- tsibble::index_var(data)
+  value_var <- colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]
+  group_vars <- tsibble::key_vars(data)[!tsibble::key_vars(data) %in% id_var]
+  
+  data2 <- as.data.frame(data) |>
+    dplyr::select(-dplyr::all_of(group_vars))
+  
+  data2 <- tsibble::as_tsibble(data2, key = dplyr::all_of(id_var), index = dplyr::all_of(time_var))
+  
+  outData <- data2 |>
+    fabletools::features(features = fabletools::feature_set(tags = "feasts")) |>
+    tidyr::gather("names", "values", -dplyr::all_of(id_var)) |>
+    dplyr::mutate(feature_set = "feasts") |>
+    dplyr::inner_join(lookup)
   
   return(outData)
 }
@@ -407,10 +421,14 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
   
   # Change column names to be consistent with {theftdlc} package
   
-  tmp_all_features <- tmp_all_features |>
-    dplyr::rename(id = dplyr::all_of(tsibble::key_vars(data)[1]),
-                  group = dplyr::all_of(tsibble::key_vars(data)[2])) |>
-    dplyr::select(c(id, group, names, values))
+  keep_cols <- c("id", "group", "feature_set", "names", "values")
+  
+  if(length(tsibble::key_vars(data)) > 1){
+    tmp_all_features <- tmp_all_features |>
+      dplyr::rename(id = dplyr::all_of(tsibble::key_vars(data)[1]),
+                    group = dplyr::all_of(tsibble::key_vars(data)[2])) |>
+      dplyr::select(dplyr::all_of(keep_cols))
+  }
   
   tmp_all_features <- structure(tmp_all_features, class = c("feature_calculations", "data.frame"))
   return(tmp_all_features)
