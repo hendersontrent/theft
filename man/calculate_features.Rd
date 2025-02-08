@@ -17,7 +17,7 @@ calculate_features(
 \arguments{
 \item{data}{\code{tbl_ts} containing the time series data}
 
-\item{feature_set}{\code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Defaults to \code{"catch22"}}
+\item{feature_set}{\code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Can be one of \code{"catch22"}, \code{"feasts"}, \code{"tsfeatures"}, \code{"tsfresh"}, \code{"tsfel"}, or \code{"kats"}}
 
 \item{features}{named \code{list} containing a set of user-supplied functions to calculate on \code{data}. Each function should take a single argument which is the time series. Defaults to \code{NULL} for no manually-specified features. Each list entry must have a name as \code{calculate_features} looks for these to name the features. If you don't want to use the existing feature sets and only compute those passed to \code{features}, set \code{feature_set = NULL}}
 
@@ -37,8 +37,7 @@ Compute features on an input time series dataset
 }
 \examples{
 featMat <- calculate_features(data = simData, 
-  feature_set = "catch22",
-  seed = 123)
+  feature_set = "catch22")
 
 }
 \author{

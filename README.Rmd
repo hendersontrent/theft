@@ -87,14 +87,28 @@ calculate_features(data = theft::simData,
                    feature_set = "catch22",
                    features = list("mean" = mean, "sd" = sd)) %>%
   classify(by_set = TRUE,
-           n_resamples = 5,
+           n_resamples = 10,
+           use_null = TRUE) %>%
+  compare_features(by_set = TRUE,
+                   hypothesis = "pairwise") %>%
+  head()
+```
+
+In this example, `classify` and `compare_features` come from `theftdlc`.
+
+We can also easily see how each set performs relative to an empirical null distribution (i.e., how much better does each set do than we would expect due to chance?):
+
+```{r, message = FALSE, warning = FALSE}
+calculate_features(data = theft::simData, 
+                   feature_set = "catch22",
+                   features = list("mean" = mean, "sd" = sd)) %>%
+  classify(by_set = TRUE,
+           n_resamples = 10,
            use_null = TRUE) %>%
   compare_features(by_set = TRUE,
                    hypothesis = "null") %>%
   head()
 ```
-
-In this example, `classify` and `compare_features` come from `theftdlc`. 
 
 Please see the vignette for more information and the full functionality of both packages.
 

@@ -101,8 +101,9 @@ workflow consistent with the broader
 [`tidyverts`](https://tidyverts.org) collection of packages for tidy
 time-series analysis. Here is a single code chunk that calculates
 features for a [`tsibble`](https://tsibble.tidyverts.org) (tidy temporal
-data frame) of some simulated Gaussian Noise and AR(1) time series that
-comes with `theft`. We’ll just use the
+data frame) of some simulated time series processes, including Gaussian
+noise, AR(1), ARMA(1,1), MA(1), noisy sinusoid, and a random walk.
+`simData` comes with `theft`. We’ll just use the
 [`catch22`](https://github.com/hendersontrent/Rcatch22) feature set and
 a custom set of mean and standard deviation for now. Using tidy
 principles and pipes, we can, in the same code chunk, feed the
@@ -124,10 +125,6 @@ calculate_features(data = theft::simData,
   plot()
 ```
 
-    Running computations for catch22...
-
-    Running computations for user-supplied features...
-
 ![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 In that example, `calculate_features` comes from `theft`, while
@@ -142,26 +139,48 @@ calculate_features(data = theft::simData,
                    feature_set = "catch22",
                    features = list("mean" = mean, "sd" = sd)) %>%
   classify(by_set = TRUE,
-           n_resamples = 5,
+           n_resamples = 10,
+           use_null = TRUE) %>%
+  compare_features(by_set = TRUE,
+                   hypothesis = "pairwise") %>%
+  head()
+```
+
+                   hypothesis feature_set_a feature_set_b   metric set_a_mean
+    1 All features != catch22  All features       catch22 accuracy  0.8022222
+    2    All features != User  All features          User accuracy  0.8022222
+    3         catch22 != User       catch22          User accuracy  0.7400000
+      set_b_mean t_statistic    p.value
+    1  0.7400000  2.35154855 0.04319536
+    2  0.8044444 -0.03932757 0.96948780
+    3  0.8044444 -1.23794041 0.24705786
+
+In this example, `classify` and `compare_features` come from `theftdlc`.
+
+We can also easily see how each set performs relative to an empirical
+null distribution (i.e., how much better does each set do than we would
+expect due to chance?):
+
+``` r
+calculate_features(data = theft::simData, 
+                   feature_set = "catch22",
+                   features = list("mean" = mean, "sd" = sd)) %>%
+  classify(by_set = TRUE,
+           n_resamples = 10,
            use_null = TRUE) %>%
   compare_features(by_set = TRUE,
                    hypothesis = "null") %>%
   head()
 ```
 
-    Running computations for catch22...
-    Running computations for user-supplied features...
-
                     hypothesis  feature_set   metric  set_mean null_mean
-    1 All features != own null All features accuracy 0.8177778 0.1644444
-    2         User != own null         User accuracy 0.7955556 0.1200000
-    3      catch22 != own null      catch22 accuracy 0.7511111 0.1377778
-      t_statistic     p.value
-    1    4.759301 0.008909773
-    2    6.159351 0.003526169
-    3    4.866885 0.008238202
-
-In this example, `classify` and `compare_features` come from `theftdlc`.
+    1 All features != own null All features accuracy 0.8022222 0.1355556
+    2         User != own null         User accuracy 0.8044444 0.1511111
+    3      catch22 != own null      catch22 accuracy 0.7400000 0.1222222
+      t_statistic      p.value
+    1    6.826807 7.670466e-05
+    2    5.882092 2.342183e-04
+    3    6.879652 7.229353e-05
 
 Please see the vignette for more information and the full functionality
 of both packages.

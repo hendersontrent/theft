@@ -5,14 +5,6 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="Consolidates and calculates different sets of time-series features from multiple
-    R and Python packages including Rcatch22 Henderson, T. (2021) &lt;doi:10.5281/zenodo.5546815&gt;,
-    feasts OHara-Wild, M., Hyndman, R., and Wang, E. (2021) &lt;https://CRAN.R-project.org/package=feasts&gt;,
-    tsfeatures Hyndman, R., Kang, Y., Montero-Manso, P., Talagala, T., Wang, E., Yang, Y., and OHara-Wild, M. (2020)
-    &lt;https://CRAN.R-project.org/package=tsfeatures&gt;, tsfresh Christ, M., Braun, N., Neuffer, J.,
-    and Kempa-Liehr A.W. (2018) &lt;doi:10.1016/j.neucom.2018.03.067&gt;, TSFEL Barandas, M., et al. (2020)
-    &lt;doi:10.1016/j.softx.2020.100456&gt;, and Kats Facebook Infrastructure Data Science (2021)
-    &lt;https://facebookresearch.github.io/Kats/&gt;.">
 <title>Tools for Handling Extraction of Features from Time Series • theft</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -21,179 +13,105 @@
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tools for Handling Extraction of Features from Time Series">
-<meta property="og:description" content="Consolidates and calculates different sets of time-series features from multiple
-    R and Python packages including Rcatch22 Henderson, T. (2021) &lt;doi:10.5281/zenodo.5546815&gt;,
-    feasts OHara-Wild, M., Hyndman, R., and Wang, E. (2021) &lt;https://CRAN.R-project.org/package=feasts&gt;,
-    tsfeatures Hyndman, R., Kang, Y., Montero-Manso, P., Talagala, T., Wang, E., Yang, Y., and OHara-Wild, M. (2020)
-    &lt;https://CRAN.R-project.org/package=tsfeatures&gt;, tsfresh Christ, M., Braun, N., Neuffer, J.,
-    and Kempa-Liehr A.W. (2018) &lt;doi:10.1016/j.neucom.2018.03.067&gt;, TSFEL Barandas, M., et al. (2020)
-    &lt;doi:10.1016/j.softx.2020.100456&gt;, and Kats Facebook Infrastructure Data Science (2021)
-    &lt;https://facebookresearch.github.io/Kats/&gt;.">
+<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tools for Handling Extraction of Features from Time Series">
+<meta name="description" content="Consolidates and calculates different sets of time-series features from multiple R and Python packages including Rcatch22 Henderson, T. (2021) &lt;doi:10.5281/zenodo.5546815&gt;, feasts OHara-Wild, M., Hyndman, R., and Wang, E. (2021) &lt;https://CRAN.R-project.org/package=feasts&gt;, tsfeatures Hyndman, R., Kang, Y., Montero-Manso, P., Talagala, T., Wang, E., Yang, Y., and OHara-Wild, M. (2020) &lt;https://CRAN.R-project.org/package=tsfeatures&gt;, tsfresh Christ, M., Braun, N., Neuffer, J., and Kempa-Liehr A.W. (2018) &lt;doi:10.1016/j.neucom.2018.03.067&gt;, TSFEL Barandas, M., et al. (2020) &lt;doi:10.1016/j.softx.2020.100456&gt;, and Kats Facebook Infrastructure Data Science (2021) &lt;https://facebookresearch.github.io/Kats/&gt;.">
+<meta property="og:description" content="Consolidates and calculates different sets of time-series features from multiple R and Python packages including Rcatch22 Henderson, T. (2021) &lt;doi:10.5281/zenodo.5546815&gt;, feasts OHara-Wild, M., Hyndman, R., and Wang, E. (2021) &lt;https://CRAN.R-project.org/package=feasts&gt;, tsfeatures Hyndman, R., Kang, Y., Montero-Manso, P., Talagala, T., Wang, E., Yang, Y., and OHara-Wild, M. (2020) &lt;https://CRAN.R-project.org/package=tsfeatures&gt;, tsfresh Christ, M., Braun, N., Neuffer, J., and Kempa-Liehr A.W. (2018) &lt;doi:10.1016/j.neucom.2018.03.067&gt;, TSFEL Barandas, M., et al. (2020) &lt;doi:10.1016/j.softx.2020.100456&gt;, and Kats Facebook Infrastructure Data Science (2021) &lt;https://facebookresearch.github.io/Kats/&gt;.">
 <meta property="og:image" content="https://hendersontrent.github.io/theft/logo.png">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
-    
 
-    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
-    
+
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+
     <a class="navbar-brand me-2" href="index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.1</small>
 
-    
+
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item">
-  <a class="nav-link" href="articles/theft.html">Get started</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="reference/index.html">Reference</a>
-</li>
+<li class="nav-item"><a class="nav-link" href="articles/theft.html">Get started</a></li>
+<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
       </ul>
-<form class="form-inline my-2 my-lg-0" role="search">
-        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="search.json" id="search-input" placeholder="Search for" autocomplete="off">
-</form>
-
-      <ul class="navbar-nav">
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/hendersontrent/theft/" aria-label="github">
-    <span class="fab fa fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
+<ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
+</form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/hendersontrent/theft/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
-    
+
   </div>
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="theft-">theft
-<a class="anchor" aria-label="anchor" href="#theft-"></a>
+<img src="logo.png" class="logo" alt=""><h1 id="theft-">theft <a class="anchor" aria-label="anchor" href="#theft-"></a>
 </h1>
 </div>
-
-<p>Tools for Handling Extraction of Features from Time series
-(theft)</p>
+<p><a href="https://www.r-pkg.org/pkg/theft" class="external-link"><img src="https://www.r-pkg.org/badges/version/theft" alt="CRAN version"></a> <a href="https://www.r-pkg.org/pkg/theft" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/theft" alt="CRAN RStudio mirror downloads"></a> <a href="https://zenodo.org/badge/latestdoi/351259952" class="external-link"><img src="https://zenodo.org/badge/351259952.svg" alt="DOI"></a></p>
+<p>Tools for Handling Extraction of Features from Time series (theft)</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the stable version of <code>theft</code> from
-CRAN:</p>
+<p>You can install the stable version of <code>theft</code> from CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"theft"</span><span class="op">)</span></span></code></pre></div>
-<p>You can install the development version of <code>theft</code> from
-GitHub using the following:</p>
+<p>You can install the development version of <code>theft</code> from GitHub using the following:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"hendersontrent/theft"</span><span class="op">)</span></span></code></pre></div>
-<p>Please also check out our paper <a href="https://arxiv.org/abs/2208.06146" class="external-link">Feature-Based Time-Series
-Analysis in R using the theft Package</a> which discusses the motivation
-and theoretical underpinnings of <code>theft</code> and walks through
-all of its functionality using the <a href="https://pubmed.ncbi.nlm.nih.gov/11736210/" class="external-link">Bonn EEG dataset</a> —
-a well-studied neuroscience dataset.</p>
+<p>Please also check out our paper <a href="https://arxiv.org/abs/2208.06146" class="external-link">Feature-Based Time-Series Analysis in R using the theft Package</a> which discusses the motivation and theoretical underpinnings of <code>theft</code> and walks through all of its functionality using the <a href="https://pubmed.ncbi.nlm.nih.gov/11736210/" class="external-link">Bonn EEG dataset</a> — a well-studied neuroscience dataset.</p>
 </div>
 <div class="section level2">
 <h2 id="general-purpose">General purpose<a class="anchor" aria-label="anchor" href="#general-purpose"></a>
 </h2>
-<p><code>theft</code> is a software package for R that facilitates
-user-friendly access to a consistent interface for the extraction of
-time-series features. The package provides a single point of access to
-<span class="math inline"> &gt; 1200</span> time-series features from a
-range of existing R and Python packages. The packages which
-<code>theft</code> ‘steals’ features from currently are:</p>
+<p><code>theft</code> is a software package for R that facilitates user-friendly access to a consistent interface for the extraction of time-series features. The package provides a single point of access to <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>&gt;</mo><mn>1100</mn></mrow><annotation encoding="application/x-tex">&gt;1100</annotation></semantics></math> time-series features from a range of existing R and Python packages as well as enabling users to calculate their own features. The packages which <code>theft</code> ‘steals’ features from currently are:</p>
 <ul>
 <li>
-<a href="https://link.springer.com/article/10.1007/s10618-019-00647-x" class="external-link">catch22</a>
-(R; <a href="https://github.com/hendersontrent/Rcatch22" class="external-link">see
-<code>Rcatch22</code> for the native implementation on CRAN</a>)</li>
+<a href="https://link.springer.com/article/10.1007/s10618-019-00647-x" class="external-link">catch22</a> (R; <a href="https://github.com/hendersontrent/Rcatch22" class="external-link">see <code>Rcatch22</code> for the native implementation on CRAN</a>)</li>
 <li>
 <a href="https://feasts.tidyverts.org" class="external-link">feasts</a> (R)</li>
 <li>
-<a href="https://github.com/robjhyndman/tsfeatures" class="external-link">tsfeatures</a>
-(R)</li>
+<a href="https://github.com/robjhyndman/tsfeatures" class="external-link">tsfeatures</a> (R)</li>
 <li>
-<a href="https://facebookresearch.github.io/Kats/" class="external-link">Kats</a>
-(Python)</li>
+<a href="https://facebookresearch.github.io/Kats/" class="external-link">Kats</a> (Python)</li>
 <li>
 <a href="https://tsfresh.com" class="external-link">tsfresh</a> (Python)</li>
 <li>
-<a href="https://tsfel.readthedocs.io/en/latest/" class="external-link">TSFEL</a>
-(Python)</li>
+<a href="https://tsfel.readthedocs.io/en/latest/" class="external-link">TSFEL</a> (Python)</li>
 </ul>
-<p>Users can also calculate their own individual features or sets of
-features too!</p>
-<p>Note that <code>Kats</code>, <code>tsfresh</code> and
-<code>TSFEL</code> are Python packages. <code>theft</code> has built-in
-functionality for helping you install these libraries—all you need to do
-is install Python on your machine (preferably Python &gt;=3.10). If you
-wish to access the Python feature sets, please run
-<code><a href="reference/install_python_pkgs.html">?install_python_pkgs</a></code> in R after downloading
-<code>theft</code> or consult the vignette in the package for more
-information. For a comprehensive comparison of these six feature sets
-across a range of domains (including computation speed, within-set
-feature composition, and between-set feature correlations), please refer
-to the paper <a href="https://ieeexplore.ieee.org/document/9679937" class="external-link">An
-Empirical Evaluation of Time-Series Feature Sets</a>.</p>
-<p>As of <code>v0.6.1</code>, users can also supply their own features
-to <code>theft</code> (see the vignette for more information)!</p>
+<p>Users can also calculate their own individual features or sets of features too!</p>
+<p>Note that <code>Kats</code>, <code>tsfresh</code> and <code>TSFEL</code> are Python packages. <code>theft</code> has built-in functionality for helping you install these libraries—all you need to do is install Python on your machine (preferably Python &gt;=3.10). If you wish to access the Python feature sets, please run <code><a href="reference/install_python_pkgs.html">?install_python_pkgs</a></code> in R after downloading <code>theft</code> or consult the vignette in the package for more information. For a comprehensive comparison of these six feature sets across a range of domains (including computation speed, within-set feature composition, and between-set feature correlations), please refer to the paper <a href="https://ieeexplore.ieee.org/document/9679937" class="external-link">An Empirical Evaluation of Time-Series Feature Sets</a>.</p>
+<p>As of <code>v0.6.1</code>, users can also supply their own features to <code>theft</code> (see the vignette for more information)!</p>
 </div>
 <div class="section level2">
 <h2 id="package-extensibility">Package extensibility<a class="anchor" aria-label="anchor" href="#package-extensibility"></a>
 </h2>
-<p>The companion package <a href="https://github.com/hendersontrent/theftdlc" class="external-link"><code>theftdlc</code></a>
-(‘<code>theft</code> downloadable content’—just like you get <a href="https://en.bandainamcoent.eu/elden-ring/elden-ring/shadow-of-the-erdtree" class="external-link">DLCs
-and expansions</a> for video games) contains an extensive suite of
-functions for analysing, interpreting, and visualising time-series
-features calculated from <code>theft</code>. Collectively, these
-packages are referred to as the ‘<code>theft</code> ecosystem’.</p>
+<p>The companion package <a href="https://github.com/hendersontrent/theftdlc" class="external-link"><code>theftdlc</code></a> (‘<code>theft</code> downloadable content’—just like you get <a href="https://en.bandainamcoent.eu/elden-ring/elden-ring/shadow-of-the-erdtree" class="external-link">DLCs and expansions</a> for video games) contains an extensive suite of functions for analysing, interpreting, and visualising time-series features calculated from <code>theft</code>. Collectively, these packages are referred to as the ‘<code>theft</code> ecosystem’.</p>
 <p><img src="reference/figures/theft-packages.png" width="400" height="200" alt="Hex stickers of the theft and theftdlc packages for R"></p>
-<p>A high-level overview of how the <code>theft</code> ecosystem for R
-is typically accessed by users is shown below. Note that prior to
-<code>v0.6.1</code> of, many of the <code>theftdlc</code> functions were
-contained in <code>theft</code> but under other names. To ensure the
-<code>theft</code> ecosystem is as user-friendly as possible and can
-scale to meet future demands, <code>theft</code> has been refactored to
-be just feature extraction, while <code>theftdlc</code> handles all the
-analysis of the extracted features. The deprecated names—such as
-<code><a href="https://hendersontrent.github.io/theftdlc/reference/classify.html">tsfeature_classifier()</a></code> being the outdated version of
-<code><a href="https://hendersontrent.github.io/theftdlc/reference/classify.html">classify()</a></code>—are also still available for now in
-<code>theftdlc</code>.</p>
+<p>A high-level overview of how the <code>theft</code> ecosystem for R is typically accessed by users is shown below. Note that prior to <code>v0.6.1</code> of, many of the <code>theftdlc</code> functions were contained in <code>theft</code> but under other names. To ensure the <code>theft</code> ecosystem is as user-friendly as possible and can scale to meet future demands, <code>theft</code> has been refactored to just perform feature extraction, while <code>theftdlc</code> handles all the processing, analysis, and visualisation of the extracted features.</p>
 <p><img src="reference/figures/theft-ecosystem.png" width="900" alt="Schematic of the theft ecosystem in R"></p>
-<p>Many more functions and options for customisation are available
-within the packages and users are encouraged to explore the vignettes
-and helper files for more information.</p>
+<p>Many more functions and options for customisation are available within the packages and users are encouraged to explore the vignettes and helper files for more information.</p>
 </div>
 <div class="section level2">
 <h2 id="quick-tour">Quick tour<a class="anchor" aria-label="anchor" href="#quick-tour"></a>
 </h2>
-<p><code>theft</code> and <code>theftdlc</code> combine to create an
-intuitive and efficient tidy feature-based workflow. Here is an example
-of a single code chunk that calculates features using <a href="https://github.com/hendersontrent/Rcatch22" class="external-link"><code>catch22</code></a>
-and a custom set of mean and standard deviation, and projects the
-feature space into an interpretable two-dimensional space using
-principal components analysis:</p>
+<p><code>theft</code> and <code>theftdlc</code> combine to create an intuitive and efficient workflow consistent with the broader <a href="https://tidyverts.org" class="external-link"><code>tidyverts</code></a> collection of packages for tidy time-series analysis. Here is a single code chunk that calculates features for a <a href="https://tsibble.tidyverts.org" class="external-link"><code>tsibble</code></a> (tidy temporal data frame) of some simulated time series processes, including Gaussian noise, AR(1), ARMA(1,1), MA(1), noisy sinusoid, and a random walk. <code>simData</code> comes with <code>theft</code>. We’ll just use the <a href="https://github.com/hendersontrent/Rcatch22" class="external-link"><code>catch22</code></a> feature set and a custom set of mean and standard deviation for now. Using tidy principles and pipes, we can, in the same code chunk, feed the calculated features straight into <code>theftdlc</code>’s <code>project</code> function to project the 24-dimensional feature space into an interpretable two-dimensional space using principal components analysis:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hendersontrent.github.io/theft/">theft</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hendersontrent.github.io/theftdlc/">theftdlc</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu">theft</span><span class="fu">::</span><span class="va"><a href="reference/simData.html">simData</a></span>, </span>
-<span>                   group_var <span class="op">=</span> <span class="st">"process"</span>, </span>
 <span>                   feature_set <span class="op">=</span> <span class="st">"catch22"</span>,</span>
 <span>                   features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"mean"</span> <span class="op">=</span> <span class="va">mean</span>, <span class="st">"sd"</span> <span class="op">=</span> <span class="va">sd</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://hendersontrent.github.io/theftdlc/reference/project.html">project</a></span><span class="op">(</span>norm_method <span class="op">=</span> <span class="st">"RobustSigmoid"</span>,</span>
@@ -201,76 +119,90 @@ principal components analysis:</p>
 <span>          low_dim_method <span class="op">=</span> <span class="st">"PCA"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README_files/figure-gfm/unnamed-chunk-4-1.png"><!-- --></p>
-<p>In that example, <code>calculate_features</code> comes from
-<code>theft</code>, while <code>project</code> and the <code>plot</code>
-generic come from <code>theftdlc</code>.</p>
-<p>Similarly, we can perform time-series classification using a similar
-simple workflow to compare the performance of <code>catch22</code>
-against our custom set of the first two moments of the distribution:</p>
+<p>In that example, <code>calculate_features</code> comes from <code>theft</code>, while <code>project</code> and the <code>plot</code> generic come from <code>theftdlc</code>.</p>
+<p>Similarly, we can perform time-series classification using a similar workflow to compare the performance of <code>catch22</code> against our custom set of the first two moments of the distribution:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu">theft</span><span class="fu">::</span><span class="va"><a href="reference/simData.html">simData</a></span>, </span>
-<span>                   group_var <span class="op">=</span> <span class="st">"process"</span>, </span>
 <span>                   feature_set <span class="op">=</span> <span class="st">"catch22"</span>,</span>
 <span>                   features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"mean"</span> <span class="op">=</span> <span class="va">mean</span>, <span class="st">"sd"</span> <span class="op">=</span> <span class="va">sd</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://hendersontrent.github.io/theftdlc/reference/classify.html">classify</a></span><span class="op">(</span>by_set <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>           n_resamples <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>           n_resamples <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>           use_null <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://hendersontrent.github.io/theftdlc/reference/compare_features.html">compare_features</a></span><span class="op">(</span>by_set <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                   hypothesis <span class="op">=</span> <span class="st">"pairwise"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>               hypothesis feature_set_a feature_set_b   metric set_a_mean</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="dv">1</span> All features <span class="sc">!=</span> catch22  All features       catch22 accuracy  <span class="fl">0.8022222</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="dv">2</span>    All features <span class="sc">!=</span> User  All features          User accuracy  <span class="fl">0.8022222</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="dv">3</span>         catch22 <span class="sc">!=</span> User       catch22          User accuracy  <span class="fl">0.7400000</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  set_b_mean t_statistic    p.value</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="dv">1</span>  <span class="fl">0.7400000</span>  <span class="fl">2.35154855</span> <span class="fl">0.04319536</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="dv">2</span>  <span class="fl">0.8044444</span> <span class="sc">-</span><span class="fl">0.03932757</span> <span class="fl">0.96948780</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="dv">3</span>  <span class="fl">0.8044444</span> <span class="sc">-</span><span class="fl">1.23794041</span> <span class="fl">0.24705786</span></span></code></pre></div>
+<p>In this example, <code>classify</code> and <code>compare_features</code> come from <code>theftdlc</code>.</p>
+<p>We can also easily see how each set performs relative to an empirical null distribution (i.e., how much better does each set do than we would expect due to chance?):</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/calculate_features.html">calculate_features</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu">theft</span><span class="fu">::</span><span class="va"><a href="reference/simData.html">simData</a></span>, </span>
+<span>                   feature_set <span class="op">=</span> <span class="st">"catch22"</span>,</span>
+<span>                   features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"mean"</span> <span class="op">=</span> <span class="va">mean</span>, <span class="st">"sd"</span> <span class="op">=</span> <span class="va">sd</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://hendersontrent.github.io/theftdlc/reference/classify.html">classify</a></span><span class="op">(</span>by_set <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>           n_resamples <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>           use_null <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://hendersontrent.github.io/theftdlc/reference/compare_features.html">compare_features</a></span><span class="op">(</span>by_set <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                   hypothesis <span class="op">=</span> <span class="st">"null"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>                hypothesis  feature_set   metric  set_mean null_mean</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="dv">1</span> All features <span class="sc">!=</span> own null All features accuracy <span class="fl">0.8400000</span> <span class="fl">0.1688889</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="dv">2</span>         User <span class="sc">!=</span> own null         User accuracy <span class="fl">0.7066667</span> <span class="fl">0.1111111</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="dv">3</span>      catch22 <span class="sc">!=</span> own null      catch22 accuracy <span class="fl">0.7066667</span> <span class="fl">0.1600000</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  t_statistic      p.value</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="dv">1</span>    <span class="fl">9.089132</span> <span class="fl">0.0008124621</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="dv">2</span>    <span class="fl">5.512023</span> <span class="fl">0.0052862976</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="dv">3</span>    <span class="fl">7.363817</span> <span class="fl">0.0018119523</span></span></code></pre></div>
-<p>In this example, <code>classify</code> and
-<code>compare_features</code> come from <code>theftdlc</code>.</p>
-<p>Please see the vignette for more information and the full
-functionality of both packages.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>                hypothesis  feature_set   metric  set_mean null_mean</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="dv">1</span> All features <span class="sc">!=</span> own null All features accuracy <span class="fl">0.8022222</span> <span class="fl">0.1355556</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="dv">2</span>         User <span class="sc">!=</span> own null         User accuracy <span class="fl">0.8044444</span> <span class="fl">0.1511111</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="dv">3</span>      catch22 <span class="sc">!=</span> own null      catch22 accuracy <span class="fl">0.7400000</span> <span class="fl">0.1222222</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  t_statistic      p.value</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="dv">1</span>    <span class="fl">6.826807</span> <span class="fl">7.670466e-05</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="dv">2</span>    <span class="fl">5.882092</span> <span class="fl">2.342183e-04</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="dv">3</span>    <span class="fl">6.879652</span> <span class="fl">7.229353e-05</span></span></code></pre></div>
+<p>Please see the vignette for more information and the full functionality of both packages.</p>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<p>If you use <code>theft</code> or <code>theftdlc</code> in your own
-work, please cite both the paper:</p>
-<p>T. Henderson and Ben D. Fulcher. <a href="https://arxiv.org/abs/2208.06146" class="external-link">Feature-Based Time-Series
-Analysis in R using the theft Package</a>. arXiv, (2022).</p>
+<p>If you use <code>theft</code> or <code>theftdlc</code> in your own work, please cite both the paper:</p>
+<p>T. Henderson and Ben D. Fulcher. <a href="https://arxiv.org/abs/2208.06146" class="external-link">Feature-Based Time-Series Analysis in R using the theft Package</a>. arXiv, (2022).</p>
 <p>and the software:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>To cite package <span class="st">'theft'</span> <span class="cf">in</span> publications use<span class="sc">:</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  Trent <span class="fu">Henderson</span> (<span class="dv">2025</span>). theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  Features from Time Series. R package version <span class="dv">0</span>.<span class="dv">7</span>.<span class="fl">1.</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theft<span class="sc">/</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>A BibTeX entry <span class="cf">for</span> LaTeX users is</span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  <span class="sc">@</span>Manual{,</span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    title <span class="ot">=</span> {theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of Features from Time Series},</span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>    author <span class="ot">=</span> {Trent Henderson},</span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>    year <span class="ot">=</span> {<span class="dv">2025</span>},</span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">7.1</span>},</span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>    url <span class="ot">=</span> {https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theft<span class="sc">/</span>},</span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>  }</span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a></span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>To cite package <span class="st">'theftdlc'</span> <span class="cf">in</span> publications use<span class="sc">:</span></span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a></span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>  Trent <span class="fu">Henderson</span> (<span class="dv">2024</span>). theftdlc<span class="sc">:</span> Analyse and Interpret Time Series</span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>  Features. R package version <span class="dv">0</span>.<span class="dv">1</span>.<span class="fl">2.</span></span>
-<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>  https<span class="sc">:</span><span class="er">//</span>CRAN.R<span class="sc">-</span>project.org<span class="sc">/</span>package<span class="ot">=</span>theftdlc</span>
-<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a></span>
-<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a>A BibTeX entry <span class="cf">for</span> LaTeX users is</span>
-<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a></span>
-<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a>  <span class="sc">@</span>Manual{,</span>
-<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a>    title <span class="ot">=</span> {theftdlc<span class="sc">:</span> Analyse and Interpret Time Series Features},</span>
-<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a>    author <span class="ot">=</span> {Trent Henderson},</span>
-<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a>    year <span class="ot">=</span> {<span class="dv">2024</span>},</span>
-<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">1.2</span>},</span>
-<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a>    url <span class="ot">=</span> {https<span class="sc">:</span><span class="er">//</span>CRAN.R<span class="sc">-</span>project.org<span class="sc">/</span>package<span class="ot">=</span>theftdlc},</span>
-<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a>  }</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>To cite package <span class="st">'theft'</span> <span class="cf">in</span> publications use<span class="sc">:</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  Henderson <span class="fu">T</span> (<span class="dv">2025</span>). _theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of Features</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  from Time Series_. R package version <span class="dv">0</span>.<span class="fl">8.1</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="sc">&lt;</span>https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theft<span class="sc">/</span><span class="er">&gt;</span>.</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>A BibTeX entry <span class="cf">for</span> LaTeX users is</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  <span class="sc">@</span>Manual{,</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>    title <span class="ot">=</span> {theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of Features from Time Series},</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>    author <span class="ot">=</span> {Trent Henderson},</span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>    year <span class="ot">=</span> {<span class="dv">2025</span>},</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">8.1</span>},</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>    url <span class="ot">=</span> {https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theft<span class="sc">/</span>},</span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>  }</span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>To cite package <span class="st">'theftdlc'</span> <span class="cf">in</span> publications use<span class="sc">:</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>  Henderson <span class="fu">T</span> (<span class="dv">2024</span>). _theftdlc<span class="sc">:</span> Analyse and Interpret Time Series</span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>  Features_. R package version <span class="dv">0</span>.<span class="fl">1.2</span>,</span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>  <span class="sc">&lt;</span>https<span class="sc">:</span><span class="er">//</span>CRAN.R<span class="sc">-</span>project.org<span class="sc">/</span>package<span class="ot">=</span>theftdlc<span class="sc">&gt;</span>.</span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>A BibTeX entry <span class="cf">for</span> LaTeX users is</span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a>  <span class="sc">@</span>Manual{,</span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a>    title <span class="ot">=</span> {theftdlc<span class="sc">:</span> Analyse and Interpret Time Series Features},</span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a>    author <span class="ot">=</span> {Trent Henderson},</span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a>    year <span class="ot">=</span> {<span class="dv">2024</span>},</span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">1.2</span>},</span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a>    url <span class="ot">=</span> {https<span class="sc">:</span><span class="er">//</span>CRAN.R<span class="sc">-</span>project.org<span class="sc">/</span>package<span class="ot">=</span>theftdlc},</span>
+<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a>  }</span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
+</h2>
+<p>Big thanks to <a href="https://github.com/joshuabmoore" class="external-link">Joshua Moore</a> for his assistance in solving issues with the Python side of things, including the correct specification of dependencies for the <code>install_python_pkgs</code> function.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -306,36 +238,26 @@ Analysis in R using the theft Package</a>. arXiv, (2022).</p>
 </ul>
 </div>
 
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://www.r-pkg.org/pkg/theft" class="external-link"><img src="https://www.r-pkg.org/badges/version/theft" alt="CRAN version"></a></li>
-<li><a href="https://www.r-pkg.org/pkg/theft" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/theft" alt="CRAN RStudio mirror downloads"></a></li>
-<li><a href="https://zenodo.org/badge/latestdoi/351259952" class="external-link"><img src="https://zenodo.org/badge/351259952.svg" alt="DOI"></a></li>
-</ul>
-</div>
+
 
   </aside>
 </div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p>
-<p>Developed by Trent Henderson.</p>
+  <p>Developed by Trent Henderson.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer>
 </div>
 
-  
 
-  
+
+
 
   </body>
 </html>
