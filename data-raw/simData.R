@@ -84,7 +84,7 @@ simulation_engine <- function(ts_length = 1000, num_ts = 30,
 storage <- list()
 
 for(i in c("Gaussian Noise", "Noisy Sinusoid", "Random Walk","AR(1)", "MA(1)", "ARMA(1,1)")){
-  tmp <- simulation_engine(80, 30, i)
+  tmp <- simulation_engine(100, 30, i)
   storage[[i]] <- tmp
 }
 

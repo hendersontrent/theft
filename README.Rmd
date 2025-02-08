@@ -54,7 +54,7 @@ The companion package [`theftdlc`](https://github.com/hendersontrent/theftdlc) (
 
 <img src="man/figures/theft-packages.png" width="400" height="200" alt="Hex stickers of the theft and theftdlc packages for R" />
 
-A high-level overview of how the `theft` ecosystem for R is typically accessed by users is shown below. Note that prior to `v0.6.1` of, many of the `theftdlc` functions were contained in `theft` but under other names. To ensure the `theft` ecosystem is as user-friendly as possible and can scale to meet future demands, `theft` has been refactored to be just feature extraction, while `theftdlc` handles all the analysis of the extracted features. The deprecated names---such as `tsfeature_classifier()` being the outdated version of `classify()`---are also still available for now in `theftdlc`.
+A high-level overview of how the `theft` ecosystem for R is typically accessed by users is shown below. Note that prior to `v0.6.1` of, many of the `theftdlc` functions were contained in `theft` but under other names. To ensure the `theft` ecosystem is as user-friendly as possible and can scale to meet future demands, `theft` has been refactored to just perform feature extraction, while `theftdlc` handles all the processing, analysis, and visualisation of the extracted features.
 
 <img src="man/figures/theft-ecosystem.png" width="900" alt="Schematic of the theft ecosystem in R" />
 
@@ -62,7 +62,7 @@ Many more functions and options for customisation are available within the packa
 
 ## Quick tour
 
-`theft` and `theftdlc` combine to create an intuitive and efficient tidy feature-based workflow. Here is an example of a single code chunk that calculates features using [`catch22`](https://github.com/hendersontrent/Rcatch22) and a custom set of mean and standard deviation, and projects the feature space into an interpretable two-dimensional space using principal components analysis:
+`theft` and `theftdlc` combine to create an intuitive and efficient workflow consistent with the broader [`tidyverts`](https://tidyverts.org) collection of packages for tidy time-series analysis. Here is a single code chunk that calculates features for a [`tsibble`](https://tsibble.tidyverts.org) (tidy temporal data frame) of some simulated time series processes, including Gaussian noise, AR(1), ARMA(1,1), MA(1), noisy sinusoid, and a random walk. `simData` comes with `theft`. We'll just use the [`catch22`](https://github.com/hendersontrent/Rcatch22) feature set and a custom set of mean and standard deviation for now. Using tidy principles and pipes, we can, in the same code chunk, feed the calculated features straight into `theftdlc`'s `project` function to project the 24-dimensional feature space into an interpretable two-dimensional space using principal components analysis:
 
 ```{r, message = FALSE, warning = FALSE, fig.height=6, fig.width=6}
 library(dplyr)
@@ -80,7 +80,7 @@ calculate_features(data = theft::simData,
 
 In that example, `calculate_features` comes from `theft`, while `project` and the `plot` generic come from `theftdlc`.
 
-Similarly, we can perform time-series classification using a similar simple workflow to compare the performance of `catch22` against our custom set of the first two moments of the distribution:
+Similarly, we can perform time-series classification using a similar workflow to compare the performance of `catch22` against our custom set of the first two moments of the distribution:
 
 ```{r, message = FALSE, warning = FALSE}
 calculate_features(data = theft::simData, 
@@ -113,4 +113,4 @@ citation("theftdlc")
 
 ## Acknowledgements
 
-Big thanks to [Joshua Moore](https://github.com/joshuabmoore) for his assistance in solving issues with the Python side of things, including solutions for the `install_python_pkgs` function.
+Big thanks to [Joshua Moore](https://github.com/joshuabmoore) for his assistance in solving issues with the Python side of things, including the correct specification of dependencies for the `install_python_pkgs` function.

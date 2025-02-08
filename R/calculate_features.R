@@ -6,15 +6,10 @@
 
 calc_catch22 <- function(data, catch24){
   
-  if("group" %in% colnames(data)){
-    outData <- data |>
-      dplyr::reframe(Rcatch22::catch22_all(.data$values, catch24 = catch24), .by = c(.data$id, .data$group)) |>
-      dplyr::mutate(feature_set = "catch22")
-  } else{
-    outData <- data |>
-      dplyr::reframe(Rcatch22::catch22_all(.data$values, catch24 = catch24), .by = c(.data$id)) |>
-      dplyr::mutate(feature_set = "catch22")
-  }
+  outData <- data |>
+    dplyr::reframe(Rcatch22::catch22_all(!!dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]), 
+                                         catch24 = catch24), .by = tsibble::key_vars(data)) |>
+    dplyr::mutate(feature_set = "catch22")
   
   return(outData)
 }
@@ -25,26 +20,11 @@ calc_catch22 <- function(data, catch24){
 
 calc_feasts <- function(data){
   
-  lookup <- data |>
-    as.data.frame() |>
-    dplyr::select(dplyr::all_of(tsibble::key_vars(data))) |>
-    dplyr::distinct()
-  
-  id_var <- tsibble::key_vars(data)[1]
-  time_var <- tsibble::index_var(data)
-  value_var <- colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]
-  group_vars <- tsibble::key_vars(data)[!tsibble::key_vars(data) %in% id_var]
-  
-  data2 <- as.data.frame(data) |>
-    dplyr::select(-dplyr::all_of(group_vars))
-  
-  data2 <- tsibble::as_tsibble(data2, key = dplyr::all_of(id_var), index = dplyr::all_of(time_var))
-  
-  outData <- data2 |>
-    fabletools::features(features = fabletools::feature_set(tags = "feasts")) |>
-    tidyr::gather("names", "values", -dplyr::all_of(id_var)) |>
-    dplyr::mutate(feature_set = "feasts") |>
-    dplyr::inner_join(lookup)
+  outData <- data |>
+    fabletools::features(!!dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]),
+                         features = fabletools::feature_set(pkgs = "feasts")) |>
+    tidyr::gather("names", "values", -dplyr::all_of(tsibble::key_vars(data))) |>
+    dplyr::mutate(feature_set = "feasts")
   
   return(outData)
 }
@@ -61,7 +41,7 @@ calc_tsfeatures <- function(data, use_compengine){
   tsf_list <- split(data[, c(var2)], data[, var3])
   
   outData <- lapply(tsf_list, function(x){
-    stats::ts(x, start = 1, frequency = 1)
+    stats::ts(x)
   })
   
   the_names <- data.frame(id = names(outData))
@@ -88,7 +68,7 @@ calc_tsfeatures <- function(data, use_compengine){
     outData <- tsfeatures::tsfeatures(outData, features = featureList)
   }
   
-  outData2 <- cbind(the_names, outData) |>
+  outData <- cbind(the_names, outData) |>
     tidyr::pivot_longer(!dplyr::all_of(var3), names_to = "names", values_to = "values") |>
     dplyr::mutate(feature_set = "tsfeatures")
   
@@ -101,93 +81,32 @@ calc_tsfeatures <- function(data, use_compengine){
 
 calc_tsfresh <- function(data, cleanup){
   
-  column_id <- tsibble::key_vars(data)[1]
-  column_sort <- tsibble::index_var(data)
-  
-  if(length(tsibble::key_vars(data) > 1)){
-    groups <- data |>
-      dplyr::select(dplyr::all_of(tsibble::key_vars(data))) |>
-      dplyr::distinct()
-  }
+  lookup <- data |>
+    as.data.frame() |>
+    dplyr::select(dplyr::all_of(tsibble::key_vars(data))) |>
+    dplyr::distinct()
   
   # Load Python function
   
   tsfresh_calculator <- function(){}
   reticulate::source_python(system.file("python", "tsfresh_calculator.py", package = "theft")) # Ships with package
+    
+  temp <- data |>
+    as.data.frame() |>
+    dplyr::group_by(!!dplyr::sym(tsibble::key_vars(data)[1])) |>
+    dplyr::arrange(!!dplyr::sym(tsibble::index_var(data))) |>
+    dplyr::mutate(timepoint = as.numeric(dplyr::row_number())) |>
+    dplyr::ungroup() |>
+    dplyr::select(!!dplyr::sym(tsibble::key_vars(data)[1]), !!dplyr::sym(tsibble::index_var(data)),
+                  !!dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]))
   
-  # Convert time index column to numeric to avoid {tsfresh} errors
-  
-  if(!is.numeric(data$id) || !is.numeric(data$timepoint)){
+  ids <- temp |>
+    dplyr::select(!!dplyr::sym(tsibble::key_vars(data)[1]))
     
-    ids <- data.frame(old_id = unique(data$id)) |>
-      dplyr::mutate(id = dplyr::row_number())
-    
-    temp <- data |>
-      dplyr::rename(old_id = id) |>
-      dplyr::left_join(ids, by = c("old_id" = "old_id")) |>
-      dplyr::group_by(dplyr::all_of(tsibble::key_vars(data)[1])) |>
-      dplyr::arrange(dplyr::all_of(tsibble::index_var(data))) |>
-      dplyr::mutate(timepoint = as.numeric(dplyr::row_number())) |>
-      dplyr::ungroup()
-    
-    # Dropping columns with dplyr::select() isn't working, so just make a new dataframe
-    
-    temp1 <- data.frame(id = temp$id,
-                        timepoint = temp$timepoint,
-                        values = temp$values)
-    
-    if(length(tsibble::key_vars(data) > 1)){
-      
-      classes <- groups |>
-        dplyr::select(dplyr::all_of(tsibble::key_vars(data)[2])) |>
-        dplyr::mutate(id = dplyr::row_number())
-      
-      outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup, classes = classes)
-    } else{
-      outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup)
-    }
-    
-    # Compute features and re-join back correct id labels
-    
-    ids2 <- ids |>
-      dplyr::select(-dplyr::all_of(tsibble::key_vars(data)[1])) |>
-      dplyr::rename(id = .data$old_id)
-    
-    outData <- outData |>
-      cbind(ids2) |>
-      tidyr::gather("names", "values", -.data$id) |>
-      dplyr::mutate(feature_set = "tsfresh")
-    
-  } else{
-    temp1 <- data.frame(id = data$id,
-                        timepoint = data$timepoint,
-                        values = data$values)
-    
-    ids <- unique(temp1$id)
-    
-    if("group" %in% colnames(data)){
-      
-      classes <- groups |>
-        dplyr::select(c(.data$group)) |>
-        dplyr::mutate(id = dplyr::row_number())
-      
-      outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup, clases = classes) 
-    } else{
-      outData <- tsfresh_calculator(timeseries = temp1, column_id = column_id, column_sort = column_sort, cleanup = cleanup) 
-    }
-    
-    # Do calculations
-    
-    outData <- outData |>
-      dplyr::mutate(id = ids) |>
-      tidyr::gather("names", "values", -.data$id) |>
-      dplyr::mutate(feature_set = "tsfresh")
-  }
-  
-  if(c("group") %in% colnames(data)){
-    outData <- outData |>
-      dplyr::inner_join(groups, by = c("id" = "id"))
-  }
+  outData <- tsfresh_calculator(timeseries = temp, column_id = tsibble::key_vars(data)[1], column_sort = "timepoint", cleanup = cleanup) |>
+    cbind(ids) |>
+    tidyr::gather("names", "values", -tsibble::key_vars(data)[1]) |>
+    dplyr::inner_join(lookup)
   
   return(outData)
 }
@@ -230,10 +149,12 @@ calc_kats <- function(data){
   datetimes <- data.frame(timepoint = unique_times) |>
     dplyr::mutate(time = seq(as.Date("1800-01-01"), by = "day", length.out = length(unique_times)))
   
+  colnanes(datetimes) <- c(tsibble::index_var(data), "time")
+  
   # Join in datetimes and run computations
   
   outData <- data |>
-    dplyr::left_join(datetimes, by = c(dplyr::all_of(tsibble::index_var(data)) = "timepoint")) |>
+    dplyr::left_join(datetimes) |>
     dplyr::select(-dplyr::all_of(tsibble::index_var(data))) |>
     dplyr::reframe(results = list(kats_calculator(timepoints = .data$time, 
                                                   values = colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))])), 
@@ -310,7 +231,11 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
   
   #--------- Filter out time series with NAs --------
   
-  ids_pre <- nrow(data)
+  ids_pre <- data |>
+    as.data.frame() |>
+    dplyr::select(dplyr::all_of(tsibble::key_vars(data)[1])) |>
+    dplyr::distinct() |>
+    nrow()
   
   data_re <- data |>
     dplyr::group_by(dplyr::across(dplyr::all_of(tsibble::key_vars(data)))) |>
