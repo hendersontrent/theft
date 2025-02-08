@@ -123,9 +123,9 @@ calc_tsfel <- function(data){
   reticulate::source_python(system.file("python", "tsfel_calculator.py", package = "theft")) # Ships with package
   
   outData <- data |>
-    dplyr::reframe(tsfel_calculator(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]), 
+    dplyr::reframe(tsfel_calculator(!!dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))])), 
                    .by = dplyr::all_of(tsibble::key_vars(data))) |>
-    tidyr::gather("names", "values", -dplyr::all_of(tsibble::key_vars(data))) |>
+    tidyr::gather("names", "values", -tsibble::key_vars(data)) |>
     dplyr::mutate(feature_set = "TSFEL")
   
   return(outData)
