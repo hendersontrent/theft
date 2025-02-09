@@ -40,6 +40,13 @@ calc_tsfeatures <- function(data, use_compengine){
   var3 <- tsibble::key_vars(data)[1]
   tsf_list <- split(data[, c(var2)], data[, var3])
   
+  if(length(tsibble::key_vars(data)) > 1){
+    lookup <- data |>
+      as.data.frame() |>
+      dplyr::select(dplyr::all_of(tsibble::key_vars(data))) |>
+      dplyr::distinct()
+  }
+  
   outData <- lapply(tsf_list, function(x){
     stats::ts(x)
   })
@@ -71,6 +78,11 @@ calc_tsfeatures <- function(data, use_compengine){
   outData <- cbind(the_names, outData) |>
     tidyr::pivot_longer(!dplyr::all_of(var3), names_to = "names", values_to = "values") |>
     dplyr::mutate(feature_set = "tsfeatures")
+  
+  if(length(tsibble::key_vars(data)) > 1){
+    outData <- outData |>
+      dplyr::inner_join(lookup)
+  }
   
   return(outData)
 }
