@@ -88,7 +88,7 @@ and can scale to meet future demands, `theft` has been refactored to
 just perform feature extraction, while `theftdlc` handles all the
 processing, analysis, and visualisation of the extracted features.
 
-<img src="man/figures/theft-ecosystem.png" width="900" alt="Schematic of the theft ecosystem in R" />
+<img src="man/figures/workflow-graphic-ecosystem-full.png" alt="Schematic of the theft ecosystem in R" />
 
 Many more functions and options for customisation are available within
 the packages and users are encouraged to explore the vignettes and
@@ -214,18 +214,18 @@ and the software:
 
     To cite package 'theftdlc' in publications use:
 
-      Henderson T (2024). _theftdlc: Analyse and Interpret Time Series
-      Features_. R package version 0.1.2,
-      <https://CRAN.R-project.org/package=theftdlc>.
+      Henderson T (2025). _theftdlc: Analyse and Interpret Time Series
+      Features_. R package version 0.1.3,
+      <https://hendersontrent.github.io/theftdlc/>.
 
     A BibTeX entry for LaTeX users is
 
       @Manual{,
         title = {theftdlc: Analyse and Interpret Time Series Features},
         author = {Trent Henderson},
-        year = {2024},
-        note = {R package version 0.1.2},
-        url = {https://CRAN.R-project.org/package=theftdlc},
+        year = {2025},
+        note = {R package version 0.1.3},
+        url = {https://hendersontrent.github.io/theftdlc/},
       }
 
 ## Acknowledgements
