@@ -29,7 +29,6 @@ Imports:
     dplyr,
     tidyr,
     purrr,
-    tibble,
     tsibble,
     fabletools,
     feasts,
@@ -42,7 +41,6 @@ Suggests:
     cachem,
     bslib,
     knitr,
-    markdown,
     rmarkdown,
     pkgdown,
     testthat
