@@ -78,7 +78,7 @@ interpreting, and visualising time-series features calculated from
 `theft`. Collectively, these packages are referred to as the ‘`theft`
 ecosystem’.
 
-<img src="man/figures/theft-packages.png" width="400" height="200" alt="Hex stickers of the theft and theftdlc packages for R" />
+<img src="man/figures/theft-packages.png" alt="Hex stickers of the theft and theftdlc packages for R" />
 
 A high-level overview of how the `theft` ecosystem for R is typically
 accessed by users is shown below. Note that prior to `v0.6.1` of, many
@@ -88,7 +88,7 @@ and can scale to meet future demands, `theft` has been refactored to
 just perform feature extraction, while `theftdlc` handles all the
 processing, analysis, and visualisation of the extracted features.
 
-<img src="man/figures/workflow-graphic-ecosystem-full.png" alt="Schematic of the theft ecosystem in R" />
+<img src="man/figures/workflow-graphic_ecosystem-final.png" alt="Schematic of the theft ecosystem in R" />
 
 Many more functions and options for customisation are available within
 the packages and users are encouraged to explore the vignettes and
@@ -178,9 +178,9 @@ calculate_features(data = theft::simData,
     2         User != own null         User accuracy 0.8044444 0.1511111
     3      catch22 != own null      catch22 accuracy 0.7400000 0.1222222
       t_statistic      p.value
-    1    6.826807 7.670466e-05
-    2    5.882092 2.342183e-04
-    3    6.879652 7.229353e-05
+    1    6.826807 3.835233e-05
+    2    5.882092 1.171092e-04
+    3    6.879652 3.614676e-05
 
 Please see the vignette for more information and the full functionality
 of both packages.
