@@ -1,183 +1,63 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://hendersontrent.github.io/theft/404.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/articles/theft.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/index.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/calculate_features.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/calculate_interval.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/check_vector_quality.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/compare_features.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/compute_top_features.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/demo_multi_outputs.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/demo_outputs.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/feature_list.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/filter_duplicates.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/filter_good_features.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/find_good_features.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/fit_models.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/fit_multi_feature_classifier.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/fit_multivariable_classifier.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/fit_single_feature_classifier.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/fit_univariable_classifier.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/get_rescale_vals.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/init_theft.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/install_kats.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/install_python_pkgs.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/install_tsfel.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/install_tsfresh.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/make_title.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/maxabs_scaler.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/minmax_scaler.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/normalise.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/normalise_feature_frame.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/normalise_feature_vector.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/normalize_feature_frame.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/normalize_feature_vector.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/plot.feature_calculations.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/plot.low_dimension.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/plot_all_features.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/plot_feature_correlations.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/plot_feature_matrix.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/plot_low_dimension.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/plot_quality_matrix.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/plot_ts_correlations.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/process_hctsa_file.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/reduce_dims.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/resample_data.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/resampled_ttest.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/rescale_zscore.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/robustsigmoid_scaler.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/select_k_best.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/select_stat_cols.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/sigmoid_scaler.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/simData.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/stat_test.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/theft.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/tsfeature_classifier.html</loc>
-  </url>
-  <url>
-    <loc>https://hendersontrent.github.io/theft/reference/zscore_scaler.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://hendersontrent.github.io/theft/404.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/LICENSE-text.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/LICENSE.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/articles/index.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/articles/theft.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/authors.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/index.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/calculate_features.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/calculate_interval.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/check_vector_quality.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/compare_features.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/compute_top_features.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/demo_multi_outputs.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/demo_outputs.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/feature_list.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/filter_duplicates.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/filter_good_features.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/find_good_features.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/fit_models.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/fit_multi_feature_classifier.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/fit_multivariable_classifier.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/fit_single_feature_classifier.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/fit_univariable_classifier.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/get_rescale_vals.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/index.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/init_theft.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/install_kats.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/install_python_pkgs.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/install_tsfel.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/install_tsfresh.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/make_title.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/maxabs_scaler.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/minmax_scaler.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/normalise.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/normalise_feature_frame.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/normalise_feature_vector.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/normalize_feature_frame.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/normalize_feature_vector.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/plot.feature_calculations.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/plot.low_dimension.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/plot_all_features.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/plot_feature_correlations.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/plot_feature_matrix.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/plot_low_dimension.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/plot_quality_matrix.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/plot_ts_correlations.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/process_hctsa_file.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/reduce_dims.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/resample_data.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/resampled_ttest.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/rescale_zscore.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/robustsigmoid_scaler.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/select_k_best.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/select_stat_cols.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/sigmoid_scaler.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/simData.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/stat_test.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/theft.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/tsfeature_classifier.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/zscore_scaler.html</loc></url>
 </urlset>
+

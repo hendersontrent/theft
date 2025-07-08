@@ -15,7 +15,7 @@
 #'
 #' The variables include:
 #'
-#' @format A tidy data frame with 4 variables:
+#' @format A tidy tsibble with 4 variables:
 #' \describe{
 #'   \item{id}{Unique identifier for the time series}
 #'   \item{timepoint}{Time index}

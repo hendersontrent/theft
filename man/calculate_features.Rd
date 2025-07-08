@@ -6,35 +6,26 @@
 \usage{
 calculate_features(
   data,
-  id_var = "id",
-  time_var = "timepoint",
-  values_var = "values",
-  group_var = NULL,
-  feature_set = c("catch22", "feasts", "tsfeatures", "Kats", "tsfresh", "TSFEL"),
+  feature_set = c("catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel"),
+  features = NULL,
   catch24 = FALSE,
   tsfresh_cleanup = FALSE,
-  features = NULL,
+  use_compengine = FALSE,
   seed = 123
 )
 }
 \arguments{
-\item{data}{\code{data.frame} with at least 4 columns: id variable, group variable, time variable, value variable}
+\item{data}{\code{tbl_ts} containing the time series data}
 
-\item{id_var}{\code{character} specifying the ID variable to identify each time series. Defaults to \code{"id"}}
+\item{feature_set}{\code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Can be one of \code{"catch22"}, \code{"feasts"}, \code{"tsfeatures"}, \code{"tsfresh"}, \code{"tsfel"}, or \code{"kats"}}
 
-\item{time_var}{\code{character} specifying the time index variable. Defaults to \code{"timepoint"}}
-
-\item{values_var}{\code{character} specifying the values variable. Defaults to \code{"values"}}
-
-\item{group_var}{\code{character} specifying the grouping variable that each unique series sits under (if one exists). Defaults to \code{NULL}}
-
-\item{feature_set}{\code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Defaults to \code{"catch22"}}
+\item{features}{named \code{list} containing a set of user-supplied functions to calculate on \code{data}. Each function should take a single argument which is the time series. Defaults to \code{NULL} for no manually-specified features. Each list entry must have a name as \code{calculate_features} looks for these to name the features. If you don't want to use the existing feature sets and only compute those passed to \code{features}, set \code{feature_set = NULL}}
 
 \item{catch24}{\code{Boolean} specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}}
 
 \item{tsfresh_cleanup}{\code{Boolean} specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}}
 
-\item{features}{named \code{list} containing a set of user-supplied functions to calculate on \code{data}. Each function should take a single argument which is the time series. Defaults to \code{NULL} for no manually-specified features. Each list entry must have a name as \code{calculate_features} looks for these to name the features. If you don't want to use the existing feature sets and only compute those passed to \code{features}, set \code{feature_set = NULL}}
+\item{use_compengine}{\code{Boolean} specifying whether to use the \code{"compengine"} features in \code{tsfeatures}. Defaults to \code{FALSE} to provide immense computational efficiency benefits}
 
 \item{seed}{\code{integer} denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to \code{123}}
 }
@@ -46,12 +37,7 @@ Compute features on an input time series dataset
 }
 \examples{
 featMat <- calculate_features(data = simData, 
-  id_var = "id", 
-  time_var = "timepoint", 
-  values_var = "values", 
-  group_var = "process", 
-  feature_set = "catch22",
-  seed = 123)
+  feature_set = "catch22")
 
 }
 \author{
