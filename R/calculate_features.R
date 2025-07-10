@@ -6,9 +6,9 @@
 
 calc_catch22 <- function(data, catch24){
   
-  outData <- data |>
+  outData <- data %>%
     dplyr::reframe(Rcatch22::catch22_all(!!dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]), 
-                                         catch24 = catch24), .by = tsibble::key_vars(data)) |>
+                                         catch24 = catch24), .by = tsibble::key_vars(data)) %>%
     dplyr::mutate(feature_set = "catch22")
   
   return(outData)
@@ -20,10 +20,10 @@ calc_catch22 <- function(data, catch24){
 
 calc_feasts <- function(data){
   
-  outData <- data |>
+  outData <- data %>%
     fabletools::features(!!dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]),
-                         features = fabletools::feature_set(pkgs = "feasts")) |>
-    tidyr::gather("names", "values", -dplyr::all_of(tsibble::key_vars(data))) |>
+                         features = fabletools::feature_set(pkgs = "feasts")) %>%
+    tidyr::gather("names", "values", -dplyr::all_of(tsibble::key_vars(data))) %>%
     dplyr::mutate(feature_set = "feasts")
   
   return(outData)
@@ -41,9 +41,9 @@ calc_tsfeatures <- function(data, use_compengine){
   tsf_list <- split(data[, c(var2)], data[, var3])
   
   if(length(tsibble::key_vars(data)) > 1){
-    lookup <- data |>
-      as.data.frame() |>
-      dplyr::select(dplyr::all_of(tsibble::key_vars(data))) |>
+    lookup <- data %>%
+      as.data.frame() %>%
+      dplyr::select(dplyr::all_of(tsibble::key_vars(data))) %>%
       dplyr::distinct()
   }
   
@@ -75,12 +75,12 @@ calc_tsfeatures <- function(data, use_compengine){
     outData <- tsfeatures::tsfeatures(outData, features = featureList)
   }
   
-  outData <- cbind(the_names, outData) |>
-    tidyr::pivot_longer(!dplyr::all_of(var3), names_to = "names", values_to = "values") |>
+  outData <- cbind(the_names, outData) %>%
+    tidyr::pivot_longer(!dplyr::all_of(var3), names_to = "names", values_to = "values") %>%
     dplyr::mutate(feature_set = "tsfeatures")
   
   if(length(tsibble::key_vars(data)) > 1){
-    outData <- outData |>
+    outData <- outData %>%
       dplyr::inner_join(lookup)
   }
   
@@ -93,9 +93,9 @@ calc_tsfeatures <- function(data, use_compengine){
 
 calc_tsfresh <- function(data, cleanup){
   
-  lookup <- data |>
-    as.data.frame() |>
-    dplyr::select(dplyr::all_of(tsibble::key_vars(data))) |>
+  lookup <- data %>%
+    as.data.frame() %>%
+    dplyr::select(dplyr::all_of(tsibble::key_vars(data))) %>%
     dplyr::distinct()
   
   # Load Python function
@@ -103,23 +103,23 @@ calc_tsfresh <- function(data, cleanup){
   tsfresh_calculator <- function(){}
   reticulate::source_python(system.file("python", "tsfresh_calculator.py", package = "theft")) # Ships with package
     
-  temp <- data |>
-    as.data.frame() |>
-    dplyr::group_by(!!dplyr::sym(tsibble::key_vars(data)[1])) |>
-    dplyr::arrange(!!dplyr::sym(tsibble::index_var(data))) |>
-    dplyr::mutate(timepoint = as.numeric(dplyr::row_number())) |>
-    dplyr::ungroup() |>
+  temp <- data %>%
+    as.data.frame() %>%
+    dplyr::group_by(!!dplyr::sym(tsibble::key_vars(data)[1])) %>%
+    dplyr::arrange(!!dplyr::sym(tsibble::index_var(data))) %>%
+    dplyr::mutate(timepoint = as.numeric(dplyr::row_number())) %>%
+    dplyr::ungroup() %>%
     dplyr::select(!!dplyr::sym(tsibble::key_vars(data)[1]), !!dplyr::sym(tsibble::index_var(data)),
                   !!dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]))
   
-  ids <- temp |>
-    dplyr::select(!!dplyr::sym(tsibble::key_vars(data)[1])) |>
+  ids <- temp %>%
+    dplyr::select(!!dplyr::sym(tsibble::key_vars(data)[1])) %>%
     dplyr::distinct()
     
-  outData <- tsfresh_calculator(timeseries = temp, column_id = tsibble::key_vars(data)[1], column_sort = "timepoint", cleanup = cleanup) |>
-    cbind(ids) |>
-    tidyr::gather("names", "values", -tsibble::key_vars(data)[1]) |>
-    dplyr::inner_join(lookup) |>
+  outData <- tsfresh_calculator(timeseries = temp, column_id = tsibble::key_vars(data)[1], column_sort = "timepoint", cleanup = cleanup) %>%
+    cbind(ids) %>%
+    tidyr::gather("names", "values", -tsibble::key_vars(data)[1]) %>%
+    dplyr::inner_join(lookup) %>%
     dplyr::mutate(feature_set = "tsfresh")
   
   return(outData)
@@ -136,10 +136,10 @@ calc_tsfel <- function(data){
   tsfel_calculator <- function(){}
   reticulate::source_python(system.file("python", "tsfel_calculator.py", package = "theft")) # Ships with package
   
-  outData <- data |>
+  outData <- data %>%
     dplyr::reframe(tsfel_calculator(!!dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))])), 
-                   .by = dplyr::all_of(tsibble::key_vars(data))) |>
-    tidyr::gather("names", "values", -tsibble::key_vars(data)) |>
+                   .by = dplyr::all_of(tsibble::key_vars(data))) %>%
+    tidyr::gather("names", "values", -tsibble::key_vars(data)) %>%
     dplyr::mutate(feature_set = "TSFEL")
   
   return(outData)
@@ -158,27 +158,27 @@ calc_kats <- function(data){
   
   # Convert numeric time index to datetime as Kats requires it
   
-  unique_times <- data |>
-    as.data.frame() |>
-    dplyr::select(!!dplyr::sym(tsibble::index_var(data))) |>
-    dplyr::distinct() |>
+  unique_times <- data %>%
+    as.data.frame() %>%
+    dplyr::select(!!dplyr::sym(tsibble::index_var(data))) %>%
+    dplyr::distinct() %>%
     dplyr::pull(!!dplyr::sym(tsibble::index_var(data)))
   
-  datetimes <- data.frame(timepoint = unique_times) |>
+  datetimes <- data.frame(timepoint = unique_times) %>%
     dplyr::mutate(time = seq(as.Date("1800-01-01"), by = "day", length.out = length(unique_times)))
   
   colnames(datetimes) <- c(tsibble::index_var(data), "time")
   
   # Join in datetimes and run computations
   
-  outData <- data |>
-    dplyr::inner_join(datetimes) |>
-    dplyr::select(-!!dplyr::sym(tsibble::index_var(data))) |>
+  outData <- data %>%
+    dplyr::inner_join(datetimes) %>%
+    dplyr::select(-!!dplyr::sym(tsibble::index_var(data))) %>%
     dplyr::reframe(results = list(kats_calculator(timepoints = .data$time, 
                                                   values = !!dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]))), 
-                   .by = dplyr::all_of(tsibble::key_vars(data))) |>
-    tidyr::unnest_wider(!!dplyr::sym("results")) |>
-    tidyr::gather("names", "values", -tsibble::key_vars(data)) |>
+                   .by = dplyr::all_of(tsibble::key_vars(data))) %>%
+    tidyr::unnest_wider(!!dplyr::sym("results")) %>%
+    tidyr::gather("names", "values", -tsibble::key_vars(data)) %>%
     dplyr::mutate(feature_set = "Kats")
   
   return(outData)
@@ -190,7 +190,7 @@ calc_kats <- function(data){
 
 calc_user <- function(data, features){
   
-  outData <- data |>
+  outData <- data %>%
     dplyr::reframe(dplyr::across(dplyr::all_of(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]), 
                                  .fns = features), 
                    .by = tsibble::key_vars(data))
@@ -200,8 +200,8 @@ calc_user <- function(data, features){
   col_count <- ncol(outData)
   cols <- key_var_count:col_count
     
-  outData <- outData |>
-    tidyr::pivot_longer(cols = dplyr::all_of(cols), names_to = "names", values_to = "values") |>
+  outData <- outData %>%
+    tidyr::pivot_longer(cols = dplyr::all_of(cols), names_to = "names", values_to = "values") %>%
     dplyr::mutate(feature_set = "User")
   
   return(outData)
@@ -211,7 +211,7 @@ calc_user <- function(data, features){
 
 #' Compute features on an input time series dataset
 #' 
-#' @importFrom dplyr group_by filter ungroup bind_rows across all_of select rename
+#' @importFrom dplyr group_by filter ungroup bind_rows across all_of select rename %>%
 #' @importFrom tsibble key_vars index_var
 #' @param data \code{tbl_ts} containing the time series data
 #' @param feature_set \code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Can be one of \code{"catch22"}, \code{"feasts"}, \code{"tsfeatures"}, \code{"tsfresh"}, \code{"tsfel"}, or \code{"kats"}
@@ -248,15 +248,15 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
   
   #--------- Filter out time series with NAs --------
   
-  ids_pre <- data |>
-    as.data.frame() |>
-    dplyr::select(dplyr::all_of(tsibble::key_vars(data)[1])) |>
-    dplyr::distinct() |>
+  ids_pre <- data %>%
+    as.data.frame() %>%
+    dplyr::select(dplyr::all_of(tsibble::key_vars(data)[1])) %>%
+    dplyr::distinct() %>%
     nrow()
   
-  data_re <- data |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(tsibble::key_vars(data)))) |>
-    dplyr::filter(!any(is.na(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]))) |>
+  data_re <- data %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(tsibble::key_vars(data)))) %>%
+    dplyr::filter(!any(is.na(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]))) %>%
     dplyr::ungroup()
   
   lookup2 <- unique(data_re[tsibble::key_vars(data_re)])
@@ -366,13 +366,13 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
   keep_cols <- c("id", "group", "feature_set", "names", "values")
   
   if(length(tsibble::key_vars(data)) > 1){
-    tmp_all_features <- tmp_all_features |>
+    tmp_all_features <- tmp_all_features %>%
       dplyr::rename(id = dplyr::all_of(tsibble::key_vars(data)[1]),
-                    group = dplyr::all_of(tsibble::key_vars(data)[2])) |>
+                    group = dplyr::all_of(tsibble::key_vars(data)[2])) %>%
       dplyr::select(dplyr::all_of(keep_cols))
   } else{
     if(tsibble::key_vars(data)[1] != "id"){
-      tmp_all_features <- tmp_all_features |>
+      tmp_all_features <- tmp_all_features %>%
         dplyr::rename(id = dplyr::all_of(tsibble::key_vars(data)[1]))
     }
   }
