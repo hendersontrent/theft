@@ -8,7 +8,11 @@
 # Author: Trent Henderson, 19 April 2021
 #---------------------------------------
 
-def tsfel_calculator(x, n_jobs):
+def tsfel_calculator(x, n_jobs, warn):
+  
+    if warn == "No":
+        import warnings
+        warnings.filterwarnings("ignore")
     
     import tsfel
     

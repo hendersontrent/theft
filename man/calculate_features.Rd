@@ -14,7 +14,8 @@ calculate_features(
   use_compengine = FALSE,
   seed = 123,
   z_score = FALSE,
-  n_jobs = 0
+  n_jobs = 0,
+  warn = TRUE
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ calculate_features(
 \item{z_score}{\code{Boolean} specifying whether to z-score the time-series before computing features. Defaults to \code{FALSE}}
 
 \item{n_jobs}{\code{integer} denoting the number of parallel processes to use if \code{"tsfresh"} or \code{"tsfel"} are specified in \code{"feature_set"}. Defaults to \code{0} for no parallelisation}
+
+\item{warn}{\code{Boolean} specifying whether to produce warnings from feature set packages. Defaults to \code{TRUE}}
 }
 \value{
 object of class \code{feature_calculations} that contains the summary statistics for each feature

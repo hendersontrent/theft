@@ -114,12 +114,13 @@ indices.</p>
 to calculate with the <code>feature_set</code> argument. The choices are
 currently <code>"catch22"</code>, <code>"feasts"</code>,
 <code>"tsfeatures"</code>, <code>"tsfresh"</code>, <code>"tsfel"</code>,
-and <code>"kats"</code>. Two basic feature sets <code>"quantiles"</code>
-(a set of 100 quantiles) and <code>"moments"</code> (the four moments of
-the distribution: mean, variance, skewness, and kurtosis) are also
-available for users seeking to compute simple baselines against which to
-compare the more sophisticated feature sets, as per the idea of
-‘incremental complexity’ discussed in <a href="https://arxiv.org/abs/2303.17809" class="external-link">this recent paper</a>.</p>
+and <code>"kats"</code>. In addition, two basic feature sets
+<code>"quantiles"</code> (a set of 100 quantiles) and
+<code>"moments"</code> (the first four moments of the distribution:
+mean, variance, skewness, and kurtosis) are also available to be
+specified for users seeking to compute simple baselines against which to
+compare the more sophisticated feature sets (see <a href="https://arxiv.org/abs/2303.17809" class="external-link">this recent paper</a> for more
+discussion on this idea).</p>
 <p>Note that <code>kats</code>, <code>tsfresh</code> and
 <code>tsfel</code> are Python packages. The R package
 <code>reticulate</code> is used to call Python code that uses these
@@ -140,7 +141,13 @@ sets; the R-based sets will run fine) you should have a working Python
 <code>install_python_pkgs(venv, python)</code> after first installing
 <code>theft</code>, where the <code>venv</code> argument is the name of
 the virtual environment you want to create and <code>python</code> is
-the path to the Python interpreter you want to use.</p>
+the path to the Python interpreter you want to use. Note that the
+filepath to the Python interpreter will differ depending on your
+operating system. For example, on Windows it might be a path similar to
+<code>"C:/Users/YourName/AppData/Local/Programs/Python/Python310/python.exe"</code>,
+whereas on on Linux or MacOS (which was used for this vignette) it could
+be a path similar to <code>"/usr/local/bin/python3.10"</code> or
+<code>"/usr/bin/python3"</code>.</p>
 <p>For example, if you wanted to install the Python libraries to the
 default virtual environment folder used by <code>reticulate</code>, you
 would run the following after first having installed <code>theft</code>
@@ -218,6 +225,10 @@ the time-series before computing features. Defaults to
 processes to use if <code>"tsfresh"</code> or <code>"tsfel"</code> are
 specified in <code>feature_set</code>. Defaults to <code>0</code> for no
 parallelisation</li>
+<li>
+<code>warn</code>—Boolean specifying whether to produce warnings
+from feature set packages. Defaults to <code>TRUE</code>
+</li>
 </ul>
 <p>Here is an example with the <code>catch22</code> set:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">

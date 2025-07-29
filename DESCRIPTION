@@ -35,8 +35,7 @@ Imports:
     tsfeatures,
     Rcatch22,
     reticulate,
-    R.matlab,
-    normaliseR
+    R.matlab
 Suggests: 
     lifecycle,
     cachem,

@@ -8,7 +8,11 @@
 # Author: Trent Henderson, 15 April 2021
 #---------------------------------------
 
-def tsfresh_calculator(timeseries, column_id, column_sort, cleanup, n_jobs, classes = None):
+def tsfresh_calculator(timeseries, column_id, column_sort, cleanup, n_jobs, warn, classes = None):
+  
+    if warn == "No":
+        import warnings
+        warnings.filterwarnings("ignore")
 
     from tsfresh import extract_features
     from tsfresh import extract_relevant_features

@@ -51,12 +51,12 @@ which `theft` ‘steals’ features from currently are:
 
 As of `v0.6.1`, users can also calculate their own individual features
 or sets of features too! In addition, two basic feature sets
-`"quantiles"` (a set of 100 quantiles) and `"moments"` (the four moments
-of the distribution: mean, variance, skewness, and kurtosis) are also
-available for users seeking to compute simple baselines against which to
-compare the more sophisticated feature sets, as per the idea of
-‘incremental complexity’ discussed in [this recent
-paper](https://arxiv.org/abs/2303.17809).
+`"quantiles"` (a set of 100 quantiles) and `"moments"` (the first four
+moments of the distribution: mean, variance, skewness, and kurtosis) are
+also available for users seeking to compute simple baselines against
+which to compare the more sophisticated feature sets (see [this recent
+paper](https://arxiv.org/abs/2303.17809) for more discussion on this
+idea).
 
 Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. `theft` has
 built-in functionality for helping you install these libraries—all you
