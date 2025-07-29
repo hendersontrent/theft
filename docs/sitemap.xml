@@ -29,9 +29,11 @@
 <url><loc>https://hendersontrent.github.io/theft/reference/install_python_pkgs.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/install_tsfel.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/install_tsfresh.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/kurtosis.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/make_title.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/maxabs_scaler.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/minmax_scaler.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/moments.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/normalise.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/normalise_feature_frame.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/normalise_feature_vector.html</loc></url>
@@ -46,6 +48,7 @@
 <url><loc>https://hendersontrent.github.io/theft/reference/plot_quality_matrix.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/plot_ts_correlations.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/process_hctsa_file.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/quantiles.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/reduce_dims.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/resample_data.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/resampled_ttest.html</loc></url>
@@ -55,6 +58,7 @@
 <url><loc>https://hendersontrent.github.io/theft/reference/select_stat_cols.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/sigmoid_scaler.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/simData.html</loc></url>
+<url><loc>https://hendersontrent.github.io/theft/reference/skewness.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/stat_test.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/theft.html</loc></url>
 <url><loc>https://hendersontrent.github.io/theft/reference/tsfeature_classifier.html</loc></url>

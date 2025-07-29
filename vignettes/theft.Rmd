@@ -39,7 +39,7 @@ All time-series datasets passed into `theft` must be a `tbl_ts` generated throug
 theft::simData
 ```
 
-Note that `simData` is a `tsibble` with two `key` variables: `id` and `process` which identiy each time series by its unique ID and group, and an `index` variable of `timepoint` which denotes time indices.
+Note that `simData` is a `tsibble` with two `key` variables: `id` and `process` which identify each time series by its unique ID and group, and an `index` variable of `timepoint` which denotes time indices.
 
 The data follows the following structure:
   
@@ -49,13 +49,13 @@ head(simData)
 
 ### Calculating time-series features
 
-The core function in `theft` is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `"catch22"`, `"feasts"`, `"tsfeatures"`, `"tsfresh"`, `"tsfel"`, and `"kats"`.
+The core function in `theft` is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `"catch22"`, `"feasts"`, `"tsfeatures"`, `"tsfresh"`, `"tsfel"`, and `"kats"`. In addition, two basic feature sets `"quantiles"` (a set of 100 quantiles) and `"moments"` (the first four moments of the distribution: mean, variance, skewness, and kurtosis) are also available to be specified for users seeking to compute simple baselines against which to compare the more sophisticated feature sets (see [this recent paper](https://arxiv.org/abs/2303.17809) for more discussion on this idea).
 
 Note that `kats`, `tsfresh` and `tsfel` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. `theft` currently provides access to $>1100$ features from these six sets alone. However, as discussed in the functionality demonstrations below, you can also supply your own list of features too!
 
 #### Installing Python feature sets
 
-Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets; the R-based sets will run fine) you should have a working Python 3.9 installation and run the function `install_python_pkgs(venv, python)` after first installing `theft`, where the `venv` argument is the name of the virtual environment you want to create and `python` is the path to the Python interpreter you want to use.
+Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets; the R-based sets will run fine) you should have a working Python 3.9 installation and run the function `install_python_pkgs(venv, python)` after first installing `theft`, where the `venv` argument is the name of the virtual environment you want to create and `python` is the path to the Python interpreter you want to use. Note that the filepath to the Python interpreter will differ depending on your operating system. For example, on Windows it might be a path similar to `"C:/Users/YourName/AppData/Local/Programs/Python/Python310/python.exe"`, whereas on on Linux or MacOS (which was used for this vignette) it could be a path similar to `"/usr/local/bin/python3.10"` or `"/usr/bin/python3"`.
 
 For example, if you wanted to install the Python libraries to the default virtual environment folder used by `reticulate`, you would run the following after first having installed `theft` (here I am just creating a new virtual environment called `"theft-package"`---you can call it whatever you like!):
 
@@ -80,12 +80,15 @@ You are now ready to commit theft!
 The core function in `theft` is `calculate_features` which takes the following arguments:
 
 * `data`---a `tbl_ts` containing the time series data
-* `feature_set`---character or vector of characters denoting the set of time-series features to calculate. Can be one or more of `"catch22"`, `"feasts"`, `"tsfeatures"`, `"tsfresh"`, `"tsfel"`, or `"kats"`
+* `feature_set`---character or vector of characters denoting the set of time-series features to calculate. Can be one or more of `"catch22"`, `"feasts"`, `"tsfeatures"`, `"tsfresh"`, `"tsfel"`, `"kats"`, `"quantiles"`, or `"moments"`
 * `features`---a named list containing a set of user-supplied functions to calculate on `data`. Each function should take a single argument which is the time series. Defaults to `NULL` for no manually-specified features. Each list entry must have a name as `calculate_features` looks for these to name the features. If you don't want to use the existing feature sets and only compute those passed to `features`, set `feature_set = NULL`
 * `catch24`---Boolean specifying whether to compute `catch24` in addition to `catch22` if `catch22` is one of the feature sets selected. Defaults to `FALSE`
 * `tsfresh_cleanup`---Boolean specifying whether to use the in-built `tsfresh` relevant feature filter or not. Defaults to `FALSE`
 * `use_compengine`---Boolean specifying whether to use the `"compengine"` features in `tsfeatures`. Defaults to `FALSE` to provide immense computational efficiency benefits
 * `seed`---integer denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to `123`
+* `z_score`---Boolean specifying whether to *z*-score the time-series before computing features. Defaults to `FALSE`
+* `n_jobs`---integer denoting the number of parallel processes to use if `"tsfresh"` or `"tsfel"` are specified in `feature_set`. Defaults to `0` for no parallelisation
+* `warn`---Boolean specifying whether to produce warnings from feature set packages. Defaults to `TRUE`
 
 Here is an example with the `catch22` set:
   

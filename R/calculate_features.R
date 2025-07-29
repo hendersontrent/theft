@@ -33,7 +33,13 @@ calc_feasts <- function(data){
 # tsfeatures
 #-----------
 
-calc_tsfeatures <- function(data, use_compengine){
+calc_tsfeatures <- function(data, use_compengine, n_jobs){
+  
+  if(n_jobs >= 2){
+    parallel <- TRUE
+  } else{
+    parallel <- FALSE
+  }
   
   var1 <- tsibble::index_var(data)
   var2 <- colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]
@@ -67,12 +73,12 @@ calc_tsfeatures <- function(data, use_compengine){
     featureList <- append(featureList, "compengine")
   }
   
-  outData <- try(tsfeatures::tsfeatures(outData, features = featureList))
+  outData <- try(tsfeatures::tsfeatures(outData, features = featureList, parallel = parallel))
   
   if("try-error" %in% class(outData)){
     message("Removing 'compengine' features from tsfeatures due to error. Recomputing with reduced set...")
     featureList <- featureList[!featureList %in% c("compengine")]
-    outData <- tsfeatures::tsfeatures(outData, features = featureList)
+    outData <- tsfeatures::tsfeatures(outData, features = featureList, parallel = parallel)
   }
   
   outData <- cbind(the_names, outData) %>%
@@ -91,7 +97,9 @@ calc_tsfeatures <- function(data, use_compengine){
 # tsfresh
 #--------
 
-calc_tsfresh <- function(data, cleanup){
+calc_tsfresh <- function(data, cleanup, n_jobs = 0, warn = TRUE){
+  
+  mywarn <- ifelse(warn, "Yes", "No")
   
   lookup <- data %>%
     as.data.frame() %>%
@@ -107,7 +115,7 @@ calc_tsfresh <- function(data, cleanup){
     as.data.frame() %>%
     dplyr::group_by(!!dplyr::sym(tsibble::key_vars(data)[1])) %>%
     dplyr::arrange(!!dplyr::sym(tsibble::index_var(data))) %>%
-    dplyr::mutate(timepoint = as.numeric(dplyr::row_number())) %>%
+    # dplyr::mutate(timepoint = as.numeric(dplyr::row_number())) %>%
     dplyr::ungroup() %>%
     dplyr::select(!!dplyr::sym(tsibble::key_vars(data)[1]), !!dplyr::sym(tsibble::index_var(data)),
                   !!dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]))
@@ -116,7 +124,9 @@ calc_tsfresh <- function(data, cleanup){
     dplyr::select(!!dplyr::sym(tsibble::key_vars(data)[1])) %>%
     dplyr::distinct()
     
-  outData <- tsfresh_calculator(timeseries = temp, column_id = tsibble::key_vars(data)[1], column_sort = "timepoint", cleanup = cleanup) %>%
+  outData <- tsfresh_calculator(timeseries = temp, column_id = tsibble::key_vars(data)[1], 
+                                column_sort = as.character(dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))])), 
+                                cleanup = cleanup, n_jobs = n_jobs, warn = mywarn) %>%
     cbind(ids) %>%
     tidyr::gather("names", "values", -tsibble::key_vars(data)[1]) %>%
     dplyr::inner_join(lookup) %>%
@@ -129,7 +139,9 @@ calc_tsfresh <- function(data, cleanup){
 # TSFEL
 #------
 
-calc_tsfel <- function(data){
+calc_tsfel <- function(data, n_jobs, warn){
+  
+  mywarn <- ifelse(warn, "Yes", "No")
   
   # Load Python function
   
@@ -137,7 +149,8 @@ calc_tsfel <- function(data){
   reticulate::source_python(system.file("python", "tsfel_calculator.py", package = "theft")) # Ships with package
   
   outData <- data %>%
-    dplyr::reframe(tsfel_calculator(!!dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))])), 
+    dplyr::reframe(tsfel_calculator(!!dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]),
+                                    n_jobs = n_jobs, warn = mywarn), 
                    .by = dplyr::all_of(tsibble::key_vars(data))) %>%
     tidyr::gather("names", "values", -tsibble::key_vars(data)) %>%
     dplyr::mutate(feature_set = "TSFEL")
@@ -149,7 +162,9 @@ calc_tsfel <- function(data){
 # Kats
 #-----
 
-calc_kats <- function(data){
+calc_kats <- function(data, warn){
+  
+  mywarn <- ifelse(warn, "Yes", "No")
   
   # Load Python function
   
@@ -175,7 +190,8 @@ calc_kats <- function(data){
     dplyr::inner_join(datetimes) %>%
     dplyr::select(-!!dplyr::sym(tsibble::index_var(data))) %>%
     dplyr::reframe(results = list(kats_calculator(timepoints = .data$time, 
-                                                  values = !!dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]))), 
+                                                  values = !!dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]),
+                                                  warn = mywarn)), 
                    .by = dplyr::all_of(tsibble::key_vars(data))) %>%
     tidyr::unnest_wider(!!dplyr::sym("results")) %>%
     tidyr::gather("names", "values", -tsibble::key_vars(data)) %>%
@@ -211,15 +227,19 @@ calc_user <- function(data, features){
 
 #' Compute features on an input time series dataset
 #' 
-#' @importFrom dplyr group_by filter ungroup bind_rows across all_of select rename %>%
+#' @importFrom rlang .data :=
+#' @importFrom dplyr group_by filter ungroup bind_rows across all_of select rename %>% mutate sym
 #' @importFrom tsibble key_vars index_var
 #' @param data \code{tbl_ts} containing the time series data
-#' @param feature_set \code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Can be one of \code{"catch22"}, \code{"feasts"}, \code{"tsfeatures"}, \code{"tsfresh"}, \code{"tsfel"}, or \code{"kats"}
+#' @param feature_set \code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Can be one of \code{"catch22"}, \code{"feasts"}, \code{"tsfeatures"}, \code{"tsfresh"}, \code{"tsfel"}, \code{"kats"}, \code{"quantiles"}, and or \code{"moments"}
 #' @param features named \code{list} containing a set of user-supplied functions to calculate on \code{data}. Each function should take a single argument which is the time series. Defaults to \code{NULL} for no manually-specified features. Each list entry must have a name as \code{calculate_features} looks for these to name the features. If you don't want to use the existing feature sets and only compute those passed to \code{features}, set \code{feature_set = NULL}
 #' @param catch24 \code{Boolean} specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}
 #' @param tsfresh_cleanup \code{Boolean} specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}
 #' @param use_compengine \code{Boolean} specifying whether to use the \code{"compengine"} features in \code{tsfeatures}. Defaults to \code{FALSE} to provide immense computational efficiency benefits
 #' @param seed \code{integer} denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to \code{123}
+#' @param z_score \code{Boolean} specifying whether to z-score the time-series before computing features. Defaults to \code{FALSE}
+#' @param n_jobs \code{integer} denoting the number of parallel processes to use if \code{"tsfresh"} or \code{"tsfel"} are specified in \code{"feature_set"}. Defaults to \code{0} for no parallelisation
+#' @param warn \code{Boolean} specifying whether to produce warnings from feature set packages. Defaults to \code{TRUE}
 #' @return object of class \code{feature_calculations} that contains the summary statistics for each feature
 #' @author Trent Henderson
 #' @export
@@ -229,10 +249,11 @@ calc_user <- function(data, features){
 #'
 
 calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfeatures", 
-                                                     "kats", "tsfresh", "tsfel"), 
+                                                     "kats", "tsfresh", "tsfel",
+                                                     "quantiles", "moments"), 
                                features = NULL, catch24 = FALSE, 
                                tsfresh_cleanup = FALSE, use_compengine = FALSE, 
-                               seed = 123){
+                               seed = 123, z_score = FALSE, n_jobs = 0, warn = TRUE){
   
   if(!inherits(data, "tbl_ts")){
     stop("As of v0.8.1 `data` must now be a `tbl_ts object`. Please convert your matrix or dataframe using `tsibble::as_tsibble` and specify your `key` and `index` variables.")
@@ -243,6 +264,8 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
   if(ncol(data) > length(tsibble::key_vars(data)) + length(tsibble::index_var(data)) + 1){
     stop("Multiple measured variables detected. Please ensure there is only one measure variable in `data` outside of the `key` and `index` variables used to create the `tbl_ts` object.")
   }
+  
+  stopifnot(n_jobs >= 0)
   
   feature_set <- tolower(feature_set) # Standardise names
   
@@ -270,60 +293,120 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
     stop("No time series remaining to calculate features after removing IDs with non-real values.")
   }
   
+  #--------- Normalise data --------
+  
+  if(z_score){
+    data_re <- data_re %>%
+      dplyr::group_by(dplyr::across(dplyr::all_of(tsibble::key_vars(data)))) %>%
+      dplyr::mutate(!!dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))]) := 
+                      as.numeric(scale(!!dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))])))) %>%
+      dplyr::ungroup()
+  }
+  
   #--------- Feature calcs --------
   
   if("catch22" %in% feature_set){
-    message("Running computations for catch22...\n")
-    tmp_catch22 <- calc_catch22(data = data_re, catch24 = catch24)
-  }
-  
-  if("feasts" %in% feature_set){
-    message("Running computations for feasts...\n")
-    tmp_feasts <- calc_feasts(data = data_re)
-  }
-  
-  if("tsfeatures" %in% feature_set){
-    message("Running computations for tsfeatures...\n")
-    tmp_tsfeatures <- calc_tsfeatures(data = data_re, use_compengine = use_compengine)
-  }
-  
-  if("tsfresh" %in% feature_set){
-    
-    if(tsfresh_cleanup){
-      cleanuper <- "Yes"
+      message("Running computations for catch22...\n")
+    if(!warn){
+      tmp_catch22 <-suppressWarnings(calc_catch22(data = data_re, catch24 = catch24))
     } else{
-      cleanuper <- "No"
+      tmp_catch22 <- calc_catch22(data = data_re, catch24 = catch24)
+      }
     }
     
-    message("Running computations for tsfresh...\n")
-    tmp_tsfresh <- calc_tsfresh(data = data_re, cleanup = cleanuper)
-  }
-  
-  if("tsfel" %in% feature_set){
-    message("Running computations for TSFEL...\n")
-    tmp_tsfel <- calc_tsfel(data = data_re)
-  }
-  
-  if("kats" %in% feature_set){
-    message("Running computations for Kats...\n")
-    tmp_kats <- calc_kats(data = data_re)
-  }
-  
-  #-----------------------
-  # User-supplied features
-  #-----------------------
-  
-  if(!is.null(features)){
-    stopifnot(class(features) == "list")
-    stopifnot(sapply(features, class) == "function")
-    
-    if(is.null(names(features))){
-      stop("features must be a named list as calculate_features uses the names to label features produced by each function in the list") # More informative error message than above as this is a bit more specific
+    if("feasts" %in% feature_set){
+      message("Running computations for feasts...\n")
+      if(!warn){
+        tmp_feasts <- suppressWarnings(calc_feasts(data = data_re))
+      } else{
+        tmp_feasts <- calc_feasts(data = data_re)
+      }
     }
     
-    message("Running computations for user-supplied features...\n")
-    tmp_user <- calc_user(data = data_re, features = features)
-  }
+    if("tsfeatures" %in% feature_set){
+      message("Running computations for tsfeatures...\n")
+      if(!warn){
+        tmp_tsfeatures <- suppressWarnings(calc_tsfeatures(data = data_re, use_compengine = use_compengine, n_jobs = n_jobs))
+      } else{
+        tmp_tsfeatures <- calc_tsfeatures(data = data_re, use_compengine = use_compengine, n_jobs = n_jobs)
+      }
+    }
+    
+    if("tsfresh" %in% feature_set){
+      
+      if(tsfresh_cleanup){
+        cleanuper <- "Yes"
+      } else{
+        cleanuper <- "No"
+      }
+      
+      message("Running computations for tsfresh...\n")
+      if(!warn){
+        tmp_tsfresh <- suppressWarnings(calc_tsfresh(data = data_re, cleanup = cleanuper, n_jobs = as.integer(n_jobs), warn = warn))
+      } else{
+        tmp_tsfresh <- calc_tsfresh(data = data_re, cleanup = cleanuper, n_jobs = as.integer(n_jobs), warn = warn)
+      }
+    }
+    
+    if("tsfel" %in% feature_set){
+      message("Running computations for TSFEL...\n")
+      if(!warn){
+        tmp_tsfel <- suppressWarnings(calc_tsfel(data = data_re, n_jobs = as.integer(n_jobs), warn = warn))
+      } else{
+        tmp_tsfel <- calc_tsfel(data = data_re, n_jobs = as.integer(n_jobs), warn = warn)
+      }
+    }
+    
+    if("kats" %in% feature_set){
+      message("Running computations for Kats...\n")
+      if(!warn){
+        tmp_kats <- suppressWarnings(calc_kats(data = data_re, warn = warn))
+      } else{
+        tmp_kats <- calc_kats(data = data_re, warn = warn)
+      }
+    }
+    
+    if("quantiles" %in% feature_set){
+      message("Running computations for quantiles...\n")
+      if(!warn){
+        tmp_quantiles <- suppressWarnings(
+          data_re %>%
+            dplyr::reframe(quantiles(.data$values), .by = tsibble::key_vars(data))
+        )
+      } else{
+        tmp_quantiles <- data_re %>%
+          dplyr::reframe(quantiles(.data$values), .by = tsibble::key_vars(data))
+      }
+    }
+    
+    if("moments" %in% feature_set){
+      message("Running computations for moments...\n")
+      if(!warn){
+        tmp_moments <- suppressWarnings(
+          data_re %>%
+            dplyr::reframe(moments(.data$values), .by = tsibble::key_vars(data))
+        )
+      } else{
+        tmp_moments <- data_re %>%
+          dplyr::reframe(moments(.data$values), .by = tsibble::key_vars(data))
+      }
+    }
+    
+    #-----------------------
+    # User-supplied features
+    #-----------------------
+    
+    if(!is.null(features)){
+      stopifnot(class(features) == "list")
+      stopifnot(sapply(features, class) == "function")
+      
+      if(is.null(names(features))){
+        stop("features must be a named list as calculate_features uses the names to label features produced by each function in the list") # More informative error message than above as this is a bit more specific
+      }
+      
+      message("Running computations for user-supplied features...\n")
+      tmp_user <- calc_user(data = data_re, features = features)
+    }
   
   #--------- Feature binding --------
   
@@ -355,6 +438,14 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
   
   if(exists("tmp_kats")){
     tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_kats)
+  }
+  
+  if(exists("tmp_quantiles")){
+    tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_quantiles)
+  }
+  
+  if(exists("tmp_moments")){
+    tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_moments)
   }
   
   if(exists("tmp_user")){

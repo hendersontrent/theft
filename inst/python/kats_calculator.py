@@ -8,7 +8,11 @@
 # Author: Trent Henderson, 24 June 2021
 #---------------------------------------
 
-def kats_calculator(timepoints, values):
+def kats_calculator(timepoints, values, warn):
+  
+    if warn == "No":
+        import warnings
+        warnings.filterwarnings("ignore")
     
     import pandas as pd
     from kats.consts import TimeSeriesData

@@ -6,12 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Tools for Handling Extraction of Features from Time Series • theft</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -29,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,9 +88,9 @@
 <li>
 <a href="https://tsfel.readthedocs.io/en/latest/" class="external-link">TSFEL</a> (Python)</li>
 </ul>
-<p>Users can also calculate their own individual features or sets of features too!</p>
+<p>As of <code>v0.6.1</code>, users can also calculate their own individual features or sets of features too! In addition, two basic feature sets <code>"quantiles"</code> (a set of 100 quantiles) and <code>"moments"</code> (the first four moments of the distribution: mean, variance, skewness, and kurtosis) are also available for users seeking to compute simple baselines against which to compare the more sophisticated feature sets (see <a href="https://arxiv.org/abs/2303.17809" class="external-link">this recent paper</a> for more discussion on this idea).</p>
 <p>Note that <code>Kats</code>, <code>tsfresh</code> and <code>TSFEL</code> are Python packages. <code>theft</code> has built-in functionality for helping you install these libraries—all you need to do is install Python on your machine (preferably Python &gt;=3.10). If you wish to access the Python feature sets, please run <code><a href="reference/install_python_pkgs.html">?install_python_pkgs</a></code> in R after downloading <code>theft</code> or consult the vignette in the package for more information. For a comprehensive comparison of these six feature sets across a range of domains (including computation speed, within-set feature composition, and between-set feature correlations), please refer to the paper <a href="https://ieeexplore.ieee.org/document/9679937" class="external-link">An Empirical Evaluation of Time-Series Feature Sets</a>.</p>
-<p>As of <code>v0.6.1</code>, users can also supply their own features to <code>theft</code> (see the vignette for more information)!</p>
+<p>Also note that as of <code>v0.8.2</code> parallelisation is supported for <code>"tsfresh"</code> and <code>"tsfel"</code> (see the vignette for more information)!</p>
 </div>
 <div class="section level2">
 <h2 id="package-extensibility">Package extensibility<a class="anchor" aria-label="anchor" href="#package-extensibility"></a>
@@ -170,7 +169,7 @@
 <div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>To cite package <span class="st">'theft'</span> <span class="cf">in</span> publications use<span class="sc">:</span></span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  Henderson <span class="fu">T</span> (<span class="dv">2025</span>). _theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of Features</span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  from Time Series_. R package version <span class="dv">0</span>.<span class="fl">8.1</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  from Time Series_. R package version <span class="dv">0</span>.<span class="fl">8.2</span>,</span>
 <span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="sc">&lt;</span>https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theft<span class="sc">/</span><span class="er">&gt;</span>.</span>
 <span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a></span>
 <span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>A BibTeX entry <span class="cf">for</span> LaTeX users is</span>
@@ -179,14 +178,14 @@
 <span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>    title <span class="ot">=</span> {theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of Features from Time Series},</span>
 <span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>    author <span class="ot">=</span> {Trent Henderson},</span>
 <span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>    year <span class="ot">=</span> {<span class="dv">2025</span>},</span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">8.1</span>},</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">8.2</span>},</span>
 <span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>    url <span class="ot">=</span> {https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theft<span class="sc">/</span>},</span>
 <span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>  }</span>
 <span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a></span>
 <span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>To cite package <span class="st">'theftdlc'</span> <span class="cf">in</span> publications use<span class="sc">:</span></span>
 <span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a></span>
 <span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>  Henderson <span class="fu">T</span> (<span class="dv">2025</span>). _theftdlc<span class="sc">:</span> Analyse and Interpret Time Series</span>
-<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>  Features_. R package version <span class="dv">0</span>.<span class="fl">1.3</span>,</span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>  Features_. R package version <span class="dv">0</span>.<span class="fl">2.0</span>,</span>
 <span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>  <span class="sc">&lt;</span>https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theftdlc<span class="sc">/</span><span class="er">&gt;</span>.</span>
 <span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a></span>
 <span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>A BibTeX entry <span class="cf">for</span> LaTeX users is</span>
@@ -195,7 +194,7 @@
 <span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a>    title <span class="ot">=</span> {theftdlc<span class="sc">:</span> Analyse and Interpret Time Series Features},</span>
 <span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a>    author <span class="ot">=</span> {Trent Henderson},</span>
 <span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a>    year <span class="ot">=</span> {<span class="dv">2025</span>},</span>
-<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">1.3</span>},</span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">2.0</span>},</span>
 <span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a>    url <span class="ot">=</span> {https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theftdlc<span class="sc">/</span>},</span>
 <span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a>  }</span></code></pre></div>
 </div>
@@ -233,7 +232,7 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Trent Henderson <br><small class="roles"> Maintainer, author </small>  </li>
+<li>Trent Henderson <br><small class="roles"> Maintainer, author </small>   </li>
 <li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
@@ -249,7 +248,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
