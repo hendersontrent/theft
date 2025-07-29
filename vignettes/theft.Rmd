@@ -39,7 +39,7 @@ All time-series datasets passed into `theft` must be a `tbl_ts` generated throug
 theft::simData
 ```
 
-Note that `simData` is a `tsibble` with two `key` variables: `id` and `process` which identiy each time series by its unique ID and group, and an `index` variable of `timepoint` which denotes time indices.
+Note that `simData` is a `tsibble` with two `key` variables: `id` and `process` which identify each time series by its unique ID and group, and an `index` variable of `timepoint` which denotes time indices.
 
 The data follows the following structure:
   
@@ -49,7 +49,7 @@ head(simData)
 
 ### Calculating time-series features
 
-The core function in `theft` is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `"catch22"`, `"feasts"`, `"tsfeatures"`, `"tsfresh"`, `"tsfel"`, and `"kats"`.
+The core function in `theft` is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `"catch22"`, `"feasts"`, `"tsfeatures"`, `"tsfresh"`, `"tsfel"`, and `"kats"`. Two basic feature sets `"quantiles"` (a set of 100 quantiles) and `"moments"` (the four moments of the distribution: mean, variance, skewness, and kurtosis) are also available for users seeking to compute simple baselines against which to compare the more sophisticated feature sets, as per the idea of 'incremental complexity' discussed in [this recent paper](https://arxiv.org/abs/2303.17809).
 
 Note that `kats`, `tsfresh` and `tsfel` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. `theft` currently provides access to $>1100$ features from these six sets alone. However, as discussed in the functionality demonstrations below, you can also supply your own list of features too!
 
@@ -80,12 +80,14 @@ You are now ready to commit theft!
 The core function in `theft` is `calculate_features` which takes the following arguments:
 
 * `data`---a `tbl_ts` containing the time series data
-* `feature_set`---character or vector of characters denoting the set of time-series features to calculate. Can be one or more of `"catch22"`, `"feasts"`, `"tsfeatures"`, `"tsfresh"`, `"tsfel"`, or `"kats"`
+* `feature_set`---character or vector of characters denoting the set of time-series features to calculate. Can be one or more of `"catch22"`, `"feasts"`, `"tsfeatures"`, `"tsfresh"`, `"tsfel"`, `"kats"`, `"quantiles"`, or `"moments"`
 * `features`---a named list containing a set of user-supplied functions to calculate on `data`. Each function should take a single argument which is the time series. Defaults to `NULL` for no manually-specified features. Each list entry must have a name as `calculate_features` looks for these to name the features. If you don't want to use the existing feature sets and only compute those passed to `features`, set `feature_set = NULL`
 * `catch24`---Boolean specifying whether to compute `catch24` in addition to `catch22` if `catch22` is one of the feature sets selected. Defaults to `FALSE`
 * `tsfresh_cleanup`---Boolean specifying whether to use the in-built `tsfresh` relevant feature filter or not. Defaults to `FALSE`
 * `use_compengine`---Boolean specifying whether to use the `"compengine"` features in `tsfeatures`. Defaults to `FALSE` to provide immense computational efficiency benefits
 * `seed`---integer denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to `123`
+* `z_score`---Boolean specifying whether to *z*-score the time-series before computing features. Defaults to `FALSE`
+* `n_jobs`---integer denoting the number of parallel processes to use if `"tsfresh"` or `"tsfel"` are specified in `feature_set`. Defaults to `0` for no parallelisation
 
 Here is an example with the `catch22` set:
   

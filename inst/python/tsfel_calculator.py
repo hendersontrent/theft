@@ -8,9 +8,12 @@
 # Author: Trent Henderson, 19 April 2021
 #---------------------------------------
 
-def tsfel_calculator(x):
+def tsfel_calculator(x, n_jobs):
     
     import tsfel
+    
+    if n_jobs == 0:
+        n_jobs = None
 
     # Instantiate calculation configuration
 
@@ -18,6 +21,6 @@ def tsfel_calculator(x):
 
     # Produce calculations
     
-    extracted_features = tsfel.time_series_features_extractor(cfg_file, x, verbose=0)
+    extracted_features = tsfel.time_series_features_extractor(cfg_file, x, verbose=0, n_jobs=n_jobs)
     
     return extracted_features

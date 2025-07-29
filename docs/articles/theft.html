@@ -6,12 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Introduction to theft • theft</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -26,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,7 +58,7 @@
                         <h4 data-toc-skip class="author">Trent
 Henderson</h4>
             
-            <h4 data-toc-skip class="date">2025-07-10</h4>
+            <h4 data-toc-skip class="date">2025-07-29</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/HEAD/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -91,7 +90,7 @@ walk. The dataset can be accessed via:</p>
 <code class="sourceCode R"><span><span class="fu">theft</span><span class="fu">::</span><span class="va"><a href="../reference/simData.html">simData</a></span></span></code></pre></div>
 <p>Note that <code>simData</code> is a <code>tsibble</code> with two
 <code>key</code> variables: <code>id</code> and <code>process</code>
-which identiy each time series by its unique ID and group, and an
+which identify each time series by its unique ID and group, and an
 <code>index</code> variable of <code>timepoint</code> which denotes time
 indices.</p>
 <p>The data follows the following structure:</p>
@@ -115,7 +114,12 @@ indices.</p>
 to calculate with the <code>feature_set</code> argument. The choices are
 currently <code>"catch22"</code>, <code>"feasts"</code>,
 <code>"tsfeatures"</code>, <code>"tsfresh"</code>, <code>"tsfel"</code>,
-and <code>"kats"</code>.</p>
+and <code>"kats"</code>. Two basic feature sets <code>"quantiles"</code>
+(a set of 100 quantiles) and <code>"moments"</code> (the four moments of
+the distribution: mean, variance, skewness, and kurtosis) are also
+available for users seeking to compute simple baselines against which to
+compare the more sophisticated feature sets, as per the idea of
+‘incremental complexity’ discussed in <a href="https://arxiv.org/abs/2303.17809" class="external-link">this recent paper</a>.</p>
 <p>Note that <code>kats</code>, <code>tsfresh</code> and
 <code>tsfel</code> are Python packages. The R package
 <code>reticulate</code> is used to call Python code that uses these
@@ -170,7 +174,8 @@ data</li>
 the set of time-series features to calculate. Can be one or more of
 <code>"catch22"</code>, <code>"feasts"</code>,
 <code>"tsfeatures"</code>, <code>"tsfresh"</code>, <code>"tsfel"</code>,
-or <code>"kats"</code>
+<code>"kats"</code>, <code>"quantiles"</code>, or
+<code>"moments"</code>
 </li>
 <li>
 <code>features</code>—a named list containing a set of user-supplied
@@ -203,6 +208,16 @@ benefits</li>
 number generator to ensure reproducibility. Defaults to
 <code>123</code>
 </li>
+<li>
+<code>z_score</code>—Boolean specifying whether to <em>z</em>-score
+the time-series before computing features. Defaults to
+<code>FALSE</code>
+</li>
+<li>
+<code>n_jobs</code>—integer denoting the number of parallel
+processes to use if <code>"tsfresh"</code> or <code>"tsfel"</code> are
+specified in <code>feature_set</code>. Defaults to <code>0</code> for no
+parallelisation</li>
 </ul>
 <p>Here is an example with the <code>catch22</code> set:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -289,7 +304,7 @@ functions that are designed to work on top of <code>theft</code>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

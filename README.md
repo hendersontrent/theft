@@ -49,8 +49,14 @@ which `theft` ‘steals’ features from currently are:
 - [tsfresh](https://tsfresh.com) (Python)
 - [TSFEL](https://tsfel.readthedocs.io/en/latest/) (Python)
 
-Users can also calculate their own individual features or sets of
-features too!
+As of `v0.6.1`, users can also calculate their own individual features
+or sets of features too! In addition, two basic feature sets
+`"quantiles"` (a set of 100 quantiles) and `"moments"` (the four moments
+of the distribution: mean, variance, skewness, and kurtosis) are also
+available for users seeking to compute simple baselines against which to
+compare the more sophisticated feature sets, as per the idea of
+‘incremental complexity’ discussed in [this recent
+paper](https://arxiv.org/abs/2303.17809).
 
 Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. `theft` has
 built-in functionality for helping you install these libraries—all you
@@ -64,8 +70,8 @@ between-set feature correlations), please refer to the paper [An
 Empirical Evaluation of Time-Series Feature
 Sets](https://ieeexplore.ieee.org/document/9679937).
 
-As of `v0.6.1`, users can also supply their own features to `theft` (see
-the vignette for more information)!
+Also note that as of `v0.8.2` parallelisation is supported for
+`"tsfresh"` and `"tsfel"` (see the vignette for more information)!
 
 ## Package extensibility
 
@@ -199,7 +205,7 @@ and the software:
     To cite package 'theft' in publications use:
 
       Henderson T (2025). _theft: Tools for Handling Extraction of Features
-      from Time Series_. R package version 0.8.1,
+      from Time Series_. R package version 0.8.2,
       <https://hendersontrent.github.io/theft/>.
 
     A BibTeX entry for LaTeX users is
@@ -208,14 +214,14 @@ and the software:
         title = {theft: Tools for Handling Extraction of Features from Time Series},
         author = {Trent Henderson},
         year = {2025},
-        note = {R package version 0.8.1},
+        note = {R package version 0.8.2},
         url = {https://hendersontrent.github.io/theft/},
       }
 
     To cite package 'theftdlc' in publications use:
 
       Henderson T (2025). _theftdlc: Analyse and Interpret Time Series
-      Features_. R package version 0.1.3,
+      Features_. R package version 0.2.0,
       <https://hendersontrent.github.io/theftdlc/>.
 
     A BibTeX entry for LaTeX users is
@@ -224,7 +230,7 @@ and the software:
         title = {theftdlc: Analyse and Interpret Time Series Features},
         author = {Trent Henderson},
         year = {2025},
-        note = {R package version 0.1.3},
+        note = {R package version 0.2.0},
         url = {https://hendersontrent.github.io/theftdlc/},
       }
 
