@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,7 @@
                         <h4 data-toc-skip class="author">Trent
 Henderson</h4>
             
-            <h4 data-toc-skip class="date">2025-07-29</h4>
+            <h4 data-toc-skip class="date">2025-12-17</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/HEAD/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -72,8 +72,8 @@ Henderson</h4>
 <h2 id="purpose">Purpose<a class="anchor" aria-label="anchor" href="#purpose"></a>
 </h2>
 <p><code>theft</code> enables the standardised calculation of
-time-series features from six existing feature sets in both R and Python
-as well as any user-supplied features.</p>
+time-series features from seven existing feature sets in both R and
+Python as well as any user-supplied features.</p>
 </div>
 <div class="section level2">
 <h2 id="core-functionality">Core functionality<a class="anchor" aria-label="anchor" href="#core-functionality"></a>
@@ -114,36 +114,38 @@ indices.</p>
 to calculate with the <code>feature_set</code> argument. The choices are
 currently <code>"catch22"</code>, <code>"feasts"</code>,
 <code>"tsfeatures"</code>, <code>"tsfresh"</code>, <code>"tsfel"</code>,
-and <code>"kats"</code>. In addition, two basic feature sets
-<code>"quantiles"</code> (a set of 100 quantiles) and
+<code>"kats"</code>, and <code>"hctsa"</code>. In addition, two basic
+feature sets <code>"quantiles"</code> (a set of 101 quantiles) and
 <code>"moments"</code> (the first four moments of the distribution:
 mean, variance, skewness, and kurtosis) are also available to be
 specified for users seeking to compute simple baselines against which to
 compare the more sophisticated feature sets (see <a href="https://arxiv.org/abs/2303.17809" class="external-link">this recent paper</a> for more
 discussion on this idea).</p>
-<p>Note that <code>kats</code>, <code>tsfresh</code> and
-<code>tsfel</code> are Python packages. The R package
-<code>reticulate</code> is used to call Python code that uses these
-packages and applies it within the broader <em>tidy</em> data philosophy
-embodied by <code>theft</code>. <code>theft</code> currently provides
-access to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>&gt;</mo><mn>1100</mn></mrow><annotation encoding="application/x-tex">&gt;1100</annotation></semantics></math>
-features from these six sets alone. However, as discussed in the
+<p>Note that <code>kats</code>, <code>tsfresh</code>,
+<code>tsfel</code>, and <code>pyhctsa</code> are Python packages. The R
+package <code>reticulate</code> is used to call Python code that uses
+these packages and applies it within the broader <em>tidy</em> data
+philosophy embodied by <code>theft</code>. <code>theft</code> currently
+provides access to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>6000</mn></mrow><annotation encoding="application/x-tex">\approx 6000</annotation></semantics></math>
+features from these seven sets alone. However, as discussed in the
 functionality demonstrations below, you can also supply your own list of
 features too!</p>
 <div class="section level4">
 <h4 id="installing-python-feature-sets">Installing Python feature sets<a class="anchor" aria-label="anchor" href="#installing-python-feature-sets"></a>
 </h4>
 <p>Prior to using <code>theft</code> (only if you want to use the
-<code>Kats</code>, <code>tsfresh</code> or <code>TSFEL</code> feature
-sets; the R-based sets will run fine) you should have a working Python
-3.9 installation and run the function
-<code>install_python_pkgs(venv, python)</code> after first installing
-<code>theft</code>, where the <code>venv</code> argument is the name of
-the virtual environment you want to create and <code>python</code> is
-the path to the Python interpreter you want to use. Note that the
-filepath to the Python interpreter will differ depending on your
-operating system. For example, on Windows it might be a path similar to
+<code>kats</code>, <code>tsfresh</code>, <code>tsfel</code>, or
+<code>hctsa</code> feature sets; the R-based sets will run fine) you
+should have a working Python 3.9 installation and run the function
+<code>install_python_pkgs(venv, python, hctsa = FALSE)</code> (or with
+<code>hctsa = TRUE</code> if you want that large feature set) after
+first installing <code>theft</code>, where the <code>venv</code>
+argument is the name of the virtual environment you want to create and
+<code>python</code> is the path to the Python interpreter you want to
+use. Note that the filepath to the Python interpreter will differ
+depending on your operating system. For example, on Windows it might be
+a path similar to
 <code>"C:/Users/YourName/AppData/Local/Programs/Python/Python310/python.exe"</code>,
 whereas on on Linux or MacOS (which was used for this vignette) it could
 be a path similar to <code>"/usr/local/bin/python3.10"</code> or
@@ -166,6 +168,10 @@ environment:</p>
 each Python feature set, such as</strong> <code>install_tsfresh</code>
 <strong>if you only need one of the libraries and want to keep your
 dependencies light.</strong></p>
+<p><strong>NOTE 3: There are also separate</strong>
+<code>init_theft</code> <strong>functions for if you are interested in
+only using one of the Python feature sets, such as</strong>
+<code>init_theft_hctsa</code>.</p>
 </div>
 <div class="section level4">
 <h4 id="calculating-features">Calculating features<a class="anchor" aria-label="anchor" href="#calculating-features"></a>

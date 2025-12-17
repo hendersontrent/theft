@@ -24,8 +24,9 @@ following:
 devtools::install_github("hendersontrent/theft")
 ```
 
-Please also check out our paper [Feature-Based Time-Series Analysis in R
-using the theft Package](https://arxiv.org/abs/2208.06146) which
+Please also check out our paper [“Feature-Based Time-Series Analysis in
+R using the Theft
+Ecosystem”](https://journal.r-project.org/articles/RJ-2025-023/) which
 discusses the motivation and theoretical underpinnings of `theft` and
 walks through all of its functionality using the [Bonn EEG
 dataset](https://pubmed.ncbi.nlm.nih.gov/11736210/) — a well-studied
@@ -35,10 +36,11 @@ neuroscience dataset.
 
 `theft` is a software package for R that facilitates user-friendly
 access to a consistent interface for the extraction of time-series
-features. The package provides a single point of access to $>1100$
-time-series features from a range of existing R and Python packages as
-well as enabling users to calculate their own features. The packages
-which `theft` ‘steals’ features from currently are:
+features. The package provides a single point of access to
+$\approx 6000$ time-series features from a range of existing R and
+Python packages as well as enabling users to calculate their own
+features. The packages which `theft` ‘steals’ features from currently
+are:
 
 - [catch22](https://link.springer.com/article/10.1007/s10618-019-00647-x)
   (R; [see `Rcatch22` for the native implementation on
@@ -48,30 +50,29 @@ which `theft` ‘steals’ features from currently are:
 - [Kats](https://facebookresearch.github.io/Kats/) (Python)
 - [tsfresh](https://tsfresh.com) (Python)
 - [TSFEL](https://tsfel.readthedocs.io/en/latest/) (Python)
+- [hctsa](https://github.com/DynamicsAndNeuralSystems/pyhctsa) (Python;
+  originally MATLAB)
 
 As of `v0.6.1`, users can also calculate their own individual features
 or sets of features too! In addition, two basic feature sets
-`"quantiles"` (a set of 100 quantiles) and `"moments"` (the first four
+`"quantiles"` (a set of 101 quantiles) and `"moments"` (the first four
 moments of the distribution: mean, variance, skewness, and kurtosis) are
 also available for users seeking to compute simple baselines against
 which to compare the more sophisticated feature sets (see [this recent
 paper](https://arxiv.org/abs/2303.17809) for more discussion on this
 idea).
 
-Note that `Kats`, `tsfresh` and `TSFEL` are Python packages. `theft` has
-built-in functionality for helping you install these libraries—all you
-need to do is install Python on your machine (preferably Python
-\>=3.10). If you wish to access the Python feature sets, please run
-`?install_python_pkgs` in R after downloading `theft` or consult the
-vignette in the package for more information. For a comprehensive
-comparison of these six feature sets across a range of domains
-(including computation speed, within-set feature composition, and
-between-set feature correlations), please refer to the paper [An
+Note that `Kats`, `tsfresh`, `TSFEL`, and `pyhctsa` are Python packages.
+`theft` has built-in functionality for helping you install these
+libraries—all you need to do is install Python on your machine
+(preferably Python \>=3.10). If you wish to access the Python feature
+sets, please run `?install_python_pkgs` in R after downloading `theft`
+or consult the vignette in the package for more information. For a
+comprehensive comparison of these six feature sets across a range of
+domains (including computation speed, within-set feature composition,
+and between-set feature correlations), please refer to the paper [An
 Empirical Evaluation of Time-Series Feature
 Sets](https://ieeexplore.ieee.org/document/9679937).
-
-Also note that as of `v0.8.2` parallelisation is supported for
-`"tsfresh"` and `"tsfel"` (see the vignette for more information)!
 
 ## Package extensibility
 
@@ -196,16 +197,32 @@ of both packages.
 If you use `theft` or `theftdlc` in your own work, please cite both the
 paper:
 
-T. Henderson and Ben D. Fulcher. [Feature-Based Time-Series Analysis in
-R using the theft Package](https://arxiv.org/abs/2208.06146). arXiv,
-(2022).
+T. Henderson and Ben D. Fulcher. [“Feature-Based Time-Series Analysis in
+R using the Theft
+Ecosystem”](https://journal.r-project.org/articles/RJ-2025-023/), The R
+Journal, 2025.
+
+BibTeX version:
+
+    @article{RJ-2025-023,
+      author = {Henderson, Trent and Fulcher, Ben D.},
+      title = {Feature-Based Time-Series Analysis in R using the Theft Ecosystem},
+      journal = {The R Journal},
+      year = {2025},
+      note = {https://doi.org/10.32614/RJ-2025-023},
+      doi = {10.32614/RJ-2025-023},
+      volume = {17},
+      issue = {3},
+      issn = {2073-4859},
+      pages = {43-68}
+    }
 
 and the software:
 
     To cite package 'theft' in publications use:
 
       Henderson T (2025). _theft: Tools for Handling Extraction of Features
-      from Time Series_. R package version 0.8.2,
+      from Time Series_. R package version 0.8.3,
       <https://hendersontrent.github.io/theft/>.
 
     A BibTeX entry for LaTeX users is
@@ -214,14 +231,14 @@ and the software:
         title = {theft: Tools for Handling Extraction of Features from Time Series},
         author = {Trent Henderson},
         year = {2025},
-        note = {R package version 0.8.2},
+        note = {R package version 0.8.3},
         url = {https://hendersontrent.github.io/theft/},
       }
 
     To cite package 'theftdlc' in publications use:
 
       Henderson T (2025). _theftdlc: Analyse and Interpret Time Series
-      Features_. R package version 0.2.0,
+      Features_. R package version 0.2.1,
       <https://hendersontrent.github.io/theftdlc/>.
 
     A BibTeX entry for LaTeX users is
@@ -230,13 +247,12 @@ and the software:
         title = {theftdlc: Analyse and Interpret Time Series Features},
         author = {Trent Henderson},
         year = {2025},
-        note = {R package version 0.2.0},
+        note = {R package version 0.2.1},
         url = {https://hendersontrent.github.io/theftdlc/},
       }
 
 ## Acknowledgements
 
 Big thanks to [Joshua Moore](https://github.com/joshuabmoore) for his
-assistance in solving issues with the Python side of things, including
-the correct specification of dependencies for the `install_python_pkgs`
-function.
+assistance in solving issues with the Python side of things and for
+developing `pyhctsa`.

@@ -217,16 +217,17 @@ calc_hctsa <- function(data, warn){
   # Wrangle data into matrix format for hctsa
   
   ts_list <- split(data$values, data$id)
+  sel_cols <- c("id", "timepoint", "values")
   
   ts_list <- data %>%
     as.data.frame() %>%
-    dplyr::select(c(id, timepoint, values)) %>%
+    dplyr::select(dplyr::all_of(sel_cols)) %>%
     tidyr::pivot_wider(id_cols = "id", names_from = "timepoint", values_from = "values")
   
   idx <- ts_list$id
   
   ts_list <- ts_list %>%
-    dplyr::select(-c(id)) %>%
+    dplyr::select(-c("id")) %>%
     as.matrix()
   
   # Calculate features
