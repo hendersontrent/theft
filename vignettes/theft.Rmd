@@ -29,7 +29,7 @@ library(theft)
 
 ## Purpose
 
-`theft` enables the standardised calculation of time-series features from six existing feature sets in both R and Python as well as any user-supplied features.
+`theft` enables the standardised calculation of time-series features from seven existing feature sets in both R and Python as well as any user-supplied features.
 
 ## Core functionality
 
@@ -49,13 +49,13 @@ head(simData)
 
 ### Calculating time-series features
 
-The core function in `theft` is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `"catch22"`, `"feasts"`, `"tsfeatures"`, `"tsfresh"`, `"tsfel"`, and `"kats"`. In addition, two basic feature sets `"quantiles"` (a set of 100 quantiles) and `"moments"` (the first four moments of the distribution: mean, variance, skewness, and kurtosis) are also available to be specified for users seeking to compute simple baselines against which to compare the more sophisticated feature sets (see [this recent paper](https://arxiv.org/abs/2303.17809) for more discussion on this idea).
+The core function in `theft` is `calculate_features`. You can choose which subset of features to calculate with the `feature_set` argument. The choices are currently `"catch22"`, `"feasts"`, `"tsfeatures"`, `"tsfresh"`, `"tsfel"`, `"kats"`, and `"hctsa"`. In addition, two basic feature sets `"quantiles"` (a set of 101 quantiles) and `"moments"` (the first four moments of the distribution: mean, variance, skewness, and kurtosis) are also available to be specified for users seeking to compute simple baselines against which to compare the more sophisticated feature sets (see [this recent paper](https://arxiv.org/abs/2303.17809) for more discussion on this idea).
 
-Note that `kats`, `tsfresh` and `tsfel` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. `theft` currently provides access to $>1100$ features from these six sets alone. However, as discussed in the functionality demonstrations below, you can also supply your own list of features too!
+Note that `kats`, `tsfresh`, `tsfel`, and `pyhctsa` are Python packages. The R package `reticulate` is used to call Python code that uses these packages and applies it within the broader *tidy* data philosophy embodied by `theft`. `theft` currently provides access to $\approx 6000$ features from these seven sets alone. However, as discussed in the functionality demonstrations below, you can also supply your own list of features too!
 
 #### Installing Python feature sets
 
-Prior to using `theft` (only if you want to use the `Kats`, `tsfresh` or `TSFEL` feature sets; the R-based sets will run fine) you should have a working Python 3.9 installation and run the function `install_python_pkgs(venv, python)` after first installing `theft`, where the `venv` argument is the name of the virtual environment you want to create and `python` is the path to the Python interpreter you want to use. Note that the filepath to the Python interpreter will differ depending on your operating system. For example, on Windows it might be a path similar to `"C:/Users/YourName/AppData/Local/Programs/Python/Python310/python.exe"`, whereas on on Linux or MacOS (which was used for this vignette) it could be a path similar to `"/usr/local/bin/python3.10"` or `"/usr/bin/python3"`.
+Prior to using `theft` (only if you want to use the `kats`, `tsfresh`, `tsfel`, or `hctsa` feature sets; the R-based sets will run fine) you should have a working Python 3.9 installation and run the function `install_python_pkgs(venv, python, hctsa = FALSE)` (or with `hctsa = TRUE` if you want that large feature set) after first installing `theft`, where the `venv` argument is the name of the virtual environment you want to create and `python` is the path to the Python interpreter you want to use. Note that the filepath to the Python interpreter will differ depending on your operating system. For example, on Windows it might be a path similar to `"C:/Users/YourName/AppData/Local/Programs/Python/Python310/python.exe"`, whereas on on Linux or MacOS (which was used for this vignette) it could be a path similar to `"/usr/local/bin/python3.10"` or `"/usr/bin/python3"`.
 
 For example, if you wanted to install the Python libraries to the default virtual environment folder used by `reticulate`, you would run the following after first having installed `theft` (here I am just creating a new virtual environment called `"theft-package"`---you can call it whatever you like!):
 
@@ -74,6 +74,8 @@ You are now ready to commit theft!
 **NOTE 1: You only need to call ** `init_theft` **once per session.**
 
 **NOTE 2: There are also separate installation functions for each Python feature set, such as** `install_tsfresh` **if you only need one of the libraries and want to keep your dependencies light.**
+
+**NOTE 3: There are also separate** `init_theft` **functions for if you are interested in only using one of the Python feature sets, such as** `init_theft_hctsa`.
 
 #### Calculating features
 

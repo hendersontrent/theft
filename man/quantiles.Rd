@@ -4,12 +4,12 @@
 \alias{quantiles}
 \title{Calculate a basic set of quantiles for an input time-series vector}
 \usage{
-quantiles(y, quantiles = seq(0.01, 1, by = 0.01))
+quantiles(y, quantiles = seq(0, 1, by = 0.01))
 }
 \arguments{
 \item{y}{\code{numeric} vector of values}
 
-\item{quantiles}{\code{numeric} vector of quantiles to calculate. Defaults to \code{seq(0.01, 1, by = 0.01)}}
+\item{quantiles}{\code{numeric} vector of quantiles to calculate. Defaults to \code{seq(0, 1, by = 0.01)}}
 }
 \value{
 \code{data.frame} of results

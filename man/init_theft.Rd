@@ -4,10 +4,12 @@
 \alias{init_theft}
 \title{Communicate to R the Python virtual environment containing the relevant libraries for calculating features}
 \usage{
-init_theft(venv)
+init_theft(venv, hctsa = FALSE)
 }
 \arguments{
 \item{venv}{\code{character} specifying the name of the to the Python virtual environment where \code{"tsfresh"}, \code{"TSFEL"}, and/or \code{"Kats"} are installed}
+
+\item{hctsa}{\code{Boolean} denoting whether pyhctsa was installed or not. Defaults to \code{FALSE}}
 }
 \value{
 no return value; called for side effects

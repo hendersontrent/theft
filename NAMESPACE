@@ -2,7 +2,12 @@
 
 export(calculate_features)
 export(init_theft)
+export(init_theft_hctsa)
+export(init_theft_kats)
+export(init_theft_tsfel)
+export(init_theft_tsfresh)
 export(install_kats)
+export(install_pyhctsa)
 export(install_python_pkgs)
 export(install_tsfel)
 export(install_tsfresh)
