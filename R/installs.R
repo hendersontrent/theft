@@ -4,6 +4,7 @@
 #' 
 #' @param venv \code{character} specifying the name of the new virtual environment to create
 #' @param python \code{character} specifying the filepath to the Python interpreter to use. Python 3.10 is recommended
+#' @param hctsa \code{Boolean} denoting whether to install pyhctsa or not. Defaults to \code{FALSE}
 #' @return no return value; called for side effects
 #' @author Trent Henderson
 #' @export
@@ -12,11 +13,16 @@
 #' install_python_pkgs("theft-test", "/usr/local/bin/python3.10")
 #' }
 #' 
-install_python_pkgs <- function(venv, python){
+install_python_pkgs <- function(venv, python, hctsa = FALSE){
   reticulate::virtualenv_create(venv, python)
   reticulate::virtualenv_install(venv, "tsfel")
   reticulate::virtualenv_install(venv, "tsfresh")
   reticulate::virtualenv_install(venv, "git+https://github.com/hendersontrent/theft-kats.git")
+  
+  if(hctsa){
+    reticulate::virtualenv_install(venv, "git+https://github.com/DynamicsAndNeuralSystems/pyhctsa.git")
+  }
+  
   reticulate::virtualenv_install(venv, "scipy==1.14.0")
   reticulate::virtualenv_install(venv, "packaging==21.3")
   reticulate::virtualenv_install(venv, "numpy==1.26")
@@ -86,4 +92,23 @@ install_kats <- function(venv, python){
   reticulate::virtualenv_install(venv, "scipy==1.14.0")
   reticulate::virtualenv_install(venv, "packaging==21.3")
   reticulate::virtualenv_install(venv, "numpy==1.26")
+}
+
+#' Download and install pyhctsa from Python into a new virtual environment
+#'
+#' @importFrom reticulate virtualenv_create virtualenv_install
+#' 
+#' @param venv \code{character} specifying the name of the new virtual environment to create
+#' @param python \code{character} specifying the filepath to the Python interpreter to use. Python 3.10 is recommended
+#' @return no return value; called for side effects
+#' @author Trent Henderson
+#' @export
+#' @examples
+#' \dontrun{
+#' install_pyhctsa("theft-test", "/usr/local/bin/python3.10")
+#' }
+#' 
+install_pyhctsa <- function(venv, python){
+  reticulate::virtualenv_create(venv, python)
+  reticulate::virtualenv_install(venv, "git+https://github.com/DynamicsAndNeuralSystems/pyhctsa.git")
 }

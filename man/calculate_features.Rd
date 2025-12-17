@@ -6,7 +6,7 @@
 \usage{
 calculate_features(
   data,
-  feature_set = c("catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel",
+  feature_set = c("catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel", "hctsa",
     "quantiles", "moments"),
   features = NULL,
   catch24 = FALSE,

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">install_python_pkgs</span><span class="op">(</span><span class="va">venv</span>, <span class="va">python</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">install_python_pkgs</span><span class="op">(</span><span class="va">venv</span>, <span class="va">python</span>, hctsa <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -51,6 +51,10 @@
 
 <dt id="arg-python">python<a class="anchor" aria-label="anchor" href="#arg-python"></a></dt>
 <dd><p><code>character</code> specifying the filepath to the Python interpreter to use. Python 3.10 is recommended</p></dd>
+
+
+<dt id="arg-hctsa">hctsa<a class="anchor" aria-label="anchor" href="#arg-hctsa"></a></dt>
+<dd><p><code>Boolean</code> denoting whether to install pyhctsa or not. Defaults to <code>FALSE</code></p></dd>
 
 </dl></div>
     <div class="section level2">

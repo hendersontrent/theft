@@ -4,12 +4,14 @@
 \alias{install_python_pkgs}
 \title{Download and install tsfresh, TSFEL, and Kats from Python into a new virtual environment}
 \usage{
-install_python_pkgs(venv, python)
+install_python_pkgs(venv, python, hctsa = FALSE)
 }
 \arguments{
 \item{venv}{\code{character} specifying the name of the new virtual environment to create}
 
 \item{python}{\code{character} specifying the filepath to the Python interpreter to use. Python 3.10 is recommended}
+
+\item{hctsa}{\code{Boolean} denoting whether to install pyhctsa or not. Defaults to \code{FALSE}}
 }
 \value{
 no return value; called for side effects

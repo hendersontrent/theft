@@ -200,6 +200,64 @@ calc_kats <- function(data, warn){
   return(outData)
 }
 
+#------
+# hctsa
+#------
+
+calc_hctsa <- function(data, warn){
+  
+  mywarn <- ifelse(warn, "Yes", "No")
+  
+  # Load Python function
+  
+  pyhctsa_calculator <- function(){}
+  reticulate::source_python(system.file("python", "pyhctsa_calculator.py", package = "theft")) # Ships with package
+  hctsa_config <- system.file("yaml", "hctsa.yaml", package = "theft") # Ships with package
+  
+  # Wrangle data into matrix format for hctsa
+  
+  ts_list <- split(data$values, data$id)
+  sel_cols <- c("id", "timepoint", "values")
+  
+  ts_list <- data %>%
+    as.data.frame() %>%
+    dplyr::select(dplyr::all_of(sel_cols)) %>%
+    tidyr::pivot_wider(id_cols = "id", names_from = "timepoint", values_from = "values")
+  
+  idx <- ts_list$id
+  
+  ts_list <- ts_list %>%
+    dplyr::select(-c("id")) %>%
+    as.matrix()
+  
+  # Calculate features
+  
+  outData <- pyhctsa_calculator(ts_list, mywarn, hctsa_config)
+  
+  # Clean up data returns
+  
+  outData <- outData %>%
+    dplyr::mutate(id = idx)
+  
+  if(length(tsibble::key_vars(data)) > 1){
+    
+    group_labs <- data %>%
+      as.data.frame() %>%
+      dplyr::select(dplyr::all_of(tsibble::key_vars(data))) %>%
+      dplyr::distinct()
+    
+    outData <- outData %>%
+      dplyr::inner_join(group_labs, by = c("id" = "id"))
+  }
+  
+  outData <- outData %>%
+    dplyr::select(c(dplyr::where(is.numeric), dplyr::all_of(tsibble::key_vars(data)))) %>%
+    tidyr::pivot_longer(cols = !tsibble::key_vars(data), names_to = "names", values_to = "values") %>%
+    dplyr::mutate(feature_set = "hctsa")
+  
+  return(outData)
+}
+
 #-----
 # User
 #-----
@@ -249,7 +307,7 @@ calc_user <- function(data, features){
 #'
 
 calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfeatures", 
-                                                     "kats", "tsfresh", "tsfel",
+                                                     "kats", "tsfresh", "tsfel", "hctsa",
                                                      "quantiles", "moments"), 
                                features = NULL, catch24 = FALSE, 
                                tsfresh_cleanup = FALSE, use_compengine = FALSE, 
@@ -365,6 +423,15 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
         tmp_kats <- calc_kats(data = data_re, warn = warn)
       }
     }
+  
+  if("hctsa" %in% feature_set){
+    message("Running computations for hctsa...\n")
+    if(!warn){
+      tmp_hctsa <- suppressWarnings(calc_hctsa(data = data_re, warn = warn))
+    } else{
+      tmp_hctsa <- calc_hctsa(data = data_re, warn = warn)
+    }
+  }
     
     if("quantiles" %in% feature_set){
       message("Running computations for quantiles...\n")
@@ -438,6 +505,10 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
   
   if(exists("tmp_kats")){
     tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_kats)
+  }
+  
+  if(exists("tmp_hctsa")){
+    tmp_all_features <- dplyr::bind_rows(tmp_all_features, tmp_hctsa)
   }
   
   if(exists("tmp_quantiles")){
