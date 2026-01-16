@@ -438,11 +438,13 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
       if(!warn){
         tmp_quantiles <- suppressWarnings(
           data_re %>%
-            dplyr::reframe(quantiles(.data$values), .by = tsibble::key_vars(data))
+            dplyr::reframe(quantiles(!!dplyr::sym(colnames(data_re)[!colnames(data_re) %in% append(tsibble::key_vars(data_re), tsibble::index_var(data_re))])), 
+                           .by = tsibble::key_vars(data))
         )
       } else{
         tmp_quantiles <- data_re %>%
-          dplyr::reframe(quantiles(.data$values), .by = tsibble::key_vars(data))
+          dplyr::reframe(quantiles(!!dplyr::sym(colnames(data_re)[!colnames(data_re) %in% append(tsibble::key_vars(data_re), tsibble::index_var(data_re))])), 
+                         .by = tsibble::key_vars(data))
       }
     }
     
@@ -451,11 +453,13 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
       if(!warn){
         tmp_moments <- suppressWarnings(
           data_re %>%
-            dplyr::reframe(moments(.data$values), .by = tsibble::key_vars(data))
+            dplyr::reframe(moments(!!dplyr::sym(colnames(data_re)[!colnames(data_re) %in% append(tsibble::key_vars(data_re), tsibble::index_var(data_re))])), 
+                           .by = tsibble::key_vars(data))
         )
       } else{
         tmp_moments <- data_re %>%
-          dplyr::reframe(moments(.data$values), .by = tsibble::key_vars(data))
+          dplyr::reframe(moments(!!dplyr::sym(colnames(data_re)[!colnames(data_re) %in% append(tsibble::key_vars(data_re), tsibble::index_var(data_re))])), 
+                         .by = tsibble::key_vars(data))
       }
     }
     
