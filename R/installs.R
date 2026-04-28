@@ -24,6 +24,7 @@ install_python_pkgs <- function(venv, python, hctsa = FALSE){
   }
   
   reticulate::virtualenv_install(venv, "scipy==1.14.0")
+  reticulate::virtualenv_install(venv, "wheel==0.45.1")
   reticulate::virtualenv_install(venv, "packaging==21.3")
   reticulate::virtualenv_install(venv, "numpy==1.26")
 }
@@ -46,6 +47,7 @@ install_tsfresh <- function(venv, python){
   reticulate::virtualenv_create(venv, python)
   reticulate::virtualenv_install(venv, "tsfresh")
   reticulate::virtualenv_install(venv, "scipy==1.14.0")
+  reticulate::virtualenv_install(venv, "wheel==0.45.1")
   reticulate::virtualenv_install(venv, "packaging==21.3")
   reticulate::virtualenv_install(venv, "numpy==1.26")
 }
@@ -68,6 +70,7 @@ install_tsfel <- function(venv, python){
   reticulate::virtualenv_create(venv, python)
   reticulate::virtualenv_install(venv, "tsfel")
   reticulate::virtualenv_install(venv, "scipy==1.14.0")
+  reticulate::virtualenv_install(venv, "wheel==0.45.1")
   reticulate::virtualenv_install(venv, "packaging==21.3")
   reticulate::virtualenv_install(venv, "numpy==1.26")
 }
@@ -90,6 +93,7 @@ install_kats <- function(venv, python){
   reticulate::virtualenv_create(venv, python)
   reticulate::virtualenv_install(venv, "git+https://github.com/hendersontrent/theft-kats.git")
   reticulate::virtualenv_install(venv, "scipy==1.14.0")
+  reticulate::virtualenv_install(venv, "wheel==0.45.1")
   reticulate::virtualenv_install(venv, "packaging==21.3")
   reticulate::virtualenv_install(venv, "numpy==1.26")
 }
