@@ -14,8 +14,8 @@ def pyhctsa_calculator(timeseries, warn, config_yaml):
         import warnings
         warnings.filterwarnings("ignore")
 
-    from pyhctsa.FeatureCalculator.calculator import FeatureCalculator
-    calc = FeatureCalculator(configPath=config_yaml)
+    from pyhctsa.calculator import FeatureCalculator
+    calc = FeatureCalculator(config_path=config_yaml)
     
     extracted_features = calc.extract(timeseries)
     
