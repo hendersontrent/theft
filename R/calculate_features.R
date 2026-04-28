@@ -124,8 +124,8 @@ calc_tsfresh <- function(data, cleanup, n_jobs = 0, warn = TRUE){
     dplyr::select(!!dplyr::sym(tsibble::key_vars(data)[1])) %>%
     dplyr::distinct()
     
-  outData <- tsfresh_calculator(timeseries = temp, column_id = tsibble::key_vars(data)[1], 
-                                column_sort = as.character(dplyr::sym(colnames(data)[!colnames(data) %in% append(tsibble::key_vars(data), tsibble::index_var(data))])), 
+  outData <- tsfresh_calculator(timeseries = temp, column_id = tsibble::key_vars(data)[1],
+                                column_sort = tsibble::index_var(data),
                                 cleanup = cleanup, n_jobs = n_jobs, warn = mywarn) %>%
     cbind(ids) %>%
     tidyr::gather("names", "values", -tsibble::key_vars(data)[1]) %>%
