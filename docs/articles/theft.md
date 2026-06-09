@@ -50,13 +50,16 @@ head(simData)
 The core function in `theft` is `calculate_features`. You can choose
 which subset of features to calculate with the `feature_set` argument.
 The choices are currently `"catch22"`, `"feasts"`, `"tsfeatures"`,
-`"tsfresh"`, `"tsfel"`, `"kats"`, and `"hctsa"`. In addition, two basic
-feature sets `"quantiles"` (a set of 101 quantiles) and `"moments"` (the
-first four moments of the distribution: mean, variance, skewness, and
-kurtosis) are also available to be specified for users seeking to
-compute simple baselines against which to compare the more sophisticated
-feature sets (see [this recent paper](https://arxiv.org/abs/2303.17809)
-for more discussion on this idea).
+`"tsfresh"`, `"tsfel"`, `"kats"`, and `"hctsa"`. In addition, four
+baseline feature sets: (i) `"fft"` (a set of 200 FFT coefficients from
+0-99 for both the squared magnitude and angle components); (ii)
+`"quantiles"` (a set of 101 quantiles); (iii) `"fftquantiles"` the union
+set of FFT coefficients and quantiles; and (iv) `"moments"` (the first
+four moments of the distribution: mean, variance, skewness, and
+kurtosis) are also available for users seeking to compute simple
+baselines against which to compare the more sophisticated feature sets
+(see [this recent paper](https://arxiv.org/abs/2303.17809) for more
+discussion on this idea).
 
 Note that `kats`, `tsfresh`, `tsfel`, and `pyhctsa` are Python packages.
 The R package `reticulate` is used to call Python code that uses these

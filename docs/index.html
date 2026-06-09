@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +90,7 @@
 <li>
 <a href="https://github.com/DynamicsAndNeuralSystems/pyhctsa" class="external-link">hctsa</a> (Python; originally MATLAB)</li>
 </ul>
-<p>As of <code>v0.6.1</code>, users can also calculate their own individual features or sets of features too! In addition, two basic feature sets <code>"quantiles"</code> (a set of 101 quantiles) and <code>"moments"</code> (the first four moments of the distribution: mean, variance, skewness, and kurtosis) are also available for users seeking to compute simple baselines against which to compare the more sophisticated feature sets (see <a href="https://arxiv.org/abs/2303.17809" class="external-link">this recent paper</a> for more discussion on this idea).</p>
+<p>As of <code>v0.6.1</code>, users can also calculate their own individual features or sets of features too! In addition, four baseline feature sets: (i) <code>"fft"</code> (a set of 200 FFT coefficients from 0-99 for both the squared magnitude and angle components); (ii) <code>"quantiles"</code> (a set of 101 quantiles); (iii) <code>"fftquantiles"</code> the union set of FFT coefficients and quantiles; and (iv) <code>"moments"</code> (the first four moments of the distribution: mean, variance, skewness, and kurtosis) are also available for users seeking to compute simple baselines against which to compare the more sophisticated feature sets (see <a href="https://arxiv.org/abs/2303.17809" class="external-link">this recent paper</a> for more discussion on this idea).</p>
 <p>Note that <code>Kats</code>, <code>tsfresh</code>, <code>TSFEL</code>, and <code>pyhctsa</code> are Python packages. <code>theft</code> has built-in functionality for helping you install these libraries—all you need to do is install Python on your machine (preferably Python &gt;=3.10). If you wish to access the Python feature sets, please run <code><a href="reference/install_python_pkgs.html">?install_python_pkgs</a></code> in R after downloading <code>theft</code> or consult the vignette in the package for more information. For a comprehensive comparison of these six feature sets across a range of domains (including computation speed, within-set feature composition, and between-set feature correlations), please refer to the paper <a href="https://ieeexplore.ieee.org/document/9679937" class="external-link">An Empirical Evaluation of Time-Series Feature Sets</a>.</p>
 </div>
 <div class="section level2">
@@ -131,14 +131,10 @@
 <span>  <span class="fu"><a href="https://hendersontrent.github.io/theftdlc/reference/compare_features.html">compare_features</a></span><span class="op">(</span>by_set <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                   hypothesis <span class="op">=</span> <span class="st">"pairwise"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>               hypothesis feature_set_a feature_set_b   metric set_a_mean</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="dv">1</span> All features <span class="sc">!=</span> catch22  All features       catch22 accuracy  <span class="fl">0.8022222</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="dv">2</span>    All features <span class="sc">!=</span> User  All features          User accuracy  <span class="fl">0.8022222</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="dv">3</span>         catch22 <span class="sc">!=</span> User       catch22          User accuracy  <span class="fl">0.7400000</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  set_b_mean t_statistic    p.value</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="dv">1</span>  <span class="fl">0.7400000</span>  <span class="fl">2.35154855</span> <span class="fl">0.04319536</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="dv">2</span>  <span class="fl">0.8044444</span> <span class="sc">-</span><span class="fl">0.03932757</span> <span class="fl">0.96948780</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="dv">3</span>  <span class="fl">0.8044444</span> <span class="sc">-</span><span class="fl">1.23794041</span> <span class="fl">0.24705786</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>       hypothesis feature_set_a feature_set_b   metric set_a_mean set_b_mean</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="dv">1</span> catch22 <span class="sc">!=</span> User       catch22          User accuracy  <span class="fl">0.7377778</span>  <span class="fl">0.5533333</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  t_statistic     p.value</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="dv">1</span>    <span class="fl">4.647108</span> <span class="fl">0.001207048</span></span></code></pre></div>
 <p>In this example, <code>classify</code> and <code>compare_features</code> come from <code>theftdlc</code>.</p>
 <p>We can also easily see how each set performs relative to an empirical null distribution (i.e., how much better does each set do than we would expect due to chance?):</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -151,14 +147,12 @@
 <span>  <span class="fu"><a href="https://hendersontrent.github.io/theftdlc/reference/compare_features.html">compare_features</a></span><span class="op">(</span>by_set <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                   hypothesis <span class="op">=</span> <span class="st">"null"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>                hypothesis  feature_set   metric  set_mean null_mean</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="dv">1</span> All features <span class="sc">!=</span> own null All features accuracy <span class="fl">0.8022222</span> <span class="fl">0.1355556</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="dv">2</span>         User <span class="sc">!=</span> own null         User accuracy <span class="fl">0.8044444</span> <span class="fl">0.1511111</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="dv">3</span>      catch22 <span class="sc">!=</span> own null      catch22 accuracy <span class="fl">0.7400000</span> <span class="fl">0.1222222</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  t_statistic      p.value</span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="dv">1</span>    <span class="fl">6.826807</span> <span class="fl">3.835233e-05</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="dv">2</span>    <span class="fl">5.882092</span> <span class="fl">1.171092e-04</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="dv">3</span>    <span class="fl">6.879652</span> <span class="fl">3.614676e-05</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>           hypothesis feature_set   metric  set_mean null_mean t_statistic</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="dv">1</span>    User <span class="sc">!=</span> own null        User accuracy <span class="fl">0.5533333</span> <span class="fl">0.1177778</span>    <span class="fl">4.399344</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="dv">2</span> catch22 <span class="sc">!=</span> own null     catch22 accuracy <span class="fl">0.7377778</span> <span class="fl">0.1311111</span>    <span class="fl">7.728135</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>       p.value</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="dv">1</span> <span class="fl">8.610084e-04</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="dv">2</span> <span class="fl">1.457269e-05</span></span></code></pre></div>
 <p>Please see the vignette for more information and the full functionality of both packages.</p>
 </div>
 <div class="section level2">
@@ -182,8 +176,8 @@
 <p>and the software:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>To cite package <span class="st">'theft'</span> <span class="cf">in</span> publications use<span class="sc">:</span></span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  Henderson <span class="fu">T</span> (<span class="dv">2025</span>). _theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of Features</span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  from Time Series_. R package version <span class="dv">0</span>.<span class="fl">8.3</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  Henderson <span class="fu">T</span> (<span class="dv">2026</span>). _theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of Features</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  from Time Series_. R package version <span class="dv">0</span>.<span class="fl">9.0</span>,</span>
 <span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="sc">&lt;</span>https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theft<span class="sc">/</span><span class="er">&gt;</span>.</span>
 <span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a></span>
 <span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>A BibTeX entry <span class="cf">for</span> LaTeX users is</span>
@@ -191,15 +185,15 @@
 <span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="sc">@</span>Manual{,</span>
 <span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>    title <span class="ot">=</span> {theft<span class="sc">:</span> Tools <span class="cf">for</span> Handling Extraction of Features from Time Series},</span>
 <span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>    author <span class="ot">=</span> {Trent Henderson},</span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>    year <span class="ot">=</span> {<span class="dv">2025</span>},</span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">8.3</span>},</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>    year <span class="ot">=</span> {<span class="dv">2026</span>},</span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">9.0</span>},</span>
 <span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>    url <span class="ot">=</span> {https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theft<span class="sc">/</span>},</span>
 <span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>  }</span>
 <span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a></span>
 <span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>To cite package <span class="st">'theftdlc'</span> <span class="cf">in</span> publications use<span class="sc">:</span></span>
 <span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a></span>
-<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>  Henderson <span class="fu">T</span> (<span class="dv">2025</span>). _theftdlc<span class="sc">:</span> Analyse and Interpret Time Series</span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a>  Features_. R package version <span class="dv">0</span>.<span class="fl">2.1</span>,</span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>  Henderson <span class="fu">T</span> (<span class="dv">2026</span>). _theftdlc<span class="sc">:</span> Analyse and Interpret Time Series</span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a>  Features_. R package version <span class="dv">0</span>.<span class="fl">2.2</span>,</span>
 <span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a>  <span class="sc">&lt;</span>https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theftdlc<span class="sc">/</span><span class="er">&gt;</span>.</span>
 <span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a></span>
 <span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a>A BibTeX entry <span class="cf">for</span> LaTeX users is</span>
@@ -207,8 +201,8 @@
 <span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a>  <span class="sc">@</span>Manual{,</span>
 <span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a>    title <span class="ot">=</span> {theftdlc<span class="sc">:</span> Analyse and Interpret Time Series Features},</span>
 <span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a>    author <span class="ot">=</span> {Trent Henderson},</span>
-<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a>    year <span class="ot">=</span> {<span class="dv">2025</span>},</span>
-<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">2.1</span>},</span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a>    year <span class="ot">=</span> {<span class="dv">2026</span>},</span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a>    note <span class="ot">=</span> {R package version <span class="dv">0</span>.<span class="fl">2.2</span>},</span>
 <span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a>    url <span class="ot">=</span> {https<span class="sc">:</span><span class="er">//</span>hendersontrent.github.io<span class="sc">/</span>theftdlc<span class="sc">/</span>},</span>
 <span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a>  }</span></code></pre></div>
 </div>

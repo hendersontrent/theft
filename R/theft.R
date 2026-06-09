@@ -7,7 +7,7 @@
 #' 
 #' @importFrom utils packageVersion
 #' @importFrom rlang .data
-#' @importFrom stats ts
+#' @importFrom stats ts fft
 #' @importFrom dplyr %>% group_by filter ungroup bind_rows across all_of mutate arrange reframe mutate select distinct row_number left_join everything rename inner_join sym
 #' @importFrom tsibble key_vars index_var as_tsibble
 #' @importFrom fabletools features feature_set

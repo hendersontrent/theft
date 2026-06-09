@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,13 +41,14 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">calculate_features</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  feature_set <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"catch22"</span>, <span class="st">"feasts"</span>, <span class="st">"tsfeatures"</span>, <span class="st">"kats"</span>, <span class="st">"tsfresh"</span>, <span class="st">"tsfel"</span>, <span class="st">"hctsa"</span>,</span>
-<span>    <span class="st">"quantiles"</span>, <span class="st">"moments"</span><span class="op">)</span>,</span>
+<span>    <span class="st">"quantiles"</span>, <span class="st">"moments"</span>, <span class="st">"fftquantiles"</span>, <span class="st">"fft"</span><span class="op">)</span>,</span>
 <span>  features <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  catch24 <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  tsfresh_cleanup <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  use_compengine <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">123</span>,</span>
 <span>  z_score <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  squared <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_jobs <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  warn <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -62,7 +63,7 @@
 
 
 <dt id="arg-feature-set">feature_set<a class="anchor" aria-label="anchor" href="#arg-feature-set"></a></dt>
-<dd><p><code>character</code> or <code>vector</code> of <code>character</code> denoting the set of time-series features to calculate. Can be one of <code>"catch22"</code>, <code>"feasts"</code>, <code>"tsfeatures"</code>, <code>"tsfresh"</code>, <code>"tsfel"</code>, <code>"kats"</code>, <code>"quantiles"</code>, and or <code>"moments"</code></p></dd>
+<dd><p><code>character</code> or <code>vector</code> of <code>character</code> denoting the set of time-series features to calculate. Can be one of <code>"catch22"</code>, <code>"feasts"</code>, <code>"tsfeatures"</code>, <code>"tsfresh"</code>, <code>"tsfel"</code>, <code>"kats"</code>, <code>"quantiles"</code>, <code>"moments"</code>, <code>"fftquantiles"</code>, and or <code>"fft"</code></p></dd>
 
 
 <dt id="arg-features">features<a class="anchor" aria-label="anchor" href="#arg-features"></a></dt>
@@ -89,8 +90,12 @@
 <dd><p><code>Boolean</code> specifying whether to z-score the time-series before computing features. Defaults to <code>FALSE</code></p></dd>
 
 
+<dt id="arg-squared">squared<a class="anchor" aria-label="anchor" href="#arg-squared"></a></dt>
+<dd><p><code>Boolean</code> specifying whether to compute squared magnitude (<code>|X[k]|^2</code>) for the <code>"fft"</code> and <code>"fftquantiles"</code> feature sets if specified. Defaults to <code>TRUE</code></p></dd>
+
+
 <dt id="arg-n-jobs">n_jobs<a class="anchor" aria-label="anchor" href="#arg-n-jobs"></a></dt>
-<dd><p><code>integer</code> denoting the number of parallel processes to use if <code>"tsfresh"</code> or <code>"tsfel"</code> are specified in <code>"feature_set"</code>. Defaults to <code>0</code> for no parallelisation</p></dd>
+<dd><p><code>integer</code> denoting the number of parallel processes to use. Defaults to <code>0</code> for no parallelisation</p></dd>
 
 
 <dt id="arg-warn">warn<a class="anchor" aria-label="anchor" href="#arg-warn"></a></dt>
@@ -108,12 +113,12 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">featMat</span> <span class="op">&lt;-</span> <span class="fu">calculate_features</span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, </span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">features</span> <span class="op">&lt;-</span> <span class="fu">calculate_features</span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>,</span></span>
 <span class="r-in"><span>  feature_set <span class="op">=</span> <span class="st">"catch22"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running computations for catch22...</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>There was 1 warning in `dplyr::reframe()`.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In argument: `Rcatch22::catch22_all(values, catch24 = catch24)`.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 1: `id = "AR(1)_1"` `process = "AR(1)"`.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 1: `id = "AR(1)_1"`, `process = "AR(1)"`.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> Caused by warning:</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> As of 0.1.14 the feature 'CO_f1ecac' returns a double instead of int</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">This warning is displayed once per session.</span></span>

@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,7 @@
                         <h4 data-toc-skip class="author">Trent
 Henderson</h4>
             
-            <h4 data-toc-skip class="date">2026-01-17</h4>
+            <h4 data-toc-skip class="date">2026-06-09</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/HEAD/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -114,11 +114,14 @@ indices.</p>
 to calculate with the <code>feature_set</code> argument. The choices are
 currently <code>"catch22"</code>, <code>"feasts"</code>,
 <code>"tsfeatures"</code>, <code>"tsfresh"</code>, <code>"tsfel"</code>,
-<code>"kats"</code>, and <code>"hctsa"</code>. In addition, two basic
-feature sets <code>"quantiles"</code> (a set of 101 quantiles) and
-<code>"moments"</code> (the first four moments of the distribution:
-mean, variance, skewness, and kurtosis) are also available to be
-specified for users seeking to compute simple baselines against which to
+<code>"kats"</code>, and <code>"hctsa"</code>. In addition, four
+baseline feature sets: (i) <code>"fft"</code> (a set of 200 FFT
+coefficients from 0-99 for both the squared magnitude and angle
+components); (ii) <code>"quantiles"</code> (a set of 101 quantiles);
+(iii) <code>"fftquantiles"</code> the union set of FFT coefficients and
+quantiles; and (iv) <code>"moments"</code> (the first four moments of
+the distribution: mean, variance, skewness, and kurtosis) are also
+available for users seeking to compute simple baselines against which to
 compare the more sophisticated feature sets (see <a href="https://arxiv.org/abs/2303.17809" class="external-link">this recent paper</a> for more
 discussion on this idea).</p>
 <p>Note that <code>kats</code>, <code>tsfresh</code>,

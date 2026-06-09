@@ -53,11 +53,14 @@ are:
   originally MATLAB)
 
 As of `v0.6.1`, users can also calculate their own individual features
-or sets of features too! In addition, two basic feature sets
-`"quantiles"` (a set of 101 quantiles) and `"moments"` (the first four
-moments of the distribution: mean, variance, skewness, and kurtosis) are
-also available for users seeking to compute simple baselines against
-which to compare the more sophisticated feature sets (see [this recent
+or sets of features too! In addition, four baseline feature sets: (i)
+`"fft"` (a set of 200 FFT coefficients from 0-99 for both the squared
+magnitude and angle components); (ii) `"quantiles"` (a set of 101
+quantiles); (iii) `"fftquantiles"` the union set of FFT coefficients and
+quantiles; and (iv) `"moments"` (the first four moments of the
+distribution: mean, variance, skewness, and kurtosis) are also available
+for users seeking to compute simple baselines against which to compare
+the more sophisticated feature sets (see [this recent
 paper](https://arxiv.org/abs/2303.17809) for more discussion on this
 idea).
 
@@ -156,14 +159,10 @@ calculate_features(data = theft::simData,
 ```
 
 ``` R
-               hypothesis feature_set_a feature_set_b   metric set_a_mean
-1 All features != catch22  All features       catch22 accuracy  0.8022222
-2    All features != User  All features          User accuracy  0.8022222
-3         catch22 != User       catch22          User accuracy  0.7400000
-  set_b_mean t_statistic    p.value
-1  0.7400000  2.35154855 0.04319536
-2  0.8044444 -0.03932757 0.96948780
-3  0.8044444 -1.23794041 0.24705786
+       hypothesis feature_set_a feature_set_b   metric set_a_mean set_b_mean
+1 catch22 != User       catch22          User accuracy  0.7377778  0.5533333
+  t_statistic     p.value
+1    4.647108 0.001207048
 ```
 
 In this example, `classify` and `compare_features` come from `theftdlc`.
@@ -185,14 +184,12 @@ calculate_features(data = theft::simData,
 ```
 
 ``` R
-                hypothesis  feature_set   metric  set_mean null_mean
-1 All features != own null All features accuracy 0.8022222 0.1355556
-2         User != own null         User accuracy 0.8044444 0.1511111
-3      catch22 != own null      catch22 accuracy 0.7400000 0.1222222
-  t_statistic      p.value
-1    6.826807 3.835233e-05
-2    5.882092 1.171092e-04
-3    6.879652 3.614676e-05
+           hypothesis feature_set   metric  set_mean null_mean t_statistic
+1    User != own null        User accuracy 0.5533333 0.1177778    4.399344
+2 catch22 != own null     catch22 accuracy 0.7377778 0.1311111    7.728135
+       p.value
+1 8.610084e-04
+2 1.457269e-05
 ```
 
 Please see the vignette for more information and the full functionality
@@ -230,8 +227,8 @@ and the software:
 ``` R
 To cite package 'theft' in publications use:
 
-  Henderson T (2025). _theft: Tools for Handling Extraction of Features
-  from Time Series_. R package version 0.8.3,
+  Henderson T (2026). _theft: Tools for Handling Extraction of Features
+  from Time Series_. R package version 0.9.0,
   <https://hendersontrent.github.io/theft/>.
 
 A BibTeX entry for LaTeX users is
@@ -239,15 +236,15 @@ A BibTeX entry for LaTeX users is
   @Manual{,
     title = {theft: Tools for Handling Extraction of Features from Time Series},
     author = {Trent Henderson},
-    year = {2025},
-    note = {R package version 0.8.3},
+    year = {2026},
+    note = {R package version 0.9.0},
     url = {https://hendersontrent.github.io/theft/},
   }
 
 To cite package 'theftdlc' in publications use:
 
-  Henderson T (2025). _theftdlc: Analyse and Interpret Time Series
-  Features_. R package version 0.2.1,
+  Henderson T (2026). _theftdlc: Analyse and Interpret Time Series
+  Features_. R package version 0.2.2,
   <https://hendersontrent.github.io/theftdlc/>.
 
 A BibTeX entry for LaTeX users is
@@ -255,8 +252,8 @@ A BibTeX entry for LaTeX users is
   @Manual{,
     title = {theftdlc: Analyse and Interpret Time Series Features},
     author = {Trent Henderson},
-    year = {2025},
-    note = {R package version 0.2.1},
+    year = {2026},
+    note = {R package version 0.2.2},
     url = {https://hendersontrent.github.io/theftdlc/},
   }
 ```
@@ -277,6 +274,12 @@ developing `pyhctsa`.
   : Check for presence of NAs and non-numerics in a vector
 - [`feature_list`](https://hendersontrent.github.io/theft/reference/feature_list.md)
   : All features available in theft in tidy format
+- [`fft_features()`](https://hendersontrent.github.io/theft/reference/fft_features.md)
+  : Calculate FFT absolute value and angle coefficients for an input
+  time-series vector
+- [`fftquantiles()`](https://hendersontrent.github.io/theft/reference/fftquantiles.md)
+  : Calculate quantiles combined with FFT absolute value and angle
+  coefficients
 - [`init_theft()`](https://hendersontrent.github.io/theft/reference/init_theft.md)
   : Communicate to R the Python virtual environment containing the
   relevant libraries for calculating features
