@@ -201,7 +201,7 @@ calc_kats <- function(data, warn){
 # hctsa
 #------
 
-calc_hctsa <- function(data, warn){
+calc_hctsa <- function(data, warn, n_jobs = 0){
   mywarn <- ifelse(warn, "Yes", "No")
 
   key_vars <- tsibble::key_vars(data)
@@ -223,7 +223,7 @@ calc_hctsa <- function(data, warn){
     dplyr::select(-c("id")) %>%
     as.matrix()
 
-  outData <- pyhctsa_calculator(ts_list, mywarn, hctsa_config)
+  outData <- pyhctsa_calculator(ts_list, mywarn, hctsa_config, n_jobs = as.integer(n_jobs))
 
   outData <- outData %>%
     dplyr::mutate(id = idx)
@@ -425,9 +425,9 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
   if("hctsa" %in% feature_set){
     message("Running computations for hctsa...\n")
     if(!warn){
-      results[["hctsa"]] <- suppressWarnings(calc_hctsa(data = data_re, warn = warn))
+      results[["hctsa"]] <- suppressWarnings(calc_hctsa(data = data_re, warn = warn, n_jobs = as.integer(n_jobs)))
     } else{
-      results[["hctsa"]] <- calc_hctsa(data = data_re, warn = warn)
+      results[["hctsa"]] <- calc_hctsa(data = data_re, warn = warn, n_jobs = as.integer(n_jobs))
     }
   }
 
