@@ -7,7 +7,7 @@
 calculate_features(
   data,
   feature_set = c("catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel", "hctsa",
-    "quantiles", "moments"),
+    "quantiles", "moments", "fftquantiles", "fft"),
   features = NULL,
   catch24 = FALSE,
   tsfresh_cleanup = FALSE,
@@ -21,7 +21,7 @@ calculate_features(
 \arguments{
 \item{data}{\code{tbl_ts} containing the time series data}
 
-\item{feature_set}{\code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Can be one of \code{"catch22"}, \code{"feasts"}, \code{"tsfeatures"}, \code{"tsfresh"}, \code{"tsfel"}, \code{"kats"}, \code{"quantiles"}, and or \code{"moments"}}
+\item{feature_set}{\code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Can be one of \code{"catch22"}, \code{"feasts"}, \code{"tsfeatures"}, \code{"tsfresh"}, \code{"tsfel"}, \code{"kats"}, \code{"quantiles"}, \code{"moments"}, \code{"fftquantiles"}, and or \code{"fft"}}
 
 \item{features}{named \code{list} containing a set of user-supplied functions to calculate on \code{data}. Each function should take a single argument which is the time series. Defaults to \code{NULL} for no manually-specified features. Each list entry must have a name as \code{calculate_features} looks for these to name the features. If you don't want to use the existing feature sets and only compute those passed to \code{features}, set \code{feature_set = NULL}}
 

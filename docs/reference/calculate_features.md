@@ -8,7 +8,7 @@ Compute features on an input time series dataset
 calculate_features(
   data,
   feature_set = c("catch22", "feasts", "tsfeatures", "kats", "tsfresh", "tsfel", "hctsa",
-    "quantiles", "moments"),
+    "quantiles", "moments", "fftquantiles", "fft"),
   features = NULL,
   catch24 = FALSE,
   tsfresh_cleanup = FALSE,
@@ -30,8 +30,8 @@ calculate_features(
 
   `character` or `vector` of `character` denoting the set of time-series
   features to calculate. Can be one of `"catch22"`, `"feasts"`,
-  `"tsfeatures"`, `"tsfresh"`, `"tsfel"`, `"kats"`, `"quantiles"`, and
-  or `"moments"`
+  `"tsfeatures"`, `"tsfresh"`, `"tsfel"`, `"kats"`, `"quantiles"`,
+  `"moments"`, `"fftquantiles"`, and or `"fft"`
 
 - features:
 
@@ -98,7 +98,7 @@ featMat <- calculate_features(data = simData,
 #> Running computations for catch22...
 #> Warning: There was 1 warning in `dplyr::reframe()`.
 #> ℹ In argument: `Rcatch22::catch22_all(values, catch24 = catch24)`.
-#> ℹ In group 1: `id = "AR(1)_1"` `process = "AR(1)"`.
+#> ℹ In group 1: `id = "AR(1)_1"`, `process = "AR(1)"`.
 #> Caused by warning:
 #> ! As of 0.1.14 the feature 'CO_f1ecac' returns a double instead of int
 #> This warning is displayed once per session.

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">calculate_features</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  feature_set <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"catch22"</span>, <span class="st">"feasts"</span>, <span class="st">"tsfeatures"</span>, <span class="st">"kats"</span>, <span class="st">"tsfresh"</span>, <span class="st">"tsfel"</span>, <span class="st">"hctsa"</span>,</span>
-<span>    <span class="st">"quantiles"</span>, <span class="st">"moments"</span><span class="op">)</span>,</span>
+<span>    <span class="st">"quantiles"</span>, <span class="st">"moments"</span>, <span class="st">"fftquantiles"</span>, <span class="st">"fft"</span><span class="op">)</span>,</span>
 <span>  features <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  catch24 <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  tsfresh_cleanup <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -62,7 +62,7 @@
 
 
 <dt id="arg-feature-set">feature_set<a class="anchor" aria-label="anchor" href="#arg-feature-set"></a></dt>
-<dd><p><code>character</code> or <code>vector</code> of <code>character</code> denoting the set of time-series features to calculate. Can be one of <code>"catch22"</code>, <code>"feasts"</code>, <code>"tsfeatures"</code>, <code>"tsfresh"</code>, <code>"tsfel"</code>, <code>"kats"</code>, <code>"quantiles"</code>, and or <code>"moments"</code></p></dd>
+<dd><p><code>character</code> or <code>vector</code> of <code>character</code> denoting the set of time-series features to calculate. Can be one of <code>"catch22"</code>, <code>"feasts"</code>, <code>"tsfeatures"</code>, <code>"tsfresh"</code>, <code>"tsfel"</code>, <code>"kats"</code>, <code>"quantiles"</code>, <code>"moments"</code>, <code>"fftquantiles"</code>, and or <code>"fft"</code></p></dd>
 
 
 <dt id="arg-features">features<a class="anchor" aria-label="anchor" href="#arg-features"></a></dt>
@@ -113,7 +113,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running computations for catch22...</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>There was 1 warning in `dplyr::reframe()`.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In argument: `Rcatch22::catch22_all(values, catch24 = catch24)`.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 1: `id = "AR(1)_1"` `process = "AR(1)"`.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 1: `id = "AR(1)_1"`, `process = "AR(1)"`.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> Caused by warning:</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> As of 0.1.14 the feature 'CO_f1ecac' returns a double instead of int</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">This warning is displayed once per session.</span></span>

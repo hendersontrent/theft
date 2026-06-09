@@ -8,6 +8,12 @@
   : Check for presence of NAs and non-numerics in a vector
 - [`feature_list`](https://hendersontrent.github.io/theft/reference/feature_list.md)
   : All features available in theft in tidy format
+- [`fft_features()`](https://hendersontrent.github.io/theft/reference/fft_features.md)
+  : Calculate FFT absolute value and angle coefficients for an input
+  time-series vector
+- [`fftquantiles()`](https://hendersontrent.github.io/theft/reference/fftquantiles.md)
+  : Calculate quantiles combined with FFT absolute value and angle
+  coefficients
 - [`init_theft()`](https://hendersontrent.github.io/theft/reference/init_theft.md)
   : Communicate to R the Python virtual environment containing the
   relevant libraries for calculating features
