@@ -48,6 +48,7 @@
 <span>  use_compengine <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">123</span>,</span>
 <span>  z_score <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  squared <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_jobs <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  warn <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -89,8 +90,12 @@
 <dd><p><code>Boolean</code> specifying whether to z-score the time-series before computing features. Defaults to <code>FALSE</code></p></dd>
 
 
+<dt id="arg-squared">squared<a class="anchor" aria-label="anchor" href="#arg-squared"></a></dt>
+<dd><p><code>Boolean</code> specifying whether to compute squared magnitude (<code>|X[k]|^2</code>) for the <code>"fft"</code> and <code>"fftquantiles"</code> feature sets if specified. Defaults to <code>TRUE</code></p></dd>
+
+
 <dt id="arg-n-jobs">n_jobs<a class="anchor" aria-label="anchor" href="#arg-n-jobs"></a></dt>
-<dd><p><code>integer</code> denoting the number of parallel processes to use if <code>"tsfresh"</code> or <code>"tsfel"</code> are specified in <code>"feature_set"</code>. Defaults to <code>0</code> for no parallelisation</p></dd>
+<dd><p><code>integer</code> denoting the number of parallel processes to use. Defaults to <code>0</code> for no parallelisation</p></dd>
 
 
 <dt id="arg-warn">warn<a class="anchor" aria-label="anchor" href="#arg-warn"></a></dt>
@@ -108,7 +113,7 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">featMat</span> <span class="op">&lt;-</span> <span class="fu">calculate_features</span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>, </span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">features</span> <span class="op">&lt;-</span> <span class="fu">calculate_features</span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>,</span></span>
 <span class="r-in"><span>  feature_set <span class="op">=</span> <span class="st">"catch22"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running computations for catch22...</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>There was 1 warning in `dplyr::reframe()`.</span>

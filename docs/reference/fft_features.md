@@ -7,7 +7,7 @@ with `attr = "abs"` and `attr = "angle"`.
 ## Usage
 
 ``` r
-fft_features(y)
+fft_features(y, squared = TRUE)
 ```
 
 ## Arguments
@@ -15,6 +15,11 @@ fft_features(y)
 - y:
 
   `numeric` vector of values
+
+- squared:
+
+  `Boolean` specifying whether to compute squared magnitude (`|X[k]|^2`)
+  instead of absolute value (`|X[k]|`). Defaults to `TRUE`
 
 ## Value
 

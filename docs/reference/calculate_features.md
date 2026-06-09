@@ -15,6 +15,7 @@ calculate_features(
   use_compengine = FALSE,
   seed = 123,
   z_score = FALSE,
+  squared = TRUE,
   n_jobs = 0,
   warn = TRUE
 )
@@ -70,11 +71,16 @@ calculate_features(
   `Boolean` specifying whether to z-score the time-series before
   computing features. Defaults to `FALSE`
 
+- squared:
+
+  `Boolean` specifying whether to compute squared magnitude (`|X[k]|^2`)
+  for the `"fft"` and `"fftquantiles"` feature sets if specified.
+  Defaults to `TRUE`
+
 - n_jobs:
 
-  `integer` denoting the number of parallel processes to use if
-  `"tsfresh"` or `"tsfel"` are specified in `"feature_set"`. Defaults to
-  `0` for no parallelisation
+  `integer` denoting the number of parallel processes to use. Defaults
+  to `0` for no parallelisation
 
 - warn:
 
@@ -93,7 +99,7 @@ Trent Henderson
 ## Examples
 
 ``` r
-featMat <- calculate_features(data = simData, 
+features <- calculate_features(data = simData,
   feature_set = "catch22")
 #> Running computations for catch22...
 #> Warning: There was 1 warning in `dplyr::reframe()`.

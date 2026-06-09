@@ -38,7 +38,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fft_features</span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fft_features</span><span class="op">(</span><span class="va">y</span>, squared <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -47,6 +47,10 @@
 
 <dl><dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
 <dd><p><code>numeric</code> vector of values</p></dd>
+
+
+<dt id="arg-squared">squared<a class="anchor" aria-label="anchor" href="#arg-squared"></a></dt>
+<dd><p><code>Boolean</code> specifying whether to compute squared magnitude (<code>|X[k]|^2</code>) instead of absolute value (<code>|X[k]|</code>). Defaults to <code>TRUE</code></p></dd>
 
 </dl></div>
     <div class="section level2">

@@ -7,7 +7,7 @@ coefficients 0-99, following the same convention as `tsfresh`'s
 ## Usage
 
 ``` r
-fftquantiles(y, quantiles = seq(0, 1, by = 0.01))
+fftquantiles(y, quantiles = seq(0, 1, by = 0.01), squared = TRUE)
 ```
 
 ## Arguments
@@ -20,6 +20,11 @@ fftquantiles(y, quantiles = seq(0, 1, by = 0.01))
 
   `numeric` vector of quantiles to calculate. Defaults to
   `seq(0, 1, by = 0.01)`
+
+- squared:
+
+  `Boolean` specifying whether to compute squared magnitude (`|X[k]|^2`)
+  instead of absolute value (`|X[k]|`). Defaults to `TRUE`
 
 ## Value
 

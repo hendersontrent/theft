@@ -4,12 +4,14 @@
 \alias{fftquantiles}
 \title{Calculate quantiles combined with FFT absolute value and angle coefficients}
 \usage{
-fftquantiles(y, quantiles = seq(0, 1, by = 0.01))
+fftquantiles(y, quantiles = seq(0, 1, by = 0.01), squared = TRUE)
 }
 \arguments{
 \item{y}{\code{numeric} vector of values}
 
 \item{quantiles}{\code{numeric} vector of quantiles to calculate. Defaults to \code{seq(0, 1, by = 0.01)}}
+
+\item{squared}{\code{Boolean} specifying whether to compute squared magnitude (\code{|X[k]|^2}) instead of absolute value (\code{|X[k]|}). Defaults to \code{TRUE}}
 }
 \value{
 \code{data.frame} of results

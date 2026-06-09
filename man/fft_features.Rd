@@ -4,10 +4,12 @@
 \alias{fft_features}
 \title{Calculate FFT absolute value and angle coefficients for an input time-series vector}
 \usage{
-fft_features(y)
+fft_features(y, squared = TRUE)
 }
 \arguments{
 \item{y}{\code{numeric} vector of values}
+
+\item{squared}{\code{Boolean} specifying whether to compute squared magnitude (\code{|X[k]|^2}) instead of absolute value (\code{|X[k]|}). Defaults to \code{TRUE}}
 }
 \value{
 \code{data.frame} of results

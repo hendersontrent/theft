@@ -14,6 +14,7 @@ calculate_features(
   use_compengine = FALSE,
   seed = 123,
   z_score = FALSE,
+  squared = TRUE,
   n_jobs = 0,
   warn = TRUE
 )
@@ -35,7 +36,9 @@ calculate_features(
 
 \item{z_score}{\code{Boolean} specifying whether to z-score the time-series before computing features. Defaults to \code{FALSE}}
 
-\item{n_jobs}{\code{integer} denoting the number of parallel processes to use if \code{"tsfresh"} or \code{"tsfel"} are specified in \code{"feature_set"}. Defaults to \code{0} for no parallelisation}
+\item{squared}{\code{Boolean} specifying whether to compute squared magnitude (\code{|X[k]|^2}) for the \code{"fft"} and \code{"fftquantiles"} feature sets if specified. Defaults to \code{TRUE}}
+
+\item{n_jobs}{\code{integer} denoting the number of parallel processes to use. Defaults to \code{0} for no parallelisation}
 
 \item{warn}{\code{Boolean} specifying whether to produce warnings from feature set packages. Defaults to \code{TRUE}}
 }
@@ -46,7 +49,7 @@ object of class \code{feature_calculations} that contains the summary statistics
 Compute features on an input time series dataset
 }
 \examples{
-featMat <- calculate_features(data = simData, 
+features <- calculate_features(data = simData,
   feature_set = "catch22")
 
 }
