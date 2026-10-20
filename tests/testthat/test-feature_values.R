@@ -53,3 +53,39 @@ test_that("tsfeatures treats series sharing an id across groups as separate seri
     expect_equal(got$values[got$group == g], expected)
   }
 })
+
+# Data where the first series (by key) starts later than the others, so the order in
+# which index values first appear is not their sorted order
+
+ragged_data <- function(){
+  set.seed(10)
+  rbind(data.frame(id = "a", timepoint = 5:104, values = stats::rnorm(100, sd = 1)),
+        data.frame(id = "b", timepoint = 1:100, values = stats::rnorm(100, sd = 100)),
+        data.frame(id = "c", timepoint = 1:100, values = stats::rnorm(100, sd = 10000)))
+}
+
+
+test_that("Kats receives each series in time order when series start at different times", {
+
+  d <- ragged_data()
+
+  # Stand-in for kats_calculator: like Kats, it sorts the values by their dates
+
+  fake_source_python <- function(file, envir = parent.frame(), convert = TRUE){
+    assign("kats_calculator", function(timepoints, values, warn){
+      vals <- values[order(timepoints)]
+      list(first_value = vals[1], last_value = vals[length(vals)])
+    }, envir = envir)
+  }
+
+  local_mocked_bindings(source_python = fake_source_python, .package = "reticulate")
+
+  f <- calculate_features(tsibble::as_tsibble(d, key = "id", index = "timepoint"),
+                          feature_set = "kats", warn = FALSE)
+
+  for(i in c("a", "b", "c")){
+    x <- d$values[d$id == i]
+    expect_equal(f$values[f$id == i & f$names == "first_value"], x[1])
+    expect_equal(f$values[f$id == i & f$names == "last_value"], x[length(x)])
+  }
+})

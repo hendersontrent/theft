@@ -164,11 +164,14 @@ calc_kats <- function(data, warn){
   kats_calculator <- function(){}
   reticulate::source_python(system.file("python", "kats_calculator.py", package = "theft"))
 
+  # Map the sorted index values to dates so every series keeps its time order (Kats sorts by date)
+
   unique_times <- data %>%
     as.data.frame() %>%
     dplyr::select(!!dplyr::sym(idx_var)) %>%
     dplyr::distinct() %>%
-    dplyr::pull(!!dplyr::sym(idx_var))
+    dplyr::pull(!!dplyr::sym(idx_var)) %>%
+    sort()
 
   datetimes <- data.frame(timepoint = unique_times) %>%
     dplyr::mutate(time = seq(as.Date("1800-01-01"), by = "day", length.out = length(unique_times)))
