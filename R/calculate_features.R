@@ -364,6 +364,8 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
 
   #--------- Feature calcs --------
 
+  set.seed(seed) # Some features (e.g., in tsfeatures) are stochastic
+
   results <- list()
 
   if("catch22" %in% feature_set){
