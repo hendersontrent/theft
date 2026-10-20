@@ -33,3 +33,23 @@ test_that("seed makes stochastic features reproducible", {
   expect_equal(f1$values[f1$names == "spreadrandomlocal_meantaul"],
                f2$values[f2$names == "spreadrandomlocal_meantaul"])
 })
+
+test_that("tsfeatures treats series sharing an id across groups as separate series", {
+
+  skip_on_cran()
+
+  set.seed(10)
+  d <- rbind(data.frame(id = "s1", group = "A", timepoint = 1:100, values = cumsum(stats::rnorm(100))),
+             data.frame(id = "s1", group = "B", timepoint = 1:100, values = stats::rnorm(100, sd = 50)))
+
+  f <- calculate_features(tsibble::as_tsibble(d, key = c("id", "group"), index = "timepoint"),
+                          feature_set = "tsfeatures", warn = FALSE)
+
+  got <- f[f$names == "x_acf1", ]
+  expect_equal(nrow(got), 2)
+
+  for(g in c("A", "B")){
+    expected <- unname(tsfeatures::acf_features(stats::ts(d$values[d$group == g]))["x_acf1"])
+    expect_equal(got$values[got$group == g], expected)
+  }
+})

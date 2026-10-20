@@ -41,24 +41,21 @@ calc_tsfeatures <- function(data, use_compengine, n_jobs){
   parallel <- n_jobs >= 2
 
   key_vars <- tsibble::key_vars(data)
-  vals_col <- colnames(data)[!colnames(data) %in% c(key_vars, tsibble::index_var(data))]
-  var3 <- key_vars[1]
+  idx_var <- tsibble::index_var(data)
+  vals_col <- colnames(data)[!colnames(data) %in% c(key_vars, idx_var)]
 
-  tsf_list <- split(data[, c(vals_col)], data[, var3])
+  # Split into one series per unique combination of all key variables (not just the first)
 
-  if(length(key_vars) > 1){
-    lookup <- data %>%
-      as.data.frame() %>%
-      dplyr::select(dplyr::all_of(key_vars)) %>%
-      dplyr::distinct()
-  }
+  grouped <- data %>%
+    as.data.frame() %>%
+    dplyr::arrange(dplyr::across(dplyr::all_of(c(key_vars, idx_var)))) %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(key_vars)))
 
-  outData <- lapply(tsf_list, function(x){
-    stats::ts(x)
+  the_names <- dplyr::group_keys(grouped)
+
+  outData <- lapply(dplyr::group_split(grouped), function(x){
+    stats::ts(x[[vals_col]])
   })
-
-  the_names <- data.frame(id = names(outData))
-  colnames(the_names) <- var3
 
   featureList <- c("frequency", "stl_features", "entropy", "acf_features",
                    "arch_stat", "crossing_points", "flat_spots",
@@ -82,13 +79,8 @@ calc_tsfeatures <- function(data, use_compengine, n_jobs){
   }
 
   outData <- cbind(the_names, outData) %>%
-    tidyr::pivot_longer(!dplyr::all_of(var3), names_to = "names", values_to = "values") %>%
+    tidyr::pivot_longer(!dplyr::all_of(key_vars), names_to = "names", values_to = "values") %>%
     dplyr::mutate(feature_set = "tsfeatures")
-
-  if(length(key_vars) > 1){
-    outData <- outData %>%
-      dplyr::inner_join(lookup)
-  }
 
   return(outData)
 }
