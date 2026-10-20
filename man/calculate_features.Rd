@@ -28,7 +28,7 @@ calculate_features(
 
 \item{catch24}{\code{Boolean} specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}}
 
-\item{tsfresh_cleanup}{\code{Boolean} specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}}
+\item{tsfresh_cleanup}{\code{Boolean} specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}. The filter is supervised, so it requires a class label as the second key variable of \code{data}. As it uses the class labels of every time series, evaluating the selected features with a classifier on the same data (e.g., with \code{theftdlc::classify}) gives optimistically biased results}
 
 \item{use_compengine}{\code{Boolean} specifying whether to use the \code{"compengine"} features in \code{tsfeatures}. Defaults to \code{FALSE} to provide immense computational efficiency benefits}
 

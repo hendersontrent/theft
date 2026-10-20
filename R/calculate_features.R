@@ -94,34 +94,47 @@ calc_tsfresh <- function(data, cleanup, n_jobs = 0, warn = TRUE){
 
   key_vars <- tsibble::key_vars(data)
   idx_var <- tsibble::index_var(data)
-  key_var1 <- key_vars[1]
   vals_col <- colnames(data)[!colnames(data) %in% c(key_vars, idx_var)]
+
+  # Give each unique combination of all key variables its own integer ID for tsfresh
 
   lookup <- data %>%
     as.data.frame() %>%
     dplyr::select(dplyr::all_of(key_vars)) %>%
-    dplyr::distinct()
+    dplyr::distinct() %>%
+    dplyr::mutate(theft_series_id = dplyr::row_number())
 
   tsfresh_calculator <- function(){}
   reticulate::source_python(system.file("python", "tsfresh_calculator.py", package = "theft"))
 
   temp <- data %>%
     as.data.frame() %>%
-    dplyr::group_by(!!dplyr::sym(key_var1)) %>%
-    dplyr::arrange(!!dplyr::sym(idx_var)) %>%
-    dplyr::ungroup() %>%
-    dplyr::select(!!dplyr::sym(key_var1), !!dplyr::sym(idx_var), !!dplyr::sym(vals_col))
+    dplyr::inner_join(lookup, by = key_vars) %>%
+    dplyr::arrange(.data$theft_series_id, !!dplyr::sym(idx_var)) %>%
+    dplyr::select(c("theft_series_id", dplyr::all_of(c(idx_var, vals_col))))
 
-  ids <- temp %>%
-    dplyr::select(!!dplyr::sym(key_var1)) %>%
-    dplyr::distinct()
+  if(cleanup == "Yes"){
+    if(length(key_vars) < 2){
+      stop("tsfresh_cleanup = TRUE requires a class label as the second key variable of `data` as tsfresh's relevance filter is supervised.")
+    }
 
-  outData <- tsfresh_calculator(timeseries = temp, column_id = key_var1,
+    classes <- lookup %>%
+      dplyr::select(c("theft_series_id", dplyr::all_of(key_vars[2]))) %>%
+      dplyr::rename(group = dplyr::all_of(key_vars[2])) %>%
+      dplyr::mutate(group = as.character(.data$group))
+  } else{
+    classes <- NULL
+  }
+
+  # tsfresh returns one row per series ID (sorted by ID), so join back on the ID rather than by position
+
+  outData <- tsfresh_calculator(timeseries = temp, column_id = "theft_series_id",
                                 column_sort = idx_var,
-                                cleanup = cleanup, n_jobs = n_jobs, warn = mywarn) %>%
-    cbind(ids) %>%
-    tidyr::gather("names", "values", -dplyr::all_of(key_var1)) %>%
-    dplyr::inner_join(lookup) %>%
+                                cleanup = cleanup, n_jobs = n_jobs, warn = mywarn,
+                                classes = classes) %>%
+    tidyr::gather("names", "values", -c("theft_series_id")) %>%
+    dplyr::inner_join(lookup, by = "theft_series_id") %>%
+    dplyr::select(-c("theft_series_id")) %>%
     dplyr::mutate(feature_set = "tsfresh")
 
   return(outData)
@@ -267,7 +280,7 @@ calc_user <- function(data, features){
 #' @param feature_set \code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Can be one of \code{"catch22"}, \code{"feasts"}, \code{"tsfeatures"}, \code{"tsfresh"}, \code{"tsfel"}, \code{"kats"}, \code{"quantiles"}, \code{"moments"}, \code{"fftquantiles"}, and or \code{"fft"}
 #' @param features named \code{list} containing a set of user-supplied functions to calculate on \code{data}. Each function should take a single argument which is the time series. Defaults to \code{NULL} for no manually-specified features. Each list entry must have a name as \code{calculate_features} looks for these to name the features. If you don't want to use the existing feature sets and only compute those passed to \code{features}, set \code{feature_set = NULL}
 #' @param catch24 \code{Boolean} specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}
-#' @param tsfresh_cleanup \code{Boolean} specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}
+#' @param tsfresh_cleanup \code{Boolean} specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}. The filter is supervised, so it requires a class label as the second key variable of \code{data}. As it uses the class labels of every time series, evaluating the selected features with a classifier on the same data (e.g., with \code{theftdlc::classify}) gives optimistically biased results
 #' @param use_compengine \code{Boolean} specifying whether to use the \code{"compengine"} features in \code{tsfeatures}. Defaults to \code{FALSE} to provide immense computational efficiency benefits
 #' @param seed \code{integer} denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to \code{123}
 #' @param z_score \code{Boolean} specifying whether to z-score the time-series before computing features. Defaults to \code{FALSE}

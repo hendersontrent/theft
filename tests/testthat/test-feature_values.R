@@ -64,7 +64,6 @@ ragged_data <- function(){
         data.frame(id = "c", timepoint = 1:100, values = stats::rnorm(100, sd = 10000)))
 }
 
-
 test_that("Kats receives each series in time order when series start at different times", {
 
   d <- ragged_data()
@@ -123,7 +122,6 @@ test_that("pyhctsa receives each series in time order and features are attached 
   }
 })
 
-
 test_that("pyhctsa plumbing uses the tsibble's own key, index, and value names", {
 
   d <- data.frame(series = rep(c("u", "v"), each = 100), t = rep(1:100, 2), y = c(1:100, 101:200))
@@ -144,4 +142,60 @@ test_that("pyhctsa plumbing uses the tsibble's own key, index, and value names",
 
   expect_equal(f$values[f$id == "u"], 1)
   expect_equal(f$values[f$id == "v"], 101)
+})
+
+test_that("tsfresh features are attached to the right series", {
+
+  skip_on_cran()
+  skip_if_not(reticulate::py_module_available("tsfresh"), "tsfresh not available")
+
+  pop_sd <- function(x){sqrt(mean((x - mean(x))^2))}
+
+  # Ragged start times
+
+  d <- ragged_data()
+  f <- calculate_features(tsibble::as_tsibble(d, key = "id", index = "timepoint"),
+                          feature_set = "tsfresh", warn = FALSE)
+
+  for(i in c("a", "b", "c")){
+    expect_equal(f$values[f$id == i & f$names == "values__standard_deviation"],
+                 pop_sd(d$values[d$id == i]))
+  }
+
+  # The same id in two groups
+
+  d$group <- unname(c(a = "A", b = "A", c = "B")[d$id])
+  d$id[d$id == "c"] <- "b"
+  d$timepoint[d$id == "a"] <- 1:100
+  f <- calculate_features(tsibble::as_tsibble(d, key = c("id", "group"), index = "timepoint"),
+                          feature_set = "tsfresh", warn = FALSE)
+
+  expect_equal(nrow(f[f$names == "values__standard_deviation", ]), 3)
+
+  for(k in list(c("a", "A"), c("b", "A"), c("b", "B"))){
+    expect_equal(f$values[f$id == k[1] & f$group == k[2] & f$names == "values__standard_deviation"],
+                 pop_sd(d$values[d$id == k[1] & d$group == k[2]]))
+  }
+})
+
+test_that("tsfresh_cleanup = TRUE runs and keeps all series", {
+
+  skip_on_cran()
+  skip_if_not(reticulate::py_module_available("tsfresh"), "tsfresh not available")
+
+  set.seed(10)
+  d <- do.call(rbind, lapply(1:20, function(i){
+    data.frame(id = paste0("s", i), group = ifelse(i <= 10, "A", "B"),
+               timepoint = 1:100, values = stats::rnorm(100, sd = ifelse(i <= 10, 1, 5)))
+  }))
+
+  f <- calculate_features(tsibble::as_tsibble(d, key = c("id", "group"), index = "timepoint"),
+                          feature_set = "tsfresh", tsfresh_cleanup = TRUE, warn = FALSE)
+
+  expect_equal(nrow(unique(f[, c("id", "group")])), 20)
+  expect_true("values__standard_deviation" %in% f$names)
+
+  expect_error(calculate_features(tsibble::as_tsibble(d[, c("id", "timepoint", "values")], key = "id", index = "timepoint"),
+                                  feature_set = "tsfresh", tsfresh_cleanup = TRUE, warn = FALSE),
+               "requires a class label")
 })
