@@ -89,3 +89,59 @@ test_that("Kats receives each series in time order when series start at differen
     expect_equal(f$values[f$id == i & f$names == "last_value"], x[length(x)])
   }
 })
+
+test_that("pyhctsa receives each series in time order and features are attached to the right keys", {
+
+  d <- ragged_data()
+  d$group <- unname(c(a = "A", b = "A", c = "B")[d$id])
+  d$id[d$id == "c"] <- "b" # id "b" now appears in two groups
+
+  # Stand-in for pyhctsa_calculator: returns the first value and length of each series
+
+  fake_source_python <- function(file, envir = parent.frame(), convert = TRUE){
+    assign("pyhctsa_calculator", function(timeseries, warn, config_yaml, n_jobs = 0){
+      if(is.matrix(timeseries)){
+        timeseries <- lapply(seq_len(nrow(timeseries)), function(i){timeseries[i, !is.na(timeseries[i, ])]})
+      }
+      data.frame(first_value = sapply(timeseries, function(x){x[1]}),
+                 n = as.numeric(lengths(timeseries)))
+    }, envir = envir)
+  }
+
+  local_mocked_bindings(source_python = fake_source_python, .package = "reticulate")
+
+  f <- calculate_features(tsibble::as_tsibble(d, key = c("id", "group"), index = "timepoint"),
+                          feature_set = "hctsa", warn = FALSE)
+
+  expect_equal(nrow(f), 6)
+
+  for(k in list(c("a", "A"), c("b", "A"), c("b", "B"))){
+    x <- d$values[d$id == k[1] & d$group == k[2]]
+    got <- f[f$id == k[1] & f$group == k[2], ]
+    expect_equal(got$values[got$names == "first_value"], x[1])
+    expect_equal(got$values[got$names == "n"], length(x))
+  }
+})
+
+
+test_that("pyhctsa plumbing uses the tsibble's own key, index, and value names", {
+
+  d <- data.frame(series = rep(c("u", "v"), each = 100), t = rep(1:100, 2), y = c(1:100, 101:200))
+
+  fake_source_python <- function(file, envir = parent.frame(), convert = TRUE){
+    assign("pyhctsa_calculator", function(timeseries, warn, config_yaml, n_jobs = 0){
+      if(is.matrix(timeseries)){
+        timeseries <- lapply(seq_len(nrow(timeseries)), function(i){timeseries[i, ]})
+      }
+      data.frame(first_value = sapply(timeseries, function(x){x[1]}))
+    }, envir = envir)
+  }
+
+  local_mocked_bindings(source_python = fake_source_python, .package = "reticulate")
+
+  f <- calculate_features(tsibble::as_tsibble(d, key = "series", index = "t"),
+                          feature_set = "hctsa", warn = FALSE)
+
+  expect_equal(f$values[f$id == "u"], 1)
+  expect_equal(f$values[f$id == "v"], 101)
+})

@@ -200,42 +200,32 @@ calc_hctsa <- function(data, warn, n_jobs = 0){
   mywarn <- ifelse(warn, "Yes", "No")
 
   key_vars <- tsibble::key_vars(data)
+  idx_var <- tsibble::index_var(data)
+  vals_col <- colnames(data)[!colnames(data) %in% c(key_vars, idx_var)]
 
   pyhctsa_calculator <- function(){}
   reticulate::source_python(system.file("python", "pyhctsa_calculator.py", package = "theft"))
   hctsa_config <- system.file("yaml", "hctsa.yaml", package = "theft")
 
-  sel_cols <- c("id", "timepoint", "values")
+  # One time-ordered vector per unique combination of all key variables
 
-  ts_list <- data %>%
+  grouped <- data %>%
     as.data.frame() %>%
-    dplyr::select(dplyr::all_of(sel_cols)) %>%
-    tidyr::pivot_wider(id_cols = "id", names_from = "timepoint", values_from = "values")
+    dplyr::arrange(dplyr::across(dplyr::all_of(c(key_vars, idx_var)))) %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(key_vars)))
 
-  idx <- ts_list$id
+  the_names <- dplyr::group_keys(grouped)
 
-  ts_list <- ts_list %>%
-    dplyr::select(-c("id")) %>%
-    as.matrix()
+  ts_list <- lapply(dplyr::group_split(grouped), function(x){
+    as.numeric(x[[vals_col]])
+  })
 
   outData <- pyhctsa_calculator(ts_list, mywarn, hctsa_config, n_jobs = as.integer(n_jobs))
 
   outData <- outData %>%
-    dplyr::mutate(id = idx)
+    dplyr::select(dplyr::where(is.numeric))
 
-  if(length(key_vars) > 1){
-
-    group_labs <- data %>%
-      as.data.frame() %>%
-      dplyr::select(dplyr::all_of(key_vars)) %>%
-      dplyr::distinct()
-
-    outData <- outData %>%
-      dplyr::inner_join(group_labs, by = c("id" = "id"))
-  }
-
-  outData <- outData %>%
-    dplyr::select(c(dplyr::where(is.numeric), dplyr::all_of(key_vars))) %>%
+  outData <- cbind(the_names, outData) %>%
     tidyr::pivot_longer(cols = !dplyr::all_of(key_vars), names_to = "names", values_to = "values") %>%
     dplyr::mutate(feature_set = "hctsa")
 
