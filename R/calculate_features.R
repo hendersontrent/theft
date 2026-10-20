@@ -326,22 +326,27 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
 
   #--------- Filter out time series with NAs --------
 
+  # A time series is a unique combination of all key variables
+
   ids_pre <- data %>%
     as.data.frame() %>%
-    dplyr::select(dplyr::all_of(key_vars[1])) %>%
+    dplyr::select(dplyr::all_of(key_vars)) %>%
     dplyr::distinct() %>%
     nrow()
 
   data_re <- data %>%
     dplyr::group_by(dplyr::across(dplyr::all_of(key_vars))) %>%
-    dplyr::filter(!any(is.na(vals_col))) %>%
+    dplyr::filter(!any(is.na(.data[[vals_col]]))) %>%
     dplyr::ungroup()
 
-  lookup2 <- unique(data_re[key_vars])
-  ids_post <- nrow(lookup2)
+  ids_post <- data_re %>%
+    as.data.frame() %>%
+    dplyr::select(dplyr::all_of(key_vars)) %>%
+    dplyr::distinct() %>%
+    nrow()
 
   if(ids_pre != ids_post){
-    message(paste0("Removed ", ids_post - ids_pre, " time series due to non-real values."))
+    message(paste0("Removed ", ids_pre - ids_post, " time series due to non-real values."))
   }
 
   if(ids_post == 0){
