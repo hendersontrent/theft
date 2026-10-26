@@ -53,7 +53,11 @@ calculate_features(
 - tsfresh_cleanup:
 
   `Boolean` specifying whether to use the in-built `tsfresh` relevant
-  feature filter or not. Defaults to `FALSE`
+  feature filter or not. Defaults to `FALSE`. The filter is supervised,
+  so it requires a class label as the second key variable of `data`. As
+  it uses the class labels of every time series, evaluating the selected
+  features with a classifier on the same data (e.g., with
+  `theftdlc::classify`) gives optimistically biased results
 
 - use_compengine:
 

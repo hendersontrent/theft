@@ -75,7 +75,7 @@
 
 
 <dt id="arg-tsfresh-cleanup">tsfresh_cleanup<a class="anchor" aria-label="anchor" href="#arg-tsfresh-cleanup"></a></dt>
-<dd><p><code>Boolean</code> specifying whether to use the in-built <code>tsfresh</code> relevant feature filter or not. Defaults to <code>FALSE</code></p></dd>
+<dd><p><code>Boolean</code> specifying whether to use the in-built <code>tsfresh</code> relevant feature filter or not. Defaults to <code>FALSE</code>. The filter is supervised, so it requires a class label as the second key variable of <code>data</code>. As it uses the class labels of every time series, evaluating the selected features with a classifier on the same data (e.g., with <code>theftdlc::classify</code>) gives optimistically biased results</p></dd>
 
 
 <dt id="arg-use-compengine">use_compengine<a class="anchor" aria-label="anchor" href="#arg-use-compengine"></a></dt>
