@@ -218,7 +218,6 @@ calc_hctsa <- function(data, warn, n_jobs = 0){
 
   pyhctsa_calculator <- function(){}
   reticulate::source_python(system.file("python", "pyhctsa_calculator.py", package = "theft"))
-  hctsa_config <- system.file("yaml", "hctsa.yaml", package = "theft")
 
   # One time-ordered vector per unique combination of all key variables
 
@@ -233,7 +232,7 @@ calc_hctsa <- function(data, warn, n_jobs = 0){
     as.numeric(x[[vals_col]])
   })
 
-  outData <- pyhctsa_calculator(ts_list, mywarn, hctsa_config, n_jobs = as.integer(n_jobs))
+  outData <- pyhctsa_calculator(ts_list, mywarn, n_jobs = as.integer(n_jobs))
 
   outData <- outData %>%
     dplyr::select(dplyr::where(is.numeric))
