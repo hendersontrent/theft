@@ -98,7 +98,7 @@ test_that("pyhctsa receives each series in time order and features are attached 
   # Stand-in for pyhctsa_calculator: returns the first value and length of each series
 
   fake_source_python <- function(file, envir = parent.frame(), convert = TRUE){
-    assign("pyhctsa_calculator", function(timeseries, warn, config_yaml, n_jobs = 0){
+    assign("pyhctsa_calculator", function(timeseries, warn, n_jobs = 0){
       if(is.matrix(timeseries)){
         timeseries <- lapply(seq_len(nrow(timeseries)), function(i){timeseries[i, !is.na(timeseries[i, ])]})
       }
@@ -127,7 +127,7 @@ test_that("pyhctsa plumbing uses the tsibble's own key, index, and value names",
   d <- data.frame(series = rep(c("u", "v"), each = 100), t = rep(1:100, 2), y = c(1:100, 101:200))
 
   fake_source_python <- function(file, envir = parent.frame(), convert = TRUE){
-    assign("pyhctsa_calculator", function(timeseries, warn, config_yaml, n_jobs = 0){
+    assign("pyhctsa_calculator", function(timeseries, warn, n_jobs = 0){
       if(is.matrix(timeseries)){
         timeseries <- lapply(seq_len(nrow(timeseries)), function(i){timeseries[i, ]})
       }
