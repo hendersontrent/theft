@@ -53,7 +53,7 @@ calc_tsfeatures <- function(data, use_compengine, n_jobs){
 
   the_names <- dplyr::group_keys(grouped)
 
-  outData <- lapply(dplyr::group_split(grouped), function(x){
+  ts_list <- lapply(dplyr::group_split(grouped), function(x){
     stats::ts(x[[vals_col]])
   })
 
@@ -70,12 +70,18 @@ calc_tsfeatures <- function(data, use_compengine, n_jobs){
     featureList <- append(featureList, "compengine")
   }
 
-  outData <- try(tsfeatures::tsfeatures(outData, features = featureList, parallel = parallel))
+  outData <- try(tsfeatures::tsfeatures(ts_list, features = featureList, parallel = parallel))
 
-  if("try-error" %in% class(outData)){
+  # Retry on the original series (not the try-error object) without compengine
+
+  if(inherits(outData, "try-error") && use_compengine){
     message("Removing 'compengine' features from tsfeatures due to error. Recomputing with reduced set...")
     featureList <- featureList[!featureList %in% c("compengine")]
-    outData <- tsfeatures::tsfeatures(outData, features = featureList, parallel = parallel)
+    outData <- tsfeatures::tsfeatures(ts_list, features = featureList, parallel = parallel)
+  }
+
+  if(inherits(outData, "try-error")){
+    stop("tsfeatures failed: ", conditionMessage(attr(outData, "condition")))
   }
 
   outData <- cbind(the_names, outData) %>%
@@ -276,15 +282,16 @@ calc_user <- function(data, features){
 #' @importFrom dplyr group_by filter ungroup bind_rows across all_of select rename %>% mutate sym
 #' @importFrom tsibble key_vars index_var
 #' @param data \code{tbl_ts} containing the time series data
-#' @param feature_set \code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Can be one of \code{"catch22"}, \code{"feasts"}, \code{"tsfeatures"}, \code{"tsfresh"}, \code{"tsfel"}, \code{"kats"}, \code{"quantiles"}, \code{"moments"}, \code{"fftquantiles"}, and or \code{"fft"}
+#' @param feature_set \code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Can be one of \code{"catch22"}, \code{"feasts"}, \code{"tsfeatures"}, \code{"tsfresh"}, \code{"tsfel"}, \code{"kats"}, \code{"hctsa"}, \code{"quantiles"}, \code{"moments"}, \code{"fftquantiles"}, and or \code{"fft"}
 #' @param features named \code{list} containing a set of user-supplied functions to calculate on \code{data}. Each function should take a single argument which is the time series. Defaults to \code{NULL} for no manually-specified features. Each list entry must have a name as \code{calculate_features} looks for these to name the features. If you don't want to use the existing feature sets and only compute those passed to \code{features}, set \code{feature_set = NULL}
 #' @param catch24 \code{Boolean} specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}
 #' @param tsfresh_cleanup \code{Boolean} specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}. The filter is supervised, so it requires a class label as the second key variable of \code{data}. As it uses the class labels of every time series, evaluating the selected features with a classifier on the same data (e.g., with \code{theftdlc::classify}) gives optimistically biased results
 #' @param use_compengine \code{Boolean} specifying whether to use the \code{"compengine"} features in \code{tsfeatures}. Defaults to \code{FALSE} to provide immense computational efficiency benefits
-#' @param seed \code{integer} denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to \code{123}
+#' @param seed \code{integer} denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to \code{123}. The caller's random number generator state is restored on exit
 #' @param z_score \code{Boolean} specifying whether to z-score the time-series before computing features. Defaults to \code{FALSE}
 #' @param n_jobs \code{integer} denoting the number of parallel processes to use. Defaults to \code{0} for no parallelisation
-#' @param squared \code{Boolean} specifying whether to compute squared magnitude (\code{|X[k]|^2}) for the \code{"fft"} and \code{"fftquantiles"} feature sets if specified. Defaults to \code{TRUE}
+#' @param squared Deprecated and ignored. The \code{"fft"} and \code{"fftquantiles"} feature sets are now relative spectral power in fixed frequency bands (see \code{\link{fft_features}}), so there is no magnitude/squared-magnitude choice
+#' @param fft_phase \code{Boolean} specifying whether the \code{"fft"} and \code{"fftquantiles"} feature sets also include each frequency band's phase, as its cosine and sine (see \code{\link{fft_features}}). Only meaningful when the series share a time origin, e.g., event-locked trials. Defaults to \code{FALSE}
 #' @param warn \code{Boolean} specifying whether to produce warnings from feature set packages. Defaults to \code{TRUE}
 #' @return object of class \code{feature_calculations} that contains the summary statistics for each feature
 #' @author Trent Henderson
@@ -300,8 +307,8 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
                                                      "fft"),
                                features = NULL, catch24 = FALSE,
                                tsfresh_cleanup = FALSE, use_compengine = FALSE,
-                               seed = 123, z_score = FALSE, squared = TRUE, n_jobs = 0,
-                               warn = TRUE){
+                               seed = 123, z_score = FALSE, squared, n_jobs = 0,
+                               warn = TRUE, fft_phase = FALSE){
 
   if(!inherits(data, "tbl_ts")){
     stop("As of v0.8.1 `data` must now be a `tbl_ts object`. Please convert your matrix or dataframe using `tsibble::as_tsibble` and specify your `key` and `index` variables.")
@@ -318,6 +325,10 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
   }
 
   stopifnot(n_jobs >= 0)
+
+  if(!missing(squared)){
+    warn_squared_deprecated()
+  }
 
   feature_set <- tolower(feature_set) # Standardise names
 
@@ -361,7 +372,20 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
 
   #--------- Feature calcs --------
 
-  set.seed(seed) # Some features (e.g., in tsfeatures) are stochastic
+  # Some features (e.g., in tsfeatures) are stochastic. Seed them, then restore the caller's RNG state on exit
+
+  had_seed <- exists(".Random.seed", envir = globalenv(), inherits = FALSE)
+  if(had_seed){
+    old_seed <- get(".Random.seed", envir = globalenv(), inherits = FALSE)
+  }
+  on.exit({
+    if(had_seed){
+      assign(".Random.seed", old_seed, envir = globalenv())
+    } else if(exists(".Random.seed", envir = globalenv(), inherits = FALSE)){
+      rm(".Random.seed", envir = globalenv())
+    }
+  }, add = TRUE)
+  set.seed(seed)
 
   results <- list()
 
@@ -466,11 +490,11 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
     if(!warn){
       results[["fftquantiles"]] <- suppressWarnings(
         data_re %>%
-          dplyr::reframe(fftquantiles(!!dplyr::sym(vals_col), squared = squared), .by = key_vars)
+          dplyr::reframe(fftquantiles(!!dplyr::sym(vals_col), phase = fft_phase), .by = key_vars)
       )
     } else{
       results[["fftquantiles"]] <- data_re %>%
-        dplyr::reframe(fftquantiles(!!dplyr::sym(vals_col), squared = squared), .by = key_vars)
+        dplyr::reframe(fftquantiles(!!dplyr::sym(vals_col), phase = fft_phase), .by = key_vars)
     }
   }
 
@@ -479,11 +503,11 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
     if(!warn){
       results[["fft"]] <- suppressWarnings(
         data_re %>%
-          dplyr::reframe(fft_features(!!dplyr::sym(vals_col), squared = squared), .by = key_vars)
+          dplyr::reframe(fft_features(!!dplyr::sym(vals_col), phase = fft_phase), .by = key_vars)
       )
     } else{
       results[["fft"]] <- data_re %>%
-        dplyr::reframe(fft_features(!!dplyr::sym(vals_col), squared = squared), .by = key_vars)
+        dplyr::reframe(fft_features(!!dplyr::sym(vals_col), phase = fft_phase), .by = key_vars)
     }
   }
 

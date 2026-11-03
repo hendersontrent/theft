@@ -2,26 +2,27 @@
 % Please edit documentation in R/fft_features.R
 \name{fft_features}
 \alias{fft_features}
-\title{Calculate FFT absolute value and angle coefficients for an input time-series vector}
+\title{Calculate relative spectral power in fixed frequency bands for an input time-series vector}
 \usage{
-fft_features(y, squared = TRUE)
+fft_features(y, squared, phase = FALSE)
 }
 \arguments{
 \item{y}{\code{numeric} vector of values}
 
-\item{squared}{\code{Boolean} specifying whether to compute squared magnitude (\code{|X[k]|^2}) instead of absolute value (\code{|X[k]|}). Defaults to \code{TRUE}}
+\item{squared}{Deprecated and ignored: the features are relative power, so there is no magnitude/squared-magnitude choice}
+
+\item{phase}{\code{Boolean} specifying whether to also return each band's phase as its cosine and sine. Only meaningful when the series share a time origin. Defaults to \code{FALSE}}
 }
 \value{
 \code{data.frame} of results
 }
 \description{
-Computes the absolute value and angle of FFT coefficients 0-99, following the same convention as \code{tsfresh}'s \code{fft_coefficient} feature with \code{attr = "abs"} and \code{attr = "angle"}.
+Splits the frequency range from 0 to 0.5 cycles per sample (the Nyquist frequency) into 100 equal-width bands and returns the fraction of the series' spectral power in each, as \code{fft_power_1} (0 to 0.005 cycles per sample) to \code{fft_power_100} (0.495 to 0.5). The bands sum to 1.
 }
-\references{
-Christ, M., Braun, N., Neuffer, J., and Kempa-Liehr, A.W. (2018).
-Time Series FeatuRe Extraction on basis of Scalable Hypothesis tests
-(tsfresh -- A Python package). \emph{Neurocomputing}, \strong{307}, 72--77.
-\doi{10.1016/j.neucom.2018.03.067}
+\details{
+The power spectrum is the periodogram of the mean-removed series, computed with the FFT. A series of length \code{n} has periodogram ordinates at frequencies \code{k/n}, \code{k = 1, ..., floor(n/2)}; each ordinate's power is spread evenly over its frequency cell of width \code{1/n} and the result is integrated over each band. Because the bands are defined in normalised frequency rather than by FFT coefficient index, each feature measures the same frequency range for series of any length (\code{n >= 2}), and no coefficients are missing for short series. Short series have a coarse frequency resolution (\code{1/n}), so neighbouring bands then share power from the same ordinate. As the features are relative power, they don't depend on the series' mean or scale (see \code{\link{moments}} for those). A constant series has no spectral power, so all its features are \code{NaN}.
+
+With \code{phase = TRUE}, each band's phase is also returned, as \code{fft_phase_cos_b} and \code{fft_phase_sin_b} (the cosine and sine of the phase, which represent it without the jump at +/-180 degrees). The band's phase is the argument of the sum of its complex FFT coefficients, each weighted by the fraction of its frequency cell in the band, so strong coefficients dominate. Phase is measured relative to the first sample, so shifting a series in time changes it: these features are only meaningful when the series share a time origin (e.g., event-locked trials or aligned segments). Bands with negligible power have no well-defined phase and give \code{NaN}.
 }
 \author{
 Trent Henderson

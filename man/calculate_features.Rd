@@ -14,15 +14,16 @@ calculate_features(
   use_compengine = FALSE,
   seed = 123,
   z_score = FALSE,
-  squared = TRUE,
+  squared,
   n_jobs = 0,
-  warn = TRUE
+  warn = TRUE,
+  fft_phase = FALSE
 )
 }
 \arguments{
 \item{data}{\code{tbl_ts} containing the time series data}
 
-\item{feature_set}{\code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Can be one of \code{"catch22"}, \code{"feasts"}, \code{"tsfeatures"}, \code{"tsfresh"}, \code{"tsfel"}, \code{"kats"}, \code{"quantiles"}, \code{"moments"}, \code{"fftquantiles"}, and or \code{"fft"}}
+\item{feature_set}{\code{character} or \code{vector} of \code{character} denoting the set of time-series features to calculate. Can be one of \code{"catch22"}, \code{"feasts"}, \code{"tsfeatures"}, \code{"tsfresh"}, \code{"tsfel"}, \code{"kats"}, \code{"hctsa"}, \code{"quantiles"}, \code{"moments"}, \code{"fftquantiles"}, and or \code{"fft"}}
 
 \item{features}{named \code{list} containing a set of user-supplied functions to calculate on \code{data}. Each function should take a single argument which is the time series. Defaults to \code{NULL} for no manually-specified features. Each list entry must have a name as \code{calculate_features} looks for these to name the features. If you don't want to use the existing feature sets and only compute those passed to \code{features}, set \code{feature_set = NULL}}
 
@@ -32,15 +33,17 @@ calculate_features(
 
 \item{use_compengine}{\code{Boolean} specifying whether to use the \code{"compengine"} features in \code{tsfeatures}. Defaults to \code{FALSE} to provide immense computational efficiency benefits}
 
-\item{seed}{\code{integer} denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to \code{123}}
+\item{seed}{\code{integer} denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to \code{123}. The caller's random number generator state is restored on exit}
 
 \item{z_score}{\code{Boolean} specifying whether to z-score the time-series before computing features. Defaults to \code{FALSE}}
 
-\item{squared}{\code{Boolean} specifying whether to compute squared magnitude (\code{|X[k]|^2}) for the \code{"fft"} and \code{"fftquantiles"} feature sets if specified. Defaults to \code{TRUE}}
+\item{squared}{Deprecated and ignored. The \code{"fft"} and \code{"fftquantiles"} feature sets are now relative spectral power in fixed frequency bands (see \code{\link{fft_features}}), so there is no magnitude/squared-magnitude choice}
 
 \item{n_jobs}{\code{integer} denoting the number of parallel processes to use. Defaults to \code{0} for no parallelisation}
 
 \item{warn}{\code{Boolean} specifying whether to produce warnings from feature set packages. Defaults to \code{TRUE}}
+
+\item{fft_phase}{\code{Boolean} specifying whether the \code{"fft"} and \code{"fftquantiles"} feature sets also include each frequency band's phase, as its cosine and sine (see \code{\link{fft_features}}). Only meaningful when the series share a time origin, e.g., event-locked trials. Defaults to \code{FALSE}}
 }
 \value{
 object of class \code{feature_calculations} that contains the summary statistics for each feature

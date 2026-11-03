@@ -1,5 +1,7 @@
 #' Calculate a basic set of quantiles for an input time-series vector
 #'
+#' By default computes 101 quantiles, from 0 to 1 in steps of 0.01.
+#'
 #' @importFrom stats quantile
 #'
 #' @param y \code{numeric} vector of values

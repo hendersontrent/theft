@@ -26,12 +26,26 @@ def pyhctsa_calculator(timeseries, warn, n_jobs=0):
     timeseries = [np.asarray(ts, dtype=float).ravel() for ts in timeseries]
 
     if n_jobs >= 2:
+        import os
         from pyhctsa.distribute import LocalDistributor
-        dist = LocalDistributor(n_workers=n_jobs)
+
+        # Workers are spawned as fresh interpreters, so they don't inherit the
+        # filter above; pass it on through the environment while they run
+
+        old_pywarnings = os.environ.get("PYTHONWARNINGS")
+        if warn == "No":
+            os.environ["PYTHONWARNINGS"] = "ignore"
         try:
-            extracted_features = calc.extract(timeseries, distributor=dist)
+            dist = LocalDistributor(n_workers=n_jobs)
+            try:
+                extracted_features = calc.extract(timeseries, distributor=dist)
+            finally:
+                dist.close()
         finally:
-            dist.close()
+            if old_pywarnings is None:
+                os.environ.pop("PYTHONWARNINGS", None)
+            else:
+                os.environ["PYTHONWARNINGS"] = old_pywarnings
     else:
         extracted_features = calc.extract(timeseries)
 

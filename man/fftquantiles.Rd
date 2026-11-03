@@ -2,28 +2,24 @@
 % Please edit documentation in R/fftquantiles.R
 \name{fftquantiles}
 \alias{fftquantiles}
-\title{Calculate quantiles combined with FFT absolute value and angle coefficients}
+\title{Calculate quantiles combined with relative spectral power in fixed frequency bands}
 \usage{
-fftquantiles(y, quantiles = seq(0, 1, by = 0.01), squared = TRUE)
+fftquantiles(y, quantiles = seq(0, 1, by = 0.01), squared, phase = FALSE)
 }
 \arguments{
 \item{y}{\code{numeric} vector of values}
 
 \item{quantiles}{\code{numeric} vector of quantiles to calculate. Defaults to \code{seq(0, 1, by = 0.01)}}
 
-\item{squared}{\code{Boolean} specifying whether to compute squared magnitude (\code{|X[k]|^2}) instead of absolute value (\code{|X[k]|}). Defaults to \code{TRUE}}
+\item{squared}{Deprecated and ignored: the spectral features are relative power, so there is no magnitude/squared-magnitude choice}
+
+\item{phase}{\code{Boolean} specifying whether to also return each band's phase as its cosine and sine (see \code{\link{fft_features}}). Only meaningful when the series share a time origin. Defaults to \code{FALSE}}
 }
 \value{
 \code{data.frame} of results
 }
 \description{
-Computes 101 quantiles together with the absolute value and angle of FFT coefficients 0-99, following the same convention as \code{tsfresh}'s \code{fft_coefficient} feature with \code{attr = "abs"} and \code{attr = "angle"}.
-}
-\references{
-Christ, M., Braun, N., Neuffer, J., and Kempa-Liehr, A.W. (2018).
-Time Series FeatuRe Extraction on basis of Scalable Hypothesis tests
-(tsfresh -- A Python package). \emph{Neurocomputing}, \strong{307}, 72--77.
-\doi{10.1016/j.neucom.2018.03.067}
+Computes 101 quantiles (0 to 1 in steps of 0.01, by default) together with the 100 relative band powers of \code{\link{fft_features}} (and, with \code{phase = TRUE}, their phases).
 }
 \author{
 Trent Henderson

@@ -2,7 +2,7 @@
 % Please edit documentation in R/moment_calcs.R
 \name{kurtosis}
 \alias{kurtosis}
-\title{Calculate a kurtosis of a vector}
+\title{Calculate the kurtosis of a vector}
 \usage{
 kurtosis(y)
 }
@@ -13,7 +13,7 @@ kurtosis(y)
 \code{numeric} scalar of kurtosis
 }
 \description{
-Calculate a kurtosis of a vector
+Moment-ratio kurtosis \eqn{b_2 = m_4 / m_2^2}, where \eqn{m_k} is the \eqn{k}-th sample central moment (with divisor \eqn{n}). This is not excess kurtosis: a Gaussian sample gives values near 3.
 }
 \author{
 Trent Henderson
