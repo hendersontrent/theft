@@ -12,13 +12,13 @@ Source:
 [`DESCRIPTION`](https://github.com/hendersontrent/theft/blob/main/DESCRIPTION)
 
 Henderson T (2026). *theft: Tools for Handling Extraction of Features
-from Time Series*. R package version 0.9.0,
+from Time Series*. R package version 0.9.1,
 <https://hendersontrent.github.io/theft/>.
 
     @Manual{,
       title = {theft: Tools for Handling Extraction of Features from Time Series},
       author = {Trent Henderson},
       year = {2026},
-      note = {R package version 0.9.0},
+      note = {R package version 0.9.1},
       url = {https://hendersontrent.github.io/theft/},
     }
