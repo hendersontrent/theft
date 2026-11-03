@@ -34,6 +34,18 @@ test_that("seed makes stochastic features reproducible", {
                f2$values[f2$names == "spreadrandomlocal_meantaul"])
 })
 
+test_that("calculate_features restores the caller's RNG state", {
+
+  d <- tsibble::as_tsibble(data.frame(id = "a", timepoint = 1:50, values = sin(1:50)), key = "id", index = "timepoint")
+
+  set.seed(42)
+  expected <- stats::runif(3)
+
+  set.seed(42)
+  f <- calculate_features(d, feature_set = "quantiles", seed = 1)
+  expect_equal(stats::runif(3), expected)
+})
+
 test_that("tsfeatures treats series sharing an id across groups as separate series", {
 
   skip_on_cran()

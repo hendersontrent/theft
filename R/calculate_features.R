@@ -287,10 +287,11 @@ calc_user <- function(data, features){
 #' @param catch24 \code{Boolean} specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}
 #' @param tsfresh_cleanup \code{Boolean} specifying whether to use the in-built \code{tsfresh} relevant feature filter or not. Defaults to \code{FALSE}. The filter is supervised, so it requires a class label as the second key variable of \code{data}. As it uses the class labels of every time series, evaluating the selected features with a classifier on the same data (e.g., with \code{theftdlc::classify}) gives optimistically biased results
 #' @param use_compengine \code{Boolean} specifying whether to use the \code{"compengine"} features in \code{tsfeatures}. Defaults to \code{FALSE} to provide immense computational efficiency benefits
-#' @param seed \code{integer} denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to \code{123}
+#' @param seed \code{integer} denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to \code{123}. The caller's random number generator state is restored on exit
 #' @param z_score \code{Boolean} specifying whether to z-score the time-series before computing features. Defaults to \code{FALSE}
 #' @param n_jobs \code{integer} denoting the number of parallel processes to use. Defaults to \code{0} for no parallelisation
 #' @param squared Deprecated and ignored. The \code{"fft"} and \code{"fftquantiles"} feature sets are now relative spectral power in fixed frequency bands (see \code{\link{fft_features}}), so there is no magnitude/squared-magnitude choice
+#' @param fft_phase \code{Boolean} specifying whether the \code{"fft"} and \code{"fftquantiles"} feature sets also include each frequency band's phase, as its cosine and sine (see \code{\link{fft_features}}). Only meaningful when the series share a time origin, e.g., event-locked trials. Defaults to \code{FALSE}
 #' @param warn \code{Boolean} specifying whether to produce warnings from feature set packages. Defaults to \code{TRUE}
 #' @return object of class \code{feature_calculations} that contains the summary statistics for each feature
 #' @author Trent Henderson
@@ -307,7 +308,7 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
                                features = NULL, catch24 = FALSE,
                                tsfresh_cleanup = FALSE, use_compengine = FALSE,
                                seed = 123, z_score = FALSE, squared, n_jobs = 0,
-                               warn = TRUE){
+                               warn = TRUE, fft_phase = FALSE){
 
   if(!inherits(data, "tbl_ts")){
     stop("As of v0.8.1 `data` must now be a `tbl_ts object`. Please convert your matrix or dataframe using `tsibble::as_tsibble` and specify your `key` and `index` variables.")
@@ -371,7 +372,20 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
 
   #--------- Feature calcs --------
 
-  set.seed(seed) # Some features (e.g., in tsfeatures) are stochastic
+  # Some features (e.g., in tsfeatures) are stochastic. Seed them, then restore the caller's RNG state on exit
+
+  had_seed <- exists(".Random.seed", envir = globalenv(), inherits = FALSE)
+  if(had_seed){
+    old_seed <- get(".Random.seed", envir = globalenv(), inherits = FALSE)
+  }
+  on.exit({
+    if(had_seed){
+      assign(".Random.seed", old_seed, envir = globalenv())
+    } else if(exists(".Random.seed", envir = globalenv(), inherits = FALSE)){
+      rm(".Random.seed", envir = globalenv())
+    }
+  }, add = TRUE)
+  set.seed(seed)
 
   results <- list()
 
@@ -476,11 +490,11 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
     if(!warn){
       results[["fftquantiles"]] <- suppressWarnings(
         data_re %>%
-          dplyr::reframe(fftquantiles(!!dplyr::sym(vals_col)), .by = key_vars)
+          dplyr::reframe(fftquantiles(!!dplyr::sym(vals_col), phase = fft_phase), .by = key_vars)
       )
     } else{
       results[["fftquantiles"]] <- data_re %>%
-        dplyr::reframe(fftquantiles(!!dplyr::sym(vals_col)), .by = key_vars)
+        dplyr::reframe(fftquantiles(!!dplyr::sym(vals_col), phase = fft_phase), .by = key_vars)
     }
   }
 
@@ -489,11 +503,11 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
     if(!warn){
       results[["fft"]] <- suppressWarnings(
         data_re %>%
-          dplyr::reframe(fft_features(!!dplyr::sym(vals_col)), .by = key_vars)
+          dplyr::reframe(fft_features(!!dplyr::sym(vals_col), phase = fft_phase), .by = key_vars)
       )
     } else{
       results[["fft"]] <- data_re %>%
-        dplyr::reframe(fft_features(!!dplyr::sym(vals_col)), .by = key_vars)
+        dplyr::reframe(fft_features(!!dplyr::sym(vals_col), phase = fft_phase), .by = key_vars)
     }
   }
 

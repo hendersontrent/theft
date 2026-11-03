@@ -16,7 +16,8 @@ calculate_features(
   z_score = FALSE,
   squared,
   n_jobs = 0,
-  warn = TRUE
+  warn = TRUE,
+  fft_phase = FALSE
 )
 }
 \arguments{
@@ -32,7 +33,7 @@ calculate_features(
 
 \item{use_compengine}{\code{Boolean} specifying whether to use the \code{"compengine"} features in \code{tsfeatures}. Defaults to \code{FALSE} to provide immense computational efficiency benefits}
 
-\item{seed}{\code{integer} denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to \code{123}}
+\item{seed}{\code{integer} denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to \code{123}. The caller's random number generator state is restored on exit}
 
 \item{z_score}{\code{Boolean} specifying whether to z-score the time-series before computing features. Defaults to \code{FALSE}}
 
@@ -41,6 +42,8 @@ calculate_features(
 \item{n_jobs}{\code{integer} denoting the number of parallel processes to use. Defaults to \code{0} for no parallelisation}
 
 \item{warn}{\code{Boolean} specifying whether to produce warnings from feature set packages. Defaults to \code{TRUE}}
+
+\item{fft_phase}{\code{Boolean} specifying whether the \code{"fft"} and \code{"fftquantiles"} feature sets also include each frequency band's phase, as its cosine and sine (see \code{\link{fft_features}}). Only meaningful when the series share a time origin, e.g., event-locked trials. Defaults to \code{FALSE}}
 }
 \value{
 object of class \code{feature_calculations} that contains the summary statistics for each feature

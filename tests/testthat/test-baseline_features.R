@@ -81,3 +81,53 @@ test_that("fftquantiles has 101 quantiles and the same band powers as fft_featur
   expect_equal(fq$values[grepl("^fft_", fq$names)], ff$values)
   expect_equal(fq$names[grepl("^fft_", fq$names)], ff$names)
 })
+
+test_that("phase = TRUE adds each band's phase as unit cosine and sine", {
+
+  # cos(2 pi 0.1 t + phi0), t = 0, ..., n - 1, has phase phi0 at 0.1 cycles per sample (bands 20 and 21)
+
+  phi0 <- 1
+  n <- 100
+  y <- cos(2 * pi * 0.1 * (0:(n - 1)) + phi0)
+
+  f <- fft_features(y, phase = TRUE)
+  expect_equal(nrow(f), 300)
+  expect_equal(nrow(fft_features(y)), 100)
+  expect_equal(f$values[f$names == "fft_power_20"], 0.5)
+
+  for(b in 20:21){
+    expect_equal(band(f, b), 0.5)
+    expect_equal(f$values[f$names == paste0("fft_phase_cos_", b)], cos(phi0))
+    expect_equal(f$values[f$names == paste0("fft_phase_sin_", b)], sin(phi0))
+  }
+
+  # Bands with no power have no phase
+
+  expect_true(is.nan(f$values[f$names == "fft_phase_cos_1"]))
+
+  # Phase is NaN exactly where a band has no power (for n = 64, band 1 lies below the first cell,
+  # which starts at 1/128), and elsewhere each (cos, sin) pair is a unit vector
+
+  set.seed(4)
+  g <- fft_features(stats::rnorm(64), phase = TRUE)
+  cc <- g$values[grepl("^fft_phase_cos_", g$names)]
+  ss <- g$values[grepl("^fft_phase_sin_", g$names)]
+  expect_equal(is.nan(cc), g$values[1:100] == 0)
+  expect_equal(which(is.nan(cc)), 1L)
+  expect_equal((cc^2 + ss^2)[-1], rep(1, 99))
+
+  # Power is the same with or without phase, and fftquantiles passes phase through
+
+  set.seed(4)
+  expect_equal(g$values[1:100], fft_features(stats::rnorm(64))$values)
+  expect_equal(nrow(fftquantiles(y, phase = TRUE)), 401)
+})
+
+test_that("calculate_features passes fft_phase through", {
+
+  set.seed(5)
+  d <- tsibble::as_tsibble(data.frame(id = "a", t = 1:40, values = stats::rnorm(40)), key = "id", index = "t")
+  f <- calculate_features(d, feature_set = "fft", fft_phase = TRUE)
+  expect_equal(sum(grepl("^fft_phase_(cos|sin)_", f$names)), 200)
+  expect_equal(nrow(calculate_features(d, feature_set = "fft")), 100)
+})
