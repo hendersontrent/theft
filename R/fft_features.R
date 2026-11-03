@@ -1,57 +1,78 @@
-#' Calculate FFT magnitude and angle coefficients for an input time-series vector
+#' Calculate relative spectral power in fixed frequency bands for an input time-series vector
 #'
-#' Computes the magnitude and angle of FFT coefficients 0-99. The coefficients are those of \code{tsfresh}'s \code{fft_coefficient} feature (the real FFT of the series), with two differences in the defaults: \code{fft_abs_*} is the squared magnitude \code{|X[k]|^2} unless \code{squared = FALSE}, which gives \code{tsfresh}'s \code{attr = "abs"}; \code{fft_angle_*} is in degrees, as \code{tsfresh}'s \code{attr = "angle"}. A series of length \code{n} has only \code{floor(n/2) + 1} real-FFT coefficients, so coefficients beyond that are \code{NaN}, as in \code{tsfresh}.
+#' Splits the frequency range from 0 to 0.5 cycles per sample (the Nyquist frequency) into 100 equal-width bands and returns the fraction of the series' spectral power in each, as \code{fft_power_1} (0 to 0.005 cycles per sample) to \code{fft_power_100} (0.495 to 0.5). The bands sum to 1.
+#'
+#' The power spectrum is the periodogram of the mean-removed series, computed with the FFT. A series of length \code{n} has periodogram ordinates at frequencies \code{k/n}, \code{k = 1, ..., floor(n/2)}; each ordinate's power is spread evenly over its frequency cell of width \code{1/n} and the result is integrated over each band. Because the bands are defined in normalised frequency rather than by FFT coefficient index, each feature measures the same frequency range for series of any length (\code{n >= 2}), and no coefficients are missing for short series. Short series have a coarse frequency resolution (\code{1/n}), so neighbouring bands then share power from the same ordinate. As the features are relative power, they don't depend on the series' mean or scale (see \code{\link{moments}} for those). A constant series has no spectral power, so all its features are \code{NaN}.
 #'
 #' @importFrom stats fft
 #'
 #' @param y \code{numeric} vector of values
-#' @param squared \code{Boolean} specifying whether \code{fft_abs_*} is the squared magnitude (\code{|X[k]|^2}) rather than the magnitude (\code{|X[k]|}). Defaults to \code{TRUE}
+#' @param squared Deprecated and ignored: the features are relative power, so there is no magnitude/squared-magnitude choice
 #' @return \code{data.frame} of results
 #' @author Trent Henderson
-#' @references
-#' Christ, M., Braun, N., Neuffer, J., and Kempa-Liehr, A.W. (2018).
-#' Time Series FeatuRe Extraction on basis of Scalable Hypothesis tests
-#' (tsfresh -- A Python package). \emph{Neurocomputing}, \strong{307}, 72--77.
-#' \doi{10.1016/j.neucom.2018.03.067}
 #' @export
 #'
 
-fft_features <- function(y, squared = TRUE){
-  coefs <- fft_coefficients(y, squared = squared)
-  coefs$feature_set <- "fft"
-  return(coefs)
+fft_features <- function(y, squared){
+  if(!missing(squared)){
+    warn_squared_deprecated()
+  }
+  out <- fft_band_power(y)
+  out$feature_set <- "fft"
+  return(out)
 }
 
-#' Magnitude and angle of the first 100 real-FFT coefficients
+#' Relative spectral power in equal-width frequency bands
 #'
-#' @importFrom stats fft
+#' @importFrom stats fft approx
 #'
 #' @param y \code{numeric} vector of values
-#' @param squared \code{Boolean} specifying whether to return the squared magnitude
-#' @param n_coeff \code{integer} number of coefficients. Defaults to \code{100}
+#' @param n_bands \code{integer} number of equal-width bands between 0 and 0.5 cycles per sample. Defaults to \code{100}
 #' @return \code{data.frame} with columns \code{names} and \code{values}
 #' @author Trent Henderson
 #' @noRd
 #'
 
-fft_coefficients <- function(y, squared = TRUE, n_coeff = 100L){
+fft_band_power <- function(y, n_bands = 100L){
 
-  fft_result <- stats::fft(y)
-  n_avail <- min(n_coeff, floor(length(y) / 2L) + 1L)
-  coeffs <- 0:(n_coeff - 1L)
+  n <- length(y)
+  band_names <- paste0("fft_power_", seq_len(n_bands))
 
-  # Coefficients the series doesn't have are NaN (as in tsfresh), not 0
+  if(n < 2){
+    return(data.frame(names = band_names, values = rep(NaN, n_bands)))
+  }
 
-  abs_vals <- rep(NaN, n_coeff)
-  angle_vals <- rep(NaN, n_coeff)
-  kept <- fft_result[seq_len(n_avail)]
-  abs_vals[seq_len(n_avail)] <- if(squared) Mod(kept)^2 else Mod(kept)
-  angle_vals[seq_len(n_avail)] <- Arg(kept) * 180 / pi # Degrees, as in tsfresh
+  # One-sided periodogram of the mean-removed series at k/n, k = 1, ..., floor(n/2)
 
-  return(
-    rbind(
-      data.frame(names = paste0("fft_abs_", coeffs), values = abs_vals),
-      data.frame(names = paste0("fft_angle_", coeffs), values = angle_vals)
-    )
-  )
+  X <- stats::fft(y - mean(y))
+  k <- seq_len(floor(n / 2))
+  pow <- Mod(X[k + 1])^2
+
+  # Spread each ordinate's power evenly over its cell [(k - 1/2)/n, (k + 1/2)/n], clipped at 0.5.
+  # The Nyquist ordinate (n even) has half a cell and isn't doubled, so all cells share one density convention
+
+  upper <- pmin((k + 0.5) / n, 0.5)
+  pow <- ifelse(2 * k == n, pow, 2 * pow)
+  total <- sum(pow)
+
+  # Integrate the piecewise-constant density over each band via its cumulative distribution
+
+  edges <- seq(0, 0.5, length.out = n_bands + 1)
+  cum_at_edges <- stats::approx(x = c(0, 0.5 / n, upper), y = c(0, 0, cumsum(pow)), xout = edges, ties = "ordered")$y
+  band_power <- diff(cum_at_edges) / total
+
+  if(!is.finite(total) || total <= 0){
+    band_power <- rep(NaN, n_bands)
+  }
+
+  return(data.frame(names = band_names, values = band_power))
+}
+
+#' Warn that the squared argument no longer has an effect
+#'
+#' @noRd
+#'
+
+warn_squared_deprecated <- function(){
+  warning("`squared` is deprecated and ignored: the \"fft\" features are now relative spectral power in fixed frequency bands.", call. = FALSE)
 }

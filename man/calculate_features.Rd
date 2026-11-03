@@ -14,7 +14,7 @@ calculate_features(
   use_compengine = FALSE,
   seed = 123,
   z_score = FALSE,
-  squared = TRUE,
+  squared,
   n_jobs = 0,
   warn = TRUE
 )
@@ -36,7 +36,7 @@ calculate_features(
 
 \item{z_score}{\code{Boolean} specifying whether to z-score the time-series before computing features. Defaults to \code{FALSE}}
 
-\item{squared}{\code{Boolean} specifying whether the \code{fft_abs_*} features of the \code{"fft"} and \code{"fftquantiles"} feature sets are the squared magnitude (\code{|X[k]|^2}, the default) or the magnitude (\code{|X[k]|}, as in \code{tsfresh}). Defaults to \code{TRUE}}
+\item{squared}{Deprecated and ignored. The \code{"fft"} and \code{"fftquantiles"} feature sets are now relative spectral power in fixed frequency bands (see \code{\link{fft_features}}), so there is no magnitude/squared-magnitude choice}
 
 \item{n_jobs}{\code{integer} denoting the number of parallel processes to use. Defaults to \code{0} for no parallelisation}
 

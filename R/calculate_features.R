@@ -290,7 +290,7 @@ calc_user <- function(data, features){
 #' @param seed \code{integer} denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to \code{123}
 #' @param z_score \code{Boolean} specifying whether to z-score the time-series before computing features. Defaults to \code{FALSE}
 #' @param n_jobs \code{integer} denoting the number of parallel processes to use. Defaults to \code{0} for no parallelisation
-#' @param squared \code{Boolean} specifying whether the \code{fft_abs_*} features of the \code{"fft"} and \code{"fftquantiles"} feature sets are the squared magnitude (\code{|X[k]|^2}, the default) or the magnitude (\code{|X[k]|}, as in \code{tsfresh}). Defaults to \code{TRUE}
+#' @param squared Deprecated and ignored. The \code{"fft"} and \code{"fftquantiles"} feature sets are now relative spectral power in fixed frequency bands (see \code{\link{fft_features}}), so there is no magnitude/squared-magnitude choice
 #' @param warn \code{Boolean} specifying whether to produce warnings from feature set packages. Defaults to \code{TRUE}
 #' @return object of class \code{feature_calculations} that contains the summary statistics for each feature
 #' @author Trent Henderson
@@ -306,7 +306,7 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
                                                      "fft"),
                                features = NULL, catch24 = FALSE,
                                tsfresh_cleanup = FALSE, use_compengine = FALSE,
-                               seed = 123, z_score = FALSE, squared = TRUE, n_jobs = 0,
+                               seed = 123, z_score = FALSE, squared, n_jobs = 0,
                                warn = TRUE){
 
   if(!inherits(data, "tbl_ts")){
@@ -324,6 +324,10 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
   }
 
   stopifnot(n_jobs >= 0)
+
+  if(!missing(squared)){
+    warn_squared_deprecated()
+  }
 
   feature_set <- tolower(feature_set) # Standardise names
 
@@ -472,11 +476,11 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
     if(!warn){
       results[["fftquantiles"]] <- suppressWarnings(
         data_re %>%
-          dplyr::reframe(fftquantiles(!!dplyr::sym(vals_col), squared = squared), .by = key_vars)
+          dplyr::reframe(fftquantiles(!!dplyr::sym(vals_col)), .by = key_vars)
       )
     } else{
       results[["fftquantiles"]] <- data_re %>%
-        dplyr::reframe(fftquantiles(!!dplyr::sym(vals_col), squared = squared), .by = key_vars)
+        dplyr::reframe(fftquantiles(!!dplyr::sym(vals_col)), .by = key_vars)
     }
   }
 
@@ -485,11 +489,11 @@ calculate_features <- function(data, feature_set = c("catch22", "feasts", "tsfea
     if(!warn){
       results[["fft"]] <- suppressWarnings(
         data_re %>%
-          dplyr::reframe(fft_features(!!dplyr::sym(vals_col), squared = squared), .by = key_vars)
+          dplyr::reframe(fft_features(!!dplyr::sym(vals_col)), .by = key_vars)
       )
     } else{
       results[["fft"]] <- data_re %>%
-        dplyr::reframe(fft_features(!!dplyr::sym(vals_col), squared = squared), .by = key_vars)
+        dplyr::reframe(fft_features(!!dplyr::sym(vals_col)), .by = key_vars)
     }
   }
 

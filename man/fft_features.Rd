@@ -2,26 +2,23 @@
 % Please edit documentation in R/fft_features.R
 \name{fft_features}
 \alias{fft_features}
-\title{Calculate FFT magnitude and angle coefficients for an input time-series vector}
+\title{Calculate relative spectral power in fixed frequency bands for an input time-series vector}
 \usage{
-fft_features(y, squared = TRUE)
+fft_features(y, squared)
 }
 \arguments{
 \item{y}{\code{numeric} vector of values}
 
-\item{squared}{\code{Boolean} specifying whether \code{fft_abs_*} is the squared magnitude (\code{|X[k]|^2}) rather than the magnitude (\code{|X[k]|}). Defaults to \code{TRUE}}
+\item{squared}{Deprecated and ignored: the features are relative power, so there is no magnitude/squared-magnitude choice}
 }
 \value{
 \code{data.frame} of results
 }
 \description{
-Computes the magnitude and angle of FFT coefficients 0-99. The coefficients are those of \code{tsfresh}'s \code{fft_coefficient} feature (the real FFT of the series), with two differences in the defaults: \code{fft_abs_*} is the squared magnitude \code{|X[k]|^2} unless \code{squared = FALSE}, which gives \code{tsfresh}'s \code{attr = "abs"}; \code{fft_angle_*} is in degrees, as \code{tsfresh}'s \code{attr = "angle"}. A series of length \code{n} has only \code{floor(n/2) + 1} real-FFT coefficients, so coefficients beyond that are \code{NaN}, as in \code{tsfresh}.
+Splits the frequency range from 0 to 0.5 cycles per sample (the Nyquist frequency) into 100 equal-width bands and returns the fraction of the series' spectral power in each, as \code{fft_power_1} (0 to 0.005 cycles per sample) to \code{fft_power_100} (0.495 to 0.5). The bands sum to 1.
 }
-\references{
-Christ, M., Braun, N., Neuffer, J., and Kempa-Liehr, A.W. (2018).
-Time Series FeatuRe Extraction on basis of Scalable Hypothesis tests
-(tsfresh -- A Python package). \emph{Neurocomputing}, \strong{307}, 72--77.
-\doi{10.1016/j.neucom.2018.03.067}
+\details{
+The power spectrum is the periodogram of the mean-removed series, computed with the FFT. A series of length \code{n} has periodogram ordinates at frequencies \code{k/n}, \code{k = 1, ..., floor(n/2)}; each ordinate's power is spread evenly over its frequency cell of width \code{1/n} and the result is integrated over each band. Because the bands are defined in normalised frequency rather than by FFT coefficient index, each feature measures the same frequency range for series of any length (\code{n >= 2}), and no coefficients are missing for short series. Short series have a coarse frequency resolution (\code{1/n}), so neighbouring bands then share power from the same ordinate. As the features are relative power, they don't depend on the series' mean or scale (see \code{\link{moments}} for those). A constant series has no spectral power, so all its features are \code{NaN}.
 }
 \author{
 Trent Henderson
