@@ -1,13 +1,14 @@
-# Calculate FFT absolute value and angle coefficients for an input time-series vector
+# Calculate relative spectral power in fixed frequency bands for an input time-series vector
 
-Computes the absolute value and angle of FFT coefficients 0-99,
-following the same convention as `tsfresh`'s `fft_coefficient` feature
-with `attr = "abs"` and `attr = "angle"`.
+Splits the frequency range from 0 to 0.5 cycles per sample (the Nyquist
+frequency) into 100 equal-width bands and returns the fraction of the
+series' spectral power in each, as `fft_power_1` (0 to 0.005 cycles per
+sample) to `fft_power_100` (0.495 to 0.5). The bands sum to 1.
 
 ## Usage
 
 ``` r
-fft_features(y, squared = TRUE)
+fft_features(y, squared, phase = FALSE)
 ```
 
 ## Arguments
@@ -18,19 +19,46 @@ fft_features(y, squared = TRUE)
 
 - squared:
 
-  `Boolean` specifying whether to compute squared magnitude (`|X[k]|^2`)
-  instead of absolute value (`|X[k]|`). Defaults to `TRUE`
+  Deprecated and ignored: the features are relative power, so there is
+  no magnitude/squared-magnitude choice
+
+- phase:
+
+  `Boolean` specifying whether to also return each band's phase as its
+  cosine and sine. Only meaningful when the series share a time origin.
+  Defaults to `FALSE`
 
 ## Value
 
 `data.frame` of results
 
-## References
+## Details
 
-Christ, M., Braun, N., Neuffer, J., and Kempa-Liehr, A.W. (2018). Time
-Series FeatuRe Extraction on basis of Scalable Hypothesis tests (tsfresh
-– A Python package). *Neurocomputing*, **307**, 72–77.
-[doi:10.1016/j.neucom.2018.03.067](https://doi.org/10.1016/j.neucom.2018.03.067)
+The power spectrum is the periodogram of the mean-removed series,
+computed with the FFT. A series of length `n` has periodogram ordinates
+at frequencies `k/n`, `k = 1, ..., floor(n/2)`; each ordinate's power is
+spread evenly over its frequency cell of width `1/n` and the result is
+integrated over each band. Because the bands are defined in normalised
+frequency rather than by FFT coefficient index, each feature measures
+the same frequency range for series of any length (`n >= 2`), and no
+coefficients are missing for short series. Short series have a coarse
+frequency resolution (`1/n`), so neighbouring bands then share power
+from the same ordinate. As the features are relative power, they don't
+depend on the series' mean or scale (see
+[`moments`](https://hendersontrent.github.io/theft/reference/moments.md)
+for those). A constant series has no spectral power, so all its features
+are `NaN`.
+
+With `phase = TRUE`, each band's phase is also returned, as
+`fft_phase_cos_b` and `fft_phase_sin_b` (the cosine and sine of the
+phase, which represent it without the jump at +/-180 degrees). The
+band's phase is the argument of the sum of its complex FFT coefficients,
+each weighted by the fraction of its frequency cell in the band, so
+strong coefficients dominate. Phase is measured relative to the first
+sample, so shifting a series in time changes it: these features are only
+meaningful when the series share a time origin (e.g., event-locked
+trials or aligned segments). Bands with negligible power have no
+well-defined phase and give `NaN`.
 
 ## Author
 

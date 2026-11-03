@@ -54,8 +54,9 @@ The core function in `theft` is `calculate_features`. You can choose
 which subset of features to calculate with the `feature_set` argument.
 The choices are currently `"catch22"`, `"feasts"`, `"tsfeatures"`,
 `"tsfresh"`, `"tsfel"`, `"kats"`, and `"hctsa"`. In addition, four
-baseline feature sets: (i) `"fft"` (a set of 200 FFT coefficients from
-0-99 for both the squared magnitude and angle components); (ii)
+baseline feature sets: (i) `"fft"` (the fraction of spectral power in
+each of 100 equal-width frequency bands from 0 to 0.5 cycles per sample,
+which is comparable across series of different lengths); (ii)
 `"quantiles"` (a set of 101 quantiles); (iii) `"fftquantiles"` the union
 set of FFT coefficients and quantiles; and (iv) `"moments"` (the first
 four moments of the distribution: mean, variance, skewness, and

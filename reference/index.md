@@ -9,11 +9,11 @@
 - [`feature_list`](https://hendersontrent.github.io/theft/reference/feature_list.md)
   : All features available in theft in tidy format
 - [`fft_features()`](https://hendersontrent.github.io/theft/reference/fft_features.md)
-  : Calculate FFT absolute value and angle coefficients for an input
-  time-series vector
+  : Calculate relative spectral power in fixed frequency bands for an
+  input time-series vector
 - [`fftquantiles()`](https://hendersontrent.github.io/theft/reference/fftquantiles.md)
-  : Calculate quantiles combined with FFT absolute value and angle
-  coefficients
+  : Calculate quantiles combined with relative spectral power in fixed
+  frequency bands
 - [`init_theft()`](https://hendersontrent.github.io/theft/reference/init_theft.md)
   : Communicate to R the Python virtual environment containing the
   relevant libraries for calculating features
@@ -43,7 +43,7 @@
   : Download and install tsfresh from Python into a new virtual
   environment
 - [`kurtosis()`](https://hendersontrent.github.io/theft/reference/kurtosis.md)
-  : Calculate a kurtosis of a vector
+  : Calculate the kurtosis of a vector
 - [`moments()`](https://hendersontrent.github.io/theft/reference/moments.md)
   : Calculate a basic set of the four moments of the distribution
 - [`process_hctsa_file()`](https://hendersontrent.github.io/theft/reference/process_hctsa_file.md)
@@ -55,6 +55,6 @@
   : Sample of randomly-generated time series to produce function tests
   and vignettes
 - [`skewness()`](https://hendersontrent.github.io/theft/reference/skewness.md)
-  : Calculate a skewness of a vector
+  : Calculate the skewness of a vector
 - [`theft`](https://hendersontrent.github.io/theft/reference/theft.md) :
   Tools for Handling Extraction of Features from Time-series

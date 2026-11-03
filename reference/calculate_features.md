@@ -15,9 +15,10 @@ calculate_features(
   use_compengine = FALSE,
   seed = 123,
   z_score = FALSE,
-  squared = TRUE,
+  squared,
   n_jobs = 0,
-  warn = TRUE
+  warn = TRUE,
+  fft_phase = FALSE
 )
 ```
 
@@ -31,8 +32,8 @@ calculate_features(
 
   `character` or `vector` of `character` denoting the set of time-series
   features to calculate. Can be one of `"catch22"`, `"feasts"`,
-  `"tsfeatures"`, `"tsfresh"`, `"tsfel"`, `"kats"`, `"quantiles"`,
-  `"moments"`, `"fftquantiles"`, and or `"fft"`
+  `"tsfeatures"`, `"tsfresh"`, `"tsfel"`, `"kats"`, `"hctsa"`,
+  `"quantiles"`, `"moments"`, `"fftquantiles"`, and or `"fft"`
 
 - features:
 
@@ -68,7 +69,8 @@ calculate_features(
 - seed:
 
   `integer` denoting a fixed number for R's random number generator to
-  ensure reproducibility. Defaults to `123`
+  ensure reproducibility. Defaults to `123`. The caller's random number
+  generator state is restored on exit
 
 - z_score:
 
@@ -77,9 +79,10 @@ calculate_features(
 
 - squared:
 
-  `Boolean` specifying whether to compute squared magnitude (`|X[k]|^2`)
-  for the `"fft"` and `"fftquantiles"` feature sets if specified.
-  Defaults to `TRUE`
+  Deprecated and ignored. The `"fft"` and `"fftquantiles"` feature sets
+  are now relative spectral power in fixed frequency bands (see
+  [`fft_features`](https://hendersontrent.github.io/theft/reference/fft_features.md)),
+  so there is no magnitude/squared-magnitude choice
 
 - n_jobs:
 
@@ -90,6 +93,15 @@ calculate_features(
 
   `Boolean` specifying whether to produce warnings from feature set
   packages. Defaults to `TRUE`
+
+- fft_phase:
+
+  `Boolean` specifying whether the `"fft"` and `"fftquantiles"` feature
+  sets also include each frequency band's phase, as its cosine and sine
+  (see
+  [`fft_features`](https://hendersontrent.github.io/theft/reference/fft_features.md)).
+  Only meaningful when the series share a time origin, e.g.,
+  event-locked trials. Defaults to `FALSE`
 
 ## Value
 

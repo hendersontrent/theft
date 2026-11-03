@@ -93,7 +93,7 @@ paper](https://arxiv.org/abs/2303.17809) for the idea):
 
 | `feature_set` | Contents |
 |----|----|
-| `"fft"` | 200 features: the squared magnitude and the angle of FFT coefficients 0 to 99 |
+| `"fft"` | 100 features: the fraction of spectral power in each of 100 equal-width frequency bands from 0 to 0.5 cycles per sample. With `fft_phase = TRUE`, also each band’s phase (as cosine and sine), for series that share a time origin |
 | `"quantiles"` | 101 quantiles |
 | `"fftquantiles"` | The union of `"fft"` and `"quantiles"` |
 | `"moments"` | The first four moments of the distribution: mean, variance, skewness, and kurtosis |

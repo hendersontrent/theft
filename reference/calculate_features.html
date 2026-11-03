@@ -48,9 +48,10 @@
 <span>  use_compengine <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">123</span>,</span>
 <span>  z_score <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  squared <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">squared</span>,</span>
 <span>  n_jobs <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  warn <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  warn <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  fft_phase <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -63,7 +64,7 @@
 
 
 <dt id="arg-feature-set">feature_set<a class="anchor" aria-label="anchor" href="#arg-feature-set"></a></dt>
-<dd><p><code>character</code> or <code>vector</code> of <code>character</code> denoting the set of time-series features to calculate. Can be one of <code>"catch22"</code>, <code>"feasts"</code>, <code>"tsfeatures"</code>, <code>"tsfresh"</code>, <code>"tsfel"</code>, <code>"kats"</code>, <code>"quantiles"</code>, <code>"moments"</code>, <code>"fftquantiles"</code>, and or <code>"fft"</code></p></dd>
+<dd><p><code>character</code> or <code>vector</code> of <code>character</code> denoting the set of time-series features to calculate. Can be one of <code>"catch22"</code>, <code>"feasts"</code>, <code>"tsfeatures"</code>, <code>"tsfresh"</code>, <code>"tsfel"</code>, <code>"kats"</code>, <code>"hctsa"</code>, <code>"quantiles"</code>, <code>"moments"</code>, <code>"fftquantiles"</code>, and or <code>"fft"</code></p></dd>
 
 
 <dt id="arg-features">features<a class="anchor" aria-label="anchor" href="#arg-features"></a></dt>
@@ -83,7 +84,7 @@
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p><code>integer</code> denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to <code>123</code></p></dd>
+<dd><p><code>integer</code> denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to <code>123</code>. The caller's random number generator state is restored on exit</p></dd>
 
 
 <dt id="arg-z-score">z_score<a class="anchor" aria-label="anchor" href="#arg-z-score"></a></dt>
@@ -91,7 +92,7 @@
 
 
 <dt id="arg-squared">squared<a class="anchor" aria-label="anchor" href="#arg-squared"></a></dt>
-<dd><p><code>Boolean</code> specifying whether to compute squared magnitude (<code>|X[k]|^2</code>) for the <code>"fft"</code> and <code>"fftquantiles"</code> feature sets if specified. Defaults to <code>TRUE</code></p></dd>
+<dd><p>Deprecated and ignored. The <code>"fft"</code> and <code>"fftquantiles"</code> feature sets are now relative spectral power in fixed frequency bands (see <code><a href="fft_features.html">fft_features</a></code>), so there is no magnitude/squared-magnitude choice</p></dd>
 
 
 <dt id="arg-n-jobs">n_jobs<a class="anchor" aria-label="anchor" href="#arg-n-jobs"></a></dt>
@@ -100,6 +101,10 @@
 
 <dt id="arg-warn">warn<a class="anchor" aria-label="anchor" href="#arg-warn"></a></dt>
 <dd><p><code>Boolean</code> specifying whether to produce warnings from feature set packages. Defaults to <code>TRUE</code></p></dd>
+
+
+<dt id="arg-fft-phase">fft_phase<a class="anchor" aria-label="anchor" href="#arg-fft-phase"></a></dt>
+<dd><p><code>Boolean</code> specifying whether the <code>"fft"</code> and <code>"fftquantiles"</code> feature sets also include each frequency band's phase, as its cosine and sine (see <code><a href="fft_features.html">fft_features</a></code>). Only meaningful when the series share a time origin, e.g., event-locked trials. Defaults to <code>FALSE</code></p></dd>
 
 </dl></div>
     <div class="section level2">

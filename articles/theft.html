@@ -58,7 +58,7 @@
                         <h4 data-toc-skip class="author">Trent
 Henderson</h4>
             
-            <h4 data-toc-skip class="date">2026-11-01</h4>
+            <h4 data-toc-skip class="date">2026-11-03</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/hendersontrent/theft/blob/main/vignettes/theft.Rmd" class="external-link"><code>vignettes/theft.Rmd</code></a></small>
       <div class="d-none name"><code>theft.Rmd</code></div>
@@ -115,10 +115,11 @@ to calculate with the <code>feature_set</code> argument. The choices are
 currently <code>"catch22"</code>, <code>"feasts"</code>,
 <code>"tsfeatures"</code>, <code>"tsfresh"</code>, <code>"tsfel"</code>,
 <code>"kats"</code>, and <code>"hctsa"</code>. In addition, four
-baseline feature sets: (i) <code>"fft"</code> (a set of 200 FFT
-coefficients from 0-99 for both the squared magnitude and angle
-components); (ii) <code>"quantiles"</code> (a set of 101 quantiles);
-(iii) <code>"fftquantiles"</code> the union set of FFT coefficients and
+baseline feature sets: (i) <code>"fft"</code> (the fraction of spectral
+power in each of 100 equal-width frequency bands from 0 to 0.5 cycles
+per sample, which is comparable across series of different lengths);
+(ii) <code>"quantiles"</code> (a set of 101 quantiles); (iii)
+<code>"fftquantiles"</code> the union set of FFT coefficients and
 quantiles; and (iv) <code>"moments"</code> (the first four moments of
 the distribution: mean, variance, skewness, and kurtosis) are also
 available for users seeking to compute simple baselines against which to
