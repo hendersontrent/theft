@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">theft</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,9 +48,10 @@
 <span>  use_compengine <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">123</span>,</span>
 <span>  z_score <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  squared <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">squared</span>,</span>
 <span>  n_jobs <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  warn <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  warn <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  fft_phase <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -63,7 +64,7 @@
 
 
 <dt id="arg-feature-set">feature_set<a class="anchor" aria-label="anchor" href="#arg-feature-set"></a></dt>
-<dd><p><code>character</code> or <code>vector</code> of <code>character</code> denoting the set of time-series features to calculate. Can be one of <code>"catch22"</code>, <code>"feasts"</code>, <code>"tsfeatures"</code>, <code>"tsfresh"</code>, <code>"tsfel"</code>, <code>"kats"</code>, <code>"quantiles"</code>, <code>"moments"</code>, <code>"fftquantiles"</code>, and or <code>"fft"</code></p></dd>
+<dd><p><code>character</code> or <code>vector</code> of <code>character</code> denoting the set of time-series features to calculate. Can be one of <code>"catch22"</code>, <code>"feasts"</code>, <code>"tsfeatures"</code>, <code>"tsfresh"</code>, <code>"tsfel"</code>, <code>"kats"</code>, <code>"hctsa"</code>, <code>"quantiles"</code>, <code>"moments"</code>, <code>"fftquantiles"</code>, and or <code>"fft"</code></p></dd>
 
 
 <dt id="arg-features">features<a class="anchor" aria-label="anchor" href="#arg-features"></a></dt>
@@ -75,7 +76,7 @@
 
 
 <dt id="arg-tsfresh-cleanup">tsfresh_cleanup<a class="anchor" aria-label="anchor" href="#arg-tsfresh-cleanup"></a></dt>
-<dd><p><code>Boolean</code> specifying whether to use the in-built <code>tsfresh</code> relevant feature filter or not. Defaults to <code>FALSE</code></p></dd>
+<dd><p><code>Boolean</code> specifying whether to use the in-built <code>tsfresh</code> relevant feature filter or not. Defaults to <code>FALSE</code>. The filter is supervised, so it requires a class label as the second key variable of <code>data</code>. As it uses the class labels of every time series, evaluating the selected features with a classifier on the same data (e.g., with <code><a href="https://hendersontrent.github.io/theftdlc/reference/classify.html">theftdlc::classify</a></code>) gives optimistically biased results</p></dd>
 
 
 <dt id="arg-use-compengine">use_compengine<a class="anchor" aria-label="anchor" href="#arg-use-compengine"></a></dt>
@@ -83,7 +84,7 @@
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p><code>integer</code> denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to <code>123</code></p></dd>
+<dd><p><code>integer</code> denoting a fixed number for R's random number generator to ensure reproducibility. Defaults to <code>123</code>. The caller's random number generator state is restored on exit</p></dd>
 
 
 <dt id="arg-z-score">z_score<a class="anchor" aria-label="anchor" href="#arg-z-score"></a></dt>
@@ -91,7 +92,7 @@
 
 
 <dt id="arg-squared">squared<a class="anchor" aria-label="anchor" href="#arg-squared"></a></dt>
-<dd><p><code>Boolean</code> specifying whether to compute squared magnitude (<code>|X[k]|^2</code>) for the <code>"fft"</code> and <code>"fftquantiles"</code> feature sets if specified. Defaults to <code>TRUE</code></p></dd>
+<dd><p>Deprecated and ignored. The <code>"fft"</code> and <code>"fftquantiles"</code> feature sets are now relative spectral power in fixed frequency bands (see <code><a href="fft_features.html">fft_features</a></code>), so there is no magnitude/squared-magnitude choice</p></dd>
 
 
 <dt id="arg-n-jobs">n_jobs<a class="anchor" aria-label="anchor" href="#arg-n-jobs"></a></dt>
@@ -100,6 +101,10 @@
 
 <dt id="arg-warn">warn<a class="anchor" aria-label="anchor" href="#arg-warn"></a></dt>
 <dd><p><code>Boolean</code> specifying whether to produce warnings from feature set packages. Defaults to <code>TRUE</code></p></dd>
+
+
+<dt id="arg-fft-phase">fft_phase<a class="anchor" aria-label="anchor" href="#arg-fft-phase"></a></dt>
+<dd><p><code>Boolean</code> specifying whether the <code>"fft"</code> and <code>"fftquantiles"</code> feature sets also include each frequency band's phase, as its cosine and sine (see <code><a href="fft_features.html">fft_features</a></code>). Only meaningful when the series share a time origin, e.g., event-locked trials. Defaults to <code>FALSE</code></p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -116,12 +121,6 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">features</span> <span class="op">&lt;-</span> <span class="fu">calculate_features</span><span class="op">(</span>data <span class="op">=</span> <span class="va">simData</span>,</span></span>
 <span class="r-in"><span>  feature_set <span class="op">=</span> <span class="st">"catch22"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running computations for catch22...</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>There was 1 warning in `dplyr::reframe()`.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In argument: `Rcatch22::catch22_all(values, catch24 = catch24)`.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 1: `id = "AR(1)_1"`, `process = "AR(1)"`.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Caused by warning:</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> As of 0.1.14 the feature 'CO_f1ecac' returns a double instead of int</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">This warning is displayed once per session.</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

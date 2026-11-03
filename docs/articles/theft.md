@@ -51,8 +51,9 @@ The core function in `theft` is `calculate_features`. You can choose
 which subset of features to calculate with the `feature_set` argument.
 The choices are currently `"catch22"`, `"feasts"`, `"tsfeatures"`,
 `"tsfresh"`, `"tsfel"`, `"kats"`, and `"hctsa"`. In addition, four
-baseline feature sets: (i) `"fft"` (a set of 200 FFT coefficients from
-0-99 for both the squared magnitude and angle components); (ii)
+baseline feature sets: (i) `"fft"` (the fraction of spectral power in
+each of 100 equal-width frequency bands from 0 to 0.5 cycles per sample,
+which is comparable across series of different lengths); (ii)
 `"quantiles"` (a set of 101 quantiles); (iii) `"fftquantiles"` the union
 set of FFT coefficients and quantiles; and (iv) `"moments"` (the first
 four moments of the distribution: mean, variance, skewness, and
@@ -154,13 +155,13 @@ Here is an example with the `catch22` set:
 ``` r
 feature_matrix <- calculate_features(data = simData, feature_set = "catch22")
 head(feature_matrix)
-#>        id group feature_set                    names      values
-#> 1 AR(1)_1 AR(1)     catch22       DN_HistogramMode_5 -0.14319571
-#> 2 AR(1)_1 AR(1)     catch22      DN_HistogramMode_10 -0.38084145
-#> 3 AR(1)_1 AR(1)     catch22                CO_f1ecac  2.10193383
-#> 4 AR(1)_1 AR(1)     catch22           CO_FirstMin_ac  5.00000000
-#> 5 AR(1)_1 AR(1)     catch22 CO_HistogramAMI_even_2_5  0.07406701
-#> 6 AR(1)_1 AR(1)     catch22            CO_trev_1_num  0.22413119
+#>        id group feature_set                                   names     values
+#> 1 AR(1)_1 AR(1)     catch22                      DN_HistogramMode_5 -0.1431967
+#> 2 AR(1)_1 AR(1)     catch22                     DN_HistogramMode_10 -0.3808419
+#> 3 AR(1)_1 AR(1)     catch22           DN_OutlierInclude_p_001_mdrmd  0.1500000
+#> 4 AR(1)_1 AR(1)     catch22           DN_OutlierInclude_n_001_mdrmd  0.0900000
+#> 5 AR(1)_1 AR(1)     catch22 CO_FirstCrossing_acf_1e_pointOfCrossing  1.1019338
+#> 6 AR(1)_1 AR(1)     catch22                          CO_FirstMin_ac  5.0000000
 ```
 
 Note that `data` must be a `tsibble::tbl_ts` object, which has specified
