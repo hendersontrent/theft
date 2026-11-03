@@ -2,7 +2,7 @@
 % Please edit documentation in R/moment_calcs.R
 \name{skewness}
 \alias{skewness}
-\title{Calculate a skewness of a vector}
+\title{Calculate the skewness of a vector}
 \usage{
 skewness(y)
 }
@@ -13,7 +13,7 @@ skewness(y)
 \code{numeric} scalar of skewness
 }
 \description{
-Calculate a skewness of a vector
+Moment-ratio skewness \eqn{g_1 = m_3 / m_2^{3/2}}, where \eqn{m_k} is the \eqn{k}-th sample central moment (with divisor \eqn{n}).
 }
 \author{
 Trent Henderson

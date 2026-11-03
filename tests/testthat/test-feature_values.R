@@ -64,6 +64,36 @@ ragged_data <- function(){
         data.frame(id = "c", timepoint = 1:100, values = stats::rnorm(100, sd = 10000)))
 }
 
+test_that("tsfeatures retries without compengine on the original series", {
+
+  set.seed(3)
+  d <- rbind(data.frame(id = "a", timepoint = 1:30, values = stats::rnorm(30)),
+             data.frame(id = "b", timepoint = 1:30, values = stats::rnorm(30)))
+  d <- tsibble::as_tsibble(d, key = "id", index = "timepoint")
+
+  # Stand-in for tsfeatures: fails whenever compengine is requested, else returns each series' length
+
+  fake_tsfeatures <- function(tslist, features, parallel = FALSE, ...){
+    if("compengine" %in% features){
+      stop("compengine failed")
+    }
+    stopifnot(is.list(tslist), all(vapply(tslist, stats::is.ts, logical(1))))
+    data.frame(n = as.numeric(lengths(tslist)))
+  }
+
+  local_mocked_bindings(tsfeatures = fake_tsfeatures, .package = "tsfeatures")
+
+  expect_message(f <- suppressWarnings(calculate_features(d, feature_set = "tsfeatures", use_compengine = TRUE, warn = FALSE)),
+                 "Removing 'compengine'")
+  expect_equal(f$values[f$names == "n"], c(30, 30))
+
+  # Without compengine there is nothing to drop, so the error is reported directly
+
+  fail_tsfeatures <- function(tslist, features, parallel = FALSE, ...){stop("tsfeatures broke")}
+  local_mocked_bindings(tsfeatures = fail_tsfeatures, .package = "tsfeatures")
+  expect_error(suppressWarnings(calculate_features(d, feature_set = "tsfeatures", warn = FALSE)), "tsfeatures broke")
+})
+
 test_that("Kats receives each series in time order when series start at different times", {
 
   d <- ragged_data()

@@ -15,7 +15,7 @@ quantiles(y, quantiles = seq(0, 1, by = 0.01))
 \code{data.frame} of results
 }
 \description{
-Calculate a basic set of quantiles for an input time-series vector
+By default computes 101 quantiles, from 0 to 1 in steps of 0.01.
 }
 \author{
 Trent Henderson

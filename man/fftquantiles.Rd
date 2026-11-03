@@ -2,7 +2,7 @@
 % Please edit documentation in R/fftquantiles.R
 \name{fftquantiles}
 \alias{fftquantiles}
-\title{Calculate quantiles combined with FFT absolute value and angle coefficients}
+\title{Calculate quantiles combined with FFT magnitude and angle coefficients}
 \usage{
 fftquantiles(y, quantiles = seq(0, 1, by = 0.01), squared = TRUE)
 }
@@ -11,13 +11,13 @@ fftquantiles(y, quantiles = seq(0, 1, by = 0.01), squared = TRUE)
 
 \item{quantiles}{\code{numeric} vector of quantiles to calculate. Defaults to \code{seq(0, 1, by = 0.01)}}
 
-\item{squared}{\code{Boolean} specifying whether to compute squared magnitude (\code{|X[k]|^2}) instead of absolute value (\code{|X[k]|}). Defaults to \code{TRUE}}
+\item{squared}{\code{Boolean} specifying whether \code{fft_abs_*} is the squared magnitude (\code{|X[k]|^2}) rather than the magnitude (\code{|X[k]|}). Defaults to \code{TRUE}}
 }
 \value{
 \code{data.frame} of results
 }
 \description{
-Computes 101 quantiles together with the absolute value and angle of FFT coefficients 0-99, following the same convention as \code{tsfresh}'s \code{fft_coefficient} feature with \code{attr = "abs"} and \code{attr = "angle"}.
+Computes 101 quantiles (0 to 1 in steps of 0.01, by default) together with the magnitude and angle of FFT coefficients 0-99. The FFT features are those of \code{\link{fft_features}}: \code{fft_abs_*} is the squared magnitude unless \code{squared = FALSE}, angles are in degrees, and coefficients beyond the series' \code{floor(n/2) + 1} real-FFT coefficients are \code{NaN}.
 }
 \references{
 Christ, M., Braun, N., Neuffer, J., and Kempa-Liehr, A.W. (2018).

@@ -2,20 +2,20 @@
 % Please edit documentation in R/fft_features.R
 \name{fft_features}
 \alias{fft_features}
-\title{Calculate FFT absolute value and angle coefficients for an input time-series vector}
+\title{Calculate FFT magnitude and angle coefficients for an input time-series vector}
 \usage{
 fft_features(y, squared = TRUE)
 }
 \arguments{
 \item{y}{\code{numeric} vector of values}
 
-\item{squared}{\code{Boolean} specifying whether to compute squared magnitude (\code{|X[k]|^2}) instead of absolute value (\code{|X[k]|}). Defaults to \code{TRUE}}
+\item{squared}{\code{Boolean} specifying whether \code{fft_abs_*} is the squared magnitude (\code{|X[k]|^2}) rather than the magnitude (\code{|X[k]|}). Defaults to \code{TRUE}}
 }
 \value{
 \code{data.frame} of results
 }
 \description{
-Computes the absolute value and angle of FFT coefficients 0-99, following the same convention as \code{tsfresh}'s \code{fft_coefficient} feature with \code{attr = "abs"} and \code{attr = "angle"}.
+Computes the magnitude and angle of FFT coefficients 0-99. The coefficients are those of \code{tsfresh}'s \code{fft_coefficient} feature (the real FFT of the series), with two differences in the defaults: \code{fft_abs_*} is the squared magnitude \code{|X[k]|^2} unless \code{squared = FALSE}, which gives \code{tsfresh}'s \code{attr = "abs"}; \code{fft_angle_*} is in degrees, as \code{tsfresh}'s \code{attr = "angle"}. A series of length \code{n} has only \code{floor(n/2) + 1} real-FFT coefficients, so coefficients beyond that are \code{NaN}, as in \code{tsfresh}.
 }
 \references{
 Christ, M., Braun, N., Neuffer, J., and Kempa-Liehr, A.W. (2018).
